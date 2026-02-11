@@ -1,3 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "tailwindcss";
+
+
+@theme {
+  --color-brand: #180393;  
+  --color-brand-hover: #1e05b8;
+  --color-brand-soft: #2a1bb3;
+
+
+  --color-brand-50:  #ecebff;
+  --color-brand-100: #d6d4ff;
+  --color-brand-200: #b0abff;
+  --color-brand-300: #8a82ff;
+  --color-brand-400: #4f45e6;
+  --color-brand-500: #180393;
+  --color-brand-600: #14037a;
+  --color-brand-700: #100260;
+  --color-brand-800: #0b0145;
+  --color-brand-900: #06002b;
+}

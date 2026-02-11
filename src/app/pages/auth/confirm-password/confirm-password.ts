@@ -1,0 +1,96 @@
+import { Component } from '@angular/core';
+import { AuthLayout } from '../../../layouts/auth-layout/auth-layout';
+import { Router, RouterLink } from '@angular/router';
+import { BaseAuthComponent } from '../../../common/classes/base-auth-component';
+import { AuthService } from '../../../services/auth/auth-service';
+import { ResetPasswordService } from '../../../services/auth/reset-password-service';
+import { FormGroup, Validators, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormActionBtn } from '../../../shared/elements/form-action-btn/form-action-btn';
+import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
+import { ConfirmPwRequest } from '../../../models/auth/confirm-pw-request';
+import { finalize } from 'rxjs';
+import { Loader } from '../../../shared/elements/loader/loader';
+import { ValidationIcon } from "../../../shared/elements/validation-icon/validation-icon";
+
+@Component({
+  selector: 'app-confirm-password',
+  imports: [
+    AuthLayout,
+    RouterLink,
+    ReactiveFormsModule,
+    FormActionBtn,
+    TogglePasswordBtn,
+    Loader,
+    ValidationIcon,
+  ],
+  templateUrl: './confirm-password.html',
+  styleUrl: './confirm-password.css',
+})
+export class ConfirmPassword extends BaseAuthComponent {
+  confirmForm: FormGroup;
+  passwordChanged: boolean = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private resetPasswordService: ResetPasswordService,
+    private auth: AuthService,
+    private router: Router,
+  ) {
+    super();
+    this.confirmForm = this.fb.group({
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required]],
+    });
+  }
+
+  get password() {
+    return this.confirmForm.get('password');
+  }
+
+  get confirmPassword() {
+    return this.confirmForm.get('confirmPassword');
+  }
+
+  get passwordsMatch() {
+    return this.password?.value && this.password?.value === this.confirmPassword?.value;
+  }
+
+  reset() {
+    if (this.confirmForm.invalid) {
+      this.confirmForm.markAllAsTouched();
+      return;
+    }
+
+    if (!this.passwordsMatch) return;
+
+    const token = this.resetPasswordService.getToken();
+
+    if (!token) {
+      this.errorMessage = 'El tiempo válido para restablecer la contrseña ya expiró';
+      return;
+    }
+
+    this.isLoading.set(true);
+
+    const confirmData: ConfirmPwRequest = {
+      token,
+      new_password: this.password?.value,
+    };
+
+    this.auth
+      .confirmPassword(confirmData)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.passwordChanged = true;
+        },
+        error: (err) => {
+          this.errorMessage = 'No fue posible restablecer la contraseña';
+        },
+      });
+  }
+
+  toLogin() {
+    this.router.navigateByUrl('/login');
+  }
+}
