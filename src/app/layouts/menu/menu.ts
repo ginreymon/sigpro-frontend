@@ -3,6 +3,7 @@ import { MenuService } from '../../services/core/menu-service';
 import { Module } from '../../models/core/module';
 import { map } from 'rxjs';
 import { Router } from '@angular/router';
+import { Option } from '../../models/core/option';
 
 @Component({
   selector: 'app-menu',
@@ -65,11 +66,10 @@ export class Menu implements OnInit {
     });
   }
 
-  navigate(module_url: string | null, option_url: string | null) {
-    if (!module_url || !option_url) {
-      return;
-    }
-    this.menuService.showMenu = false;
-    this.router.navigateByUrl(`${module_url}/${option_url}`);
+  navigate(module: Module, option: Option) {
+    if (!module || !option) return;  
+  
+    this.menuService.showMenu = false;   
+    this.router.navigateByUrl(`${module.url}/${option.url}`);   
   }
 }

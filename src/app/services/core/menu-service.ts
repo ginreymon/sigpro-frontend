@@ -25,7 +25,7 @@ export class MenuService {
 
 
   constructor(private http: HttpClient) {
-    const savedMenu = localStorage.getItem('menu');
+    const savedMenu = localStorage.getItem(environment.MENU_NAME);
     if (savedMenu) {
       this.menuSubject.next(JSON.parse(savedMenu));
     }
@@ -35,7 +35,7 @@ export class MenuService {
     return this.http.get(this.path).pipe(
       tap((menu) => {
         this.menuSubject.next(menu as Module[]);
-        localStorage.setItem('menu', JSON.stringify(menu));
+        localStorage.setItem(environment.MENU_NAME, JSON.stringify(menu));
       }),
     );
   }

@@ -21,8 +21,11 @@ export const routes: Routes = [
     children: [
       { path: '', component: Home, pathMatch: 'full' },
       {
-        path: 'production',
-        children: [{ path: 'day-operation', component: Home, canActivate:[accessGuard], data:{ optionId: 5 } }],
+        path: 'admin',
+        children: [
+          { path: 'roles', component: Home, canActivate:[accessGuard], data:{ optionId: 5 } },
+          { path: 'users', component: Home, canActivate:[accessGuard], data:{ optionId: 5 } }
+        ],       
       },
     ],
   },
