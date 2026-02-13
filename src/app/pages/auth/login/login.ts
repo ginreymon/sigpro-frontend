@@ -10,6 +10,7 @@ import { BaseAuthComponent } from '../../../common/classes/base-auth-component';
 import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
 import { FormActionBtn } from '../../../shared/elements/form-action-btn/form-action-btn';
 import { Router } from '@angular/router';
+import { MenuService } from '../../../services/core/menu-service';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +25,7 @@ export class Login extends BaseAuthComponent {
     private fb: FormBuilder,
     private auth: AuthService,
     private router: Router,
+    private menu: MenuService,
   ) {
     super();
     this.loginForm = this.fb.group({
@@ -50,18 +52,22 @@ export class Login extends BaseAuthComponent {
 
     const loginData: LoginRequest = this.loginForm.value;
 
-    this.auth
-      .login(loginData)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (res) => {
-          this.auth.setAccessToken(res.access);
-          this.auth.setRefreshToken(res.refresh);
-          this.router.navigateByUrl('/');
-        },
-        error: (error) => {
-          this.errorMessage = 'Usuario o contraseña incorrectos';
-        },
-      });
+    this.auth.login(loginData).subscribe({
+      next: (res) => {
+        this.auth.setAccessToken(res.access);
+        this.auth.setRefreshToken(res.refresh);
+        this.menu
+          .loadMenu()
+          .pipe(finalize(() => this.isLoading.set(false)))
+          .subscribe({
+            next: (value) => {
+              this.router.navigateByUrl('/');
+            },
+          });
+      },
+      error: (error) => {
+        this.errorMessage = 'Usuario o contraseña incorrectos';
+      },
+    });
   }
 }

@@ -6,6 +6,7 @@ import { LoginRequest } from '../../models/auth/login-request';
 import { ResetPwRequest } from '../../models/auth/reset-pw-request';
 import { ConfirmPwRequest } from '../../models/auth/confirm-pw-request';
 import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -51,6 +52,10 @@ export class AuthService {
     });
   }
 
+  hasAccess(optionId: number): Observable<any> {
+    return this.http.get(`${this.path}/has-access/`, { params: { optionId } });
+  }
+
   setAccessToken(token: string) {
     localStorage.setItem(environment.ACCESS_TOKEN_NAME, token);
   }
@@ -65,6 +70,13 @@ export class AuthService {
 
   getRefreshToken() {
     return localStorage.getItem(environment.REFRESH_TOKEN_NAME);
+  }
+
+  getUser() {
+    const token = this.getAccessToken();
+    if (!token) return null;
+
+    return jwtDecode<any>(token);
   }
 
   private hasToken(): boolean {
