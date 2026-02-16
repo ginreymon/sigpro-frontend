@@ -67,9 +67,9 @@ export class Menu implements OnInit {
   }
 
   navigate(module: Module, option: Option) {
-    if (!module || !option) return;  
-  
-    this.menuService.showMenu = false;   
-    this.router.navigateByUrl(`${module.url}/${option.url}`);   
+    if (!module || !option) return;
+
+    this.menuService.showMenu = false;
+    this.router.navigateByUrl(`${module.url}/${option.url}`);
   }
 }
