@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuService } from '../../services/core/menu-service';
 import { Module } from '../../models/core/module';
 import { map } from 'rxjs';
 import { Router } from '@angular/router';
 import { Option } from '../../models/core/option';
+import { LocationOption } from '../../common/classes/location-option';
 
 @Component({
   selector: 'app-menu',
@@ -11,17 +11,17 @@ import { Option } from '../../models/core/option';
   templateUrl: './menu.html',
   styleUrl: './menu.css',
 })
-export class Menu implements OnInit {
+export class Menu extends LocationOption implements OnInit {
   modules: Module[] = [];
   menuReady: boolean = false;
 
-  constructor(
-    private menuService: MenuService,
-    private router: Router,
-  ) {}
+  constructor(private router: Router) {
+    super();
+  }
 
   ngOnInit(): void {
     this.initialize();
+    this.initializeMenu();
   }
 
   ngAfterViewInit() {
@@ -34,7 +34,7 @@ export class Menu implements OnInit {
     return this.menuService.showMenu;
   }
 
-  initialize() {
+  initializeMenu() {
     this.menuService.menu$
       .pipe(
         map((menu) => {

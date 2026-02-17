@@ -6,8 +6,8 @@ import { NotFound } from './pages/not-found/not-found';
 import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
 import { ConfirmPassword } from './pages/auth/confirm-password/confirm-password';
 import { authGuard } from './guards/auth-guard';
-import { accessGuard } from './guards/access-guard';
 import { NotAuthorized } from './pages/not-authorized/not-authorized';
+import { getDynamicRoutes } from './routes/get-dynamic-routes';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -18,16 +18,7 @@ export const routes: Routes = [
     path: '',
     component: Layout,
     canActivate: [authGuard],
-    children: [
-      { path: '', component: Home, pathMatch: 'full' },
-      {
-        path: 'admin',
-        children: [
-          { path: 'roles', component: Home, canActivate:[accessGuard], data:{ optionId: 5 } },
-          { path: 'users', component: Home, canActivate:[accessGuard], data:{ optionId: 5 } }
-        ],       
-      },
-    ],
+    children: [{ path: '', component: Home, pathMatch: 'full' }, ...getDynamicRoutes()],
   },
   { path: '**', component: NotFound },
 ];
