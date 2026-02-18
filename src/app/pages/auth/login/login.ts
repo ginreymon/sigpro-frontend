@@ -52,12 +52,13 @@ export class Login extends BaseAuthComponent {
 
     const loginData: LoginRequest = this.loginForm.value;
 
-    this.auth.login(loginData).subscribe({
+    this.auth.login(loginData)
+    .pipe(finalize(() => this.isLoading.set(false)))
+    .subscribe({
       next: (res) => {
         this.auth.setAccessToken(res.access);
-        this.auth.setRefreshToken(res.refresh);
-        this.menu
-          .loadMenu()
+        this.auth.setRefreshToken(res.refresh);       
+        this.menu.loadMenu()
           .pipe(finalize(() => this.isLoading.set(false)))
           .subscribe({
             next: (value) => {
