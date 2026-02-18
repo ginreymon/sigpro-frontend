@@ -58,13 +58,11 @@ export class Login extends BaseAuthComponent {
       next: (res) => {
         this.auth.setAccessToken(res.access);
         this.auth.setRefreshToken(res.refresh);       
-        this.menu.loadMenu()
-          .pipe(finalize(() => this.isLoading.set(false)))
-          .subscribe({
-            next: (value) => {
-              this.router.navigateByUrl('/');
-            },
-          });
+        this.menu.loadMenu().subscribe({
+          next: () => {
+            this.router.navigateByUrl('/');
+          },
+        });
       },
       error: (error) => {
         this.errorMessage = 'Usuario o contraseña incorrectos';
