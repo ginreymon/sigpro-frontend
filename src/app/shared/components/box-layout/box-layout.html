@@ -1,0 +1,19 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-10 overflow-x-hidden overflow-y-auto transition-transform duration-300">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+
+        <h2 class="text-lg font-semibold text-gray-900">
+            {{ title }}
+        </h2>
+
+        @if(message){
+        <p class="text-gray-600 mt-2">{{ message }}</p>
+        }
+
+        <ng-content select="[box-content]"></ng-content>
+
+        <div class="mt-2 flex justify-end gap-3">
+            <ng-content select="[box-buttons]"></ng-content>
+        </div>
+
+    </div>
+</div>

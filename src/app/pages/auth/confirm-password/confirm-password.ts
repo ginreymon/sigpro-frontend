@@ -11,6 +11,7 @@ import { ConfirmPwRequest } from '../../../models/auth/confirm-pw-request';
 import { finalize } from 'rxjs';
 import { Loader } from '../../../shared/elements/loader/loader';
 import { ValidationIcon } from "../../../shared/elements/validation-icon/validation-icon";
+import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 
 @Component({
   selector: 'app-confirm-password',
@@ -22,7 +23,8 @@ import { ValidationIcon } from "../../../shared/elements/validation-icon/validat
     TogglePasswordBtn,
     Loader,
     ValidationIcon,
-  ],
+    UiIcon
+],
   templateUrl: './confirm-password.html',
   styleUrl: './confirm-password.css',
 })

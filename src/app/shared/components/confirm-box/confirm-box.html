@@ -1,0 +1,8 @@
+@if(openModal()){
+<app-box-layout [message]="message" [title]="title">
+  @if(!hideCancelBtn){
+    <app-ui-button box-buttons [intent]="'cancel'" (onClick)="close()">Cancelar</app-ui-button>
+  }
+  <app-ui-button box-buttons (onClick)="accept()">Aceptar</app-ui-button>
+</app-box-layout>
+}

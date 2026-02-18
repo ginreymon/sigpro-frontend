@@ -3,10 +3,11 @@ import { AuthService } from '../../services/auth/auth-service';
 import { HeaderMenuItem } from '../../shared/elements/header-menu-item/header-menu-item';
 import { LocationOption } from '../../common/classes/location-option';
 import { RouterLink } from "@angular/router";
+import { UiIcon } from '../../shared/elements/ui-icon/ui-icon';
 
 @Component({
   selector: 'app-header',
-  imports: [HeaderMenuItem, RouterLink],
+  imports: [HeaderMenuItem, RouterLink, UiIcon],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })

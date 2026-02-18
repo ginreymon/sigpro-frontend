@@ -1,0 +1,24 @@
+@if(openModal()){
+<div class="fixed top-14 right-4 z-[60] pointer-events-none">
+  
+  <div [class]="'pointer-events-auto bg-white shadow-xl rounded-lg p-4 w-80 transform transition-all duration-300 ease-out '+(openModal()?'translate-x-0 opacity-100':'translate-x-full opacity-0')">
+
+    <div class="flex items-start gap-3">
+      
+      <div class="mt-1"> 
+        <app-ui-icon [iconName]="iconName" [class]="'w-5 h-5'"></app-ui-icon>
+      </div>
+    
+      <div class="flex-1">
+        <h4 class="text-sm font-semibold text-gray-900"> {{ title }} </h4>
+        <p class="text-sm text-gray-600"> {{ message }} </p>
+      </div>      
+    
+      <app-ui-close-button (onClose)="close()"></app-ui-close-button>
+
+    </div>
+
+  </div>
+
+</div>
+}

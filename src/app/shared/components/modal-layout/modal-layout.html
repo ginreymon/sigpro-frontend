@@ -1,0 +1,31 @@
+@if(openModal()){
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 bg-opacity-10 overflow-x-hidden overflow-y-auto text-gray-300 transition-transform duration-300">
+
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-xl">
+
+    <div class="flex items-center justify-between border-b border-default pb-4 md:pb-5">
+
+      <h3 class="text-lg font-medium text-heading text-gray-900">{{ title }}</h3>
+
+      <app-ui-close-button (onClose)="close()"></app-ui-close-button>
+
+    </div>
+
+    <div class="space-y-4 md:space-y-6 py-4 md:py-6 text-gray-600">
+
+      <ng-content></ng-content>
+
+    </div>
+
+    <div class="flex justify-end items-center border-t border-default space-x-4 pt-4 md:pt-5">
+
+      <app-ui-button [intent]="'cancel'" (onClick)="close()"> Cancelar </app-ui-button>
+      
+      <app-ui-button (onClick)="accept()"> Aceptar </app-ui-button>
+
+    </div>
+
+  </div>
+  
+</div>
+}

@@ -1,9 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { getInputIconClasses } from '../../../common/functions/get-input-icon-classes';
+import { UiIcon } from '../ui-icon/ui-icon';
+
 
 @Component({
   selector: 'app-toggle-password-btn',
-  imports: [],
+  imports: [UiIcon],
   templateUrl: './toggle-password-btn.html',
   styleUrl: './toggle-password-btn.css',
 })
