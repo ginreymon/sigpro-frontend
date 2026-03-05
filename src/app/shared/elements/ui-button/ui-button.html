@@ -1,3 +1,20 @@
-<button [class]="'px-4 py-2 rounded border transition-all duration-200 cursor-pointer border-gray-300  '+ intents[intent]" (click)="clickHandle()">
-    <ng-content></ng-content>
+<button [class]="`
+    h-8
+    px-4
+    text-sm
+    rounded
+    inline-flex
+    items-center
+    justify-center
+    gap-2
+    transition-all
+    duration-200
+    cursor-pointer
+    border   
+    border-gray-300
+    font-medium
+    ${intents[intent]}
+    ${classNames}`
+  " [disabled]="disabled" [type]="type" (click)="clickHandler()">
+  <ng-content></ng-content>
 </button>

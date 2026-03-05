@@ -19,13 +19,12 @@
       </div>
 
       <div class="border-t border-gray-200 pt-4 flex justify-end gap-3">
-        <app-ui-button intent="cancel" (onClick)="close()">
-          Cancelar
-        </app-ui-button>
-
-        <app-ui-button (onClick)="accept()">
-          Aceptar
-        </app-ui-button>
+        @if(!hideCancel){
+        <app-ui-button intent="cancel" (onClick)="close()"> Cancelar </app-ui-button>
+        }
+        @if(!hideAccept){
+        <app-ui-button (onClick)="accept()"> Aceptar </app-ui-button>
+        }
       </div>
 
     </div>

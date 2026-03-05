@@ -7,6 +7,7 @@ import { ResetPwRequest } from '../../models/auth/reset-pw-request';
 import { ConfirmPwRequest } from '../../models/auth/confirm-pw-request';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
+import { RegisterRequest } from '../../models/auth/register-request';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +45,10 @@ export class AuthService {
 
   confirmPassword(data: ConfirmPwRequest): Observable<any> {
     return this.http.post(`${this.path}/password-reset-confirm/`, data);
+  }
+
+  registerRequest(data: RegisterRequest): Observable<any> {
+    return this.http.post(`${this.path}/register/`, data);
   }
 
   refreshToken(): Observable<any> {

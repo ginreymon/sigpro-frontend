@@ -6,12 +6,12 @@ export class BaseAuthComponent {
   isLoading = signal(false);
   errorMessage: string | null = null;
   showPassword: boolean = false;
-  
+
   setShowPassword(value: boolean) {
     this.showPassword = value;
   }
 
-  getInputClasses(control: AbstractControl | null, misMatch:boolean = false) {
-    return getInputClasses(control, misMatch); 
+  getInputClasses(control: AbstractControl | null, misMatch: boolean = false) {
+    return getInputClasses(control, misMatch, 'w-full py-1 pl-3 pr-10');
   }
 }

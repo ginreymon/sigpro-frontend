@@ -1,0 +1,81 @@
+<app-work-space-layout >    
+    <div main-content class="h-full">
+        <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
+            (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">    
+        </app-data-table>
+    </div>
+</app-work-space-layout>
+
+<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()"></app-confirm-box>
+
+<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()">  
+  <div class="mb-4">
+    <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ rowObject.name }} </h3>
+    <div class="space-y-2 text-sm">
+      <p> <strong>Opciones:</strong>  {{ rowObject.options?.length }} </p>
+    </div>
+  </div>
+  
+
+  @if(rowObject.options?.length){
+  <div class="mt-4 mb-2 grid grid-cols-1 md:grid-cols-1 gap-3 py-2 items-stretch">
+
+    @for(option of rowObject.options; track option){
+    <app-ui-option-card [disabled]="true">
+
+      <h4 class="text-xl font-semibold text-gray-700 mb-2"> {{ option.name }} </h4>
+      <p class="mb-2"> {{ option.description }} </p>
+      <app-ui-badge [active]="option.state" [className]=""></app-ui-badge> 
+
+      <div class="mt-4 border-t border-slate-200 pt-4">    
+
+        <div class="space-y-1 text-sm text-slate-600">        
+            <p> <strong>Ubicación:</strong> {{ rowObject.name }} > {{ option.name }} </p>      
+        </div>
+
+    </div>
+
+    </app-ui-option-card>
+
+    }
+  </div>
+  }
+</app-side-modal-layout>
+
+<app-modal-layout [title]="title" [visible]="modalVisible()" (onAccept)="submit()" (onCancel)="closeModelForm()">    
+  <form [formGroup]="modelForm">  
+    <fieldset [disabled]="showLoader()">
+
+      <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
+        <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
+      </app-ui-form-field>
+      
+      <app-ui-form-field [label]="'Opciones'" [controlName]="'option_ids'"> 
+        <div class="max-h-64 overflow-y-auto">  
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 p-1 items-stretch">
+  
+            @for (option of options(); track option.id) {
+              <app-ui-option-card (onToggle)="toggleOption(option.id)" [selected]="isSelected(option.id)">
+                <div class="font-medium text-sm">
+                  {{ option.title }}
+                </div>
+                <div class="text-xs text-gray-500">
+                  {{ option.description || 'Sin descripción' }}
+                </div>
+              </app-ui-option-card>              
+            }
+  
+          </div>  
+        </div>
+      </app-ui-form-field>     
+
+      @if(errorMessage()){
+        <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+      }
+
+    </fieldset>  
+  </form>
+</app-modal-layout>
+
+<app-loader [showLoader]="showLoader()"></app-loader>

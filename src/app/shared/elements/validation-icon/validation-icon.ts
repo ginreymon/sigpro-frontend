@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { getInputIconClasses } from '../../../common/functions/get-input-icon-classes';
 import { UiIcon } from '../ui-icon/ui-icon';
-
+import { BaseInputIcon } from '../../../common/classes/base-input-icon';
 
 @Component({
   selector: 'app-validation-icon',
@@ -9,12 +8,6 @@ import { UiIcon } from '../ui-icon/ui-icon';
   templateUrl: './validation-icon.html',
   styleUrl: './validation-icon.css',
 })
-export class ValidationIcon {
-  
-  @Input() invalid: boolean = false;
+export class ValidationIcon extends BaseInputIcon {
   @Input() matchPattern: boolean = false;
-
-  get classes() {
-    return getInputIconClasses(this.invalid);
-  }
 }

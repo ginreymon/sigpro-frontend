@@ -1,0 +1,42 @@
+<div class="w-full flex flex-row max-h-full mb-4">
+
+    <div class="w-full flex items-center justify-between">
+
+        <div class="text-sm text-gray-600">
+            <app-searcher (onSearch)="searchHandler($event)"></app-searcher>
+        </div>
+
+        <div class="flex items-center gap-1">
+
+            @if (tableToolsButtons.filter.enabled) {
+            <app-ui-button [intent]="'action'" (onClick)="actionHandler('filter')">
+                <app-ui-icon [iconName]="'filter'" class="h-5 w-5"></app-ui-icon>
+                Filtro
+            </app-ui-button>
+            }
+
+            @if (tableToolsButtons.columns.enabled) {
+            <app-ui-button [intent]="'action'" (onClick)="actionHandler('columns')">
+                <app-ui-icon [iconName]="'columns'" class="h-5 w-5"></app-ui-icon>
+                Columnas
+            </app-ui-button>
+            }
+
+            @if (tableToolsButtons.export.enabled) {
+            <app-ui-button [intent]="'action'" (onClick)="actionHandler('export')">
+                <app-ui-icon [iconName]="'download'" class="h-5 w-5"></app-ui-icon>
+                Exportar
+            </app-ui-button>
+            }
+
+            @if (tableToolsButtons.addItem.enabled) {
+            <app-ui-button [intent]="'accept'" (onClick)="actionHandler('addItem')">
+                <app-ui-icon [iconName]="'circlePlus'" class="h-5 w-5"></app-ui-icon>
+                Agregar
+            </app-ui-button>
+            }
+
+        </div>
+    </div>
+
+</div>

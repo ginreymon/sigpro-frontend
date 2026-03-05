@@ -27,7 +27,7 @@ export class Menu extends LocationOption implements OnInit {
   ngAfterViewInit() {
     setTimeout(() => {
       this.menuReady = true;
-    });
+    }, 500);
   }
 
   get showMenu() {

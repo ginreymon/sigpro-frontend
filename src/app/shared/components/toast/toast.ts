@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { ModalBase } from '../../../common/classes/modal-base';
 import { UiCloseButton } from '../../elements/ui-close-button/ui-close-button';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
+import { DialogService } from '../../../services/common/dialog-service';
 
 @Component({
   selector: 'app-toast',
@@ -12,7 +13,7 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
 export class Toast extends ModalBase {
   private autoCloseTimer: any;
   private duration = 2500; // 2.5 seconds
-
+ 
   @Input() iconName: string = '';
   @Input() override set visible(value: boolean) {
     this.openModal.set(value);
@@ -28,7 +29,7 @@ export class Toast extends ModalBase {
     this.clearTimer();
 
     this.autoCloseTimer = setTimeout(() => {
-      this.close();
+      this.closeToast();
     }, this.duration);
   }
 

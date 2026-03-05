@@ -1,0 +1,98 @@
+<div class="h-full flex flex-col justify-between">
+
+    <app-table-tools class="shrink-0" (onSearch)="searchHandler($event)" [tableToolsButtons]="_tableToolsButtons" (onClick)="toolsHandler($event)"></app-table-tools>
+
+    <div class="flex-1 overflow-auto min-h-0">
+
+        <table class="w-full text-sm border-collapse">
+
+            <thead class="bg-gray-200 text-gray-700 sticky top-0 z-20">
+                <tr>
+                    @for (col of _columns; track col) {
+                        @if(!col.hidden){
+                        <th [class]="`px-6 py-3 title-font tracking-wider font-medium ${getAlignment(col.align)} ${col.classes}`">
+                            {{ col.label }}
+                        </th>
+                        }
+                    }
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200 text-gray-900">
+                @for (row of _data; track row; let i = $index) {
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+
+                    @for (col of _columns; track col) {
+
+                        @if(!col.hidden){
+                        <td [class]="`px-6 py-3 ${getAlignment(col.align)} ${col.classes}`">
+
+                            @if(col.field && col.type != 'tableActionType' && col.type != 'template' && col.type != 'index'){                                
+                                @if(col.type == 'boolean'){
+                                    <app-ui-checkbox [(ngModel)]="row.obj[col.field]" [ngModelOptions]="{standalone: true}" [disabled]="true"></app-ui-checkbox>
+                                }@else{
+                                    {{ row.obj[col.field] }}
+                                }                            
+                            }
+
+                            @if(col.type == 'tableActionType' && _actions.view.enabled){
+                            <app-ui-tooltip [message]="'Ver'">
+                                <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,'view')">
+                                    <app-ui-icon [iconName]="'eye'" [class]="`h-5 w-5 ${buttonClass}`"></app-ui-icon>
+                                </button>
+                            </app-ui-tooltip>
+                            }
+
+                            @if(col.type == 'tableActionType' && _actions.edit.enabled){
+                            <app-ui-tooltip [message]="'Editar'">
+                                <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,'edit')">
+                                    <app-ui-icon [iconName]="'pencil'" [class]="`h-5 w-5 ${buttonClass}`"></app-ui-icon>
+                                </button>
+                            </app-ui-tooltip>
+                            }
+
+                            @if(col.type == 'tableActionType' && _actions.delete.enabled){
+                            <app-ui-tooltip [message]="'Eliminar'">
+                                <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,'delete')">
+                                    <app-ui-icon [iconName]="'trash'" [class]="`h-5 w-5 ${buttonClass}`"></app-ui-icon>
+                                </button>
+                            </app-ui-tooltip>
+                            }
+
+                            @if(col.type == 'template'){
+                            <ng-container *ngTemplateOutlet="templateMap.get(col.templateName!); context: { $implicit: row.obj }"></ng-container>
+                            }
+
+                            @if(col.type == 'index'){
+                            {{ (i + 1) + offset }}
+                            }
+
+                        </td>
+                        }
+                    }
+                </tr>
+                }
+            </tbody>
+
+            <tfoot class="border-t border-gray-300 divide-y divide-gray-200">
+                @for (row of footer; track row) {
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    @for (col of _columns; track col) {
+                        @if(col.field && !col.hidden){
+                        <td [class]="`px-6 py-3 ${getAlignment(col.align)} ${col.classes}`">
+                            {{ row[col.field] }}
+                        </td>
+                        }
+                    }
+                </tr>
+                }
+            </tfoot>
+
+        </table>
+
+    </div>
+
+    <app-table-pager class="shrink-0" [totalItems]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
+        (onChange)="pagerHandler($event)"></app-table-pager>
+
+</div>

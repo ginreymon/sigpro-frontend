@@ -1,0 +1,62 @@
+<div class="w-full flex items-center justify-between mt-4">
+
+    <div class="flex items-center gap-2 text-sm text-gray-600 w-full">
+    
+        <span class="font-medium">{{ startItem }}</span>
+        –
+        <span class="font-medium">{{ endItem }}</span>
+        de
+        <span class="font-medium">{{ totalItems }}</span>
+        resultados
+    
+        <app-ui-select [items]="rowsPerPage" [model]="pageSize" (onChange)="changePageSize($event)"></app-ui-select>        
+    
+    </div>
+
+    <div class="flex items-center gap-1">
+
+        <app-ui-button [intent]="'hover'" (click)="goToPage(1)" [disabled]="currentPage == 1">
+            <app-ui-icon [iconName]="'chevronLeftToLine'" [class]="'w-5 h-5'"></app-ui-icon>
+        </app-ui-button>
+
+        <app-ui-button [intent]="'hover'" (click)="goToPage(currentPage - 1)" [disabled]="currentPage == 1">
+            <app-ui-icon [iconName]="'chevronLeft'" [class]="'w-5 h-5 py-0.5'"></app-ui-icon>
+        </app-ui-button>
+
+        @if(showFirst){
+        <app-ui-button [intent]="currentPage == 1? 'accept':'hover'" (click)="goToPage(1)">
+            1
+        </app-ui-button>
+        }
+        
+        @if (showLeftEllipsis) {
+        <span class="px-2 text-gray-400">...</span>
+        }
+
+        @for (page of visiblePages; track page) {
+        <app-ui-button [intent]="page == currentPage? 'accept':'hover'" (click)="goToPage(page)">
+            {{ page }}
+        </app-ui-button>
+        }
+
+        @if (showRightEllipsis) {
+        <span class="px-2 text-gray-400">...</span>
+        }
+
+        @if(showLast){
+        <app-ui-button [intent]="totalPages == currentPage? 'accept':'hover'" (click)="goToPage(totalPages)">
+            {{ totalPages }}
+        </app-ui-button>
+        }        
+
+        <app-ui-button [intent]="'hover'" (click)="goToPage(currentPage + 1)" [disabled]="currentPage == totalPages">
+            <app-ui-icon [iconName]="'chevronRight'" [class]="'w-5 h-5 py-0.5'"></app-ui-icon>
+        </app-ui-button>
+
+        <app-ui-button [intent]="'hover'" (click)="goToPage(totalPages)" [disabled]="currentPage == totalPages">
+            <app-ui-icon [iconName]="'chevronRightToLine'" [class]="'w-5 h-5'"></app-ui-icon>
+        </app-ui-button>
+
+    </div>
+
+</div>

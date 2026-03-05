@@ -1,0 +1,201 @@
+import { Component, signal } from '@angular/core';
+import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
+import { DataTable } from '../../../shared/components/data-table/data-table';
+import { EmployeeService } from '../../../services/production/employee-service';
+import { Employee } from '../../../models/production/employee';
+import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
+import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
+import { TableTemplate } from '../../../directives/table-template';
+import { UiLabelButton } from '../../../shared/elements/ui-label-button/ui-label-button';
+import { ConfirmBox } from '../../../shared/components/confirm-box/confirm-box';
+import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
+import { BaseCrudPage } from '../../../common/classes/base-crud-page';
+import { RoleService } from '../../../services/user/role-service';
+import { Role } from '../../../models/user/role';
+import { QueryParams } from '../../../common/interfaces/query-params';
+import { finalize } from 'rxjs';
+import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../../services/auth/auth-service';
+import { UiInput } from '../../../shared/elements/ui-input/ui-input';
+import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
+import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
+import { ValidationIcon } from '../../../shared/elements/validation-icon/validation-icon';
+import { RegisterRequest } from '../../../models/auth/register-request';
+import { UserService } from '../../../services/user/user-service';
+import { TableActionConfig, TableActionType } from '../../../common/interfaces/table-actions';
+import { User } from '../../../models/user/user';
+import { Loader } from "../../../shared/elements/loader/loader";
+import { UiBadge } from "../../../shared/elements/ui-badge/ui-badge";
+import { DatePipe } from '@angular/common';
+
+
+@Component({
+  selector: 'app-users',
+  imports: [
+    WorkSpaceLayout,
+    DataTable,
+    TableTemplate,
+    SideModalLayout,
+    ModalLayout,
+    UiLabelButton,
+    ConfirmBox,
+    UiTooltip,
+    UiFormField,
+    UiOptionCard,
+    ReactiveFormsModule,
+    UiInput,
+    UiErrorMessage,
+    TogglePasswordBtn,
+    ValidationIcon,
+    Loader,
+    UiBadge,
+    DatePipe
+],
+  templateUrl: './users.html',
+  styleUrl: './users.css',
+})
+export class Users extends BaseCrudPage<Employee> {
+  roles = signal<Role[]>([]);
+  showPassword = signal<boolean>(false);
+
+  constructor(
+    private employeeService: EmployeeService,
+    private roleService: RoleService,
+    private authService: AuthService,
+    private userService: UserService,
+  ) {
+    super(employeeService);
+    this.actions.edit = { enabled: true, title: 'Editar usuario' };
+    this.actions.view = { enabled: true, title: 'Ver detalle' };
+    this.getRoles();
+  }
+
+  protected override initializeColumns(): void {
+    this.columns = [
+      { field: 'first_name', label: 'Nombre' },
+      { field: 'last_name1', label: 'Apellido' },
+      { field: 'id_number', label: 'Cédula' },
+      { type: 'template', label: 'Acciones', templateName: 'createUserTemplate', align: 'center' },
+    ];
+  }
+
+  protected override initializeModelForm(): void {
+    const passwordValidators = this.actionType == 'create' ? [Validators.required, Validators.minLength(8)] : [];
+    
+    this.modelForm = this.fb.group({
+      username: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^[A-Za-z0-9._]+$/)], ],
+      password: [null, passwordValidators],
+      confirmPassword: [null, passwordValidators],
+      role: [null, Validators.required],
+    });
+  }
+
+  get username() {
+    return this.modelForm.get('username');
+  }
+
+  get password() {
+    return this.modelForm.get('password');
+  }
+
+  get confirmPassword() {
+    return this.modelForm.get('confirmPassword');
+  }
+
+  get role() {
+    return this.modelForm.get('role');
+  }
+
+  get passwordsMatch() {
+    return this.password?.value && this.password?.value === this.confirmPassword?.value;
+  }
+
+  protected override actionHandler(row: {
+    obj: Employee;
+    type: TableActionType;
+    action: TableActionConfig;
+  }): void {
+    if (row.type == 'edit') {
+      this.modelForm.patchValue(row.obj);
+      this.role?.setValue(row.obj.groups[0]?.id ?? null);
+    }
+    super.actionHandler(row);
+  }
+
+  protected override submit(): void {
+    if (!this.validateModelForm()) return;
+    this.showLoader.set(true);
+
+    const group_id = this.role?.value;
+
+    const register: RegisterRequest = {
+      ...this.modelForm.value,
+      employee_local_id: this.rowObject.id,
+      group_id,
+    };
+
+    const user: Partial<User> = {
+      username: this.username?.value,
+      id: this.rowObject.user_id ?? undefined,
+      group_id,
+    };
+
+    const request$ =
+      this.actionType == 'create'
+        ? this.authService.registerRequest(register)
+        : this.userService.update(this.rowObject.user_id!, user);
+
+    request$.pipe(finalize(() => this.reload(() => this.showLoader.set(false)))).subscribe({
+      next: () => this.closeModelForm(),
+      error: (err) => {
+        this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
+      },
+    });
+  }
+
+  createAccount(obj: Employee) {
+    this.rowObject = obj;
+    this.actionType = 'create';
+    this.dialogService.openModal(`Crear cuenta - ${obj.first_name} ${obj.last_name1}`);
+  }
+
+  activateAccount(obj: Employee) {
+    const title = obj.is_account_active ? 'Desactivar cuenta' : 'Activar cuenta';
+    this.dialogService.openConfirm(title, '¿Está seguro de realizar esta acción?', () => {
+      this.showLoader.set(true);
+      const user: Partial<User> = { is_active: !obj.is_account_active };
+      this.userService
+        .update(obj.user_id!, user)
+        .pipe(finalize(() => this.reload(() => this.showLoader.set(false))))
+        .subscribe({
+          next: () => this.dialogService.closeConfirm(),
+          error: () => this.dialogService.closeConfirm(),
+        });
+    });
+  }
+
+  getRoles() {
+    this.wslService.start();
+    const params: QueryParams = { page: 1, limit: 100 };
+    this.roleService
+      .getAll(params)
+      .pipe(finalize(() => this.wslService.end()))
+      .subscribe((resp) => this.roles.set([...resp.results]));
+  }
+
+  isSelected(id: number) {
+    return this.role?.value == id;
+  }
+
+  toggleShowPassword(value: boolean) {
+    this.showPassword.set(value);
+  }
+
+  toggleRole(id: number) {
+    const newValue = this.isSelected(id) ? null : id;
+    this.role?.setValue(newValue);
+    this.role?.markAsTouched();
+  }
+}
