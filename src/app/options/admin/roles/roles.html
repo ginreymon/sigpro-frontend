@@ -10,13 +10,19 @@
 <app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()"></app-confirm-box>
 
 <app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()">  
-  <div class="mb-4">
-    <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ rowObject.name }} </h3>
-    <div class="space-y-2 text-sm">
-      <p> <strong>Opciones:</strong>  {{ rowObject.options?.length }} </p>
-    </div>
-  </div>
   
+  <div class="mb-4 flex items-center gap-4">
+  
+    <app-char-square>
+      {{ rowObject.name?.toUpperCase()?.charAt(0) }}
+    </app-char-square>
+  
+    <div>
+      <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ rowObject.name }} </h3>
+      <p class="text-sm text-slate-500 mb-0.5"> Opciones: {{rowObject.options?.length }} </p>
+    </div>
+    
+  </div>
 
   @if(rowObject.options?.length){
   <div class="mt-4 mb-2 grid grid-cols-1 md:grid-cols-1 gap-3 py-2 items-stretch">

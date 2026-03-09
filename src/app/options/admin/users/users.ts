@@ -8,7 +8,6 @@ import { ModalLayout } from '../../../shared/components/modal-layout/modal-layou
 import { TableTemplate } from '../../../directives/table-template';
 import { UiLabelButton } from '../../../shared/elements/ui-label-button/ui-label-button';
 import { ConfirmBox } from '../../../shared/components/confirm-box/confirm-box';
-import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { RoleService } from '../../../services/user/role-service';
 import { Role } from '../../../models/user/role';
@@ -24,11 +23,12 @@ import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/
 import { ValidationIcon } from '../../../shared/elements/validation-icon/validation-icon';
 import { RegisterRequest } from '../../../models/auth/register-request';
 import { UserService } from '../../../services/user/user-service';
-import { TableActionConfig, TableActionType } from '../../../common/interfaces/table-actions';
 import { User } from '../../../models/user/user';
 import { Loader } from "../../../shared/elements/loader/loader";
 import { UiBadge } from "../../../shared/elements/ui-badge/ui-badge";
 import { DatePipe } from '@angular/common';
+import { TableActionEvent } from '../../../common/interfaces/table-action-event';
+import { CharSquare } from "../../../shared/components/char-square/char-square";
 
 
 @Component({
@@ -41,7 +41,6 @@ import { DatePipe } from '@angular/common';
     ModalLayout,
     UiLabelButton,
     ConfirmBox,
-    UiTooltip,
     UiFormField,
     UiOptionCard,
     ReactiveFormsModule,
@@ -51,8 +50,9 @@ import { DatePipe } from '@angular/common';
     ValidationIcon,
     Loader,
     UiBadge,
-    DatePipe
-],
+    DatePipe,
+    CharSquare,
+  ],
   templateUrl: './users.html',
   styleUrl: './users.css',
 })
@@ -68,7 +68,7 @@ export class Users extends BaseCrudPage<Employee> {
   ) {
     super(employeeService);
     this.actions.edit = { enabled: true, title: 'Editar usuario' };
-    this.actions.view = { enabled: true, title: 'Ver detalle' };
+    this.actions.view = { enabled: true, title: 'Ver usuario' };
     this.getRoles();
   }
 
@@ -77,15 +77,21 @@ export class Users extends BaseCrudPage<Employee> {
       { field: 'first_name', label: 'Nombre' },
       { field: 'last_name1', label: 'Apellido' },
       { field: 'id_number', label: 'Cédula' },
+      { field: 'username', label: 'Usuario' },
+      { type: 'template', label: 'Estado', templateName: 'userStatusTemplate' },
       { type: 'template', label: 'Acciones', templateName: 'createUserTemplate', align: 'center' },
     ];
   }
 
   protected override initializeModelForm(): void {
-    const passwordValidators = this.actionType == 'create' ? [Validators.required, Validators.minLength(8)] : [];
-    
+    const passwordValidators =
+      this.actionType == 'create' ? [Validators.required, Validators.minLength(8)] : [];
+
     this.modelForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^[A-Za-z0-9._]+$/)], ],
+      username: [
+        '',
+        [Validators.required, Validators.minLength(8), Validators.pattern(/^[A-Za-z0-9._]+$/)],
+      ],
       password: [null, passwordValidators],
       confirmPassword: [null, passwordValidators],
       role: [null, Validators.required],
@@ -112,16 +118,15 @@ export class Users extends BaseCrudPage<Employee> {
     return this.password?.value && this.password?.value === this.confirmPassword?.value;
   }
 
-  protected override actionHandler(row: {
-    obj: Employee;
-    type: TableActionType;
-    action: TableActionConfig;
-  }): void {
-    if (row.type == 'edit') {
-      this.modelForm.patchValue(row.obj);
-      this.role?.setValue(row.obj.groups[0]?.id ?? null);
+  protected override actionHandler(event: TableActionEvent<Employee>): void {
+    if (event.type == 'edit' && !event.obj.has_account) return;
+
+    super.actionHandler(event);
+
+    if (event.type == 'edit') {
+      this.modelForm.patchValue(event.obj);
+      this.role?.setValue(event.obj.groups[0]?.id ?? null);
     }
-    super.actionHandler(row);
   }
 
   protected override submit(): void {

@@ -21,9 +21,9 @@
 <app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()">  
     <div class="mb-4 flex items-center gap-4">
     
-        <div class="size-24 bg-slate-200 rounded flex items-center justify-center text-5xl font-bold text-slate-600">
+        <app-char-square>
             {{ rowObject.number }}
-        </div>
+        </app-char-square>
     
         <div>
             <h3 class="text-2xl font-semibold text-slate-900">
@@ -98,9 +98,11 @@
                 <app-ui-select [className]="'w-full'" formControlName="work_center_id" [id]="'work_center_id'" [control]="workCenter" [items]="workCenters()" [key]="'description'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
             </app-ui-form-field>
             
+            @if(actionType == 'edit'){
             <app-ui-form-field [controlName]="'is_active'" [label]="'Módulo activo'" [layout]="'horizontal'">
                 <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
             </app-ui-form-field>
+            }            
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>

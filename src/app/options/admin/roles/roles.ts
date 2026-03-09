@@ -16,10 +16,11 @@ import { Option } from '../../../models/core/option';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { Loader } from '../../../shared/elements/loader/loader';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
-import { TableActionType, TableActionConfig } from '../../../common/interfaces/table-actions';
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { minArrayLength } from '../../../common/functions/min-array-length';
+import { TableActionEvent } from '../../../common/interfaces/table-action-event';
+import { CharSquare } from "../../../shared/components/char-square/char-square";
 
 @Component({
   selector: 'app-roles',
@@ -35,8 +36,9 @@ import { minArrayLength } from '../../../common/functions/min-array-length';
     Loader,
     UiErrorMessage,
     UiOptionCard,
-    UiBadge,  
-  ],
+    UiBadge,
+    CharSquare
+],
   templateUrl: './roles.html',
   styleUrl: './roles.css',
 })
@@ -49,7 +51,7 @@ export class Roles extends BaseCrudPage<Role> {
   ) {
     super(roleService);
     this.actions.edit = { enabled: true, title: 'Editar rol' };
-    this.actions.view = { enabled: true, title: 'Ver detalle' };
+    this.actions.view = { enabled: true, title: 'Ver rol' };
     this.actions.delete = { enabled: true, title: 'Eliminar rol' };
     this.actions.create = { enabled: true, title: 'Crear rol' };
     this.tableToolsButtons.addItem.enabled = true;
@@ -67,19 +69,15 @@ export class Roles extends BaseCrudPage<Role> {
     });
   }
 
-  protected override actionHandler(row: {
-    obj: Role;
-    type: TableActionType;
-    action: TableActionConfig;
-  }): void {
-    if (row.type == 'edit') {
-      this.modelForm.patchValue(row.obj);
-      const ids = row.obj.options.map((op) => {
+  protected override actionHandler(event: TableActionEvent<Role>): void {
+    super.actionHandler(event);
+    if (event.type == 'edit') {
+      this.modelForm.patchValue(event.obj);
+      const ids = event.obj.options.map((op) => {
         return op.id;
       });
       this.optionIds?.setValue([...ids]);
-    }
-    super.actionHandler(row);
+    } 
   }
 
   get name() {

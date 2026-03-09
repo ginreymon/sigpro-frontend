@@ -17,11 +17,12 @@ import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { WorkCenter } from '../../../models/production/work-center';
 import { QueryParams } from '../../../common/interfaces/query-params';
 import { finalize } from 'rxjs';
-import { TableActionType, TableActionConfig } from '../../../common/interfaces/table-actions';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { DatePipe } from '@angular/common';
+import { TableActionEvent } from '../../../common/interfaces/table-action-event';
+import { CharSquare } from "../../../shared/components/char-square/char-square";
 
 @Component({
   selector: 'app-modules',
@@ -40,8 +41,9 @@ import { DatePipe } from '@angular/common';
     TableTemplate,
     UiErrorMessage,
     UiBadge,
-    DatePipe
-  ],
+    DatePipe,
+    CharSquare
+],
   templateUrl: './modules.html',
   styleUrl: './modules.css',
 })
@@ -72,14 +74,13 @@ export class Modules extends BaseCrudPage<Module> {
     ];
   }
 
-  protected override initializeModelForm(): void {
-    const isActiveValidators = this.actionType == 'create' ? [Validators.requiredTrue] : [];
+  protected override initializeModelForm(): void {   
     this.modelForm = this.fb.group({
       name: [null, [Validators.required, Validators.minLength(4)]],
       number: [null, [Validators.required, Validators.min(1)]],
       operator_count: [null, [Validators.required, Validators.min(1)]],
       location: [null, [Validators.required, Validators.minLength(4)]],
-      is_active: [null, isActiveValidators],
+      is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
       work_center_id: [null, [Validators.required, Validators.min(1)]],
     });
   }
@@ -108,23 +109,22 @@ export class Modules extends BaseCrudPage<Module> {
     return this.modelForm.get('work_center_id');
   }
 
-  protected override actionHandler(row: {
-    obj: Module;
-    type: TableActionType;
-    action: TableActionConfig;
-  }): void {
-    if (row.type == 'edit') {
-      this.modelForm.patchValue(row.obj);
-      this.workCenter?.setValue(row.obj.work_center.id);
+  protected override actionHandler(event: TableActionEvent<Module>): void {
+    super.actionHandler(event);    
+    if (event.type == 'edit') {
+      this.modelForm.patchValue(event.obj);
+      this.workCenter?.setValue(event.obj.work_center.id);
     }
-    super.actionHandler(row);
   }
 
   protected override submit(): void {
     if (!this.validateModelForm()) return;
     this.showLoader.set(true);
 
-    const workcenter: Partial<Module> = { ...this.modelForm.value };
+    const workcenter: Partial<Module> = {
+      ...this.modelForm.value,
+      is_active: this.isActive?.value ?? true,
+    };
 
     const request$ =
       this.actionType == 'create'

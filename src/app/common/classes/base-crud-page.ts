@@ -1,7 +1,7 @@
 import { Directive, inject, Signal, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { PaginatedResponse } from '../interfaces/paginated-response';
-import { TableActionConfig, TableActions, TableActionType } from '../interfaces/table-actions';
+import { TableActions, TableActionType } from '../interfaces/table-actions';
 import { WorkSpaceLoaderService } from '../../services/common/work-space-loader-service';
 import { DialogService } from '../../services/common/dialog-service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -12,6 +12,7 @@ import { finalize } from 'rxjs';
 import { BaseEntity } from '../interfaces/base-entity';
 import { TableToolsButtons } from '../interfaces/table-tools-buttons';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { TableActionEvent } from '../interfaces/table-action-event';
 
 @Directive()
 export abstract class BaseCrudPage<T extends BaseEntity> {
@@ -126,24 +127,27 @@ export abstract class BaseCrudPage<T extends BaseEntity> {
     this.getData(params);
   }
 
-  protected actionHandler(row: { obj: T; type: TableActionType; action: TableActionConfig }) {
-    this.rowObject = row.obj;
+  protected actionHandler(event: TableActionEvent<T>) {
+    this.rowObject = event.obj;
     this.actionType = null;
-    if (row.type == 'view') {
-      this.dialogService.openSideModal(row.action.title);
-      this.actionType = row.type;
+    
+    if (event.type == 'view') {
+      this.actionType = event.type;
+      this.dialogService.openSideModal(event.action.title);
     }
 
-    if (row.type == 'create' || row.type == 'edit') {
-      this.dialogService.openModal(row.action.title);
-      this.actionType = row.type;
+    if (event.type == 'create' || event.type == 'edit') {
+      this.actionType = event.type;      
+      this.dialogService.openModal(event.action.title);
+      this.initializeModelForm();
     }
 
-    if (row.type == 'delete') {
-      const title = row.action.title ?? 'Eliminar';
+    if (event.type == 'delete') {
+      this.actionType = event.type; 
+      const title = event.action.title ?? 'Eliminar';
       const message = '¿Está seguro de que desea eliminar?';
       this.dialogService.openConfirm(title, message, () => {
-        this.deleteHandler(row.obj.id, () => {
+        this.deleteHandler(event.obj.id, () => {
           this.dialogService.closeConfirm();
         });
       });
