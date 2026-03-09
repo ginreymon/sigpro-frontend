@@ -9,7 +9,7 @@
         <span class="font-medium">{{ totalItems }}</span>
         resultados
     
-        <app-ui-select [items]="rowsPerPage" [model]="pageSize" (onChange)="changePageSize($event)"></app-ui-select>        
+        <app-ui-select [items]="rowsPerPage" [(ngModel)]="pageSize" (onChange)="changePageSize($event)"></app-ui-select>        
     
     </div>
 

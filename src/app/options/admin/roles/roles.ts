@@ -20,7 +20,6 @@ import { TableActionType, TableActionConfig } from '../../../common/interfaces/t
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { minArrayLength } from '../../../common/functions/min-array-length';
-import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-roles',
@@ -36,8 +35,7 @@ import { DatePipe } from '@angular/common';
     Loader,
     UiErrorMessage,
     UiOptionCard,
-    UiBadge,
-    DatePipe
+    UiBadge,  
   ],
   templateUrl: './roles.html',
   styleUrl: './roles.css',

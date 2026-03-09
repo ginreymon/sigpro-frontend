@@ -1,19 +1,28 @@
-<select class="
+<select [id]="id" [name]="id" [class]="`
     h-8
     px-4
     text-sm
     rounded
     border
-    border-gray-300
     bg-white
     outline-none
     transition-all
     duration-200
-    focus:border-brand-500
     focus:ring-2
-    focus:ring-brand-200
-  " [(ngModel)]="model" (ngModelChange)="changeHandle($event)">
-    @for (item of items; track item; let i = $index) {
-    <option [value]="item"> {{ item }} </option>
-    }
+    ${invalid
+      ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
+      : 'border-gray-300 focus:border-brand-500 focus:ring-brand-200'}
+    ${className}
+  `" [ngModel]="value" (ngModelChange)="changeHandle($event)" (blur)="onTouched()" [disabled]="disabled">
+  
+  @if(showDefaultOption && !value){
+  <option [value]="null">Seleccione...</option>
+  }
+
+  @for (item of (keyValue && key ? _items : items); track item) {
+  <option [value]="keyValue && key ? item[keyValue] : item">
+    {{ keyValue && key ? item[key] : item }}
+  </option>
+  }
+
 </select>

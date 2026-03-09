@@ -1,5 +1,5 @@
 import { Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { AbstractControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-ui-checkbox',
@@ -16,10 +16,15 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 export class UiCheckbox implements ControlValueAccessor {
 
   @Input() id: string = '';
-  @Input() class: string = '';
+  @Input() className: string = '';
+  @Input() control: AbstractControl | null = null;
 
-  value: boolean = false;
+  value = false;
   disabled = false;
+
+  get invalid(): boolean {
+    return !!this.control && this.control.invalid && this.control.touched;
+  }
 
   onChange = (value: boolean) => {};
   onTouched = () => {};

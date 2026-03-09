@@ -3,10 +3,11 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiSelect } from '../../elements/ui-select/ui-select';
 import { environment } from '../../../../environments/environment';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-table-pager',
-  imports: [UiIcon, UiButton, UiSelect],
+  imports: [UiIcon, UiButton, UiSelect, FormsModule],
   templateUrl: './table-pager.html',
   styleUrl: './table-pager.css',
 })

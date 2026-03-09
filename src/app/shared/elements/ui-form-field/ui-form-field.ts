@@ -11,6 +11,7 @@ import { UiErrorMessage } from "../ui-error-message/ui-error-message";
 export class UiFormField {
   @Input() label!: string;
   @Input() controlName!: string;
+  @Input() layout: 'vertical' | 'horizontal' = 'vertical';
 
   constructor(@Optional() private controlContainer: ControlContainer) {}
 

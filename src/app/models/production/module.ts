@@ -1,3 +1,5 @@
+import { WorkCenter } from "./work-center";
+
 export interface Module {
   id: number;
 
@@ -13,4 +15,7 @@ export interface Module {
   updated_by?: number | null;
 
   is_active: boolean;
+
+  work_center_id:number;
+  work_center: WorkCenter
 }

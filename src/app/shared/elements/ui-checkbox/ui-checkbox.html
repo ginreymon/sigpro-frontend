@@ -1,16 +1,8 @@
-<input
-  type="checkbox"
-  [id]="id"
-  [name]="id"
-  [checked]="value"
-  [disabled]="disabled"
-  [class]="`
+<input type="checkbox" [id]="id" [name]="id" [checked]="value" [disabled]="disabled" [class]="`
     w-4 h-4 rounded border
-    border-gray-300
-    text-brand-500    
     transition-all duration-200
-    ${class}
-  `"
-  (change)="handleChange($event)"
-  (blur)="onTouched()"
-/>
+    ${invalid
+      ? 'border-red-500 ring-red-200'
+      : 'border-gray-300 text-brand-500'}
+    ${className}
+  `" (change)="handleChange($event)" (blur)="onTouched()" />

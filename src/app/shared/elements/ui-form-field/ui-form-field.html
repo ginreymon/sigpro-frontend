@@ -1,10 +1,16 @@
 <div class="flex flex-col gap-1 mb-2">
 
-  <label class="text-sm font-medium" [for]="controlName">
-    {{ label }}
-  </label>
-
-  <ng-content></ng-content>
+  <div [class]="layout === 'horizontal' ? 'flex gap-2 mt-1' : ''">
+  
+    <label [for]="controlName" [class]="`text-sm font-medium ${layout=='horizontal' ? 'order-2' : ''}`">
+      {{ label }}
+    </label>
+  
+    <div [class]="layout=='horizontal' ? 'order-1' : ''">
+      <ng-content></ng-content>
+    </div>
+  
+  </div>
 
   @if(control?.invalid && control?.touched){
   <app-ui-error-message>
@@ -27,6 +33,23 @@
     @if (control?.errors?.['minArrayLength']) {
     Debe seleccionar al menos {{ control?.errors?.['minArrayLength'].requiredLength }} opción(es)
     }
+
+    @if (control?.errors?.['min']) {
+    El valor mínimo permitido es {{ control?.errors?.['min'].min }}
+    }
+
+    @if (control?.errors?.['max']) {
+    El valor máximo permitido es {{ control?.errors?.['max'].max }}
+    }
+
+    @if (control?.errors?.['null']) {
+    {{ label ? label : 'El campo' }} no puede ser nulo
+    }
+
+    @if (control?.errors?.['requiredTrue']) {
+    Debe aceptar esta opción
+    }
+
 
   </app-ui-error-message>
   }
