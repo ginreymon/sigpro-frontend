@@ -163,12 +163,9 @@ export abstract class BaseCrudPage<T extends BaseEntity> {
 
     if (event.type == 'create' || event.type == 'edit') {
       this.actionType = event.type;
-<<<<<<< HEAD
       this.dialogService.openModal(event.action.title);
-=======
       const acceptLabel = event.type == 'create' ? 'Guardar' : 'Actualizar';
       this.dialogService.openModal(event.action.title, acceptLabel);
->>>>>>> 6a336c65cba195cf916c5369747c4d3902bec581
       this.initializeModelForm();
     }
 
