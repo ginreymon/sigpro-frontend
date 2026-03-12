@@ -22,9 +22,11 @@
         <p> <strong>Estado:</strong> {{ rowObject?.is_active ? 'Activo':'Inactivo' }} </p>
         }
 
-        <p> <strong>Eliminado:</strong> {{ rowObject?.is_deleted ? 'Sí' : 'No' }} </p>
+        @if(rowObject?.rowid){
+        <p> <strong>Eliminado Siesa:</strong> {{ rowObject?.is_deleted ? 'Sí' : 'No' }} </p>
+        }
 
-        @if(rowObject?.deleted_at){
+        @if(rowObject?.rowid && rowObject?.deleted_at){
         <p> <strong>Fecha de eliminación:</strong> {{ rowObject?.deleted_at | date:'dd/MM/yyyy HH:mm' }} </p>
         }
 

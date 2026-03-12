@@ -1,0 +1,77 @@
+<app-work-space-layout>
+    <div main-content class="h-full">
+        <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
+            (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+
+            <ng-template appTableTemplate="statusTemplate" let-row>
+                <app-ui-badge [active]="row.is_active"></app-ui-badge>
+            </ng-template>
+
+        </app-data-table>
+    </div>
+</app-work-space-layout>
+
+
+<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()" [acceptLabel]="acceptLabel">
+
+    <div class="mb-4 flex items-center gap-4">
+    
+        <app-char-square>
+            {{ rowObject.name?.toUpperCase()?.charAt(0) }}
+        </app-char-square>
+    
+        <div>
+            <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ rowObject.name }} </h3>
+            <p class="text-sm text-slate-500 mb-0.5"> Tiempo total: {{rowObject.duration }} </p>
+        </div>
+    
+    </div>
+
+     <div class="mb-4 border-t border-slate-200 pt-4">
+
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información del turno </h4>
+
+        <div class="space-y-2 text-sm">
+
+            <p> <strong>Descripción :</strong> {{ rowObject.description }} </p>             
+
+            <p> <strong>Estado activo:</strong> {{ rowObject.is_active ? 'Si': 'No' }} </p>
+          
+        </div>
+
+    </div>
+
+    <app-metadata [rowObject]="rowObject"></app-metadata>
+
+</app-side-modal-layout>
+
+<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()" [acceptLabel]="acceptLabel"></app-confirm-box>
+
+<app-modal-layout [formId]="'workbreakForm'" [title]="title" [visible]="modalVisible()" (onCancel)="closeModelForm()" [acceptLabel]="acceptLabel">
+
+    <form id="workbreakForm" [formGroup]="modelForm" (ngSubmit)="submit()">
+        <fieldset [disabled]="showLoader()">
+
+            <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
+                <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'duration'" [label]="'Minutos'">
+                <app-ui-input formControlName="duration" [id]="'duration'" [placeholder]="'Minutos'" [control]="duration" [type]="'number'"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'description'" [label]="'Descripción'">
+                <app-ui-input formControlName="description" [id]="'name'" [placeholder]="'Descripción'" [control]="description"></app-ui-input>
+            </app-ui-form-field>
+
+            @if(errorMessage()){
+            <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+            }
+
+        </fieldset>
+    </form>
+
+</app-modal-layout>
+
+<app-loader [showLoader]="showLoader()"></app-loader>
