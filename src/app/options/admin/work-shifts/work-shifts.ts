@@ -21,6 +21,7 @@ import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from "../../../shared/components/metadata/metadata";
+import { ConfirmBox } from "../../../shared/components/confirm-box/confirm-box";
 
 @Component({
   selector: 'app-work-shifts',
@@ -39,7 +40,8 @@ import { Metadata } from "../../../shared/components/metadata/metadata";
     TableTemplate,
     UiCheckbox,
     CharSquare,
-    Metadata
+    Metadata,
+    ConfirmBox
 ],
   templateUrl: './work-shifts.html',
   styleUrl: './work-shifts.css',

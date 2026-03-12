@@ -26,9 +26,9 @@ import { UserService } from '../../../services/user/user-service';
 import { User } from '../../../models/user/user';
 import { Loader } from "../../../shared/elements/loader/loader";
 import { UiBadge } from "../../../shared/elements/ui-badge/ui-badge";
-import { DatePipe } from '@angular/common';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
+import { Metadata } from "../../../shared/components/metadata/metadata";
 
 
 @Component({
@@ -50,9 +50,9 @@ import { CharSquare } from "../../../shared/components/char-square/char-square";
     ValidationIcon,
     Loader,
     UiBadge,
-    DatePipe,
     CharSquare,
-  ],
+    Metadata
+],
   templateUrl: './users.html',
   styleUrl: './users.css',
 })

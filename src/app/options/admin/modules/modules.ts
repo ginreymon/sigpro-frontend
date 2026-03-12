@@ -23,6 +23,7 @@ import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { DatePipe } from '@angular/common';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
+import { Metadata } from "../../../shared/components/metadata/metadata";
 
 @Component({
   selector: 'app-modules',
@@ -42,7 +43,8 @@ import { CharSquare } from "../../../shared/components/char-square/char-square";
     UiErrorMessage,
     UiBadge,
     DatePipe,
-    CharSquare
+    CharSquare,
+    Metadata
 ],
   templateUrl: './modules.html',
   styleUrl: './modules.css',

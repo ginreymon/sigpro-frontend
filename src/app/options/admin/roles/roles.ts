@@ -21,6 +21,7 @@ import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { minArrayLength } from '../../../common/functions/min-array-length';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
+import { Metadata } from '../../../shared/components/metadata/metadata';
 
 @Component({
   selector: 'app-roles',
@@ -37,7 +38,8 @@ import { CharSquare } from "../../../shared/components/char-square/char-square";
     UiErrorMessage,
     UiOptionCard,
     UiBadge,
-    CharSquare
+    CharSquare,
+    Metadata
 ],
   templateUrl: './roles.html',
   styleUrl: './roles.css',

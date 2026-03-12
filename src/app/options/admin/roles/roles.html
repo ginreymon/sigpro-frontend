@@ -32,7 +32,7 @@
 
       <h4 class="text-xl font-semibold text-gray-700 mb-2"> {{ option.name }} </h4>
       <p class="mb-2"> {{ option.description }} </p>
-      <app-ui-badge [active]="option.state" [className]=""></app-ui-badge> 
+      <app-ui-badge [active]="option.state"></app-ui-badge> 
 
       <div class="mt-4 border-t border-slate-200 pt-4">    
 
@@ -47,6 +47,9 @@
     }
   </div>
   }
+
+  <app-metadata [rowObject]="rowObject"></app-metadata>
+  
 </app-side-modal-layout>
 
 <app-modal-layout [formId]="'roleForm'" [title]="title" [visible]="modalVisible()" (onCancel)="closeModelForm()" [acceptLabel]="acceptLabel">    
