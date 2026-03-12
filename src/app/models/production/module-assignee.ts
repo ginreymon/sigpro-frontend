@@ -1,12 +1,6 @@
-export interface ModuleAssignee {
-  id: number;
+import { AuditEntity } from '../../common/interfaces/audit-entity';
 
+export interface ModuleAssignee extends AuditEntity {
   module: number;
   employee: number;
-
-  created_at: string;
-  updated_at: string;
-
-  created_by?: number | null;
-  updated_by?: number | null;
 }

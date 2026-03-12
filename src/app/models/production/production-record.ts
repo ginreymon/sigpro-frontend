@@ -1,6 +1,6 @@
-export interface ProductionRecord {
-  id: number;
+import { AuditEntity } from '../../common/interfaces/audit-entity';
 
+export interface ProductionRecord extends AuditEntity {
   sku_rowid: number;
 
   session: number;
@@ -14,11 +14,5 @@ export interface ProductionRecord {
   rejected_quantity: number;
 
   start_time: string; // HH:mm:ss
-  end_time: string;   // HH:mm:ss
-
-  created_at: string;
-  updated_at: string;
-
-  created_by?: number | null;
-  updated_by?: number | null;
+  end_time: string; // HH:mm:ss
 }

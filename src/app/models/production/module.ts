@@ -1,21 +1,13 @@
-import { WorkCenter } from "./work-center";
+import { AuditEntity } from '../../common/interfaces/audit-entity';
+import { WorkCenter } from './work-center';
 
-export interface Module {
-  id: number;
-
+export interface Module extends AuditEntity {
   name: string;
   number: number;
+
   operator_count: number;
   location: string;
 
-  created_at: string;
-  updated_at: string;
-
-  created_by?: number | null;
-  updated_by?: number | null;
-
-  is_active: boolean;
-
-  work_center_id:number;
-  work_center: WorkCenter
+  work_center_id: number;
+  work_center: WorkCenter;
 }

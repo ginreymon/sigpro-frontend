@@ -1,1 +1,114 @@
-<p>work-shifts works!</p>
+
+<app-work-space-layout >    
+    <div main-content class="h-full">
+        <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
+            (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+        
+            <ng-template appTableTemplate="totalTimeTemplate" let-row>
+                {{ row.totalTime }}
+            </ng-template>
+
+            <ng-template appTableTemplate="statusTemplate" let-row>
+                <app-ui-badge [active]="row.is_active"></app-ui-badge>
+            </ng-template>
+        </app-data-table>
+    </div>
+</app-work-space-layout>
+
+
+<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()">  
+    <div class="mb-4 flex items-center gap-4">
+    
+        <app-char-square>
+            {{ rowObject.name?.toUpperCase()?.charAt(0) }}
+        </app-char-square>
+    
+        <div>
+            <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ rowObject.name }} </h3>
+            <p class="text-sm text-slate-500 mb-0.5"> Tiempo total: {{rowObject.totalTime }} </p>
+        </div>
+    
+    </div>
+
+    <div class="mb-4 border-t border-slate-200 pt-4">
+
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información del turno </h4>
+
+        <div class="space-y-2 text-sm">
+
+            <p> <strong>Hora de inicio :</strong> {{ rowObject.start_time }} </p>
+
+            <p> <strong>Hora de finalización:</strong> {{ rowObject.end_time }} </p>          
+
+            <p> <strong>Estado activo:</strong> {{ rowObject.is_active ? 'Si': 'No' }} </p>
+          
+        </div>
+
+    </div>
+
+    <app-metadata [rowObject]="rowObject"></app-metadata>
+    
+
+</app-side-modal-layout>
+
+<app-modal-layout [title]="title" [visible]="modalVisible()" (onAccept)="submit()" (onCancel)="closeModelForm()">    
+   
+    <form [formGroup]="modelForm">
+        <fieldset [disabled]="showLoader()">
+    
+            <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
+                <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
+            </app-ui-form-field>
+    
+            <app-ui-form-field [controls]="timeControls">
+               
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium mb-2" for="startHour">Hora inicio turno</label>
+
+                        <div class="flex items-center gap-3">
+                            <app-ui-hour-input formControlName="startHour" [id]="'startHour'" [title]="'Hora'" [min]="0" [max]="23" [control]="startHour"></app-ui-hour-input>
+                            <span class="text-3xl font-bold text-slate-400">:</span>
+                            <app-ui-hour-input formControlName="startMinutes" [id]="'startMinutes'" [title]="'Minutos'" [min]="0" [max]="59" [control]="startMinutes"></app-ui-hour-input>
+                        </div>
+                    </div>
+        
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-medium mb-2" for="endHour">Hora finalización turno</label>
+                        
+                        <div class="flex items-center gap-3">
+                            <app-ui-hour-input formControlName="endHour" [id]="'endHour'" [title]="'Hora'" [min]="0" [max]="23" [control]="endHour"></app-ui-hour-input>
+                            <span class="text-3xl font-bold text-slate-400">:</span>
+                            <app-ui-hour-input formControlName="endMinutes" [id]="'endMinutes'" [title]="'Minutos'" [min]="0" [max]="59" [control]="endMinutes"></app-ui-hour-input>
+                        </div>
+                    </div>
+        
+                </div>
+                
+            </app-ui-form-field> 
+            
+            @if(actionType == 'edit'){
+            <app-ui-form-field [controlName]="'is_active'" [label]="'Estado'" [layout]="'horizontal'">
+                <app-ui-checkbox formControlName="is_active" [id]="'is_active'" [control]="isActive"></app-ui-checkbox>               
+            </app-ui-form-field>
+            }     
+
+            <div class="bg-slate-50 p-6 rounded flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+                <p class="text-sm text-brand-400 italic">
+                    Tiempo total
+                    <span class="font-bold text-primary">{{ totalTime }}</span>
+                </p>
+            </div>
+    
+            @if(errorMessage()){
+            <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+            }
+    
+        </fieldset>
+    </form>
+    
+    </app-modal-layout>
+
+<app-loader [showLoader]="showLoader()"></app-loader>

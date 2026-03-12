@@ -1,15 +1,17 @@
 <div class="flex flex-col gap-1 mb-2">
 
   <div [class]="layout === 'horizontal' ? 'flex gap-2 mt-1' : ''">
-  
+
+    @if(controls.length == 1 || groupLabel){
     <label [for]="controlName" [class]="`text-sm font-medium ${layout=='horizontal' ? 'order-2' : ''}`">
-      {{ label }}
+      {{ groupLabel ?? label }}
     </label>
-  
+    }
+
     <div [class]="layout=='horizontal' ? 'order-1' : ''">
       <ng-content></ng-content>
     </div>
-  
+
   </div>
 
   @if(control?.invalid && control?.touched){

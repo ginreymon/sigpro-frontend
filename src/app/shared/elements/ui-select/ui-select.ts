@@ -1,10 +1,6 @@
 import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
-import {
-  AbstractControl,
-  ControlValueAccessor,
-  FormsModule,
-  NG_VALUE_ACCESSOR,
-} from '@angular/forms';
+import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { BaseControlValueAccessor } from '../../../common/classes/base-control-value-accessor';
 
 @Component({
   selector: 'app-ui-select',
@@ -19,7 +15,7 @@ import {
     },
   ],
 })
-export class UiSelect implements ControlValueAccessor {
+export class UiSelect extends BaseControlValueAccessor<any> {
   protected _items: any[] = [];
 
   @Input() set items(arr: any[]) {
@@ -27,21 +23,12 @@ export class UiSelect implements ControlValueAccessor {
   }
 
   @Input() key: string | null = null;
-  @Input() keyValue:string  | null = null; 
+  @Input() keyValue: string | null = null;
+  @Input() showDefaultOption: boolean = false;
 
-  @Input() className: string = '';
-  @Input() control: AbstractControl | null = null;
-  @Input() id: string = '';
-  @Input() showDefaultOption:boolean = false;
+  override value: string | number | null = null;
 
-  value: string | number | null = null;
-  disabled = false;
-
-  @Output() onChange = new EventEmitter<{ index: number; value: any }>();
-
-  get invalid(): boolean {
-    return !!this.control && this.control.invalid && this.control.touched;
-  }
+  @Output() onSelect = new EventEmitter<{ index: number; value: any }>();
 
   get items() {
     if (this.key) {
@@ -52,29 +39,10 @@ export class UiSelect implements ControlValueAccessor {
     return this._items;
   }
 
-  private propagateChange: any = () => {};
-  onTouched = () => {};
-
   changeHandle(value: string | number) {
     this.value = value;
     const index = this.items.findIndex((i) => i == value);
-    this.propagateChange(value);
-    this.onChange.emit({ index, value: this._items[index] });
-  }
-
-  writeValue(value: any): void {
-    this.value = value;
-  }
-
-  registerOnChange(fn: any): void {
-    this.propagateChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.onChange(value);
+    this.onSelect.emit({ index, value: this._items[index] });
   }
 }

@@ -1,0 +1,28 @@
+<div class="relative flex-1">
+  <input
+    [id]="id"
+    [name]="id"
+    [max]="max"
+    [min]="min"
+    type="number"
+    [value]="value"
+    [disabled]="disabled"
+    (input)="handleInput($event)"
+    (blur)="onTouched()"
+    [class]="`
+      w-full text-center text-3xl font-bold py-4 rounded-lg
+      text-brand-700
+     bg-slate-50     
+      border
+      transition-all duration-200
+      focus:ring-2
+      ${invalid 
+        ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
+        : 'border-brand-100 focus:border-brand-500 focus:ring-brand-200'}
+      ${className}
+    `"
+  />
+  <span class="absolute -top-2 left-1/2 -translate-x-1/2 bg-white px-2 text-[10px] uppercase tracking-wider text-brand-400 font-bold">
+    {{ title }}
+  </span>
+</div>

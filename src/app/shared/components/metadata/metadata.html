@@ -1,0 +1,32 @@
+<div class="mt-4 border-t border-slate-200 pt-4">
+
+    <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información de auditoría </h4>
+
+    <div class="space-y-1 text-sm text-slate-600">
+
+        <p> <strong>ID:</strong> {{ rowObject?.id }} </p>
+
+        @if(rowObject?.rowid){
+        <p> <strong>ID Siesa:</strong> {{ rowObject?.rowid }} </p>
+        }
+
+        <p> <strong>Creado:</strong> {{ rowObject?.created_at | date:'dd/MM/yyyy HH:mm' }} </p>
+
+        <p> <strong>Actualizado:</strong> {{ rowObject?.updated_at | date:'dd/MM/yyyy HH:mm' }} </p>
+
+        <p> <strong>Creado por:</strong> {{ rowObject?.created_by ?? '—' }} </p>
+
+        <p> <strong>Actualizado por:</strong> {{ rowObject?.updated_by ?? '—' }} </p>
+
+        @if(rowObject?.is_active && showIsActive){
+        <p> <strong>Estado:</strong> {{ rowObject?.is_active ? 'Activo':'Inactivo' }} </p>
+        }
+
+        <p> <strong>Eliminado:</strong> {{ rowObject?.is_deleted ? 'Sí' : 'No' }} </p>
+
+        @if(rowObject?.deleted_at){
+        <p> <strong>Fecha de eliminación:</strong> {{ rowObject?.deleted_at | date:'dd/MM/yyyy HH:mm' }} </p>
+        }
+
+    </div>
+</div>

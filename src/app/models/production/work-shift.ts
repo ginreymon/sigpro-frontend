@@ -1,15 +1,8 @@
-export interface WorkShift {
-  id: number;
+import { AuditEntity } from '../../common/interfaces/audit-entity';
 
+export interface WorkShift extends AuditEntity {
   name: string;
   start_time: string; // HH:mm:ss
-  end_time: string;   // HH:mm:ss
-
-  created_at: string;
-  updated_at: string;
-
-  created_by?: number | null;
-  updated_by?: number | null;
-
-  is_active: boolean;
+  end_time: string; // HH:mm:ss
+  totalTime?: string;
 }
