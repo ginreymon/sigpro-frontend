@@ -20,7 +20,6 @@ import { finalize } from 'rxjs';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
-import { DatePipe } from '@angular/common';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from "../../../shared/components/metadata/metadata";
@@ -41,8 +40,7 @@ import { Metadata } from "../../../shared/components/metadata/metadata";
     UiCheckbox,
     TableTemplate,
     UiErrorMessage,
-    UiBadge,
-    DatePipe,
+    UiBadge,   
     CharSquare,
     Metadata
 ],
