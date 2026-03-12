@@ -28,9 +28,9 @@
     </div>
 
 </app-work-space-layout>
-<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()"></app-confirm-box>
+<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()" [acceptLabel]="acceptLabel"></app-confirm-box>
 
-<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()">
+<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()" [acceptLabel]="acceptLabel">
 
     <div class="mb-4 flex items-center gap-4">
 
@@ -101,9 +101,9 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [message]="message" [title]="title" [visible]="modalVisible()" (onAccept)="submit()" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'userForm'" [message]="message" [title]="title" [visible]="modalVisible()" (onCancel)="closeModelForm()" [acceptLabel]="acceptLabel">
 
-    <form [formGroup]="modelForm">
+    <form id="userForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()">
 
             <app-ui-form-field [controlName]="'username'" [label]="'Nombre de usuario'">
@@ -123,22 +123,22 @@
             }               
 
             <app-ui-form-field [label]="'Role'" [controlName]="'role'">
-                <div class="max-h-64 overflow-y-auto">
-                    <div class="grid grid-cols-1 md:grid-cols-1 gap-3 p-1 items-stretch">
-                        @for(rol of roles(); track rol.id){
-                        <app-ui-option-card (onToggle)="toggleRole(rol.id)" [selected]="isSelected(rol.id)">
-                            <div class="font-medium text-sm">
-                                {{ rol.name }}
-                            </div>
-                            <div class="text-xs text-gray-500">
-                                @for(option of rol.options; track option){
-                                <span>{{ option.name }} / </span>
-                                }
-                            </div>
-                        </app-ui-option-card>
-                        }
-                    </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-3 items-stretch">
+                    @for(rol of roles(); track rol.id){
+                    <app-ui-option-card (onToggle)="toggleRole(rol.id)" [selected]="isSelected(rol.id)">
+                        <div class="font-medium text-sm">
+                            {{ rol.name }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            @for(option of rol.options; track option){
+                            <span>{{ option.name }} / </span>
+                            }
+                        </div>
+                    </app-ui-option-card>
+                    }
                 </div>
+            
             </app-ui-form-field>
 
             @if(errorMessage()){

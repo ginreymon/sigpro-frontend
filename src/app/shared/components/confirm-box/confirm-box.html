@@ -1,8 +1,15 @@
 @if(openModal()){
 <app-box-layout [message]="message" [title]="title">
-  @if(!hideCancelBtn){
-    <app-ui-button box-buttons [intent]="'cancel'" (onClick)="closeConfirm()">Cancelar</app-ui-button>
+
+  @if(!hideCancel){
+  <app-ui-button box-buttons [intent]="'cancel'" (onClick)="closeConfirm()">
+    {{ cancelLabel ?? 'Cancelar' }}
+  </app-ui-button>
   }
-  <app-ui-button box-buttons (onClick)="accept()">Aceptar</app-ui-button>
+
+  <app-ui-button box-buttons (onClick)="accept()">
+    {{ acceptLabel ?? 'Aceptar' }}
+  </app-ui-button>
+
 </app-box-layout>
 }

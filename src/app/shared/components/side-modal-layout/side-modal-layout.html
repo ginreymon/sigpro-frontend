@@ -1,6 +1,6 @@
 <div [class]="'fixed inset-0 z-50 flex transform transition-transform duration-300 ' + (openModal() ? 'translate-x-0' : 'translate-x-full')">
   
-  <div [class]="'fixed inset-0 bg-black/50 transition-opacity '+(openModal() ? 'opacity-100 delay-300' : 'duration-100 opacity-0')" (click)="close()"></div>
+  <div [class]="'fixed inset-0 bg-black/40 '+(openModal() ? 'transition-opacity opacity-100 delay-300' : 'opacity-0')" (click)="close()"></div>
 
     <div class="relative ml-auto w-full max-w-xl h-full bg-white shadow-xl rounded-l-xl">
 
@@ -19,12 +19,19 @@
       </div>
 
       <div class="border-t border-gray-200 pt-4 flex justify-end gap-3">
+      
         @if(!hideCancel){
-        <app-ui-button intent="cancel" (onClick)="close()"> Cancelar </app-ui-button>
+        <app-ui-button intent="cancel" (onClick)="close()">
+          {{ cancelLabel ?? 'Cancelar'}}
+        </app-ui-button>
         }
+      
         @if(!hideAccept){
-        <app-ui-button (onClick)="accept()"> Aceptar </app-ui-button>
+        <app-ui-button (onClick)="accept()">
+          {{ acceptLabel ?? 'Aceptar'}}
+        </app-ui-button>
         }
+      
       </div>
 
     </div>

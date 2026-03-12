@@ -14,11 +14,20 @@ export abstract class ModalBase {
   @Input() hideCancel: boolean = false;
   @Input() hideAccept: boolean = false;
 
+  @Input() cancelLabel: string | null = null;
+  @Input() acceptLabel: string | null = null;
+
+  @Input() formId: string | null = null;
+
+  get submit(): boolean {
+    return !!this.formId
+  }
+
   @Input() set visible(value: boolean) {
     this.openModal.set(value);
   }
 
-  constructor(protected dialogService: DialogService) {}
+  constructor(protected dialogService: DialogService) { }
 
   close() {
     this.openModal.set(false);

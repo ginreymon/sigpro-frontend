@@ -7,9 +7,9 @@
     </div>
 </app-work-space-layout>
 
-<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()"></app-confirm-box>
+<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()" [acceptLabel]="acceptLabel"></app-confirm-box>
 
-<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()">  
+<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()" [acceptLabel]="acceptLabel">  
   
   <div class="mb-4 flex items-center gap-4">
   
@@ -49,17 +49,16 @@
   }
 </app-side-modal-layout>
 
-<app-modal-layout [title]="title" [visible]="modalVisible()" (onAccept)="submit()" (onCancel)="closeModelForm()">    
-  <form [formGroup]="modelForm">  
+<app-modal-layout [formId]="'roleForm'" [title]="title" [visible]="modalVisible()" (onCancel)="closeModelForm()" [acceptLabel]="acceptLabel">    
+  <form id="roleForm" [formGroup]="modelForm" (ngSubmit)="submit()">  
     <fieldset [disabled]="showLoader()">
 
       <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
         <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
       </app-ui-form-field>
       
-      <app-ui-form-field [label]="'Opciones'" [controlName]="'option_ids'"> 
-        <div class="max-h-64 overflow-y-auto">  
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 p-1 items-stretch">
+      <app-ui-form-field [label]="'Opciones'" [controlName]="'option_ids'">        
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 items-stretch">
   
             @for (option of options(); track option.id) {
               <app-ui-option-card (onToggle)="toggleOption(option.id)" [selected]="isSelected(option.id)">
@@ -69,11 +68,10 @@
                 <div class="text-xs text-gray-500">
                   {{ option.description || 'Sin descripción' }}
                 </div>
-              </app-ui-option-card>              
+              </app-ui-option-card>           
             }
   
-          </div>  
-        </div>
+          </div>         
       </app-ui-form-field>     
 
       @if(errorMessage()){

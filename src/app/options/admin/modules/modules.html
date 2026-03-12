@@ -16,9 +16,9 @@
     </div>
 </app-work-space-layout>
 
-<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()"></app-confirm-box>
+<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()" [acceptLabel]="acceptLabel"></app-confirm-box>
 
-<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()">  
+<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()" [acceptLabel]="acceptLabel">  
     <div class="mb-4 flex items-center gap-4">
     
         <app-char-square>
@@ -73,9 +73,9 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [title]="title" [visible]="modalVisible()" (onAccept)="submit()" (onCancel)="closeModelForm()">    
+<app-modal-layout [formId]="'moduleForm'" [title]="title" [visible]="modalVisible()" (onCancel)="closeModelForm()" [acceptLabel]="acceptLabel">    
    
-    <form [formGroup]="modelForm">
+    <form id="moduleForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()">
 
             <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">

@@ -6,6 +6,8 @@ export abstract class ButtonBase {
   @Input() disabled: boolean = false;
   @Input() classNames: string = '';
   @Input() type: string = 'button';
+  @Input() formId: string | null = null;
+  
   @Output() onClick = new EventEmitter<void>();
 
   constructor() {}

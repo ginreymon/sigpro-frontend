@@ -24,6 +24,7 @@ export abstract class BaseCrudPage<T extends BaseEntity> {
   protected errorMessage = signal<string | null>(null);
   protected rowObject: Partial<T> = {};
   protected actionType: TableActionType | null | undefined = null;
+  protected displayFields: (keyof T)[] = [];
 
   protected paginatedResponse = signal<PaginatedResponse<T> | null>(null);
 
@@ -52,18 +53,6 @@ export abstract class BaseCrudPage<T extends BaseEntity> {
 
   protected columns: TableColumn<T>[] = [];
 
-  get title() {
-    return this.dialogService.title;
-  }
-  get message() {
-    return this.dialogService.message;
-  }
-  get confirmCallback(): () => void {
-    if (this.dialogService.confirmCallback) {
-      return this.dialogService.confirmCallback() ?? (() => {});
-    }
-    return () => {};
-  }
   constructor(protected crudService: BaseCrudService<T>) {
     this.modalVisible = toSignal(this.dialogService.modalVisible$, { initialValue: false });
     this.sideModalVisible = toSignal(this.dialogService.sideModalVisible$, { initialValue: false });
@@ -74,6 +63,34 @@ export abstract class BaseCrudPage<T extends BaseEntity> {
     this.reload();
     this.initializeColumns();
     this.initializeModelForm();
+  }
+
+  get title() {
+    return this.dialogService.title;
+  }
+
+  get message() {
+    return this.dialogService.message;
+  }
+
+  get acceptLabel() {
+    return this.dialogService.acceptLabel;
+  }
+
+  get confirmCallback(): () => void {
+    if (this.dialogService.confirmCallback) {
+      return this.dialogService.confirmCallback() ?? (() => { });
+    }
+    return () => { };
+  }
+
+  get displayValue(): string {
+    if (!this.displayFields.length) return '';
+
+    return this.displayFields
+      .map(field => this.rowObject[field])
+      .filter(v => v != null)
+      .join(' ');
   }
 
   protected initializeColumns() {
@@ -135,25 +152,32 @@ export abstract class BaseCrudPage<T extends BaseEntity> {
   }
 
   protected actionHandler(event: TableActionEvent<T>) {
+    this.ensureDisplayField(event.obj);
     this.rowObject = event.obj;
     this.actionType = null;
 
     if (event.type == 'view') {
       this.actionType = event.type;
-      this.dialogService.openSideModal(event.action.title);
+      this.dialogService.openSideModal(event.action.title, 'Cerrar');
     }
 
     if (event.type == 'create' || event.type == 'edit') {
       this.actionType = event.type;
+<<<<<<< HEAD
       this.dialogService.openModal(event.action.title);
+=======
+      const acceptLabel = event.type == 'create' ? 'Guardar' : 'Actualizar';
+      this.dialogService.openModal(event.action.title, acceptLabel);
+>>>>>>> 6a336c65cba195cf916c5369747c4d3902bec581
       this.initializeModelForm();
     }
 
     if (event.type == 'delete') {
       this.actionType = event.type;
       const title = event.action.title ?? 'Eliminar';
-      const message = '¿Está seguro de que desea eliminar?';
-      this.dialogService.openConfirm(title, message, () => {
+      const value = this.displayValue?.trim();
+      const message = `¿Está seguro de que desea eliminar${value ? ' ' + value : ''}?`;
+      this.dialogService.openConfirm(title, message, 'Eliminar', () => {
         this.deleteHandler(event.obj.id, () => {
           this.dialogService.closeConfirm();
         });
@@ -206,5 +230,16 @@ export abstract class BaseCrudPage<T extends BaseEntity> {
 
   protected submit() {
     this.validateModelForm();
+  }
+
+  protected ensureDisplayField(obj: T) {
+    const candidates = ['name', 'first_name' ,'title', 'label', 'description'];
+
+    for (const key of candidates) {
+      if (key in obj) {
+        this.displayFields = [key as keyof T];
+        break;
+      }
+    }
   }
 }

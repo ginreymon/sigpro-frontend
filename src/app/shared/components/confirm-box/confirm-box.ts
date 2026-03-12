@@ -9,6 +9,4 @@ import { ModalBase } from '../../../common/classes/modal-base';
   templateUrl: './confirm-box.html',
   styleUrl: './confirm-box.css',
 })
-export class ConfirmBox extends ModalBase {
-  @Input() hideCancelBtn: boolean = false;
-}
+export class ConfirmBox extends ModalBase { }

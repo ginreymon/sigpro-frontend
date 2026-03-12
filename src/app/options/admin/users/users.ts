@@ -167,8 +167,9 @@ export class Users extends BaseCrudPage<Employee> {
   }
 
   activateAccount(obj: Employee) {
-    const title = obj.is_account_active ? 'Desactivar cuenta' : 'Activar cuenta';
-    this.dialogService.openConfirm(title, '¿Está seguro de realizar esta acción?', () => {
+    const label = obj.is_account_active ? 'Desactivar' : 'Activar';
+    const title = `${label} cuenta`;
+    this.dialogService.openConfirm(title, '¿Está seguro de realizar esta acción?', label, () => {
       this.showLoader.set(true);
       const user: Partial<User> = { is_active: !obj.is_account_active };
       this.userService

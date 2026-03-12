@@ -15,6 +15,6 @@
     font-medium
     ${intents[intent]}
     ${classNames}`
-  " [disabled]="disabled" [type]="type" (click)="clickHandler()">
+  " [disabled]="disabled" [type]="type" [attr.form]="formId" (click)="clickHandler()">
   <ng-content></ng-content>
 </button>

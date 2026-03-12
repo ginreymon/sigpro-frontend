@@ -5,9 +5,11 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class DialogService {
+  
   title: string | null = null;
   message: string | null = null;
   iconName: string | null = null;
+  acceptLabel: string | null = null;
   confirmCallback: (() => void) | null = null;
 
   private modalVisibleSubject = new BehaviorSubject<boolean>(false);
@@ -22,17 +24,23 @@ export class DialogService {
   private toastVisibleSubject = new BehaviorSubject<boolean>(false);
   toastVisible$ = this.toastVisibleSubject.asObservable();
 
-  openModal(title?: string) {
+  openModal(title?: string, acceptLabel?: string) {
     if (title) {
       this.title = title;
+    }
+    if (acceptLabel) {
+      this.acceptLabel = acceptLabel;
     }
     this.modalVisibleSubject.next(true);
     this.sideModalVisibleSubject.next(false);
   }
 
-  openSideModal(title?: string) {
+  openSideModal(title?: string, acceptLabel?: string) {
     if (title) {
       this.title = title;
+    }
+    if (acceptLabel) {
+      this.acceptLabel = acceptLabel;
     }
     this.sideModalVisibleSubject.next(true);
     this.modalVisibleSubject.next(false);
@@ -43,6 +51,7 @@ export class DialogService {
     this.sideModalVisibleSubject.next(false);
     this.title = null;
     this.message = null;
+    this.acceptLabel = null;
   }
 
   closeConfirm() {
@@ -50,11 +59,15 @@ export class DialogService {
     this.title = null;
     this.message = null;
     this.confirmCallback = null;
+    this.acceptLabel = null;
   }
 
-  openConfirm(title: string, message: string, confirmCallback?: () => void) {
+  openConfirm(title: string, message: string, acceptLabel?: string, confirmCallback?: () => void) {
     this.title = title;
     this.message = message;
+    if (acceptLabel) {
+      this.acceptLabel = acceptLabel;
+    }
     if (confirmCallback) {
       this.confirmCallback = confirmCallback;
     }

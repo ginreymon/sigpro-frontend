@@ -1,7 +1,7 @@
 @if(openModal()){
 <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 bg-opacity-10 overflow-x-hidden overflow-y-auto text-gray-300 transition-transform duration-300">
 
-  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-xl">
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col">
 
     <div class="flex items-center justify-between border-b border-default pb-4 md:pb-5">
 
@@ -11,19 +11,26 @@
 
     </div>
 
-    <div class="space-y-4 md:space-y-6 py-4 md:py-6 text-gray-600">
+    <div class="space-y-4 md:space-y-6 py-4 md:py-6 text-gray-600 overflow-y-auto">
 
       <ng-content></ng-content>
 
     </div>
 
     <div class="flex justify-end items-center border-t border-default space-x-4 pt-4 md:pt-5">
+    
       @if(!hideCancel){
-      <app-ui-button [intent]="'cancel'" (onClick)="close()"> Cancelar </app-ui-button>
+      <app-ui-button [intent]="'cancel'" (onClick)="close()">
+        {{ cancelLabel ?? 'Cancelar'}}
+      </app-ui-button>
       }
+    
       @if(!hideAccept){
-      <app-ui-button (onClick)="accept()"> Aceptar </app-ui-button>
+      <app-ui-button [formId]="formId" [type]="submit?'submit':'button'" (onClick)="accept()">
+        {{ acceptLabel ?? 'Aceptar'}}
+      </app-ui-button>
       }
+    
     </div>
 
   </div>

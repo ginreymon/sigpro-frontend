@@ -7,4 +7,4 @@ import { ButtonBase } from '../../../common/classes/button-base';
   templateUrl: './ui-button.html',
   styleUrl: './ui-button.css',
 })
-export class UiButton extends ButtonBase {}
+export class UiButton extends ButtonBase { }
