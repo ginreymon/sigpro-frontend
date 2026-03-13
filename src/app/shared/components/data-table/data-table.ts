@@ -8,12 +8,13 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { getUiIconClasses } from '../../../common/functions/get-input-icon-classes';
 import { UiTooltip } from '../../elements/ui-tooltip/ui-tooltip';
 import { TableRow } from '../../../common/interfaces/table-row';
-import { TableActionConfig, TableActions, TableActionType } from '../../../common/interfaces/table-actions';
+import { TableActions, TableActionType } from '../../../common/interfaces/table-actions';
 import { NgTemplateOutlet } from '@angular/common';
 import { UiCheckbox } from '../../elements/ui-checkbox/ui-checkbox';
 import { FormsModule } from '@angular/forms';
 import { TableTemplate } from '../../../directives/table-template';
 import { TableToolsButtons, TableToolsButtonType } from '../../../common/interfaces/table-tools-buttons';
+import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 
 @Component({
   selector: 'app-data-table',
@@ -96,12 +97,9 @@ export class DataTable<T> {
   }
 
   @Output() onPagerChange = new EventEmitter<{ page: number; pageSize: number }>();
-  @Output() onAction = new EventEmitter<{
-    obj: T;
-    type: TableActionType;
-    action: TableActionConfig;
-  }>();
 
+  @Output() onAction = new EventEmitter<TableActionEvent<T>>();
+  
   @Output() onSearch = new EventEmitter<string>();
 
   get totalItems(): number {

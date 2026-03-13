@@ -1,38 +1,38 @@
 <div class="flex flex-col lg:flex-row flex-1 min-h-full h-full gap-2">
 
-    @if(_showAsideContent()){
+    @if(showSideContent()){
 
-        <div class="w-full lg:w-1/3 shrink-0 flex flex-col min-h-full order-1 lg:order-2">
-            <div class="bg-white border border-slate-200 rounded-lg shadow-md p-6 flex-1 overflow-auto">
+    <div class="w-full lg:w-1/3 shrink-0 flex flex-col min-h-full order-1 lg:order-2">
+        <div class="bg-white border border-slate-200 rounded-lg shadow-md p-6 flex-1 overflow-auto">
 
-                @if(isLoading() || isLoadingAside()){
-                    <div class="space-y-4">
+            @if(isLoading()){
+            <div class="space-y-4">
 
-                        <div class="h-6 skeleton rounded w-2/3"></div>
+                <div class="h-6 skeleton rounded w-2/3"></div>
 
-                        <div class="h-4 skeleton rounded w-full"></div>
-                        <div class="h-4 skeleton rounded w-5/6"></div>
+                <div class="h-4 skeleton rounded w-full"></div>
+                <div class="h-4 skeleton rounded w-5/6"></div>
 
-                        <div class="h-32 skeleton rounded-lg"></div>
+                <div class="h-32 skeleton rounded-lg"></div>
 
-                        <div class="h-4 skeleton rounded w-full"></div>
-                        <div class="h-4 skeleton rounded w-3/4"></div>
-
-                    </div>
-                
-                }@else{
-                    <ng-content select="[aside-content]"></ng-content>
-                }
+                <div class="h-4 skeleton rounded w-full"></div>
+                <div class="h-4 skeleton rounded w-3/4"></div>
 
             </div>
+
+            }@else{
+            <ng-content select="[aside-content]"></ng-content>
+            }
+
         </div>
-    }   
+    </div>
+    }
 
     <div class="flex flex-col flex-1 min-h-0 order-2 lg:order-1">
 
-        @if(showHeader()){
+        @if(showHeader() && headerVisible){
         <div class="bg-white border border-slate-200 rounded-lg shadow-md p-6 mb-2 relative">
-        
+
             @if(isLoading()){
             <div class="space-y-4">
                 <div class="h-7 skeleton rounded w-1/3 mb-2"></div>
@@ -45,23 +45,23 @@
             <h2 class="text-2xl font-semibold text-slate-900 mb-2"> {{ option.title }} </h2>
             <p class="text-slate-500 text-sm"> {{ option.description }} </p>
             }
-        
+
         </div>
         }
-        
-        <div [class]="`flex-1 min-h-0 ${showHeader()?'mt-2':''}`">
+
+        <div [class]="`flex-1 min-h-0 ${showHeader() && headerVisible?'mt-2':''}`">
             <div class="bg-white border border-slate-200 rounded-lg shadow-md p-6 h-full overflow-auto max-h-full">
 
-             @if(isLoading()){
+                @if(isLoading()){
                 <div class="space-y-4">
                     <div class="h-4 skeleton rounded w-full"></div>
                     <div class="h-4 skeleton rounded w-5/6"></div>
                     <div class="h-4 skeleton rounded w-4/6"></div>
                     <div class="h-40 skeleton rounded"></div>
                 </div>
-             }@else {
+                }@else {
                 <ng-content select="[main-content]"></ng-content>
-             }
+                }
 
             </div>
         </div>
