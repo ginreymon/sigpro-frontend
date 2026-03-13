@@ -15,8 +15,14 @@ export class WorkSpaceLayout extends LocationOption {
   isLoading: Signal<boolean>;
   showHeader: Signal<boolean>;
   showSideContent = signal(false);
+  showBackground = signal(true);
 
   @Input() headerVisible: boolean = true;
+
+  @Input()
+  set backgroundVisible(value: boolean) {
+    this.showBackground.set(value);
+  }
 
   @Input()
   set sideContentVisible(value: boolean) {
