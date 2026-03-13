@@ -18,14 +18,6 @@ export class MenuService {
 
   private showMenuSubject = new BehaviorSubject<boolean>(false);
 
-  get showMenu() {
-    return this.showMenuSubject.value;
-  }
-
-  set showMenu(value: boolean) {
-    this.showMenuSubject.next(value);
-  }
-
   constructor(
     private http: HttpClient,
     private router: Router,
@@ -34,6 +26,14 @@ export class MenuService {
     if (savedMenu) {
       this.menuSubject.next(JSON.parse(savedMenu));
     }
+  }
+
+  get showMenu() {
+    return this.showMenuSubject.value;
+  }
+
+  set showMenu(value: boolean) {
+    this.showMenuSubject.next(value);
   }
 
   loadMenu(): Observable<any> {
@@ -46,13 +46,8 @@ export class MenuService {
     );
   }
 
-  getMenuValue(): Module[] | null {
-    return this.menuSubject.value;
-  }
-
   ensureDynamicRoutes() {
-    const menu = this.getMenuValue();
-    if (!menu?.length) return;
+    if (!this.menuSubject.value?.length) return;
 
     const currentConfig = this.router.config;
 

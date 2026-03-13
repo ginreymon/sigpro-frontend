@@ -163,7 +163,7 @@ export class Users extends BaseCrudPage<Employee> {
   createAccount(obj: Employee) {
     this.rowObject = obj;
     this.actionType = 'create';
-    this.dialogService.openModal(`Crear cuenta - ${obj.first_name} ${obj.last_name1}`);
+    this.dialogService.openModal(`Crear cuenta - ${obj.first_name} ${obj.last_name1}`,'Crear cuenta');
   }
 
   activateAccount(obj: Employee) {

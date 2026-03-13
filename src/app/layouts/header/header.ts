@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth/auth-service';
 import { HeaderMenuItem } from '../../shared/elements/header-menu-item/header-menu-item';
 import { LocationOption } from '../../common/classes/location-option';
-import { RouterLink } from "@angular/router";
+import { RouterLink } from '@angular/router';
 import { UiIcon } from '../../shared/elements/ui-icon/ui-icon';
 
 @Component({
@@ -14,10 +14,6 @@ import { UiIcon } from '../../shared/elements/ui-icon/ui-icon';
 export class Header extends LocationOption implements OnInit {
   constructor(private authService: AuthService) {
     super();
-  }
-
-  ngOnInit(): void {
-    this.initialize();
   }
 
   get showMenu() {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, filter } from 'rxjs';
 import { Option } from '../../models/core/option';
+import { Module } from '../../models/core/module';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,7 @@ export class RouteContextService {
   private optionSubject = new BehaviorSubject<any>(null);
   option$ = this.optionSubject.asObservable();
 
-  private menu: any[] = [];
+  private menu: Module[] = [];
 
   constructor(private router: Router) {
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
@@ -21,9 +22,10 @@ export class RouteContextService {
     });
   }
 
-  setMenu(menu: any[]) {
+  setMenu(menu: Module[], callback?: () => void) {
     this.menu = menu;
     this.detectRoute();
+    callback?.();
   }
 
   private detectRoute() {

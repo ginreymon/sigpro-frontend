@@ -12,16 +12,10 @@ import { LocationOption } from '../../common/classes/location-option';
   styleUrl: './menu.css',
 })
 export class Menu extends LocationOption implements OnInit {
-  modules: Module[] = [];
   menuReady: boolean = false;
 
   constructor(private router: Router) {
     super();
-  }
-
-  ngOnInit(): void {
-    this.initialize();
-    this.initializeMenu();
   }
 
   ngAfterViewInit() {
@@ -32,28 +26,6 @@ export class Menu extends LocationOption implements OnInit {
 
   get showMenu() {
     return this.menuService.showMenu;
-  }
-
-  initializeMenu() {
-    this.menuService.menu$
-      .pipe(
-        map((menu) => {
-          if (!menu) return [];
-          return (menu as Module[])
-            .map((mod) => {
-              const sortedOptions = mod.options
-                ? [...mod.options].sort((a, b) => a.order - b.order)
-                : [];
-              return { ...mod, options: sortedOptions, state: false };
-            })
-            .sort((a, b) => a.order - b.order);
-        }),
-      )
-      .subscribe({
-        next: (menu) => {
-          this.modules = menu as Module[];
-        },
-      });
   }
 
   toggleModule(module: Module) {
