@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Module } from '../../models/core/module';
-import { map } from 'rxjs';
 import { Router } from '@angular/router';
 import { Option } from '../../models/core/option';
 import { LocationOption } from '../../common/classes/location-option';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-menu',
-  imports: [],
+  imports: [TitleCasePipe],
   templateUrl: './menu.html',
   styleUrl: './menu.css',
 })
@@ -40,8 +40,8 @@ export class Menu extends LocationOption implements OnInit {
 
   navigate(module: Module, option: Option) {
     if (!module || !option) return;
-
+    const url = option.url?.includes('/') ? option.url : `${module.url}/${option.url}`;
     this.menuService.showMenu = false;
-    this.router.navigateByUrl(`${module.url}/${option.url}`);
+    this.router.navigateByUrl(url);
   }
 }

@@ -1,5 +1,5 @@
-<header class="fixed top-0 left-0 right-0 z-50 bg-brand-400 shadow-md">
-  <div class="flex items-center justify-between px-4 py-3">
+<header class="fixed top-0 left-0 right-0 z-50 bg-brand-400 shadow-md max-h-[calc(4rem)] flex flex-row items-center justify-between w-full">
+  <div class="flex items-center justify-between px-4 py-3 w-full">
    
     <div class="flex items-center gap-3">
       
@@ -12,9 +12,9 @@
       </button>
 
       <a class="flex flex-col sm:flex-row sm:items-center text-white font-semibold tracking-wide cursor-pointer" routerLink="/">
-        <span class="text-lg">SIGPRO</span>
-        <span class="text-sm sm:text-base sm:ml-2">
-          {{ getAppLocation() }}
+        <span class="text-lg sm:text-base mr-1">SIGPRO</span>
+        <span class="text-sm sm:text-base">
+          {{ getAppLocation() | titlecase }}
         </span>
       </a>
 
@@ -22,12 +22,14 @@
    
     <div class="relative group">
       
-      <button class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-md transition-all duration-200 hover:bg-brand-600 hover:text-white cursor-pointer">
+      <button class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-md transition-all duration-200 hover:bg-brand-600 hover:text-white cursor-pointer" (click)="toggleShowUserMenu()">
         <app-ui-icon [iconName]="'user'" [class]="'w-5 h-5'"></app-ui-icon>  
         <span class="transition-transform group-hover:rotate-180">∧</span>
       </button>
 
-      <div class="absolute right-0 mt-2 w-44 z-50 bg-gray-100 rounded-md shadow-lg opacity-0 invisible scale-95 transition-all duration-150 group-hover:opacity-100 group-hover:visible group-hover:scale-100">
+    
+      <div [class]="`absolute right-0 mt-2 w-44 z-50 bg-gray-100 rounded-md shadow-lg transition-all duration-150 ${showUserMenu()?'opacity-100 scale-100':'opacity-0 scale-95'}`">       
+        @if(showUserMenu()){
         <ul class="p-1 text-sm text-body font-medium">
           
           <app-header-menu-item>            
@@ -46,8 +48,8 @@
           </app-header-menu-item>
           
         </ul>
+        }
       </div>
-     
     </div>
 
   </div>
