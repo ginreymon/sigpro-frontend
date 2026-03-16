@@ -1,59 +1,164 @@
-<app-work-space-layout [headerVisible]="false" [sideContentVisible]="true" [backgroundVisible]="false">
-    <div main-content class="h-full flex flex-col justify-between gap-4">
+<app-work-space-layout [headerVisible]="true" [sideContentVisible]="true">
+    <form main-content class="flex flex-col justify-between min-h-full max-h-full">
 
-        <!-- Section 1 select module -->
-        <div class="h-full bg-white border border-slate-200 rounded-lg shadow-md p-6">
-            <div class="flex flex-row justify-between">
-                <h4 class="text-xl font-semibold text-gray-700 mb-2">
-                    <app-ui-decorator [disabled]="true">1</app-ui-decorator> Seleccionar módulo
-                </h4>
-                <app-ui-badge [activeText]="'Completado'" [active]="true"></app-ui-badge>
+        <fieldset [disabled]="showLoader()">
+            <div class="flex items-center justify-between border-b border-default border-gray-300 pb-4 md:pb-5 mb-2">
+                <h3 class="text-lg font-medium text-heading text-gray-900">Configurar operación</h3>
             </div>
+
+            <div class="text-gray-600 overflow-y-auto flex flex-col justify-start">
+
+                <app-ui-form-field [controlName]="'module_id'">
+                    <div class="flex flex-row justify-between items-center">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2"> Módulo </h4>
+                        <div class="flex items-center gap-1">
+                            <app-ui-button [intent]="'hover'" (onClick)="prevModule()">
+                                <app-ui-icon [iconName]="'chevronLeft'" [class]="'w-3 h-3'"></app-ui-icon>
+                            </app-ui-button>
+
+                            <app-ui-button [intent]="'hover'" (onClick)="nextModule()">
+                                <app-ui-icon [iconName]="'chevronRight'" [class]="'w-3 h-3'"></app-ui-icon>
+                            </app-ui-button>
+                        </div>
+                    </div>
+                    <app-operation-carousel #moduleCarousel>
+                        @for(module of modules();track module){
+                        <app-ui-option-card [className]="'min-w-50 max-w-50'" (onToggle)="selectModule(module.id)"
+                            [selected]="isSelectedModule(module)">
+                            <div class=" flex flex-row justify-start gap-2 items-center">
+                                <app-ui-icon [iconName]="'screwdriverWrench'" class="h-5 w-5"></app-ui-icon>
+                                <p class="font-medium text-sm">{{ module.number }}
+                                    <span class="text-xs text-gray-500">
+                                        <strong> {{ module.name | titlecase | ellipsis:25 }}</strong>
+                                    </span>
+                                </p>
+                            </div>
+                        </app-ui-option-card> }
+                    </app-operation-carousel>
+                </app-ui-form-field>
+
+                <app-ui-form-field [controlName]="'workShift_id'">
+                    <div class="flex flex-row justify-between items-center">
+                        <h4 class="text-sm font-semibold text-gray-700"> Turno </h4>
+                        <div class="flex items-center gap-1">
+                            <app-ui-button [intent]="'hover'" (onClick)="prevWorkshift()">
+                                <app-ui-icon [iconName]="'chevronLeft'" [class]="'w-3 h-3'"></app-ui-icon>
+                            </app-ui-button>
+
+                            <app-ui-button [intent]="'hover'" (onClick)="nextWorkshift()">
+                                <app-ui-icon [iconName]="'chevronRight'" [class]="'w-3 h-3'"></app-ui-icon>
+                            </app-ui-button>
+                        </div>
+                    </div>
+                    <app-operation-carousel #workshiftCarousel>
+                        @for(workshift of workShifts();track workshift){
+                        <app-ui-option-card [className]="'min-w-50 max-w-50'" (onToggle)="selectWorkShift(workshift.id)"
+                            [selected]="isSelectedWorkShift(workshift)">
+                            <div class="flex flex-row justify-start gap-2 items-center mb-1">
+                                <app-ui-icon [iconName]="'alarmClock'" class="h-5 w-5"></app-ui-icon>
+                                <p class="font-medium text-sm"> {{ workshift.name | titlecase | ellipsis:20 }} </p>
+                            </div>
+                            <p class="text-xs text-gray-500"> <strong>Hora inicio :</strong> {{ workshift.start_time
+                                }} </p>
+                            <p class="text-xs text-gray-500"> <strong>Hora fin:</strong> {{ workshift.end_time }}
+                            </p>
+                        </app-ui-option-card> }
+                    </app-operation-carousel>
+                </app-ui-form-field>
+
+                <app-ui-form-field [controlName]="'assignee_ids'">
+                    <h4 class="text-sm font-semibold text-gray-700 my-2"> Encomendados </h4>
+                    <app-ui-button [intent]="'action'" (onClick)="openModal()">
+                        <app-ui-icon [iconName]="'circlePlus'" class="h-5 w-5"></app-ui-icon>
+                        Agregar encomendados
+                    </app-ui-button>
+                </app-ui-form-field>
+
+                @if(errorMessage()){
+                <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+                }
+
+            </div>
+        </fieldset>
+
+        <div class="flex justify-end items-center border-t border-default border-gray-300 space-x-4 pt-4 md:pt-5">
+            <app-ui-button [intent]="'cancel'">Cancelar</app-ui-button>
+            <app-ui-button [type]="'submit'" (onClick)="submit()">
+                Iniciar operación
+                <app-ui-icon [iconName]="'arrowRight'" class="h-5 w-5"></app-ui-icon>
+            </app-ui-button>
         </div>
 
-        <!-- Section 2 select work shift-->
-        <div class="h-full bg-white border border-slate-200 rounded-lg shadow-md p-6">
-            <div class="flex flex-row justify-between">
-                <h4 class="text-xl font-semibold text-gray-700 mb-2">
-                    <app-ui-decorator [disabled]="true">2</app-ui-decorator> Seleccionar turno
+    </form>
+
+    <aside aside-content class="h-full max-h-full">
+        <div class="h-full max-h-full flex flex-col justify-start">
+
+            <div class="border-b border-default border-gray-300 pb-4 md:pb-5">
+                <h3 class="text-lg font-medium text-heading text-gray-900">
+                    Encomendados
+                </h3>
+                @if(module?.operator_count){
+                <h4 [class]="`text-lg font-medium text-heading ${(assigneeIds?.value.length != module?.operator_count)?'text-red-500':'text-gray-900'}`">
+                    {{ assigneeIds?.value.length }} de {{module?.operator_count}}
                 </h4>
-                <app-ui-badge [inactiveText]="'Incompleto'" [active]="false"></app-ui-badge>
+                }
             </div>
 
-        </div>
+            <div class="flex flex-1 overflow-auto min-h-0 flex-col justify-start items-center gap-2 w-full">                
+                
+                <div class="mt-4 mb-2 grid grid-cols-1 md:grid-cols-1 gap-3 py-2 items-stretch overflow-y-auto w-full">
 
-        <!-- Section 3 seelct teem -->
-        <div class="h-full bg-white border border-slate-200 rounded-lg shadow-md p-6">
-
-            <div class="flex flex-row justify-between w-full">
-                <h4 class="text-xl font-semibold text-gray-700 mb-2 ">
-                    <app-ui-decorator [disabled]="true">3</app-ui-decorator> Confirmar equipo
-                </h4>
-                <app-ui-badge [activeText]="'Completado'" [active]="true"></app-ui-badge>
-            </div>
-
-            <div class="w-full flex flex-row justify-between">
-                <div class="w-full">
-
+                    @for(id of assigneeIds?.value;track id){
+                    <app-ui-option-card [disabled]="true">   
+                        <div class="font-medium text-sm flex flex-row justify-between items-center w-full">
+                            <div class="font-medium text-sm flex flex-row justify-start items-center gap-2">
+                                <app-ui-icon [iconName]="'user'" class="h-5 w-5"></app-ui-icon>
+                                <p>
+                                    {{ getEmployee(id)?.first_name | titlecase }}
+                                    {{ getEmployee(id)?.last_name1 | titlecase }}
+                                    {{ getEmployee(id)?.last_name2 | titlecase }}
+                                </p>
+                            </div>
+                            <app-ui-tooltip [message]="'Sacar de la lista'" [tooltip]="'left'">
+                                <app-ui-close-button (onClose)="deleteEmployee(id)"></app-ui-close-button>
+                            </app-ui-tooltip>
+                        </div>
+                    </app-ui-option-card>
+                    }
+                    
                 </div>
-                <div class="w-full">
 
-                </div>
             </div>
 
+        </div>        
+    </aside>
 
-        </div>
-
-        <!-- Section 4 (buttons) -->
-        <!-- <div [disabled]="true" [className]="'flex flex-col'"> -->
-        <!-- <h4 class="text-xl font-semibold text-gray-700 w-full">
-                <app-ui-decorator [disabled]="true">4</app-ui-decorator> Iniciar operación
-            </h4> -->
-        <div class="w-full flex flex-row justify-end gap-4">
-            <app-ui-button [intent]="'action'"> Cancelar </app-ui-button>
-            <app-ui-button> Iniciar operación </app-ui-button>
-        </div>
-        <!-- </div> -->
-
-    </div>
 </app-work-space-layout>
+
+<app-modal-layout [title]="title" [visible]="modalVisible()" (onCancel)="closeModelForm()" (onAccept)="addEmployees()" [acceptLabel]="acceptLabel">
+
+    <app-searcher #searcher  [intent]="'action'" (onSearch)="search($event)"></app-searcher>
+
+    <app-ui-form-field [label]="'Empleados'" [controlName]="'option_ids'">
+        <div class="mb-2 flex flex-col justify-start gap-3 py-2 items-stretch overflow-y-auto max-h-[30vh]">
+
+            @for(employee of filteredEmployees ;track employee){                
+            <app-ui-option-card (onToggle)="toggleEmployee(employee.id)" [selected]="isSelectedEmployee(employee)">
+                <div class="font-medium text-sm flex flex-row justify-start items-center gap-2">
+                    <app-ui-icon [iconName]="'user'" class="h-5 w-5"></app-ui-icon>
+                    <p>
+                        {{ employee.first_name | titlecase }}
+                        {{ employee.last_name1 | titlecase }}
+                        {{ employee.last_name2 | titlecase }}
+                    </p>
+                </div>
+            </app-ui-option-card>
+            }
+
+        </div>
+    </app-ui-form-field>
+
+</app-modal-layout>
+
+<app-loader [showLoader]="showLoader()"></app-loader>

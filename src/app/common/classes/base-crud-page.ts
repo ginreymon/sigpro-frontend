@@ -1,4 +1,4 @@
-import { Directive, inject, Signal, signal } from '@angular/core';
+import { Directive, inject, Signal, signal, WritableSignal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { PaginatedResponse } from '../interfaces/paginated-response';
 import { TableActions, TableActionType } from '../interfaces/table-actions';
@@ -13,6 +13,7 @@ import { BaseEntity } from '../interfaces/base-entity';
 import { TableToolsButtons } from '../interfaces/table-tools-buttons';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { TableActionEvent } from '../interfaces/table-action-event';
+import { AuditEntity } from '../interfaces/audit-entity';
 
 @Directive()
 export abstract class BaseCrudPage<T extends BaseEntity> {
@@ -238,5 +239,20 @@ export abstract class BaseCrudPage<T extends BaseEntity> {
         break;
       }
     }
+  }
+
+  protected loadList<E extends Partial<AuditEntity>>(service: BaseCrudService<E>, entitiesSignal: WritableSignal<E[]>, filter = false, transform?: (items: E[]) => E[]) {
+    this.wslService.start();
+    const params: QueryParams = { page: 1, limit: 1000000 };
+    service
+      .getAll(params)
+      .pipe(finalize(() => this.wslService.end()))
+      .subscribe((resp) => {
+        let entities = filter
+          ? resp.results.filter((e) => (e?.is_active ?? true) && !e?.is_deleted)
+          : resp.results;
+
+        entitiesSignal.set(transform ? transform(entities) : entities);
+      });
   }
 }

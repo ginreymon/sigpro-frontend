@@ -1,8 +1,10 @@
 import { Directive, EventEmitter, Input, Output } from '@angular/core';
 
+export type ButtonBaseType ='hover' | 'cancel' | 'accept' | 'action' | 'black' | 'label';
+
 @Directive()
 export abstract class ButtonBase {
-  @Input() intent: 'hover' | 'cancel' | 'accept' | 'action' | 'black' | 'label' = 'accept';
+  @Input() intent: ButtonBaseType = 'accept';
   @Input() disabled: boolean = false;
   @Input() classNames: string = '';
   @Input() type: string = 'button';
