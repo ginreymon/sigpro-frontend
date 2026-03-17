@@ -9,8 +9,6 @@ import { SideModalLayout } from '../../../shared/components/side-modal-layout/si
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { OptionsService } from '../../../services/core/options-service';
-import { finalize } from 'rxjs';
-import { QueryParams } from '../../../common/interfaces/query-params';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Option } from '../../../models/core/option';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
@@ -57,7 +55,7 @@ export class Roles extends BaseCrudPage<Role> {
     this.actions.delete = { enabled: true, title: 'Eliminar rol' };
     this.actions.create = { enabled: true, title: 'Crear rol' };
     this.tableToolsButtons.addItem.enabled = true;
-    this.getOptions();
+    this.loadList(this.optionService, this.options, true);
   }
 
   protected override initializeColumns(): void {
@@ -101,32 +99,5 @@ export class Roles extends BaseCrudPage<Role> {
 
   isSelected(id: number) {
     return this.optionIds?.value?.includes(id);
-  }
-
-  override submit() {
-    if (!this.validateModelForm()) return;
-    this.showLoader.set(true);
-    const role: Partial<Role> = this.modelForm.value;
-
-    const request$ =
-      this.actionType == 'create'
-        ? this.roleService.create(role)
-        : this.roleService.update(this.rowObject.id!, role);
-
-    request$.pipe(finalize(() => this.reload(() => this.showLoader.set(false)))).subscribe({
-      next: () => this.closeModelForm(),
-      error: (err) => {
-        this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
-      },
-    });
-  }
-
-  getOptions() {
-    this.wslService.start();
-    const params: QueryParams = { page: 1, limit: 100 };
-    this.optionService
-      .getAll(params)
-      .pipe(finalize(() => this.wslService.end()))
-      .subscribe((resp) => this.options.set([...resp.results]));
-  }
+  }  
 }

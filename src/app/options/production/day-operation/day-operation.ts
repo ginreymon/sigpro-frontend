@@ -24,6 +24,9 @@ import { ModalLayout } from '../../../shared/components/modal-layout/modal-layou
 import { Searcher } from '../../../shared/components/searcher/searcher';
 import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
 import { UiCloseButton } from '../../../shared/elements/ui-close-button/ui-close-button';
+import { ReactiveFormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-day-operation',
@@ -42,6 +45,7 @@ import { UiCloseButton } from '../../../shared/elements/ui-close-button/ui-close
     Searcher,
     UiTooltip,
     UiCloseButton,
+    ReactiveFormsModule,
   ],
   templateUrl: './day-operation.html',
   styleUrl: './day-operation.css',
@@ -51,13 +55,16 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   @ViewChild('workshiftCarousel') workshiftCarousel!: OperationCarousel;
   @ViewChild('searcher') searcher!: Searcher;
 
+  private OPERATION_ORDER_URL: string = 'production/orders';
   private workShiftService = inject(WorkShiftService);
   private moduleService = inject(ModuleService);
   private employeeService = inject(EmployeeService);
+  private router = inject(Router);
 
   protected modules = signal<Module[]>([]);
   protected workShifts = signal<WorkShift[]>([]);
   protected employees = signal<Employee[]>([]);
+  protected currentSession = signal<WorkSession | null>(null);
   private _filteredEmployees: Employee[] = [];
   selectedIds: number[] = [];
 
@@ -66,30 +73,29 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     this.loadList(this.workShiftService, this.workShifts, true);
     this.loadList(this.moduleService, this.modules, true);
     this.loadList(this.employeeService, this.employees, false);
-  }
-
-  protected override initializeColumns(): void {
-    this.columns = [];
+    this.getCurrentSession();
   }
 
   protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
-      module_id: [null, [Validators.required]],
-      workShift_id: [null, [Validators.required]],
-      assignee_ids: this.fb.control<number[]>([], [minArrayLength(1)]),
+      module: [null, [Validators.required]],
+      work_shift: [null, [Validators.required]],
+      employee_ids: this.fb.control<number[]>([], [minArrayLength(1)]),
     });
   }
 
-  get moduleId() {
-    return this.modelForm?.get('module_id');
+  protected override reload(): void {}
+
+  get module() {
+    return this.modelForm?.get('module');
   }
 
-  get workShiftId() {
-    return this.modelForm?.get('workShift_id');
+  get workShift() {
+    return this.modelForm?.get('work_shift');
   }
 
-  get assigneeIds() {
-    return this.modelForm?.get('assignee_ids');
+  get employeeIds() {
+    return this.modelForm?.get('employee_ids');
   }
 
   get filteredEmployees() {
@@ -102,9 +108,9 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     return this._filteredEmployees;
   }
 
-  get module() {
+  get selectedModule() {
     return this.modules().find((m) => {
-      return m.id == this.moduleId?.value;
+      return m.id == this.module?.value;
     });
   }
 
@@ -115,43 +121,52 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   deleteEmployee(_id: number) {
-    const filtered = this.assigneeIds?.value.filter((id: number) => {
+    const filtered = this.employeeIds?.value.filter((id: number) => {
       return id != _id;
     });
-    this.assigneeIds?.setValue(filtered);
+    this.employeeIds?.setValue(filtered);
   }
 
   openModal() {
-    this.selectedIds = this.assigneeIds?.value ?? [];
+    if(!this.selectedModule){
+      this.module?.markAsTouched();
+      return;
+    }
+    this.selectedIds = this.employeeIds?.value ?? [];
     this.dialogService.openModal('Empleados', 'Agregar');
   }
 
   selectModule(id: number) {
-    if (id == this.moduleId?.value) {
-      this.moduleId.setValue(null);
+    if (id == this.module?.value) {
+      this.module.setValue(null);
+      this.employeeIds?.setValue([]);
       return;
     }
-    this.moduleId?.setValue(id);
+    this.module?.setValue(id);
+    const ids = this.selectedModule?.employees?.map((e) => {
+      return e.id;
+    });
+    this.employeeIds?.setValue(ids ?? []);
   }
 
   isSelectedModule(mod: Module) {
-    return this.moduleId?.value === mod.id;
+    return this.module?.value === mod.id;
   }
 
   selectWorkShift(id: number) {
-    if (id == this.workShiftId?.value) {
-      this.workShiftId.setValue(null);
+    if (id == this.workShift?.value) {
+      this.workShift.setValue(null);
       return;
     }
-    this.workShiftId?.setValue(id);
+    this.workShift?.setValue(id);
   }
 
   isSelectedWorkShift(ws: WorkShift) {
-    return this.workShiftId?.value === ws.id;
+    return this.workShift?.value === ws.id;
   }
 
   isSelectedEmployee(emp: Employee) {
-    return this.assigneeIds?.value.includes(emp.id);
+    return this.selectedIds.includes(emp.id);
   }
 
   nextModule() {
@@ -192,14 +207,53 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   addEmployees() {
-    this.assigneeIds?.setValue(this.selectedIds);
+    this.employeeIds?.setValue(this.selectedIds);
     this.searcher.clear();
     this.dialogService.closeModal();
   }
 
   protected override closeModelForm(): void {
+    this.resetModalForm();
     this.searcher.clear();
+    this.selectedIds = [];
     this._filteredEmployees = this.employees();
     this.closeModelForm();
+  }
+
+  protected override submit(): void {
+    if (this.currentSession()) {
+      this.router.navigateByUrl(this.OPERATION_ORDER_URL);
+      return;
+    }
+
+    this.actionType = 'create';
+    super.submit(undefined, () => {
+      this.router.navigateByUrl(this.OPERATION_ORDER_URL);
+    });
+  }
+
+  getCurrentSession() {
+    this.showLoader.set(true);
+    this.workSessionService
+      .getActive()
+      .pipe(finalize(() => this.showLoader.set(false)))
+      .subscribe({
+        next: (session) => {
+          this.currentSession.set(session as WorkSession);
+        },
+      });
+  }
+
+  closeSession() {
+    this.showLoader.set(true);
+    this.workSessionService
+      .closeSession(this.currentSession()?.id!)
+      .pipe(finalize(() => this.showLoader.set(false)))
+      .subscribe({
+        next: (value) => {
+          this.currentSession.set(null);
+          this.router.navigateByUrl('/');
+        },
+      });
   }
 }

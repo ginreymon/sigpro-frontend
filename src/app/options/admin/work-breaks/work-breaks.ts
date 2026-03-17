@@ -13,7 +13,6 @@ import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { WorkBreakService } from '../../../services/production/work-break-service';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
-import { finalize } from 'rxjs';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
@@ -84,25 +83,11 @@ export class WorkBreaks extends BaseCrudPage<WorkBreak> {
   }
 
   protected override submit(): void {
-    if (!this.validateModelForm()) return;
-    this.showLoader.set(true);
-
     const workbreak: Partial<WorkBreak> = {
       ...this.modelForm.value,
       duration: this.minutesToDuration(this.duration?.value ?? 0),
     };
-
-    const request$ =
-      this.actionType == 'create'
-        ? this.workBreakService.create(workbreak)
-        : this.workBreakService.update(this.rowObject.id!, workbreak);
-
-    request$.pipe(finalize(() => this.reload(() => this.showLoader.set(false)))).subscribe({
-      next: () => this.closeModelForm(),
-      error: (err) => {
-        this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
-      },
-    });
+    super.submit(workbreak);
   }
 
   protected override actionHandler(event: TableActionEvent<WorkBreak>): void {

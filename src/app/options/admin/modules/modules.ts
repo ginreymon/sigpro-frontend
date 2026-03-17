@@ -15,8 +15,6 @@ import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { WorkCenterService } from '../../../services/production/work-center-service';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { WorkCenter } from '../../../models/production/work-center';
-import { QueryParams } from '../../../common/interfaces/query-params';
-import { finalize } from 'rxjs';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
@@ -40,10 +38,10 @@ import { Metadata } from "../../../shared/components/metadata/metadata";
     UiCheckbox,
     TableTemplate,
     UiErrorMessage,
-    UiBadge,   
+    UiBadge,
     CharSquare,
-    Metadata
-],
+    Metadata,
+  ],
   templateUrl: './modules.html',
   styleUrl: './modules.css',
 })
@@ -74,7 +72,7 @@ export class Modules extends BaseCrudPage<Module> {
     ];
   }
 
-  protected override initializeModelForm(): void {   
+  protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
       name: [null, [Validators.required, Validators.minLength(4)]],
       number: [null, [Validators.required, Validators.min(1)]],
@@ -110,7 +108,7 @@ export class Modules extends BaseCrudPage<Module> {
   }
 
   protected override actionHandler(event: TableActionEvent<Module>): void {
-    super.actionHandler(event);    
+    super.actionHandler(event);
     if (event.type == 'edit') {
       this.modelForm.patchValue(event.obj);
       this.workCenter?.setValue(event.obj.work_center.id);
@@ -118,38 +116,16 @@ export class Modules extends BaseCrudPage<Module> {
   }
 
   protected override submit(): void {
-    if (!this.validateModelForm()) return;
-    this.showLoader.set(true);
-
     const workcenter: Partial<Module> = {
       ...this.modelForm.value,
       is_active: this.isActive?.value ?? true,
     };
-
-    const request$ =
-      this.actionType == 'create'
-        ? this.moduleService.create(workcenter)
-        : this.moduleService.update(this.rowObject.id!, workcenter);
-    request$.pipe(finalize(() => this.reload(() => this.showLoader.set(false)))).subscribe({
-      next: () => this.closeModelForm(),
-      error: () => this.errorMessage.set('Ocurrió un error. Intente nuevamente.'),
-    });
+    super.submit(workcenter);
   }
 
   getWorkCenters() {
-    this.wslService.start();
-    const params: QueryParams = { page: 1, limit: 10000 };
-    this.workCenterService
-      .getAll(params)
-      .pipe(finalize(() => this.wslService.end()))
-      .subscribe((resp) =>
-        this.workCenters.set([
-          ...resp.results
-            .filter((wc) => {
-              return wc.is_active;
-            })
-            .sort((a, b) => a.description.localeCompare(b.description)),
-        ]),
-      );
+    this.loadList(this.workCenterService, this.workCenters, true,
+      items => items.sort((a, b) => a.description.localeCompare(b.description))
+    );
   }
 }

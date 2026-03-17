@@ -13,7 +13,6 @@ import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-fiel
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiHourInput } from '../../../shared/elements/ui-hour-input/ui-hour-input';
 import { FormFieldConfig } from '../../../common/interfaces/form-field-config';
-import { finalize } from 'rxjs';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
@@ -137,26 +136,12 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
   }
 
   protected override submit(): void {
-    if (!this.validateModelForm()) return;
-    this.showLoader.set(true);
-
-    const shift: Partial<WorkShift> = {
+    const workshift: Partial<WorkShift> = {
       ...this.modelForm.value,
       start_time: `${this.startHour?.value}:${this.startMinutes?.value}`,
       end_time: `${this.endHour?.value}:${this.endMinutes?.value}`,
     };
-
-    const request$ =
-      this.actionType == 'create'
-        ? this.workShiftService.create(shift)
-        : this.workShiftService.update(this.rowObject.id!, shift);
-
-    request$.pipe(finalize(() => this.reload(() => this.showLoader.set(false)))).subscribe({
-      next: () => this.closeModelForm(),
-      error: (err) => {
-        this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
-      },
-    });
+    super.submit(workshift);
   }
 
   protected override mapResponse(res: PaginatedResponse<WorkShift>) {

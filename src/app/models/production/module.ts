@@ -1,4 +1,5 @@
 import { AuditEntity } from '../../common/interfaces/audit-entity';
+import { Employee } from './employee';
 import { WorkCenter } from './work-center';
 
 export interface Module extends AuditEntity {
@@ -10,4 +11,5 @@ export interface Module extends AuditEntity {
 
   work_center_id: number;
   work_center: WorkCenter;
+  employees?: Employee[];
 }

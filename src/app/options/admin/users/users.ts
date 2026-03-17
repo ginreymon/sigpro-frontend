@@ -11,7 +11,6 @@ import { ConfirmBox } from '../../../shared/components/confirm-box/confirm-box';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { RoleService } from '../../../services/user/role-service';
 import { Role } from '../../../models/user/role';
-import { QueryParams } from '../../../common/interfaces/query-params';
 import { finalize } from 'rxjs';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
@@ -69,7 +68,7 @@ export class Users extends BaseCrudPage<Employee> {
     super(employeeService);
     this.actions.edit = { enabled: true, title: 'Editar usuario' };
     this.actions.view = { enabled: true, title: 'Ver usuario' };
-    this.getRoles();
+    this.loadList(this.roleService, this.roles, false);
   }
 
   protected override initializeColumns(): void {
@@ -180,16 +179,7 @@ export class Users extends BaseCrudPage<Employee> {
           error: () => this.dialogService.closeConfirm(),
         });
     });
-  }
-
-  getRoles() {
-    this.wslService.start();
-    const params: QueryParams = { page: 1, limit: 100 };
-    this.roleService
-      .getAll(params)
-      .pipe(finalize(() => this.wslService.end()))
-      .subscribe((resp) => this.roles.set([...resp.results]));
-  }
+  } 
 
   isSelected(id: number) {
     return this.role?.value == id;

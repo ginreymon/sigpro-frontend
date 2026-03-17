@@ -9,4 +9,5 @@ export interface Option {
   module_id: number;
   title: string | null;
   description: string | null;
+  visible: boolean;
 }

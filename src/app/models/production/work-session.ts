@@ -1,4 +1,5 @@
 import { AuditEntity } from '../../common/interfaces/audit-entity';
+import { Employee } from './employee';
 
 export interface WorkSession extends AuditEntity {
   user: number;
@@ -7,4 +8,7 @@ export interface WorkSession extends AuditEntity {
   ended_at?: string | null;
   total_time?: string | null;
   is_closed: boolean;
+  module: number;
+  employee_ids: number[];
+  employees_snapshot?: Employee[];
 }
