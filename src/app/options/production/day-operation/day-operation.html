@@ -4,12 +4,60 @@
 
         <fieldset [disabled]="showLoader()" class="flex flex-col flex-1 min-h-0">
             <div class="flex items-center justify-between border-b border-default border-gray-300 pb-4 md:pb-5 mb-2">
-                <h3 class="text-lg font-medium text-heading text-gray-900">Configurar operación</h3>
+                <h3 class="text-2xl font-semibold text-heading text-gray-900">
+                    {{ currentSession()?'Configuración de la ':'Configurar ' }} operación
+                </h3>
             </div>
 
             <div class="text-gray-600 overflow-y-auto flex flex-col justify-start flex-1 min-h-0">
+            @if(currentSession())
+            {
+                <div class="mb-4 pb-4">
+                
+                    <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información del módulo </h4>
+                
+                    <div class="space-y-2 text-sm">
+                    
+                        <p> <strong> Número :</strong> {{ currentSession()?.module?.number }} </p>
 
-                <app-ui-form-field [controlName]="'module'">
+                        <p> <strong> Nombre :</strong> {{ currentSession()?.module?.name | titlecase }} </p>
+
+                        <p> <strong> Número de encomendados :</strong>  {{ currentSession()?.employees_snapshot?.length }} / {{ currentSession()?.module?.operator_count }} </p>
+                    
+                        <p> <strong> Centro de trabajo :</strong> {{ currentSession()?.module?.work_center?.short_description | titlecase }} </p>
+                    
+                        <p> <strong> Descripción :</strong> {{ currentSession()?.module?.work_center?.description }} </p>
+                    
+                        <p> <strong> Código :</strong> {{ currentSession()?.module?.work_center?.code }} </p>
+                    
+                    </div>
+                
+                </div>
+                
+                <div class="mb-4 pt-4 border-t border-slate-200">
+                
+                    <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información del turno </h4>
+                
+                    <div class="space-y-2 text-sm">
+                
+                        <p> <strong>Nombre :</strong> {{ currentSession()?.work_shift?.name | titlecase }} </p>                        
+                        
+                        <p> <strong>Desde :</strong> {{ currentSession()?.work_shift?.start_time }} </p>  
+                        
+                        <p> <strong>Hasta :</strong> {{ currentSession()?.work_shift?.end_time }} </p>  
+
+                        <p> <strong>Fecha y hora de inicio :</strong> {{ currentSession()?.started_at | date:'dd/MM/yyyy HH:mm' }} </p>                        
+                
+                    </div>
+                
+                </div>                
+                
+                <app-metadata class="mb-4" [rowObject]="currentSession()!"></app-metadata>           
+            }
+            
+            @if(!currentSession() && modules().length && workShifts().length && employees().length)
+            {
+                <app-ui-form-field [controlName]="'module_id'">
                     <div class="flex flex-row justify-between items-center">
                         <h4 class="text-sm font-semibold text-gray-700 mb-2"> Módulo </h4>
                         <div class="flex items-center gap-1">
@@ -38,7 +86,7 @@
                     </app-operation-carousel>
                 </app-ui-form-field>
 
-                <app-ui-form-field [controlName]="'work_shift'">
+                <app-ui-form-field [controlName]="'work_shift_id'">
                     <div class="flex flex-row justify-between items-center">
                         <h4 class="text-sm font-semibold text-gray-700"> Turno </h4>
                         <div class="flex items-center gap-1">
@@ -76,9 +124,9 @@
                 </app-ui-form-field>
 
                 @if(errorMessage()){
-                <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+                <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>                
                 }
-
+            }
             </div>
         </fieldset>
 
@@ -125,9 +173,13 @@
                                     {{ getEmployee(id)?.last_name2 | titlecase }}
                                 </p>
                             </div>
+
+                            @if(!currentSession()){
                             <app-ui-tooltip [message]="'Sacar de la lista'" [tooltip]="'left'">
                                 <app-ui-close-button (onClose)="deleteEmployee(id)"></app-ui-close-button>
                             </app-ui-tooltip>
+                            }
+
                         </div>
                     </app-ui-option-card>
                     }

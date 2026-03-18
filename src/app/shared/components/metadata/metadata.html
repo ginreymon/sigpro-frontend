@@ -14,9 +14,9 @@
 
         <p> <strong>Actualizado:</strong> {{ rowObject?.updated_at | date:'dd/MM/yyyy HH:mm' }} </p>
 
-        <p> <strong>Creado por:</strong> {{ rowObject?.created_by ?? '—' }} </p>
+        <p> <strong>Creado por:</strong> {{ rowObject?.created_by_username ?? '—' }} </p>
 
-        <p> <strong>Actualizado por:</strong> {{ rowObject?.updated_by ?? '—' }} </p>
+        <p> <strong>Actualizado por:</strong> {{ rowObject?.updated_by_username ?? '—' }} </p>
 
         @if(rowObject?.is_active && showIsActive){
         <p> <strong>Estado:</strong> {{ rowObject?.is_active ? 'Activo':'Inactivo' }} </p>

@@ -27,6 +27,9 @@ import { UiCloseButton } from '../../../shared/elements/ui-close-button/ui-close
 import { ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Router } from '@angular/router';
+import { Metadata } from '../../../shared/components/metadata/metadata';
+import { DatePipe } from '@angular/common';
+import { QueryParams } from '../../../common/interfaces/query-params';
 
 @Component({
   selector: 'app-day-operation',
@@ -46,6 +49,8 @@ import { Router } from '@angular/router';
     UiTooltip,
     UiCloseButton,
     ReactiveFormsModule,
+    Metadata,
+    DatePipe,
   ],
   templateUrl: './day-operation.html',
   styleUrl: './day-operation.css',
@@ -70,28 +75,46 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   constructor(private workSessionService: WorkSessionService) {
     super(workSessionService);
-    this.loadList(this.workShiftService, this.workShifts, true);
-    this.loadList(this.moduleService, this.modules, true);
-    this.loadList(this.employeeService, this.employees, false);
-    this.getCurrentSession();
+    this.initialize();
+  }
+
+  initialize() {
+    this.wslService.start();
+    this.workSessionService
+      .getActive()
+      .pipe(finalize(() => this.wslService.end()))
+      .subscribe({
+        next: (session) => {
+          this.currentSession.set(session as WorkSession);
+          if (session) {
+            this.setModelFormValues(session);
+            this.employees.set(session.employees_snapshot as Employee[]);
+          } else {
+            this.loadList(this.workShiftService, this.workShifts, true);
+            this.loadList(this.moduleService, this.modules, true);
+            this.loadList(this.employeeService, this.employees, false);
+          }
+        },
+        error: () => this.currentSession.set(null),
+      });
   }
 
   protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
-      module: [null, [Validators.required]],
-      work_shift: [null, [Validators.required]],
+      module_id: [null, [Validators.required]],
+      work_shift_id: [null, [Validators.required]],
       employee_ids: this.fb.control<number[]>([], [minArrayLength(1)]),
     });
   }
 
   protected override reload(): void {}
 
-  get module() {
-    return this.modelForm?.get('module');
+  get moduleId() {
+    return this.modelForm?.get('module_id');
   }
 
-  get workShift() {
-    return this.modelForm?.get('work_shift');
+  get workShiftId() {
+    return this.modelForm?.get('work_shift_id');
   }
 
   get employeeIds() {
@@ -110,7 +133,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   get selectedModule() {
     return this.modules().find((m) => {
-      return m.id == this.module?.value;
+      return m.id == this.moduleId?.value;
     });
   }
 
@@ -128,8 +151,8 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   openModal() {
-    if(!this.selectedModule){
-      this.module?.markAsTouched();
+    if (!this.selectedModule) {
+      this.moduleId?.markAsTouched();
       return;
     }
     this.selectedIds = this.employeeIds?.value ?? [];
@@ -137,12 +160,12 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   selectModule(id: number) {
-    if (id == this.module?.value) {
-      this.module.setValue(null);
+    if (id == this.moduleId?.value) {
+      this.moduleId.setValue(null);
       this.employeeIds?.setValue([]);
       return;
     }
-    this.module?.setValue(id);
+    this.moduleId?.setValue(id);
     const ids = this.selectedModule?.employees?.map((e) => {
       return e.id;
     });
@@ -150,19 +173,19 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   isSelectedModule(mod: Module) {
-    return this.module?.value === mod.id;
+    return this.moduleId?.value === mod.id;
   }
 
   selectWorkShift(id: number) {
-    if (id == this.workShift?.value) {
-      this.workShift.setValue(null);
+    if (id == this.workShiftId?.value) {
+      this.workShiftId.setValue(null);
       return;
     }
-    this.workShift?.setValue(id);
+    this.workShiftId?.setValue(id);
   }
 
   isSelectedWorkShift(ws: WorkShift) {
-    return this.workShift?.value === ws.id;
+    return this.workShiftId?.value === ws.id;
   }
 
   isSelectedEmployee(emp: Employee) {
@@ -232,16 +255,14 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     });
   }
 
-  getCurrentSession() {
-    this.showLoader.set(true);
-    this.workSessionService
-      .getActive()
-      .pipe(finalize(() => this.showLoader.set(false)))
-      .subscribe({
-        next: (session) => {
-          this.currentSession.set(session as WorkSession);
-        },
-      });
+  setModelFormValues(session: WorkSession) {    
+    this.modelForm.patchValue({
+      module_id: session.module?.id,
+      work_shift_id: session.work_shift?.id,
+      employee_ids: session.employees_snapshot?.map((emp) => {
+        return emp.id;
+      }),
+    });
   }
 
   closeSession() {

@@ -45,10 +45,7 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
     this.modalVisible = toSignal(this.dialogService.modalVisible$, { initialValue: false });
     this.sideModalVisible = toSignal(this.dialogService.sideModalVisible$, { initialValue: false });
     this.confirmVisible = toSignal(this.dialogService.confirmVisible$, { initialValue: false });
-    this.toastVisible = toSignal(this.dialogService.toastVisible$, { initialValue: false });
-    this.page = 1;
-    this.searchTerm = '';
-    this.reload();
+    this.toastVisible = toSignal(this.dialogService.toastVisible$, { initialValue: false });   
     this.initializeColumns();
     this.initializeModelForm();
   }
