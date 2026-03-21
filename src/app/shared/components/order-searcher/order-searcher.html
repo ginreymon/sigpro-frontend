@@ -1,0 +1,36 @@
+<form id="orderForm" [formGroup]="orderForm" class="w-full" (ngSubmit)="search()">
+
+    <div class="flex items-center justify-between border-b border-default border-gray-300 pb-4 md:pb-5 mb-2">
+        <h3 class="text-2xl font-semibold text-heading text-gray-900">
+            Buscar
+        </h3>
+    </div>
+
+    <fieldset class="w-full flex flex-row justify-start gap-1.5 mt-4">
+
+        <app-ui-form-field [controlName]="'type'" [label]="'Tipo'">
+            <app-ui-select formControlName="type" [className]="'min-w-40'" [control]="type" [items]=" doctypes()"
+                [key]="'doc_type'" [showDefaultOption]="true"></app-ui-select>
+        </app-ui-form-field>
+
+        <app-ui-form-field [controlName]="'number'" [label]="'Número'">
+            <div class="w-full flex flex-row justify-start gap-1.5">
+                <div class="relative w-full">
+                    <app-ui-input [type]="'number'" formControlName="number" [id]="'number'" [placeholder]="'Número'" [control]="number"></app-ui-input>
+                    @if(number?.value){
+                    <a class="absolute right-3 top-1/2 -translate-y-1/2" (click)="clear()">
+                        <app-ui-icon [iconName]="'xmark'" [class]="`h-5 w-5`"
+                            [appUiIconState]="number?.invalid!"></app-ui-icon>
+                    </a>
+                    }
+                </div>
+                <app-ui-button [type]="'submit'" [formId]="'orderForm'">
+                    <app-ui-icon [iconName]="'magnifyingGlass'" [class]="'h-5 w-5'"></app-ui-icon>
+                    Buscar
+                </app-ui-button>
+            </div>
+        </app-ui-form-field>
+
+    </fieldset>
+    
+</form>

@@ -3,7 +3,7 @@
         <app-ui-input id="search" [(ngModel)]="model" [ngModelOptions]="{standalone: true}" [class]="'pr-9'"></app-ui-input>
         @if(model){
         <a class="absolute right-3 top-1/2 -translate-y-1/2" (click)="clear()">
-            <app-ui-icon [iconName]="'xmark'" [class]="`h-5 w-5 ${classes}`"></app-ui-icon>
+            <app-ui-icon [iconName]="'xmark'" [class]="'h-5 w-5'" [appUiIconState]="false"></app-ui-icon>
         </a> 
         }       
     </div>

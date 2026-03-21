@@ -38,7 +38,7 @@
                             @if(col.type == 'tableActionType' && _actions.view.enabled){
                             <app-ui-tooltip [message]="'Ver'">
                                 <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,'view')">
-                                    <app-ui-icon [iconName]="'eye'" [class]="`h-5 w-5 ${buttonClass}`"></app-ui-icon>
+                                    <app-ui-icon [iconName]="'eye'" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
                                 </button>
                             </app-ui-tooltip>
                             }
@@ -46,7 +46,7 @@
                             @if(col.type == 'tableActionType' && _actions.edit.enabled){
                             <app-ui-tooltip [message]="'Editar'">
                                 <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,'edit')">
-                                    <app-ui-icon [iconName]="'pencil'" [class]="`h-5 w-5 ${buttonClass}`"></app-ui-icon>
+                                    <app-ui-icon [iconName]="'pencil'" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
                                 </button>
                             </app-ui-tooltip>
                             }
@@ -54,7 +54,7 @@
                             @if(col.type == 'tableActionType' && _actions.delete.enabled){
                             <app-ui-tooltip [message]="'Eliminar'">
                                 <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,'delete')">
-                                    <app-ui-icon [iconName]="'trash'" [class]="`h-5 w-5 ${buttonClass}`"></app-ui-icon>
+                                    <app-ui-icon [iconName]="'trash'" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
                                 </button>
                             </app-ui-tooltip>
                             }

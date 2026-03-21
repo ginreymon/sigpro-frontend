@@ -49,7 +49,7 @@ export class Login extends BaseAuthComponent {
     }
 
     this.isLoading.set(true);
-
+    this.auth.logout();
     const loginData: LoginRequest = this.loginForm.value;
 
     this.auth.login(loginData)

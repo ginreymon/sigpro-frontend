@@ -130,14 +130,29 @@
             </div>
         </fieldset>
 
-        <div class="flex justify-end items-center border-t border-default border-gray-300 space-x-4 pt-4 md:pt-5 bg-white">
+        <div class="flex justify-between items-center border-t border-default border-gray-300 space-x-4 pt-4 md:pt-5 bg-white">
 
-            <app-ui-button [intent]="currentSession()?'action':'cancel'" (onClick)="currentSession()? closeSession() :closeModelForm()">
-                {{currentSession()?'Cerrar operación':'Cancelar'}}
-            </app-ui-button>
+            <div class="flex justify-between items-center gap-1.5">
+
+                <app-ui-button [intent]="currentSession()?'action':'cancel'" (onClick)="currentSession()? closeSession() :cancel()">
+                    {{currentSession()?'Salir':'Cancelar'}}
+
+                    @if(currentSession()){
+                    <app-ui-icon [iconName]="'logout'" [class]="'w-5 h-5'"></app-ui-icon>    
+                    }
+                </app-ui-button>
+
+                @if(currentSession()){
+                <app-ui-button [intent]="'action'" (onClick)="switchEdit()">
+                    Modificar
+                    <app-ui-icon [iconName]="'pencil'" class="h-5 w-5"></app-ui-icon>
+                </app-ui-button>
+                }
+
+            </div>           
             <app-ui-button [type]="'submit'">
                 {{currentSession()?'Continuar':'Iniciar'}} operación
-                <app-ui-icon [iconName]="'arrowRight'" class="h-5 w-5"></app-ui-icon>
+                <app-ui-icon [iconName]="'circleRight'" class="h-5 w-5"></app-ui-icon>
             </app-ui-button>
 
         </div>

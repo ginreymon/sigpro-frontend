@@ -3,12 +3,12 @@ import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { UiInput } from '../../elements/ui-input/ui-input';
 import { FormsModule } from '@angular/forms';
-import { getUiIconClasses } from '../../../common/functions/get-input-icon-classes';
 import { ButtonBaseType } from '../../../common/classes/button-base';
+import { UiIconStateDirective } from '../../../directives/ui-icon-state-directive';
 
 @Component({
   selector: 'app-searcher',
-  imports: [UiButton, UiIcon, UiInput, FormsModule],
+  imports: [UiButton, UiIcon, UiInput, FormsModule, UiIconStateDirective],
   templateUrl: './searcher.html',
   styleUrl: './searcher.css',
 })
@@ -25,8 +25,5 @@ export class Searcher {
     this.model = '';
     this.submit();
   }
-
-  get classes() {
-    return getUiIconClasses(false);
-  }
+  
 }

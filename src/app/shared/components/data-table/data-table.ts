@@ -5,7 +5,6 @@ import { PaginatedResponse } from '../../../common/interfaces/paginated-response
 import { TableTools } from '../table-tools/table-tools';
 import { environment } from '../../../../environments/environment.development';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
-import { getUiIconClasses } from '../../../common/functions/get-input-icon-classes';
 import { UiTooltip } from '../../elements/ui-tooltip/ui-tooltip';
 import { TableRow } from '../../../common/interfaces/table-row';
 import { TableActions, TableActionType } from '../../../common/interfaces/table-actions';
@@ -15,10 +14,11 @@ import { FormsModule } from '@angular/forms';
 import { TableTemplate } from '../../../directives/table-template';
 import { TableToolsButtons, TableToolsButtonType } from '../../../common/interfaces/table-tools-buttons';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
+import { UiIconStateDirective } from "../../../directives/ui-icon-state-directive";
 
 @Component({
   selector: 'app-data-table',
-  imports: [TablePager, TableTools, UiIcon, UiTooltip, NgTemplateOutlet, UiCheckbox, FormsModule],
+  imports: [TablePager, TableTools, UiIcon, UiTooltip, NgTemplateOutlet, UiCheckbox, FormsModule, UiIconStateDirective],
   templateUrl: './data-table.html',
   styleUrl: './data-table.css',
 })
@@ -119,10 +119,6 @@ export class DataTable<T> {
 
   get offset() {
     return this._paginatedResponse?.params?.offset ?? 0;
-  }
-
-  get buttonClass() {
-    return getUiIconClasses(false);
   }
 
   private buildColumns() {

@@ -70,6 +70,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   protected workShifts = signal<WorkShift[]>([]);
   protected employees = signal<Employee[]>([]);
   protected currentSession = signal<WorkSession | null>(null);
+  protected sessionCopy = signal<WorkSession | null>(null);
   private _filteredEmployees: Employee[] = [];
   selectedIds: number[] = [];
 
@@ -87,13 +88,11 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
         next: (session) => {
           this.currentSession.set(session as WorkSession);
           if (session) {
-            this.setModelFormValues(session);
-            this.employees.set(session.employees_snapshot as Employee[]);
-          } else {
-            this.loadList(this.workShiftService, this.workShifts, true);
-            this.loadList(this.moduleService, this.modules, true);
-            this.loadList(this.employeeService, this.employees, false);
+            this.setModelFormValues(session);           
           }
+          this.loadList(this.workShiftService, this.workShifts, true);
+          this.loadList(this.moduleService, this.modules, true);
+          this.loadList(this.employeeService, this.employees, false);
         },
         error: () => this.currentSession.set(null),
       });
@@ -249,13 +248,15 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
       return;
     }
 
-    this.actionType = 'create';
+    this.actionType = this.sessionCopy() ? 'edit' : 'create';
+    this.rowObject.id = this.sessionCopy()?.id;
+
     super.submit(undefined, () => {
       this.router.navigateByUrl(this.OPERATION_ORDER_URL);
     });
   }
 
-  setModelFormValues(session: WorkSession) {    
+  setModelFormValues(session: WorkSession) {
     this.modelForm.patchValue({
       module_id: session.module?.id,
       work_shift_id: session.work_shift?.id,
@@ -276,5 +277,23 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
           this.router.navigateByUrl('/');
         },
       });
+  }
+
+  switchEdit() {
+    this.wslService.start();
+    setTimeout(() => {
+      this.sessionCopy.set(this.currentSession());
+      this.currentSession.set(null);
+      this.wslService.end();
+    }, 300);
+  }
+
+  cancel() {
+    if (!this.currentSession() && !this.sessionCopy()) {
+      this.closeModelForm();
+    } else {
+      this.currentSession.set(this.sessionCopy());
+      this.setModelFormValues(this.currentSession()!);
+    }
   }
 }
