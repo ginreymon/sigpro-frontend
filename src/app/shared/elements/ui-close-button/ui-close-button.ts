@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { UiIcon } from '../ui-icon/ui-icon';
 
 @Component({
@@ -9,6 +9,7 @@ import { UiIcon } from '../ui-icon/ui-icon';
 })
 export class UiCloseButton {
   @Output() onClose = new EventEmitter<void>();
+  @Input() className:string|null = null;
 
   close() {
     this.onClose.emit();

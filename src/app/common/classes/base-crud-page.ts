@@ -1,6 +1,5 @@
 import { Directive, inject, Signal, signal, WritableSignal } from '@angular/core';
 import { TableActions } from '../interfaces/table-actions';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { BaseCrudService } from '../../services/common/base-crud-service';
 import { TableColumn } from '../interfaces/table-column';
 import { QueryParams } from '../interfaces/query-params';
@@ -41,32 +40,9 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
   protected columns: TableColumn<T>[] = [];
 
   constructor(protected override crudService: BaseCrudService<T>) {
-    super(crudService);
-    this.modalVisible = toSignal(this.dialogService.modalVisible$, { initialValue: false });
-    this.sideModalVisible = toSignal(this.dialogService.sideModalVisible$, { initialValue: false });
-    this.confirmVisible = toSignal(this.dialogService.confirmVisible$, { initialValue: false });
-    this.toastVisible = toSignal(this.dialogService.toastVisible$, { initialValue: false });   
+    super(crudService);    
     this.initializeColumns();
     this.initializeModelForm();
-  }
-
-  get title() {
-    return this.dialogService.title;
-  }
-
-  get message() {
-    return this.dialogService.message;
-  }
-
-  get acceptLabel() {
-    return this.dialogService.acceptLabel;
-  }
-
-  get confirmCallback(): () => void {
-    if (this.dialogService.confirmCallback) {
-      return this.dialogService.confirmCallback() ?? (() => {});
-    }
-    return () => {};
   }
 
   protected initializeColumns() {
@@ -110,6 +86,8 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
       next: () => {
         callback?.();
         this.closeModelForm();
+        const actionText = this.actionType === 'create' ? 'creado' : 'actualizado';
+        this.dialogService.openToast('Éxito', `El registro fue ${actionText} correctamente.`, 'check');
       },
       error: (err) => {
         this.errorMessage.set('Ocurrió un error. Intente nuevamente.');

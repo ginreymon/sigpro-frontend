@@ -17,7 +17,7 @@
 </app-work-space-layout>
 
 
-<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()" [acceptLabel]="acceptLabel">  
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">  
     <div class="mb-4 flex items-center gap-4">
     
         <app-char-square>
@@ -52,9 +52,7 @@
 
 </app-side-modal-layout>
 
-<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()" [acceptLabel]="acceptLabel"></app-confirm-box>
-
-<app-modal-layout [formId]="'workshiftForm'" [title]="title" [visible]="modalVisible()"  (onCancel)="closeModelForm()" [acceptLabel]="acceptLabel">    
+<app-modal-layout [formId]="'workshiftForm'" (onCancel)="closeModelForm()">    
    
     <form id="workshiftForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()">

@@ -208,7 +208,7 @@
 
 </app-work-space-layout>
 
-<app-modal-layout [title]="title" [visible]="modalVisible()" (onCancel)="closeModelForm()" (onAccept)="addEmployees()" [acceptLabel]="acceptLabel">
+<app-modal-layout (onCancel)="closeModelForm()" (onAccept)="addEmployees()">
 
     <app-searcher #searcher [intent]="'action'" (onSearch)="search($event)"></app-searcher>
 

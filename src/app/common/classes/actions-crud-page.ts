@@ -43,31 +43,42 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
       this.actionType = event.type;
       const title = event.action.title ?? 'Eliminar';
       const value = this.displayValue?.trim();
+      const label = value ? `"${value}"` : 'el registro';
       const message = `¿Está seguro de que desea eliminar${value ? ' ' + value : ''}?`;
       this.dialogService.openConfirm(title, message, 'Eliminar', () => {
-        this.deleteHandler(event.obj.id, () => {
-          this.dialogService.closeConfirm();
-        });
+        this.dialogService.closeConfirm();
+        this.deleteHandler(event.obj.id,
+          () => {
+            this.dialogService.openToast('Éxito', `${label} fue eliminado correctamente.`, 'check');
+          },
+          () => {
+            this.dialogService.openToast('Error', `${label} no pudo ser eliminado.`, 'fail');
+          }
+        );
       });
     }
   }
 
-  protected deleteHandler(id: number, callback?: () => void) {
-    this.crudService.delete(id).subscribe(() => {
-      const current = this.paginatedResponse();
+  protected deleteHandler(id: number, callback?: () => void, erroCallback?: () => void) {
+    this.crudService.delete(id).subscribe({
+      next: () => {
+        const current = this.paginatedResponse();
 
-      if (!current) return;
+        if (!current) return;
 
-      const filtered = current.results.filter((r) => r?.id !== id);
+        const filtered = current.results.filter((r) => r?.id !== id);
 
-      this.paginatedResponse.set({
-        ...current,
-        results: filtered,
-        count: current.count - 1,
-      });
+        this.paginatedResponse.set({
+          ...current,
+          results: filtered,
+          count: current.count - 1,
+        });
 
-      callback?.();
-    });
+        callback?.();
+      },
+      error: (err) => { erroCallback?.(); },
+    },
+    );
   }
 
   protected ensureDisplayField(obj: T) {

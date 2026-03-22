@@ -7,9 +7,7 @@
     </div>
 </app-work-space-layout>
 
-<app-confirm-box [message]="message" [title]="title" [visible]="confirmVisible()" (onAccept)="confirmCallback()" [acceptLabel]="acceptLabel"></app-confirm-box>
-
-<app-side-modal-layout [hideCancel]="true" [title]="title" [visible]="sideModalVisible()" (onAccept)="closeModelForm()" [acceptLabel]="acceptLabel">  
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">  
   
   <div class="mb-4 flex items-center gap-4">
   
@@ -56,7 +54,7 @@
   
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'roleForm'" [title]="title" [visible]="modalVisible()" (onCancel)="closeModelForm()" [acceptLabel]="acceptLabel">    
+<app-modal-layout [formId]="'roleForm'" (onCancel)="closeModelForm()">    
   <form id="roleForm" [formGroup]="modelForm" (ngSubmit)="submit()">  
     <fieldset [disabled]="showLoader()">
 
