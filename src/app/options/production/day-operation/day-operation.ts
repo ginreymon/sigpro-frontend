@@ -26,8 +26,7 @@ import { UiCloseButton } from '../../../shared/elements/ui-close-button/ui-close
 import { ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Router } from '@angular/router';
-import { Metadata } from '../../../shared/components/metadata/metadata';
-import { DatePipe } from '@angular/common';
+import { DayOperationDetail } from '../../../shared/components/day-operation-detail/day-operation-detail';
 
 @Component({
   selector: 'app-day-operation',
@@ -40,15 +39,14 @@ import { DatePipe } from '@angular/common';
     UiIcon,
     EllipsisPipe,
     TitleCasePipe,
-    UiErrorMessage,  
+    UiErrorMessage,
     ModalLayout,
     Searcher,
     UiTooltip,
     UiCloseButton,
-    ReactiveFormsModule,
-    Metadata,
-    DatePipe,
-  ],
+    ReactiveFormsModule,  
+    DayOperationDetail
+],
   templateUrl: './day-operation.html',
   styleUrl: './day-operation.css',
 })

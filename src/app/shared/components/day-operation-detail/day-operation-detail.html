@@ -1,0 +1,43 @@
+@if(workSession){
+<div class="mb-4 pb-4">
+                
+    <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información del módulo </h4>
+
+    <div class="space-y-2 text-sm">
+    
+        <p> <strong> Número :</strong> {{ workSession.module?.number }} </p>
+
+        <p> <strong> Nombre :</strong> {{ workSession.module?.name | titlecase }} </p>
+
+        <p> <strong> Número de encomendados :</strong>  {{ workSession.employees_snapshot?.length }} / {{ workSession.module?.operator_count }} </p>
+    
+        <p> <strong> Centro de trabajo :</strong> {{ workSession.module?.work_center?.short_description | titlecase }} </p>
+    
+        <p> <strong> Descripción :</strong> {{ workSession.module?.work_center?.description }} </p>
+    
+        <p> <strong> Código :</strong> {{ workSession.module?.work_center?.code }} </p>
+    
+    </div>
+
+</div>
+
+<div class="mb-4 pt-4 border-t border-slate-200">
+
+    <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información del turno </h4>
+
+    <div class="space-y-2 text-sm">
+
+        <p> <strong>Nombre :</strong> {{ workSession.work_shift?.name | titlecase }} </p>                        
+        
+        <p> <strong>Desde :</strong> {{ workSession.work_shift?.start_time }} </p>  
+        
+        <p> <strong>Hasta :</strong> {{ workSession.work_shift?.end_time }} </p>  
+
+        <p> <strong>Fecha y hora de inicio :</strong> {{ workSession.started_at | date:'dd/MM/yyyy HH:mm' }} </p>                        
+
+    </div>
+
+</div>                
+
+<app-metadata class="mb-4" [rowObject]="workSession"></app-metadata>
+}
