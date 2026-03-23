@@ -68,7 +68,7 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
     this.dialogService.closeModal();
   }
 
-  override resetModalForm(): void {
+  override prepareFormForAction(): void {
     this.initializeModelForm();
   }
 

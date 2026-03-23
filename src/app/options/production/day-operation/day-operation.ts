@@ -233,7 +233,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   protected override closeModelForm(): void {
-    this.resetModalForm();
+    this.prepareFormForAction();
     this.searcher.clear();
     this.selectedIds = [];
     this._filteredEmployees = this.employees();

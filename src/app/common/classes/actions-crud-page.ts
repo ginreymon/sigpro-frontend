@@ -11,7 +11,7 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
   protected actionType: TableActionType | null | undefined = null;
   protected dialogService = inject(DialogService);
 
-  abstract resetModalForm(): void;
+  abstract prepareFormForAction(): void;
 
   get displayValue(): string {
     if (!this.displayFields.length) return '';
@@ -26,7 +26,7 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
     this.ensureDisplayField(event.obj);
     this.rowObject = event.obj;
     this.actionType = null;
-    this.resetModalForm();
+    this.prepareFormForAction();
 
     if (event.type == 'view') {
       this.actionType = event.type;
@@ -59,7 +59,7 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
     }
   }
 
-  protected deleteHandler(id: number, callback?: () => void, erroCallback?: () => void) {
+  protected deleteHandler(id: number, callback?: () => void, errorCallback?: () => void) {
     this.crudService.delete(id).subscribe({
       next: () => {
         const current = this.paginatedResponse();
@@ -76,7 +76,7 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
 
         callback?.();
       },
-      error: (err) => { erroCallback?.(); },
+      error: (err) => errorCallback?.(),
     },
     );
   }

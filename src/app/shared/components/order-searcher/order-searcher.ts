@@ -53,7 +53,7 @@ export class OrderSearcher {
   getDocTypes() {
     this.wslService.start();
     this.poService
-      .getTypeDocuments()
+      .getDocType()
       .pipe(finalize(() => this.wslService.end()))
       .subscribe({
         next: (docs) => {
@@ -80,7 +80,7 @@ export class OrderSearcher {
 
     const payload: ProductionOrder = { ...this.orderForm.value };
     
-    this.poService.getProductionOrders(payload, true).subscribe({
+    this.poService.getOrder(payload, true).subscribe({
       next(value) {
         console.log(value);
       },

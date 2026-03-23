@@ -11,22 +11,21 @@ import { DocType } from '../../models/production/doc-type';
 export class ProductionOrderService {
   private path: string = `${environment.BASE_API_URL}/production`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  getProductionOrders(po: ProductionOrder, flat?: boolean): Observable<any[]> {
+  getOrder(po: ProductionOrder, flat?: boolean): Observable<any[]> {
     const params = new HttpParams().set('type', po.type).set('number', po.number);
-
-    return this.http.get<any[]>(`${this.path}/production-orders/${flat ? 'flat/' : ''}`, { params });
+    return this.http.get<any>(`${this.path}/production-orders/${flat ? 'flat/' : ''}`, { params });
   }
 
-  getroductionComponents(po: ProductionOrder): Observable<any[]> {
+  getComponents(po: ProductionOrder): Observable<any[]> {
     const params = new HttpParams().set('type', po.type).set('number', po.number);
     return this.http.get<any[]>(`${this.path}/production-components/`, {
       params,
     });
   }
 
-  getTypeDocuments(): Observable<DocType[]> {
+  getDocType(): Observable<DocType[]> {
     return this.http.get<any[]>(`${this.path}/document-types/`);
   }
 }
