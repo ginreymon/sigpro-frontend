@@ -5,7 +5,7 @@
 
     <div class="flex items-center justify-between border-b border-default pb-4 md:pb-5">
 
-      <h3 class="text-lg font-medium text-heading text-gray-900">{{ title }}</h3>
+      <h3 class="text-lg font-medium text-heading text-gray-900">{{ title | titlecase }}</h3>
 
       <app-ui-close-button (onClose)="close()"></app-ui-close-button>
 

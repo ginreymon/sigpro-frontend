@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-box-layout',
-  imports: [],
+  imports: [TitleCasePipe],
   templateUrl: './box-layout.html',
   styleUrl: './box-layout.css',
 })

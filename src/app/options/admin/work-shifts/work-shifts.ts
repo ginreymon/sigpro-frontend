@@ -21,6 +21,7 @@ import { PaginatedResponse } from '../../../common/interfaces/paginated-response
 import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from "../../../shared/components/metadata/metadata";
 import { TableColumn } from '../../../common/interfaces/table-column';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-work-shifts',
@@ -39,7 +40,8 @@ import { TableColumn } from '../../../common/interfaces/table-column';
     TableTemplate,
     UiCheckbox,
     CharSquare,
-    Metadata,    
+    Metadata, 
+    TitleCasePipe   
 ],
   templateUrl: './work-shifts.html',
   styleUrl: './work-shifts.css',

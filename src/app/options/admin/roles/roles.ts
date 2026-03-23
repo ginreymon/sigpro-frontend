@@ -20,6 +20,7 @@ import { TableActionEvent } from '../../../common/interfaces/table-action-event'
 import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from '../../../shared/components/metadata/metadata';
 import { TableColumn } from '../../../common/interfaces/table-column';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-roles',
@@ -36,7 +37,8 @@ import { TableColumn } from '../../../common/interfaces/table-column';
     UiOptionCard,
     UiBadge,
     CharSquare,
-    Metadata
+    Metadata,
+    TitleCasePipe
   ],
   templateUrl: './roles.html',
   styleUrl: './roles.css',

@@ -21,6 +21,7 @@ import { TableActionEvent } from '../../../common/interfaces/table-action-event'
 import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from "../../../shared/components/metadata/metadata";
 import { TableColumn } from '../../../common/interfaces/table-column';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-modules',
@@ -40,6 +41,7 @@ import { TableColumn } from '../../../common/interfaces/table-column';
     UiBadge,
     CharSquare,
     Metadata,
+    TitleCasePipe
   ],
   templateUrl: './modules.html',
   styleUrl: './modules.css',

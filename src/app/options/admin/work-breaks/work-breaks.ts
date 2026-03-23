@@ -17,6 +17,7 @@ import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { TableColumn } from '../../../common/interfaces/table-column';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-work-breaks',
@@ -34,6 +35,7 @@ import { TableColumn } from '../../../common/interfaces/table-column';
     UiBadge,
     TableTemplate,
     CharSquare,
+    TitleCasePipe
   ],
   templateUrl: './work-breaks.html',
   styleUrl: './work-breaks.css',

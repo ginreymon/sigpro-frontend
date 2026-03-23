@@ -39,9 +39,9 @@
        
         <div>
             <h3 class="text-2xl font-semibold text-slate-900">
-                {{ rowObject.first_name }}
-                {{ rowObject.last_name1 }}
-                {{ rowObject.last_name2 }}
+                {{ rowObject.first_name | titlecase }}
+                {{ rowObject.last_name1 | titlecase }}
+                {{ rowObject.last_name2 | titlecase }}
             </h3>
 
             <p class="text-sm text-slate-500 mb-2"> CC: {{ rowObject.id_number }} </p>
@@ -57,7 +57,7 @@
 
         <div class="space-y-2 text-sm">          
 
-            <p> <strong>Usuario:</strong> {{ rowObject.username || 'No account' }} </p>
+            <p> <strong>Usuario:</strong> {{ rowObject.username | titlecase  }} </p>
 
             <p> <strong>Cuenta activa:</strong> {{ rowObject.is_account_active ? 'Si' : 'No' }} </p>
 
@@ -75,7 +75,7 @@
         <div class="space-y-2 text-sm">
             <p>
                 @for(group of rowObject.groups; track group){
-                <strong> {{ group.name }} </strong>
+                <strong> {{ group.name | titlecase }} </strong>
                 }
             </p>
         </div>
