@@ -9,11 +9,11 @@ import { TableToolsButtons } from '../interfaces/table-tools-buttons';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AuditEntity } from '../interfaces/audit-entity';
 import { ActionsCrudPage } from './actions-crud-page';
+import { LoaderService } from '../../services/common/loader-service';
 
 @Directive()
 export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage<T> {
   protected modelForm!: FormGroup;
-  protected showLoader = signal<boolean>(false);
   protected errorMessage = signal<string | null>(null);
 
   protected actions: TableActions = {
@@ -31,11 +31,16 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
   };
 
   protected fb = inject(FormBuilder);
+  protected loaderService = inject(LoaderService);
 
   constructor(protected override crudService: BaseCrudService<T>) {
     super(crudService);
     this.initializeModelForm();
   }
+
+  protected showLoader(){
+    return this.loaderService.loaderVisible();
+  } 
 
   protected get columns(): TableColumn<T>[] {
     return [];
@@ -66,7 +71,7 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
 
   protected submit(model?: Partial<T>, callback?: () => void) {
     if (!this.validateModelForm()) return;
-    this.showLoader.set(true);
+    this.loaderService.showLoader();
     const payload: Partial<T> = model ? model : this.modelForm.value;
 
     const request$ =
@@ -74,7 +79,7 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
         ? this.crudService.create(payload)
         : this.crudService.update(this.rowObject.id!, payload);
 
-    request$.pipe(finalize(() => this.reload(() => this.showLoader.set(false)))).subscribe({
+    request$.pipe(finalize(() => this.reload(() => this.loaderService.hideLoader()))).subscribe({
       next: () => {
         callback?.();
         this.closeModelForm();

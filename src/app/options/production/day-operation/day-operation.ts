@@ -266,10 +266,10 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   closeSession() {
-    this.showLoader.set(true);
+    this.loaderService.showLoader();
     this.workSessionService
       .closeSession(this.currentSession()?.id!)
-      .pipe(finalize(() => this.showLoader.set(false)))
+      .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (value) => {
           this.currentSession.set(null);

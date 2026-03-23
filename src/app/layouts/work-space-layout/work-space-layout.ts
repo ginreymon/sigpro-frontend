@@ -7,10 +7,11 @@ import { WorkSpaceLayoutService } from '../../services/common/work-space-layout-
 import { ConfirmBox } from "../../shared/components/confirm-box/confirm-box";
 import { Toast } from "../../shared/components/toast/toast";
 import { TitleCasePipe } from '@angular/common';
+import { Loader } from '../../shared/elements/loader/loader';
 
 @Component({
   selector: 'app-work-space-layout',
-  imports: [UiCloseButton, ConfirmBox, Toast, TitleCasePipe],
+  imports: [UiCloseButton, ConfirmBox, Toast, TitleCasePipe, Loader],
   templateUrl: './work-space-layout.html',
   styleUrl: './work-space-layout.css',
 })

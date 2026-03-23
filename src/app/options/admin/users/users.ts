@@ -134,7 +134,7 @@ export class Users extends BaseCrudPage<Employee> {
 
   protected override submit(): void {
     if (!this.validateModelForm()) return;
-    this.showLoader.set(true);
+    this.loaderService.showLoader();
 
     const group_id = this.role?.value;
 
@@ -155,7 +155,7 @@ export class Users extends BaseCrudPage<Employee> {
         ? this.authService.registerRequest(register)
         : this.userService.update(this.rowObject.user_id!, user);
 
-    request$.pipe(finalize(() => this.reload(() => this.showLoader.set(false)))).subscribe({
+    request$.pipe(finalize(() => this.reload(() => this.loaderService.hideLoader()))).subscribe({
       next: () => {
         this.closeModelForm();
         const actionText = this.actionType === 'create' ? 'creada' : 'actualizada';
@@ -177,11 +177,11 @@ export class Users extends BaseCrudPage<Employee> {
     const label = obj.is_account_active ? 'Desactivar' : 'Activar';
     const title = `${label} cuenta`;
     this.dialogService.openConfirm(title, '¿Está seguro de realizar esta acción?', label, () => {
-      this.showLoader.set(true);
+      this.loaderService.showLoader();
       const user: Partial<User> = { is_active: !obj.is_account_active };
       this.userService
         .update(obj.user_id!, user)
-        .pipe(finalize(() => this.reload(() => this.showLoader.set(false))))
+        .pipe(finalize(() => this.reload(() => this.loaderService.hideLoader())))
         .subscribe({
           next: () => {
             this.dialogService.closeConfirm();

@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { LoaderService } from '../../../services/common/loader-service';
 
 @Component({
   selector: 'app-loader',
@@ -8,5 +9,16 @@ import { Component, Input } from '@angular/core';
   styleUrl: './loader.css',
 })
 export class Loader {
-  @Input() showLoader: boolean = false;
+  private localShowLoader: boolean = false;
+
+  @Input()
+  set showLoader(value: boolean) {
+    this.localShowLoader = value;
+  }
+
+  constructor(private loaderService: LoaderService) { }
+
+  get showLoader() {
+    return this.localShowLoader || this.loaderService.loaderVisible() || false;
+  }
 }
