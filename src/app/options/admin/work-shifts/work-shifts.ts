@@ -20,7 +20,7 @@ import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from "../../../shared/components/metadata/metadata";
-import { ConfirmBox } from "../../../shared/components/confirm-box/confirm-box";
+import { TableColumn } from '../../../common/interfaces/table-column';
 
 @Component({
   selector: 'app-work-shifts',
@@ -39,8 +39,7 @@ import { ConfirmBox } from "../../../shared/components/confirm-box/confirm-box";
     TableTemplate,
     UiCheckbox,
     CharSquare,
-    Metadata,
-    ConfirmBox
+    Metadata,    
 ],
   templateUrl: './work-shifts.html',
   styleUrl: './work-shifts.css',
@@ -55,8 +54,8 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
     this.tableToolsButtons.addItem.enabled = true;
   }
 
-  protected override initializeColumns(): void {
-    this.columns = [
+  protected override get columns(): TableColumn<WorkShift>[] {
+    return [
       { field: 'name', label: 'Nombre' },
       { field: 'start_time', label: 'Hora inicio' },
       { field: 'end_time', label: 'Hora finalización' },

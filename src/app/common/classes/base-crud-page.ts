@@ -1,4 +1,4 @@
-import { Directive, inject, Signal, signal, WritableSignal } from '@angular/core';
+import { Directive, inject, signal, WritableSignal } from '@angular/core';
 import { TableActions } from '../interfaces/table-actions';
 import { BaseCrudService } from '../../services/common/base-crud-service';
 import { TableColumn } from '../interfaces/table-column';
@@ -32,21 +32,13 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
 
   protected fb = inject(FormBuilder);
 
-  protected modalVisible!: Signal<boolean>;
-  protected sideModalVisible!: Signal<boolean>;
-  protected confirmVisible!: Signal<boolean>;
-  protected toastVisible!: Signal<boolean>;
-
-  protected columns: TableColumn<T>[] = [];
-
   constructor(protected override crudService: BaseCrudService<T>) {
-    super(crudService);    
-    this.initializeColumns();
+    super(crudService);
     this.initializeModelForm();
   }
 
-  protected initializeColumns() {
-    this.columns = [];
+  protected get columns(): TableColumn<T>[] {
+    return [];
   }
 
   protected initializeModelForm() {

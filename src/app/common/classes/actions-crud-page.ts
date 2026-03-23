@@ -52,7 +52,7 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
             this.dialogService.openToast('Éxito', `${label} fue eliminado correctamente.`, 'check');
           },
           () => {
-            this.dialogService.openToast('Error', `${label} no pudo ser eliminado.`, 'fail');
+            this.dialogService.openToast('Aviso', `${label} no pudo ser eliminado.`, 'fail');
           }
         );
       });

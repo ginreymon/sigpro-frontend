@@ -7,7 +7,6 @@ import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { WorkBreak } from '../../../models/production/work-break';
 import { Loader } from '../../../shared/elements/loader/loader';
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
-import { ConfirmBox } from '../../../shared/components/confirm-box/confirm-box';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { WorkBreakService } from '../../../services/production/work-break-service';
@@ -17,6 +16,7 @@ import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
+import { TableColumn } from '../../../common/interfaces/table-column';
 
 @Component({
   selector: 'app-work-breaks',
@@ -26,8 +26,7 @@ import { TableActionEvent } from '../../../common/interfaces/table-action-event'
     UiErrorMessage,
     Metadata,
     Loader,
-    ModalLayout,
-    ConfirmBox,
+    ModalLayout,   
     SideModalLayout,
     ReactiveFormsModule,
     UiFormField,
@@ -49,8 +48,8 @@ export class WorkBreaks extends BaseCrudPage<WorkBreak> {
     this.tableToolsButtons.addItem.enabled = true;
   }
 
-  protected override initializeColumns(): void {
-    this.columns = [
+  protected override get columns(): TableColumn<WorkBreak>[] {
+    return [
       { field: 'name', label: 'Nombre' },
       { field: 'duration', label: 'Duración' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },

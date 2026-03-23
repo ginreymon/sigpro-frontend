@@ -29,7 +29,6 @@ import { finalize } from 'rxjs';
 import { Router } from '@angular/router';
 import { Metadata } from '../../../shared/components/metadata/metadata';
 import { DatePipe } from '@angular/common';
-import { QueryParams } from '../../../common/interfaces/query-params';
 
 @Component({
   selector: 'app-day-operation',

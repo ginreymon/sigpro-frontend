@@ -7,7 +7,6 @@ import { SideModalLayout } from '../../../shared/components/side-modal-layout/si
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiLabelButton } from '../../../shared/elements/ui-label-button/ui-label-button';
-import { ConfirmBox } from '../../../shared/components/confirm-box/confirm-box';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { RoleService } from '../../../services/user/role-service';
 import { Role } from '../../../models/user/role';
@@ -28,6 +27,7 @@ import { UiBadge } from "../../../shared/elements/ui-badge/ui-badge";
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from "../../../shared/components/metadata/metadata";
+import { TableColumn } from '../../../common/interfaces/table-column';
 
 
 @Component({
@@ -38,8 +38,7 @@ import { Metadata } from "../../../shared/components/metadata/metadata";
     TableTemplate,
     SideModalLayout,
     ModalLayout,
-    UiLabelButton,
-    ConfirmBox,
+    UiLabelButton,   
     UiFormField,
     UiOptionCard,
     ReactiveFormsModule,
@@ -55,7 +54,7 @@ import { Metadata } from "../../../shared/components/metadata/metadata";
   templateUrl: './users.html',
   styleUrl: './users.css',
 })
-export class Users extends BaseCrudPage<Employee> {
+export class Users extends BaseCrudPage<Employee> {  
   roles = signal<Role[]>([]);
   showPassword = signal<boolean>(false);
 
@@ -71,8 +70,8 @@ export class Users extends BaseCrudPage<Employee> {
     this.loadList(this.roleService, this.roles, false);
   }
 
-  protected override initializeColumns(): void {
-    this.columns = [
+  protected override get columns(): TableColumn<Employee>[] {
+    return [
       { field: 'first_name', label: 'Nombre' },
       { field: 'last_name1', label: 'Apellido' },
       { field: 'id_number', label: 'Cédula' },

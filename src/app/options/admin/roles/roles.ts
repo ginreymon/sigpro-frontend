@@ -4,7 +4,6 @@ import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { Role } from '../../../models/user/role';
 import { RoleService } from '../../../services/user/role-service';
 import { DataTable } from '../../../shared/components/data-table/data-table';
-import { ConfirmBox } from '../../../shared/components/confirm-box/confirm-box';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
@@ -20,13 +19,13 @@ import { minArrayLength } from '../../../common/functions/min-array-length';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from '../../../shared/components/metadata/metadata';
+import { TableColumn } from '../../../common/interfaces/table-column';
 
 @Component({
   selector: 'app-roles',
   imports: [
     WorkSpaceLayout,
-    DataTable,
-    ConfirmBox,
+    DataTable,   
     SideModalLayout,
     ModalLayout,
     UiInput,
@@ -38,11 +37,11 @@ import { Metadata } from '../../../shared/components/metadata/metadata';
     UiBadge,
     CharSquare,
     Metadata
-],
+  ],
   templateUrl: './roles.html',
   styleUrl: './roles.css',
 })
-export class Roles extends BaseCrudPage<Role> {
+export class Roles extends BaseCrudPage<Role> { 
   options = signal<Option[]>([]);
 
   constructor(
@@ -58,8 +57,8 @@ export class Roles extends BaseCrudPage<Role> {
     this.loadList(this.optionService, this.options, true);
   }
 
-  protected override initializeColumns(): void {
-    this.columns = [{ field: 'name', label: 'Nombre' }];
+  protected override get columns(): TableColumn<Role>[] {
+    return [{ field: 'name', label: 'Nombre' }];
   }
 
   protected override initializeModelForm(): void {
@@ -77,7 +76,7 @@ export class Roles extends BaseCrudPage<Role> {
         return op.id;
       });
       this.optionIds?.setValue([...ids]);
-    } 
+    }
   }
 
   get name() {
@@ -99,5 +98,5 @@ export class Roles extends BaseCrudPage<Role> {
 
   isSelected(id: number) {
     return this.optionIds?.value?.includes(id);
-  }  
+  }
 }

@@ -4,7 +4,6 @@ import { DataTable } from '../../../shared/components/data-table/data-table';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { Module } from '../../../models/production/module';
 import { ModuleService } from '../../../services/production/module-service';
-import { ConfirmBox } from '../../../shared/components/confirm-box/confirm-box';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
 import { Loader } from '../../../shared/elements/loader/loader';
@@ -21,13 +20,13 @@ import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from "../../../shared/components/metadata/metadata";
+import { TableColumn } from '../../../common/interfaces/table-column';
 
 @Component({
   selector: 'app-modules',
   imports: [
     WorkSpaceLayout,
-    DataTable,
-    ConfirmBox,
+    DataTable,   
     SideModalLayout,
     ModalLayout,
     Loader,
@@ -61,8 +60,8 @@ export class Modules extends BaseCrudPage<Module> {
     this.getWorkCenters();
   }
 
-  protected override initializeColumns(): void {
-    this.columns = [
+  protected override get columns(): TableColumn<Module>[] {
+    return [
       { field: 'name', label: 'Nombre' },
       { field: 'number', label: 'Número' },
       { field: 'location', label: 'Ubicación' },
