@@ -114,11 +114,11 @@
                     @for(rol of roles(); track rol.id){
                     <app-ui-option-card (onToggle)="toggleRole(rol.id)" [selected]="isSelected(rol.id)">
                         <div class="font-medium text-sm">
-                            {{ rol.name }}
+                            {{ rol.name | titlecase }}
                         </div>
                         <div class="text-xs text-gray-500">
                             @for(option of rol.options; track option){
-                            <span>{{ option.name }} / </span>
+                            <span>{{ option.name | titlecase }} / </span>
                             }
                         </div>
                     </app-ui-option-card>

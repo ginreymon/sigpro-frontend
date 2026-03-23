@@ -8,7 +8,6 @@ import { SideModalLayout } from '../../../shared/components/side-modal-layout/si
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
-import { Loader } from '../../../shared/elements/loader/loader';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiHourInput } from '../../../shared/elements/ui-hour-input/ui-hour-input';
@@ -31,8 +30,7 @@ import { TitleCasePipe } from '@angular/common';
     SideModalLayout,
     ModalLayout,
     ReactiveFormsModule,
-    UiErrorMessage,
-    Loader,
+    UiErrorMessage,    
     UiFormField,
     UiInput,
     UiHourInput,
@@ -47,13 +45,9 @@ import { TitleCasePipe } from '@angular/common';
   styleUrl: './work-shifts.css',
 })
 export class WorkShifts extends BaseCrudPage<WorkShift> {
+  protected override entityName: string = 'Turno';
   constructor(private workShiftService: WorkShiftService) {
     super(workShiftService);
-    this.actions.edit = { enabled: true, title: 'Editar turno' };
-    this.actions.view = { enabled: true, title: 'Ver turno' };
-    this.actions.delete = { enabled: true, title: 'Eliminar turno' };
-    this.actions.create = { enabled: true, title: 'Crear turno' };
-    this.tableToolsButtons.addItem.enabled = true;
   }
 
   protected override get columns(): TableColumn<WorkShift>[] {

@@ -6,7 +6,6 @@ import { Module } from '../../../models/production/module';
 import { ModuleService } from '../../../services/production/module-service';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
-import { Loader } from '../../../shared/elements/loader/loader';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
@@ -27,10 +26,9 @@ import { TitleCasePipe } from '@angular/common';
   selector: 'app-modules',
   imports: [
     WorkSpaceLayout,
-    DataTable,   
+    DataTable,
     SideModalLayout,
-    ModalLayout,
-    Loader,
+    ModalLayout,    
     ReactiveFormsModule,
     UiFormField,
     UiInput,
@@ -47,18 +45,11 @@ import { TitleCasePipe } from '@angular/common';
   styleUrl: './modules.css',
 })
 export class Modules extends BaseCrudPage<Module> {
+  protected override entityName: string = 'módulo';
   workCenters = signal<WorkCenter[]>([]);
 
-  constructor(
-    private moduleService: ModuleService,
-    private workCenterService: WorkCenterService,
-  ) {
-    super(moduleService);
-    this.actions.edit = { enabled: true, title: 'Editar módulo' };
-    this.actions.view = { enabled: true, title: 'Ver módulo' };
-    this.actions.delete = { enabled: true, title: 'Eliminar módulo' };
-    this.actions.create = { enabled: true, title: 'Crear módulo' };
-    this.tableToolsButtons.addItem.enabled = true;
+  constructor(private moduleService: ModuleService, private workCenterService: WorkCenterService) {
+    super(moduleService);      
     this.getWorkCenters();
   }
 

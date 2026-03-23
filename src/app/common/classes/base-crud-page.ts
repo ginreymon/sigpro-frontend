@@ -15,19 +15,22 @@ import { LoaderService } from '../../services/common/loader-service';
 export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage<T> {
   protected modelForm!: FormGroup;
   protected errorMessage = signal<string | null>(null);
+  protected abstract entityName: string;
 
-  protected actions: TableActions = {
-    view: { enabled: false },
-    edit: { enabled: false },
-    delete: { enabled: false },
-    create: { enabled: false },
-  };
+  protected get actions(): TableActions {
+    return {
+      view: { enabled: true, title: `Ver ${this.entityName}`, iconName: 'eye', toolTip: 'Ver' },
+      edit: { enabled: true, title: `Editar ${this.entityName}`, iconName: 'pencil', toolTip: 'Editar' },
+      delete: { enabled: true, title: `Eliminar ${this.entityName}`, iconName: 'trash', toolTip: 'Eliminar' },
+      create: { enabled: true, title: `Crear ${this.entityName}`, },
+    };
+  }
 
   protected tableToolsButtons: TableToolsButtons = {
     filter: { enabled: false },
     columns: { enabled: false },
     export: { enabled: false },
-    addItem: { enabled: false },
+    addItem: { enabled: true },
   };
 
   protected fb = inject(FormBuilder);

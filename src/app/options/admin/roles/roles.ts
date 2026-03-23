@@ -11,7 +11,6 @@ import { OptionsService } from '../../../services/core/options-service';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Option } from '../../../models/core/option';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
-import { Loader } from '../../../shared/elements/loader/loader';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
@@ -31,8 +30,7 @@ import { TitleCasePipe } from '@angular/common';
     ModalLayout,
     UiInput,
     ReactiveFormsModule,
-    UiFormField,
-    Loader,
+    UiFormField,    
     UiErrorMessage,
     UiOptionCard,
     UiBadge,
@@ -43,19 +41,12 @@ import { TitleCasePipe } from '@angular/common';
   templateUrl: './roles.html',
   styleUrl: './roles.css',
 })
-export class Roles extends BaseCrudPage<Role> { 
+export class Roles extends BaseCrudPage<Role> {
+  protected override entityName: string = 'rol'; 
   options = signal<Option[]>([]);
 
-  constructor(
-    private roleService: RoleService,
-    private optionService: OptionsService,
-  ) {
-    super(roleService);
-    this.actions.edit = { enabled: true, title: 'Editar rol' };
-    this.actions.view = { enabled: true, title: 'Ver rol' };
-    this.actions.delete = { enabled: true, title: 'Eliminar rol' };
-    this.actions.create = { enabled: true, title: 'Crear rol' };
-    this.tableToolsButtons.addItem.enabled = true;
+  constructor(private roleService: RoleService, private optionService: OptionsService) {
+    super(roleService);   
     this.loadList(this.optionService, this.options, true);
   }
 

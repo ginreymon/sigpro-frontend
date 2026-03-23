@@ -22,7 +22,6 @@ import { ValidationIcon } from '../../../shared/elements/validation-icon/validat
 import { RegisterRequest } from '../../../models/auth/register-request';
 import { UserService } from '../../../services/user/user-service';
 import { User } from '../../../models/user/user';
-import { Loader } from "../../../shared/elements/loader/loader";
 import { UiBadge } from "../../../shared/elements/ui-badge/ui-badge";
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
@@ -46,8 +45,7 @@ import { TitleCasePipe } from '@angular/common';
     UiInput,
     UiErrorMessage,
     TogglePasswordBtn,
-    ValidationIcon,
-    Loader,
+    ValidationIcon,   
     UiBadge,
     CharSquare,
     Metadata,
@@ -56,7 +54,8 @@ import { TitleCasePipe } from '@angular/common';
   templateUrl: './users.html',
   styleUrl: './users.css',
 })
-export class Users extends BaseCrudPage<Employee> {  
+export class Users extends BaseCrudPage<Employee> {
+  protected override entityName: string = 'Usuario';  
   roles = signal<Role[]>([]);
   showPassword = signal<boolean>(false);
 
@@ -66,10 +65,15 @@ export class Users extends BaseCrudPage<Employee> {
     private authService: AuthService,
     private userService: UserService,
   ) {
-    super(employeeService);
-    this.actions.edit = { enabled: true, title: 'Editar usuario' };
-    this.actions.view = { enabled: true, title: 'Ver usuario' };
+    super(employeeService);  
     this.loadList(this.roleService, this.roles, false);
+  }
+
+  protected override get actions() {
+    return {
+      ...super.actions,
+      delete: { enabled: false },
+    }
   }
 
   protected override get columns(): TableColumn<Employee>[] {

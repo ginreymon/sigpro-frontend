@@ -19,7 +19,6 @@ import { WorkShiftService } from '../../../services/production/work-shift-servic
 import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { Employee } from '../../../models/production/employee';
-import { Loader } from '../../../shared/elements/loader/loader';
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
 import { Searcher } from '../../../shared/components/searcher/searcher';
 import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
@@ -41,8 +40,7 @@ import { DatePipe } from '@angular/common';
     UiIcon,
     EllipsisPipe,
     TitleCasePipe,
-    UiErrorMessage,
-    Loader,
+    UiErrorMessage,  
     ModalLayout,
     Searcher,
     UiTooltip,
@@ -55,6 +53,7 @@ import { DatePipe } from '@angular/common';
   styleUrl: './day-operation.css',
 })
 export class DayOperation extends BaseCrudPage<WorkSession> {
+  protected override entityName: string = 'Operación';
   @ViewChild('moduleCarousel') moduleCarousel!: OperationCarousel;
   @ViewChild('workshiftCarousel') workshiftCarousel!: OperationCarousel;
   @ViewChild('searcher') searcher!: Searcher;

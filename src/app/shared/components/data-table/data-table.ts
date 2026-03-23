@@ -37,10 +37,11 @@ export class DataTable<T> {
   protected _paginatedResponse: PaginatedResponse<T> | null | undefined;
   protected _templateColumn: TableColumn<T> | undefined = undefined;
   protected _data: TableRow<T>[] = [];
+
   protected _actions: TableActions = {
-    view: { enabled: false, toolTip: 'Ver', iconName: 'eye' },
-    edit: { enabled: false, toolTip: 'Editar', iconName: 'pencil' },
-    delete: { enabled: false, toolTip: 'Eliminar', iconName: 'trash' },
+    view: { enabled: false },
+    edit: { enabled: false },
+    delete: { enabled: false },
     create: { enabled: false },
   };
 

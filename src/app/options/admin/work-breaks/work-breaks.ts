@@ -5,7 +5,6 @@ import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-err
 import { Metadata } from '../../../shared/components/metadata/metadata';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { WorkBreak } from '../../../models/production/work-break';
-import { Loader } from '../../../shared/elements/loader/loader';
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
@@ -25,8 +24,7 @@ import { TitleCasePipe } from '@angular/common';
     WorkSpaceLayout,
     DataTable,
     UiErrorMessage,
-    Metadata,
-    Loader,
+    Metadata,    
     ModalLayout,   
     SideModalLayout,
     ReactiveFormsModule,
@@ -41,13 +39,9 @@ import { TitleCasePipe } from '@angular/common';
   styleUrl: './work-breaks.css',
 })
 export class WorkBreaks extends BaseCrudPage<WorkBreak> {
+  protected override entityName: string = 'Pausa';
   constructor(private workBreakService: WorkBreakService) {
-    super(workBreakService);
-    this.actions.edit = { enabled: true, title: 'Editar turno' };
-    this.actions.view = { enabled: true, title: 'Ver turno' };
-    this.actions.delete = { enabled: true, title: 'Eliminar turno' };
-    this.actions.create = { enabled: true, title: 'Crear turno' };
-    this.tableToolsButtons.addItem.enabled = true;
+    super(workBreakService);      
   }
 
   protected override get columns(): TableColumn<WorkBreak>[] {
