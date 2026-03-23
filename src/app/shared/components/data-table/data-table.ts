@@ -1,4 +1,4 @@
-import { Component, ContentChildren, EventEmitter, Input, Output, QueryList, TemplateRef,} from '@angular/core';
+import { Component, ContentChildren, EventEmitter, Input, Output, QueryList, TemplateRef, } from '@angular/core';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TablePager } from '../table-pager/table-pager';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
@@ -38,9 +38,9 @@ export class DataTable<T> {
   protected _templateColumn: TableColumn<T> | undefined = undefined;
   protected _data: TableRow<T>[] = [];
   protected _actions: TableActions = {
-    edit: { enabled: false },
-    delete: { enabled: false },
-    view: { enabled: false },
+    view: { enabled: false, toolTip: 'Ver', iconName: 'eye' },
+    edit: { enabled: false, toolTip: 'Editar', iconName: 'pencil' },
+    delete: { enabled: false, toolTip: 'Eliminar', iconName: 'trash' },
     create: { enabled: false },
   };
 
@@ -67,13 +67,16 @@ export class DataTable<T> {
   }
 
   @Input() set actions(value: Partial<TableActions>) {
-    this._actions = {
-      ...this._actions,
-      ...value,
-    };
+    (Object.keys(this._actions) as TableActionType[]).forEach((key) => {
+      this._actions[key] = {
+        ...this._actions[key],
+        ...value?.[key],
+      };
+    });
+
     this.buildColumns();
   }
-
+  
   @Input() set tableToolsButtons(btns: TableToolsButtons) {
     this._tableToolsButtons = {
       ...this._tableToolsButtons,
@@ -99,8 +102,10 @@ export class DataTable<T> {
   @Output() onPagerChange = new EventEmitter<{ page: number; pageSize: number }>();
 
   @Output() onAction = new EventEmitter<TableActionEvent<T>>();
-  
+
   @Output() onSearch = new EventEmitter<string>();
+
+  readonly actionKeys: TableActionType[] = ['view', 'edit', 'delete'];
 
   get totalItems(): number {
     return this._paginatedResponse?.count ?? 0;

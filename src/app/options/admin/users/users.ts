@@ -117,7 +117,10 @@ export class Users extends BaseCrudPage<Employee> {
   }
 
   protected override actionHandler(event: TableActionEvent<Employee>): void {
-    if (event.type == 'edit' && !event.obj.has_account) return;
+    if (event.type == 'edit' && !event.obj.has_account) {
+      this.dialogService.openToast('Aviso', 'El usuario no tienen cuenta.', 'triangleExclamation');
+      return;
+    }
 
     super.actionHandler(event);
 
@@ -151,7 +154,11 @@ export class Users extends BaseCrudPage<Employee> {
         : this.userService.update(this.rowObject.user_id!, user);
 
     request$.pipe(finalize(() => this.reload(() => this.showLoader.set(false)))).subscribe({
-      next: () => this.closeModelForm(),
+      next: () => {
+        this.closeModelForm();
+        const actionText = this.actionType === 'create' ? 'creada' : 'actualizada';
+        this.dialogService.openToast('Éxito', `La cuenta fue ${actionText} correctamente.`, 'check');
+      },
       error: (err) => {
         this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
       },
@@ -174,7 +181,11 @@ export class Users extends BaseCrudPage<Employee> {
         .update(obj.user_id!, user)
         .pipe(finalize(() => this.reload(() => this.showLoader.set(false))))
         .subscribe({
-          next: () => this.dialogService.closeConfirm(),
+          next: () => {
+            this.dialogService.closeConfirm();
+            const actionText = obj.is_account_active ? 'desactivada' : 'activada';
+            this.dialogService.openToast('Éxito', `La cuenta "${obj.username}" fue ${actionText} correctamente.`, 'check');
+          },
           error: () => this.dialogService.closeConfirm(),
         });
     });

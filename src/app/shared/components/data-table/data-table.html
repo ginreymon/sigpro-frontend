@@ -35,30 +35,18 @@
                                 }                            
                             }
 
-                            @if(col.type == 'tableActionType' && _actions.view.enabled){
-                            <app-ui-tooltip [message]="'Ver'">
-                                <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,'view')">
-                                    <app-ui-icon [iconName]="'eye'" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
-                                </button>
-                            </app-ui-tooltip>
+                            @if(col.type == 'tableActionType'){
+                                @for (key of actionKeys; track key) {
+                                    @if (_actions[key].enabled) {
+                                    <app-ui-tooltip [message]="_actions[key].toolTip!">
+                                        <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,key)">
+                                            <app-ui-icon [iconName]="_actions[key].iconName!" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
+                                        </button>
+                                    </app-ui-tooltip>
+                                    }
+                                }
                             }
-
-                            @if(col.type == 'tableActionType' && _actions.edit.enabled){
-                            <app-ui-tooltip [message]="'Editar'">
-                                <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,'edit')">
-                                    <app-ui-icon [iconName]="'pencil'" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
-                                </button>
-                            </app-ui-tooltip>
-                            }
-
-                            @if(col.type == 'tableActionType' && _actions.delete.enabled){
-                            <app-ui-tooltip [message]="'Eliminar'">
-                                <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,'delete')">
-                                    <app-ui-icon [iconName]="'trash'" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
-                                </button>
-                            </app-ui-tooltip>
-                            }
-
+                         
                             @if(col.type == 'template'){
                             <ng-container *ngTemplateOutlet="templateMap.get(col.templateName!); context: { $implicit: row.obj }"></ng-container>
                             }
