@@ -19,9 +19,11 @@
 <app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">  
     <div class="mb-4 flex items-center gap-4">
     
-        <app-char-square>
-            {{ rowObject.number }}
-        </app-char-square>
+        <app-ui-tooltip [message]="'Número del módulo'" [tooltip]="'right'" class="cursor-default">
+            <app-char-square>
+                {{ rowObject.number }}
+            </app-char-square>
+        </app-ui-tooltip>
     
         <div>
             <h3 class="text-2xl font-semibold text-slate-900">

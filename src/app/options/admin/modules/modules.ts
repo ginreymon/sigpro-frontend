@@ -21,6 +21,7 @@ import { CharSquare } from "../../../shared/components/char-square/char-square";
 import { Metadata } from "../../../shared/components/metadata/metadata";
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
+import { UiTooltip } from "../../../shared/elements/ui-tooltip/ui-tooltip";
 
 @Component({
   selector: 'app-modules',
@@ -28,7 +29,7 @@ import { TitleCasePipe } from '@angular/common';
     WorkSpaceLayout,
     DataTable,
     SideModalLayout,
-    ModalLayout,    
+    ModalLayout,
     ReactiveFormsModule,
     UiFormField,
     UiInput,
@@ -39,8 +40,9 @@ import { TitleCasePipe } from '@angular/common';
     UiBadge,
     CharSquare,
     Metadata,
-    TitleCasePipe
-  ],
+    TitleCasePipe,
+    UiTooltip
+],
   templateUrl: './modules.html',
   styleUrl: './modules.css',
 })
