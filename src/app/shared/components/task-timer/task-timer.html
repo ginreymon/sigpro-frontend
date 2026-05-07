@@ -3,7 +3,7 @@
 
     <div box-content class="flex flex-col justify-center items-center">
 
-        <app-time-progress-circle class="mt-4" [class.hidden]="!state().isConfirmed || state().showQuantityModal" [startTime]="startTime" [serverNow]="serverNow"></app-time-progress-circle>
+        <app-time-progress-circle class="mt-4" [class.hidden]="!state().isConfirmed || state().showQuantityModal" [startTime]="startTime()" [serverNow]="serverNow()"></app-time-progress-circle>
 
         @if(!state().showQuantityModal){
         <app-sku-detail class="w-full" [state]="state()"></app-sku-detail>

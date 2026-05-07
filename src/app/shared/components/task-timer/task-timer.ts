@@ -1,4 +1,4 @@
-import { Component, effect, inject, Output, EventEmitter, signal } from '@angular/core';
+import { Component, computed, effect, inject, Output, EventEmitter, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
@@ -92,16 +92,11 @@ export class TaskTimer {
     return this.calcRemaining(this.state());
   }
 
-  get serverNow() {
-    return this.currentRecord()?.server_now ?? new Date();
-  }
+  protected serverNow = computed(() => this.currentRecord()?.server_now ?? new Date());
 
-  get startTime() {
-    return (
-      this.state().currentSession?.active_activity.last_open_production_record?.start_time ??
-      new Date()
-    );
-  }
+  protected startTime = computed(
+    () => this.state().currentSession?.active_activity.last_open_production_record?.start_time ?? new Date()
+  );
 
   buildRecord(): ProductionRecord {
     const s = this.state();

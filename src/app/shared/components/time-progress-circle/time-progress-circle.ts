@@ -10,7 +10,7 @@ export class TimeProgressCircle implements OnDestroy {
   elapsed: number = 0;
   radius = 100;
   fullDash = 2 * Math.PI * this.radius;
-  dashOffset = this.fullDash;
+  dashOffset = signal(this.fullDash);
   isEnding = signal<boolean>(false);
   displayTime = signal<string>('00:00:00');
 
@@ -85,9 +85,9 @@ export class TimeProgressCircle implements OnDestroy {
     this.displayTime.set(`${this.pad(h)}:${this.pad(m)}:${this.pad(s)}`);
   }
 
-  private updateCircle() {  
+  private updateCircle() {
     const progress = Math.min(this.elapsed / this.duration, 1);
-    this.dashOffset = this.fullDash * (1 - progress);
+    this.dashOffset.set(this.fullDash * (1 - progress));
 
     const remaining = this.duration - this.elapsed;
 

@@ -9,7 +9,7 @@
         <!-- Progress -->
         <circle class="fill-none transition-[stroke-dashoffset] duration-500 ease-linear" [class.stroke-red-500]="isEnding()"
             [class.stroke-brand-600]="!isEnding()" [attr.cx]="120" [attr.cy]="120" [attr.r]="radius"
-            [attr.stroke-width]="20" [attr.stroke-dasharray]="fullDash" [attr.stroke-dashoffset]="dashOffset">
+            [attr.stroke-width]="20" [attr.stroke-dasharray]="fullDash" [attr.stroke-dashoffset]="dashOffset()">
         </circle>
 
     </svg>
