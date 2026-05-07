@@ -177,9 +177,12 @@ export class TaskTimer {
 
         return this.recordService.update(record.id, payload);
       }),
-      finalize(() => this.loaderService.hideLoader())
+      finalize(() => {
+        this.tTService.closeQuantityModal();
+        this.loaderService.hideLoader();
+      })
     ).subscribe({
-      next: () => {
+      next: () => {        
         this.dialogService.openToast(
           `Guardado`,
           `${s.productionOrder?.reference} | ${s.colorDetail?.color} | Talla: ${s.sizeQtyDetail?.size} | Completadas: ${completed_quantity} | Saldos: ${rejected_quantity} | Bajas: ${scrap_quantity}`,
