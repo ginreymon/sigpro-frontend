@@ -44,9 +44,9 @@ import { DayOperationDetail } from '../../../shared/components/day-operation-det
     Searcher,
     UiTooltip,
     UiCloseButton,
-    ReactiveFormsModule,  
-    DayOperationDetail
-],
+    ReactiveFormsModule,
+    DayOperationDetail,
+  ],
   templateUrl: './day-operation.html',
   styleUrl: './day-operation.css',
 })
@@ -84,7 +84,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
         next: (session) => {
           this.currentSession.set(session as WorkSession);
           if (session) {
-            this.setModelFormValues(session);           
+            this.setModelFormValues(session);
           }
           this.loadList(this.workShiftService, this.workShifts, true);
           this.loadList(this.moduleService, this.modules, true);
@@ -249,12 +249,13 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
     super.submit(undefined, () => {
       this.router.navigateByUrl(this.OPERATION_ORDER_URL);
+      this.loaderService.hideLoader();
     });
   }
 
   setModelFormValues(session: WorkSession) {
     this.modelForm.patchValue({
-      module_id: session.module?.id,
+      module_id: session.current_module?.id,
       work_shift_id: session.work_shift?.id,
       employee_ids: session.employees_snapshot?.map((emp) => {
         return emp.id;

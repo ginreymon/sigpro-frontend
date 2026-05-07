@@ -4,6 +4,8 @@ import { ProductionOrder } from '../../models/production/production-order';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { DocType } from '../../models/production/doc-type';
+import { ProductionItem } from '../../models/production/production-item';
+import { Component } from '../../models/production/component';
 
 @Injectable({
   providedIn: 'root',
@@ -11,15 +13,15 @@ import { DocType } from '../../models/production/doc-type';
 export class ProductionOrderService {
   private path: string = `${environment.BASE_API_URL}/production`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getOrder(po: ProductionOrder, flat?: boolean): Observable<any[]> {
-    const params = new HttpParams().set('type', po.type).set('number', po.number);
+  getOrder(po: Partial<ProductionOrder>, flat?: boolean): Observable<ProductionOrder | ProductionItem[]> {
+    const params = new HttpParams().set('type', po.documentType!).set('number', po.documentNumber!);
     return this.http.get<any>(`${this.path}/production-orders/${flat ? 'flat/' : ''}`, { params });
   }
 
-  getComponents(po: ProductionOrder): Observable<any[]> {
-    const params = new HttpParams().set('type', po.type).set('number', po.number);
+  getComponents(po: Partial<ProductionOrder>): Observable<Component[]> {
+    const params = new HttpParams().set('type', po.documentType!).set('number', po.documentNumber!);
     return this.http.get<any[]>(`${this.path}/production-components/`, {
       params,
     });

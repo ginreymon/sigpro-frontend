@@ -3,9 +3,11 @@ import { AuditEntity } from '../../common/interfaces/audit-entity';
 export interface ProductionRecord extends AuditEntity {
   sku_rowid: number;
 
-  session: number;
-  module: number;
-  work_center: number;
+  op_rowid: number;
+  op_number: number;
+  op_type: string;
+
+  work_session_activity: number;
 
   ordered_quantity: number;
   planned_quantity: number;
@@ -13,6 +15,8 @@ export interface ProductionRecord extends AuditEntity {
   scrap_quantity: number;
   rejected_quantity: number;
 
-  start_time: string; // HH:mm:ss
-  end_time: string; // HH:mm:ss
+  start_time: string;
+  server_now: string;
+  end_time: string | null;
+  net_duration: string | null;
 }

@@ -1,0 +1,15 @@
+import { ColorDetail } from '../../models/production/color-detail';
+import { ProductionOrder } from '../../models/production/production-order';
+import { SizeQtyDetail } from '../../models/production/size-detail';
+import { WorkSession } from '../../models/production/work-session';
+
+export interface TaskTimerState {
+  title?: string;
+  isConfirmed: boolean;
+  colorDetail: ColorDetail | null;
+  sizeQtyDetail: SizeQtyDetail | null;
+  productionOrder: ProductionOrder | null;
+  currentSession: WorkSession | null;
+  visible: boolean;
+  showQuantityModal: boolean;
+}

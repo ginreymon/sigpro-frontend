@@ -1,0 +1,176 @@
+import { Component, effect, inject, Output, EventEmitter, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { BoxLayout } from '../box-layout/box-layout';
+import { UiButton } from '../../elements/ui-button/ui-button';
+import { UiIcon } from '../../elements/ui-icon/ui-icon';
+import { UiFormField } from '../../elements/ui-form-field/ui-form-field';
+import { UiLargeInput } from '../../elements/ui-large-input/ui-large-input';
+import { TaskTimerService } from '../../../services/common/task-timer-service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ProgressBar } from '../progress-bar/progress-bar';
+import { TimeProgressCircle } from '../time-progress-circle/time-progress-circle';
+import { ProductionRecordService } from '../../../services/production/production-record-service';
+import { ProductionRecord } from '../../../models/production/production-record';
+import { EMPTY, finalize, switchMap } from 'rxjs';
+import { SkuDetail } from "../sku-detail/sku-detail";
+import { TaskTimerState } from '../../../common/interfaces/task-timer-state';
+import { WorkSessionService } from '../../../services/production/work-session-service';
+import { LoaderService } from '../../../services/common/loader-service';
+
+
+@Component({
+  selector: 'app-task-timer',
+  standalone: true,
+  imports: [BoxLayout, UiButton, UiIcon, ProgressBar, TimeProgressCircle, SkuDetail, ReactiveFormsModule, UiFormField, UiLargeInput],
+  templateUrl: './task-timer.html',
+  styleUrl: './task-timer.css',
+})
+export class TaskTimer {
+  @Output() saved = new EventEmitter<void>();
+
+  private tTService = inject(TaskTimerService);
+  private recordService = inject(ProductionRecordService);
+  private fb = inject(FormBuilder);
+  private currentRecord = signal<ProductionRecord | null>(null); 
+  private workSessionService = inject(WorkSessionService);
+  private loaderService = inject(LoaderService); 
+
+  recordForm: FormGroup;
+
+  protected state = toSignal(this.tTService.state$, {
+    initialValue: this.tTService.state,
+  });
+
+  constructor() {
+    this.recordForm = this.fb.group({
+      completed_quantity: [0, [Validators.required, Validators.min(0)]],
+      scrap_quantity: [0, [Validators.required, Validators.min(0)]],
+      rejected_quantity: [0, [Validators.required, Validators.min(0)]],
+    });
+
+    effect(() => {
+      const s = this.state();
+      if (!s.showQuantityModal) return;
+
+      const remaining = this.calcRemaining(s);
+      const ctrl = this.recordForm.get('completed_quantity');
+      ctrl?.setValidators([Validators.required, Validators.min(0), Validators.max(remaining)]);
+      ctrl?.updateValueAndValidity();
+      this.recordForm.reset({ completed_quantity: 0, scrap_quantity: 0, rejected_quantity: 0 });
+    });
+  }
+
+  get title(): string {
+    const s = this.state();
+
+    if (s.showQuantityModal) return 'Cantidades';
+
+    if (s.title) return s.title;
+
+    if (this.isCompleted) return 'Progreso Finalizado';
+
+    if (!s.isConfirmed) return 'Confirmar inicio';
+
+    if (s.isConfirmed) return 'Progreso de Producción';
+
+    return '';
+  }
+
+  get isCompleted(): boolean {
+    const s = this.state();
+
+    if (!s.sizeQtyDetail) return false;
+
+    const { completedQty, orderedQty } = s.sizeQtyDetail;
+
+    if (!completedQty || !orderedQty) return false;
+
+    return completedQty >= orderedQty;
+  }
+
+  get remaining(): number {
+    return this.calcRemaining(this.state());
+  }
+
+  get serverNow() {
+    return this.currentRecord()?.server_now ?? new Date();
+  }
+
+  get startTime() {
+    return (
+      this.state().currentSession?.active_activity.last_open_production_record?.start_time ??
+      new Date()
+    );
+  }
+
+  buildRecord(): ProductionRecord {
+    const s = this.state();
+    return {
+      op_number: s.productionOrder?.documentNumber,
+      op_type: s.productionOrder?.documentType,
+      op_rowid: s.productionOrder?.rowId,
+      sku_rowid: s.sizeQtyDetail?.skuRowId,
+      work_session_activity: s.currentSession?.active_activity.id,
+      ordered_quantity: s.sizeQtyDetail?.orderedQty,
+      planned_quantity: s.sizeQtyDetail?.plannedQty,
+      completed_quantity: s.sizeQtyDetail?.completedQty,
+      scrap_quantity: s.sizeQtyDetail?.wasteQty,
+      rejected_quantity: s.sizeQtyDetail?.rejectedQty,
+    } as ProductionRecord;
+  }
+
+  cancel() {
+    this.tTService.cancel();
+  }
+
+  start() {
+    const s = this.state();
+    if (this.isCompleted) return;
+    if (s.currentSession?.active_activity.last_open_production_record) return;
+
+    const record = this.buildRecord();
+    this.recordService.create(record)
+      .pipe(finalize(() => this.tTService.startTimer()))
+      .subscribe({
+        next: (rd) => this.currentRecord.set(rd),
+      });
+
+    this.tTService.startTask(s.colorDetail!, s.sizeQtyDetail!, s.productionOrder!, s.currentSession!);
+  }
+
+  deliver() {
+    this.tTService.openQuantityModal();
+  }
+
+  cancelQuantity() {
+    this.tTService.closeQuantityModal();
+  }
+
+  saveQuantity() {
+    if (this.recordForm.invalid) return;
+
+    this.loaderService.showLoader();
+    this.workSessionService.getActive().pipe(
+      switchMap((session) => {
+        const record = session?.active_activity?.last_open_production_record;
+        if (!record) return EMPTY;
+
+        const payload = {
+          ...this.buildRecord(),
+          ...this.recordForm.value,
+        };
+
+        return this.recordService.update(record.id, payload);
+      }),
+      finalize(() => this.loaderService.hideLoader())
+    ).subscribe({
+      next: () => {        
+        this.saved.emit();
+      },
+    });
+  }
+
+  private calcRemaining(s: TaskTimerState): number {
+    return Math.max(0, (s.sizeQtyDetail?.orderedQty ?? 0) - (s.sizeQtyDetail?.completedQty ?? 0));
+  }
+}

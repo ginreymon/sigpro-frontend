@@ -1,0 +1,21 @@
+<div class="relative w-60 h-60">
+
+    <svg class="w-full h-full -rotate-90">
+
+        <!-- Background -->
+        <circle class="fill-none stroke-20 stroke-gray-200" [attr.cx]="120" [attr.cy]="120" [attr.r]="radius">
+        </circle>
+
+        <!-- Progress -->
+        <circle class="fill-none transition-[stroke-dashoffset] duration-500 ease-linear" [class.stroke-red-500]="isEnding()"
+            [class.stroke-brand-600]="!isEnding()" [attr.cx]="120" [attr.cy]="120" [attr.r]="radius"
+            [attr.stroke-width]="20" [attr.stroke-dasharray]="fullDash" [attr.stroke-dashoffset]="dashOffset">
+        </circle>
+
+    </svg>
+
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold">
+        {{ displayTime() }}
+    </div>
+
+</div>

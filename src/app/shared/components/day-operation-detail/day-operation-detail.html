@@ -5,17 +5,17 @@
 
     <div class="space-y-2 text-sm">
     
-        <p> <strong> Número :</strong> {{ workSession.module?.number }} </p>
+        <p> <strong> Número del módulo:</strong> {{ workSession.current_module?.number }} </p>
 
-        <p> <strong> Nombre :</strong> {{ workSession.module?.name | titlecase }} </p>
+        <p> <strong> Nombre :</strong> {{ workSession.current_module?.name | titlecase }} </p>
 
-        <p> <strong> Número de encomendados :</strong>  {{ workSession.employees_snapshot?.length }} / {{ workSession.module?.operator_count }} </p>
+        <p> <strong> Número de encomendados :</strong>  {{ workSession.employees_snapshot?.length }} / {{ workSession.current_module?.operator_count }} </p>
     
-        <p> <strong> Centro de trabajo :</strong> {{ workSession.module?.work_center?.short_description | titlecase }} </p>
+        <p> <strong> Centro de trabajo :</strong> {{ workSession.current_module?.work_center?.short_description | titlecase }} </p>
     
-        <p> <strong> Descripción :</strong> {{ workSession.module?.work_center?.description }} </p>
+        <p> <strong> Descripción :</strong> {{ workSession.current_module?.work_center?.description }} </p>
     
-        <p> <strong> Código :</strong> {{ workSession.module?.work_center?.code }} </p>
+        <p> <strong> Código :</strong> {{ workSession.current_module?.work_center?.code }} </p>
     
     </div>
 
@@ -39,5 +39,5 @@
 
 </div>                
 
-<app-metadata class="mb-4" [rowObject]="workSession"></app-metadata>
+<app-metadata [rowObject]="workSession"></app-metadata>
 }

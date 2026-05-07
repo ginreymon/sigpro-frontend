@@ -1,7 +1,46 @@
-<app-work-space-layout>
-    <div main-content class="h-full max-h-full">
-       <app-order-searcher></app-order-searcher>
+<app-work-space-layout [headerVisible]="false">
+    
+    <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
+        @if(productionOrder()){            
+          
+            <div class="bg-white border border-slate-200 rounded-md p-3 mb-2 flex flex-row justify-between">                 
+                @for(card of cards(); track card; let i = $index){
+                <div class="px-2">
+                    @if(i !== 0){
+                        <h3 class="text-slate-500 text-xs"> {{ card.title }} </h3>
+                    }
+                    <p [class]="`${i == 0? 'text-3xl': 'text-m'} font-semibold text-slate-900 mb-1`">
+                        {{ card.data | uppercase }}
+                    </p>
+                </div>
+                }
+            </div>
+            
+            <div class="flex-1 min-h-0 overflow-hidden">
+                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()"></app-production-orders-table>
+            </div>
+
+            <div class="flex flex-row justify-end mt-4">
+                <app-ui-button (onClick)="goToSearch()">
+                    <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                   Anterior
+                </app-ui-button>
+            </div>
+        } 
+        @else {
+        <app-order-searcher (onFoundDoc)="setDocument($event)"></app-order-searcher>
+        <div class="flex-1 min-h-0 overflow-hidden">
+            <!-- Space for future features (set se searched ops list)-->
+        </div>
+        <div class="flex flex-row justify-end mt-4">
+            <app-ui-button (onClick)="goToDayOperation()">
+                <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                Anterior
+            </app-ui-button>
+        </div>
+        }
     </div>
+    
 </app-work-space-layout>
 
-<!-- <app-production-orders-table></app-production-orders-table> -->
+<app-task-timer (saved)="reloadOrder()"></app-task-timer>

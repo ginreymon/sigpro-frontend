@@ -1,5 +1,15 @@
-export interface ProductionOrder {
-  type: string;
-  number: number;
-  id_plan?: number;
+import { AuditInfo } from './audit-info';
+import { BaseDocument } from './base-document';
+import { BaseProduct } from './base-product';
+import { ProductClassification } from './product-classification';
+import { ColorDetail } from './color-detail';
+import { Component } from './component';
+import { OperationCenter } from './operation-center';
+
+export interface ProductionOrder extends BaseDocument, BaseProduct, AuditInfo {
+  planId: string;
+  operationCenters: OperationCenter[];
+  classification: ProductClassification;
+  components: Component[];
+  colors: ColorDetail[];
 }

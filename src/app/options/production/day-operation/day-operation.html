@@ -5,7 +5,7 @@
         <fieldset [disabled]="showLoader()" class="flex flex-col flex-1 min-h-0">
             <div class="flex items-center justify-between border-b border-default border-gray-300 pb-4 md:pb-5 mb-2">
                 <h3 class="text-2xl font-semibold text-heading text-gray-900">
-                    {{ currentSession()?'Configuración de la ':'Configurar ' }} operación
+                    {{ `${currentSession()?'Configuración de la ':'Configurar '} operación` | titlecase }}
                 </h3>
             </div>
 
@@ -79,7 +79,7 @@
                     <h4 class="text-sm font-semibold text-gray-700 my-2"> Encomendados </h4>
                     <app-ui-button [intent]="'action'" (onClick)="openModal()">
                         <app-ui-icon [iconName]="'circlePlus'" class="h-5 w-5"></app-ui-icon>
-                        Agregar encomendados
+                        Agregar Encomendados
                     </app-ui-button>
                 </app-ui-form-field>
 
@@ -111,7 +111,7 @@
 
             </div>           
             <app-ui-button [type]="'submit'">
-                {{currentSession()?'Continuar':'Iniciar'}} operación
+                {{currentSession()?'Continuar':'Siguente'}}
                 <app-ui-icon [iconName]="'circleRight'" class="h-5 w-5"></app-ui-icon>
             </app-ui-button>
 
