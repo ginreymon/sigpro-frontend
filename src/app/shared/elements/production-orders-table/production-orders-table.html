@@ -34,7 +34,11 @@
                     <td class="text-center">
                         @if(size.skuRowId != 0){
                         <app-ui-table-button [intent]="getButtonIntent(size)" (onClick)="selectSKU(skuColor,size)">
-                            {{ size.orderedQty }}
+                            @if(getButtonIntent(size) === 'danger'){
+                                {{ size.completedQty }}/{{ size.orderedQty }}
+                            } @else {
+                                {{ size.orderedQty }}
+                            }
                         </app-ui-table-button>
                         }
                     </td>
