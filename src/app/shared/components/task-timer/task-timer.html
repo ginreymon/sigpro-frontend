@@ -62,7 +62,7 @@
 
         @if(!state().showQuantityModal){
             @if(state().isConfirmed){
-                <app-ui-button [intent]="'cancel'">
+                <app-ui-button [intent]="'cancel'" (onClick)="pause()">
                     <app-ui-icon [iconName]="'pause'" [class]="'w-5 h-5'"></app-ui-icon>
                     Pausar
                 </app-ui-button>
@@ -100,3 +100,5 @@
 
 </app-box-layout>
 }
+
+<app-pause-modal></app-pause-modal>

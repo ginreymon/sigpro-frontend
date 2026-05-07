@@ -24,6 +24,7 @@ export class TaskTimerService {
     title: '',
     visible: false,
     showQuantityModal: false,
+    showPauseModal: false,
   };
 
   private stateSubject = new BehaviorSubject<TaskTimerState>(this._initialState);
@@ -38,6 +39,7 @@ export class TaskTimerService {
       currentSession: null,
       visible: false,
       showQuantityModal: false,
+      showPauseModal: false,
       ...partial,
     };
     this.stateSubject.next(state);
@@ -102,6 +104,14 @@ export class TaskTimerService {
 
   closeQuantityModal() {
     this.setState({ ...this.state, showQuantityModal: false });
+  }
+
+  openPauseModal() {
+    this.setState({ ...this.state, showPauseModal: true });
+  }
+
+  closePauseModal() {
+    this.setState({ ...this.state, showPauseModal: false });
   }
 
 }

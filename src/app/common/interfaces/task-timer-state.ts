@@ -12,4 +12,5 @@ export interface TaskTimerState {
   currentSession: WorkSession | null;
   visible: boolean;
   showQuantityModal: boolean;
+  showPauseModal: boolean;
 }

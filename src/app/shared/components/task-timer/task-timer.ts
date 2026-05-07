@@ -16,12 +16,14 @@ import { SkuDetail } from "../sku-detail/sku-detail";
 import { TaskTimerState } from '../../../common/interfaces/task-timer-state';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LoaderService } from '../../../services/common/loader-service';
+import { DialogService } from '../../../services/common/dialog-service';
+import { PauseModal } from '../pause-modal/pause-modal';
 
 
 @Component({
   selector: 'app-task-timer',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiIcon, ProgressBar, TimeProgressCircle, SkuDetail, ReactiveFormsModule, UiFormField, UiLargeInput],
+  imports: [BoxLayout, UiButton, UiIcon, ProgressBar, TimeProgressCircle, SkuDetail, ReactiveFormsModule, UiFormField, UiLargeInput, PauseModal],
   templateUrl: './task-timer.html',
   styleUrl: './task-timer.css',
 })
@@ -33,7 +35,9 @@ export class TaskTimer {
   private fb = inject(FormBuilder);
   private currentRecord = signal<ProductionRecord | null>(null); 
   private workSessionService = inject(WorkSessionService);
-  private loaderService = inject(LoaderService); 
+  private loaderService = inject(LoaderService);
+  protected loading = this.loaderService.loaderVisible;
+  private dialogService = inject(DialogService);
 
   recordForm: FormGroup;
 
@@ -119,13 +123,18 @@ export class TaskTimer {
   }
 
   start() {
+    if (this.loading()) return;
     const s = this.state();
     if (this.isCompleted) return;
     if (s.currentSession?.active_activity.last_open_production_record) return;
 
     const record = this.buildRecord();
+    this.loaderService.showLoader();
     this.recordService.create(record)
-      .pipe(finalize(() => this.tTService.startTimer()))
+      .pipe(finalize(() => {
+        this.loaderService.hideLoader();
+        this.tTService.startTimer();
+      }))
       .subscribe({
         next: (rd) => this.currentRecord.set(rd),
       });
@@ -134,6 +143,7 @@ export class TaskTimer {
   }
 
   deliver() {
+    if (this.loading()) return;
     this.tTService.openQuantityModal();
   }
 
@@ -141,8 +151,16 @@ export class TaskTimer {
     this.tTService.closeQuantityModal();
   }
 
+  pause() {
+    this.tTService.openPauseModal();
+  }
+
   saveQuantity() {
+    if (this.loading()) return;
     if (this.recordForm.invalid) return;
+
+    const { completed_quantity, scrap_quantity, rejected_quantity } = this.recordForm.value;
+    const s = this.state();
 
     this.loaderService.showLoader();
     this.workSessionService.getActive().pipe(
@@ -152,14 +170,21 @@ export class TaskTimer {
 
         const payload = {
           ...this.buildRecord(),
-          ...this.recordForm.value,
+          completed_quantity,
+          scrap_quantity,
+          rejected_quantity,
         };
 
         return this.recordService.update(record.id, payload);
       }),
       finalize(() => this.loaderService.hideLoader())
     ).subscribe({
-      next: () => {        
+      next: () => {
+        this.dialogService.openToast(
+          `Guardado`,
+          `${s.productionOrder?.reference} | ${s.colorDetail?.color} | Talla: ${s.sizeQtyDetail?.size} | Completadas: ${completed_quantity} | Saldos: ${rejected_quantity} | Bajas: ${scrap_quantity}`,
+          'check'
+        );
         this.saved.emit();
       },
     });
