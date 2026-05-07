@@ -167,6 +167,7 @@ export class ProductionOrdersTable {
   getButtonIntent(size: any): ButtonBaseType {
     if (size.completedQty === size.orderedQty) return 'cancel';
     if (size.hasOpenRecords === true) return 'action';
+    if (size.completedQty > 0) return 'danger';
     return 'label';
   }
 

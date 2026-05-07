@@ -1,6 +1,6 @@
 import { Directive, EventEmitter, Input, Output } from '@angular/core';
 
-export type ButtonBaseType ='hover' | 'cancel' | 'accept' | 'action' | 'black' | 'label';
+export type ButtonBaseType ='hover' | 'cancel' | 'accept' | 'action' | 'black' | 'label' | 'warning' | 'danger';
 
 @Directive()
 export abstract class ButtonBase {
@@ -21,6 +21,8 @@ export abstract class ButtonBase {
     action: 'text-gray-700 bg-gray-200 hover:bg-gray-300',
     label: 'hover:bg-brand-200 hover:text-brand-900 text-brand-700 bg-brand-100',
     black: 'text-white bg-black hover:bg-gray-700',
+    warning: 'text-amber-700 bg-amber-100 hover:bg-amber-200',
+    danger: 'text-red-700 bg-red-100 hover:bg-red-200',
   };
 
   get intents(): Record<string, string> {
