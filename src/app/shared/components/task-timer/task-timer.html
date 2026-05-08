@@ -13,20 +13,20 @@
                 <div>
                     <h3 class="text-slate-500 text-xs">Unidades Ordenadas</h3>
                     <p class="text-m font-semibold mb-1 text-slate-900">
-                        {{ state().sizeQtyDetail?.orderedQty }}
+                        {{ state().selectedSKU?.orderedQty }}
                     </p>
                 </div>
                 <div class="h-full flex flex-col items-end">
                     <h3 class="text-slate-500 text-xs">Unidades Completadas</h3>
                     <p [class]="`text-m font-semibold mb-1 text-slate-900`">
-                        {{ state().sizeQtyDetail?.completedQty }}
+                        {{ state().selectedSKU?.completedQty }}
                     </p>
                 </div>
             </div>
         </div>
 
         <div class="w-full border-t border-slate-200 pb-4">
-            <app-progress-bar class="w-full" [max]="state().sizeQtyDetail?.orderedQty!" [progress]="state().sizeQtyDetail?.completedQty!"></app-progress-bar>
+            <app-progress-bar class="w-full" [max]="state().selectedSKU?.orderedQty!" [progress]="state().selectedSKU?.completedQty!"></app-progress-bar>
         </div>
 
         @if(!state().isConfirmed && !isCompleted){
