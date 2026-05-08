@@ -50,7 +50,7 @@ export class Orders implements OnInit {
   }
 
   ngOnInit(): void {
-    this.listenToQueryParams();
+    this.loadDocumentFromRoute();
     this.loadSession();
   }
 
@@ -60,12 +60,10 @@ export class Orders implements OnInit {
     return `${doc.documentType} ${doc.documentNumber}`;
   }
 
-  private listenToQueryParams() {
-    this.route.queryParams.pipe().subscribe((p) => {
-      const type = p['docType'];
-      const number = p['docNumber'];
-      if (type && number) {
-        this.resetDocument(type, number);
+  private loadDocumentFromRoute() {
+    this.route.queryParams.subscribe(({ docType, docNumber }) => {
+      if (docType && docNumber) {
+        this.resetDocument(docType, docNumber);
       } else {
         this.setDocument(null);
       }
