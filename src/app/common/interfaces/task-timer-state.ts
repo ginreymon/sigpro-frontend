@@ -6,9 +6,9 @@ import { WorkSession } from '../../models/production/work-session';
 export interface TaskTimerState {
   title?: string;
   isConfirmed: boolean;
-  colorDetail: ColorDetail | null;
-  sizeQtyDetail: SizeQtyDetail | null;
-  productionOrder: ProductionOrder | null;
+  rowColorItems: ColorDetail | null;
+  selectedSKU: SizeQtyDetail | null;
+  currentOP: ProductionOrder | null;
   currentSession: WorkSession | null;
   visible: boolean;
   showQuantityModal: boolean;

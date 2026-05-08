@@ -83,9 +83,9 @@ export class TaskTimer {
   get isCompleted(): boolean {
     const s = this.state();
 
-    if (!s.sizeQtyDetail) return false;
+    if (!s.selectedSKU) return false;
 
-    const { completedQty, orderedQty } = s.sizeQtyDetail;
+    const { completedQty, orderedQty } = s.selectedSKU;
 
     if (!completedQty || !orderedQty) return false;
 
@@ -105,16 +105,16 @@ export class TaskTimer {
   buildRecord(): ProductionRecord {
     const s = this.state();
     return {
-      op_number: s.productionOrder?.documentNumber,
-      op_type: s.productionOrder?.documentType,
-      op_rowid: s.productionOrder?.rowId,
-      sku_rowid: s.sizeQtyDetail?.skuRowId,
+      op_number: s.currentOP?.documentNumber,
+      op_type: s.currentOP?.documentType,
+      op_rowid: s.currentOP?.rowId,
+      sku_rowid: s.selectedSKU?.skuRowId,
       work_session_activity: s.currentSession?.active_activity.id,
-      ordered_quantity: s.sizeQtyDetail?.orderedQty,
-      planned_quantity: s.sizeQtyDetail?.plannedQty,
-      completed_quantity: s.sizeQtyDetail?.completedQty,
-      scrap_quantity: s.sizeQtyDetail?.wasteQty,
-      rejected_quantity: s.sizeQtyDetail?.rejectedQty,
+      ordered_quantity: s.selectedSKU?.orderedQty,
+      planned_quantity: s.selectedSKU?.plannedQty,
+      completed_quantity: s.selectedSKU?.completedQty,
+      scrap_quantity: s.selectedSKU?.wasteQty,
+      rejected_quantity: s.selectedSKU?.rejectedQty,
     } as ProductionRecord;
   }
 
@@ -139,7 +139,7 @@ export class TaskTimer {
         next: (rd) => this.currentRecord.set(rd),
       });
 
-    this.tTService.startTask(s.colorDetail!, s.sizeQtyDetail!, s.productionOrder!, s.currentSession!);
+    this.tTService.startTask(s.rowColorItems!, s.selectedSKU!, s.currentOP!, s.currentSession!);
   }
 
   deliver() {
@@ -185,7 +185,7 @@ export class TaskTimer {
       next: () => {        
         this.dialogService.openToast(
           `Guardado`,
-          `${s.productionOrder?.reference} | ${s.colorDetail?.color} | Talla: ${s.sizeQtyDetail?.size} | Completadas: ${completed_quantity} | Saldos: ${rejected_quantity} | Bajas: ${scrap_quantity}`,
+          `${s.currentOP?.reference} | ${s.rowColorItems?.color} | Talla: ${s.selectedSKU?.size} | Completadas: ${completed_quantity} | Saldos: ${rejected_quantity} | Bajas: ${scrap_quantity}`,
           'check'
         );
         this.saved.emit();
@@ -194,6 +194,6 @@ export class TaskTimer {
   }
 
   private calcRemaining(s: TaskTimerState): number {
-    return Math.max(0, (s.sizeQtyDetail?.orderedQty ?? 0) - (s.sizeQtyDetail?.completedQty ?? 0));
+    return Math.max(0, (s.selectedSKU?.orderedQty ?? 0) - (s.selectedSKU?.completedQty ?? 0));
   }
 }

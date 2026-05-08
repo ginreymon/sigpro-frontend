@@ -15,10 +15,10 @@ export class SkuDetail {
     if (!this.state) return [];
 
     return [
-      { title: 'Color SKU', data: this.state.colorDetail?.color ?? '' },
-      { title: 'Talla', data: this.state.sizeQtyDetail?.size ?? '' },
-      { title: 'Referencia', data: this.state.productionOrder?.reference ?? '' },
-      { title: 'OP', data: `${this.state.productionOrder?.documentType ?? ''} ${this.state.productionOrder?.documentNumber ?? ''}`, },
+      { title: 'Color SKU', data: this.state.rowColorItems?.color ?? '' },
+      { title: 'Talla', data: this.state.selectedSKU?.size ?? '' },
+      { title: 'Referencia', data: this.state.currentOP?.reference ?? '' },
+      { title: 'OP', data: `${this.state.currentOP?.documentType ?? ''} ${this.state.currentOP?.documentNumber ?? ''}`, },
     ];
   }
 }

@@ -17,9 +17,9 @@ export class TaskTimerService {
 
   private _initialState: TaskTimerState = {
     isConfirmed: false,
-    colorDetail: null,
-    sizeQtyDetail: null,
-    productionOrder: null,
+    rowColorItems: null,
+    selectedSKU: null,
+    currentOP: null,
     currentSession: null,
     title: '',
     visible: false,
@@ -33,9 +33,9 @@ export class TaskTimerService {
   private setState(partial: Partial<TaskTimerState>) {
     const state: TaskTimerState = {
       isConfirmed: false,
-      colorDetail: null,
-      sizeQtyDetail: null,
-      productionOrder: null,
+      rowColorItems: null,
+      selectedSKU: null,
+      currentOP: null,
       currentSession: null,
       visible: false,
       showQuantityModal: false,
@@ -52,9 +52,9 @@ export class TaskTimerService {
   startTask(colorDetail: ColorDetail, sizeQtyDetail: SizeQtyDetail, productionOrder: ProductionOrder, currentSession: WorkSession, title?: string) {
     this.setState({
       isConfirmed: false,
-      colorDetail,
-      sizeQtyDetail,
-      productionOrder,
+      rowColorItems: colorDetail,
+      selectedSKU: sizeQtyDetail,
+      currentOP: productionOrder,
       currentSession,
       title,
       visible: true,
