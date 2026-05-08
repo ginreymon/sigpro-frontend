@@ -17,7 +17,7 @@ export class TaskTimerService {
 
   private _initialState: TaskTimerState = {
     isConfirmed: false,
-    rowColorItems: null,
+    rowColorDetail: null,
     selectedSKU: null,
     currentOP: null,
     currentSession: null,
@@ -33,7 +33,7 @@ export class TaskTimerService {
   private setState(partial: Partial<TaskTimerState>) {
     const state: TaskTimerState = {
       isConfirmed: false,
-      rowColorItems: null,
+      rowColorDetail: null,
       selectedSKU: null,
       currentOP: null,
       currentSession: null,
@@ -49,12 +49,12 @@ export class TaskTimerService {
     return this.stateSubject.value;
   }
 
-  startTask(colorDetail: ColorDetail, sizeQtyDetail: SizeQtyDetail, productionOrder: ProductionOrder, currentSession: WorkSession, title?: string) {
+  openDialog(rowColorDetail: ColorDetail, selectedSKU: SizeQtyDetail, currentOP: ProductionOrder, currentSession: WorkSession, title?: string) {
     this.setState({
       isConfirmed: false,
-      rowColorItems: colorDetail,
-      selectedSKU: sizeQtyDetail,
-      currentOP: productionOrder,
+      rowColorDetail,
+      selectedSKU,
+      currentOP,
       currentSession,
       title,
       visible: true,
@@ -75,14 +75,14 @@ export class TaskTimerService {
         for (const color of po.colors) {
           const size = color.sizes.find((s) => s.skuRowId == skuRowId);
           if (size) {
-            params = { colorDetail: color, sizeQtyDetail: size };
+            params = { colorDetail: color, selectedSku: size };
             break;
           }
         }
 
-        if (!params?.colorDetail || !params.sizeQtyDetail) return;
+        if (!params?.colorDetail || !params.selectedSku) return;
 
-        this.startTask(params.colorDetail, params.sizeQtyDetail, po, ws, title);
+        this.openDialog(params.colorDetail, params.selectedSku, po, ws, title);
         this.startTimer();
       });
   }

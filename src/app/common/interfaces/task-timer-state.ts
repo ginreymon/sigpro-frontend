@@ -6,7 +6,7 @@ import { WorkSession } from '../../models/production/work-session';
 export interface TaskTimerState {
   title?: string;
   isConfirmed: boolean;
-  rowColorItems: ColorDetail | null;
+  rowColorDetail: ColorDetail | null;
   selectedSKU: SizeQtyDetail | null;
   currentOP: ProductionOrder | null;
   currentSession: WorkSession | null;

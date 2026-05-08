@@ -139,7 +139,7 @@ export class TaskTimer {
         next: (rd) => this.currentRecord.set(rd),
       });
 
-    this.tTService.startTask(s.rowColorItems!, s.selectedSKU!, s.currentOP!, s.currentSession!);
+    this.tTService.openDialog(s.rowColorDetail!, s.selectedSKU!, s.currentOP!, s.currentSession!);
   }
 
   deliver() {
@@ -185,7 +185,7 @@ export class TaskTimer {
       next: () => {        
         this.dialogService.openToast(
           `Guardado`,
-          `${s.currentOP?.reference} | ${s.rowColorItems?.color} | Talla: ${s.selectedSKU?.size} | Completadas: ${completed_quantity} | Saldos: ${rejected_quantity} | Bajas: ${scrap_quantity}`,
+          `${s.currentOP?.reference} | ${s.rowColorDetail?.color} | Talla: ${s.selectedSKU?.size} | Completadas: ${completed_quantity} | Saldos: ${rejected_quantity} | Bajas: ${scrap_quantity}`,
           'check'
         );
         this.saved.emit();

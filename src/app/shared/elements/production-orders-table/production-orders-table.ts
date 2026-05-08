@@ -180,6 +180,6 @@ export class ProductionOrdersTable {
       this.dialogService.openToast('Advertencia', `Existe una tarea en proceso que no ha finalizado (${doc.toUpperCase()}).`, 'fail');
       return;
     }
-    this.tTService.startTask(cd, sd, this.productionOrder, this.currentSession);
+    this.tTService.openDialog(cd, sd, this.productionOrder, this.currentSession);
   }
 }
