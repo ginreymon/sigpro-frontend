@@ -33,7 +33,7 @@ export class TaskTimer {
   private tTService = inject(TaskTimerService);
   private recordService = inject(ProductionRecordService);
   private fb = inject(FormBuilder);
-  private currentRecord = signal<ProductionRecord | null>(null); 
+  private currentRecord = signal<ProductionRecord | null>(null);
   private workSessionService = inject(WorkSessionService);
   private loaderService = inject(LoaderService);
   protected loading = this.loaderService.loaderVisible;

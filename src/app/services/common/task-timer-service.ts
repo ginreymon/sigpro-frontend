@@ -114,4 +114,5 @@ export class TaskTimerService {
     this.setState({ ...this.state, showPauseModal: false });
   }
 
+
 }

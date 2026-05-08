@@ -1,15 +1,45 @@
 @if(state().showPauseModal){
 <app-box-layout [title]="'Pausar'">
 
-    <div box-content class="flex flex-col justify-center items-center py-4">
-        <p class="text-gray-600 text-center">
-            ¿Desea pausar la tarea en curso?
-        </p>
+    <div box-content class="flex flex-col gap-3 py-4">
+        <div class="grid grid-cols-1 gap-3 items-stretch overflow-y-auto max-h-[30vh]">
+            @for(wb of workBreaks(); track wb.id){
+            <app-ui-option-card [obj]="wb" [selected]="selectedBreak()?.id === wb.id" (onToggle)="selectBreak($event)">
+                <p class="font-semibold text-sm">{{ wb.name }}</p>
+                @if(wb.description){
+                <p class="text-xs text-slate-500 mt-1">{{ wb.description }}</p>
+                }
+            </app-ui-option-card>
+            }
+
+            <app-ui-option-card [selected]="isCustomSelected()" (onToggle)="selectCustom()">
+                <p class="font-semibold text-sm">Otra razón</p>
+                <p class="text-xs text-slate-500 mt-1">Ingresa un motivo personalizado</p>
+            </app-ui-option-card>
+        </div>
+
+        @if(isCustomSelected()){
+        <input
+            class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500"
+            type="text"
+            placeholder="Describe el motivo..."
+            [value]="customReason()"
+            (input)="customReason.set($any($event.target).value)"
+        />
+        }
+
+        @if(touched() && !isValid){
+        <app-ui-error-message>Debe seleccionar al menos 1 opción</app-ui-error-message>
+        }
     </div>
 
     <div box-buttons class="flex flex-row gap-3">
         <app-ui-button [intent]="'cancel'" (onClick)="cancel()">
             Cancelar
+        </app-ui-button>
+
+        <app-ui-button [disabled]="!isValid">
+            Pausar
         </app-ui-button>
     </div>
 
