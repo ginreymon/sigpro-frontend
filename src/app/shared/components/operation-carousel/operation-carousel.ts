@@ -1,4 +1,5 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
+import { fromEvent, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-operation-carousel',
@@ -6,12 +7,25 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
   templateUrl: './operation-carousel.html',
   styleUrl: './operation-carousel.css',
 })
-export class OperationCarousel {
+export class OperationCarousel implements OnDestroy {
   @ViewChild('container') container!: ElementRef;
   @ViewChild('track') track!: ElementRef;
 
   currentOffset = 0;
   cardWidth = 200;
+  isLargeScreen = signal(window.innerWidth >= 1024);
+
+  private resizeSub: Subscription;
+
+  constructor() {
+    this.resizeSub = fromEvent(window, 'resize').subscribe(() => {
+      this.isLargeScreen.set(window.innerWidth >= 1024);
+    });
+  }
+
+  ngOnDestroy() {
+    this.resizeSub.unsubscribe();
+  }
 
   next() {
     const containerWidth = this.container.nativeElement.offsetWidth;

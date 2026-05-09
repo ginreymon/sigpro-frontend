@@ -15,12 +15,13 @@ import { TaskTimerState } from '../../../common/interfaces/task-timer-state';
 import { LoaderService } from '../../../services/common/loader-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { PauseModal } from '../pause-modal/pause-modal';
+import { DatePipe } from '@angular/common';
 
 
 @Component({
   selector: 'app-task-timer',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiIcon, ProgressBar, TimeProgressCircle, SkuDetail, ReactiveFormsModule, UiFormField, UiLargeInput, PauseModal],
+  imports: [BoxLayout, UiButton, UiIcon, ProgressBar, TimeProgressCircle, SkuDetail, ReactiveFormsModule, UiFormField, UiLargeInput, PauseModal, DatePipe],
   templateUrl: './task-timer.html',
   styleUrl: './task-timer.css',
 })
@@ -94,6 +95,18 @@ export class TaskTimer {
 
   protected startTime = computed(() => this.state().currentRecord?.start_time ?? new Date());
 
+  protected toDoQuantity = computed(()=>{
+    const s = this.state();
+    if(!s.selectedSKU) return 0;
+    return s.selectedSKU.orderedQty - s.selectedSKU.completedQty;
+  });
+
+  protected duration = computed(()=>{
+    const s = this.state();
+    if(!s.selectedSKU || !s.selectedSKU.baseRouteQuantity) return 0;
+    return this.toDoQuantity() * 3600 / s.selectedSKU.baseRouteQuantity;
+  });
+
   cancel() {
     this.tTService.cancel();
   }
@@ -105,10 +118,7 @@ export class TaskTimer {
    
     this.loaderService.showLoader();
     this.tTService.createRecord()
-      .pipe(finalize(() => {
-        this.loaderService.hideLoader();
-        this.tTService.startTimer();
-      }))
+      .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (rd) => this.tTService.setCurrentRecord(rd)
       });   

@@ -2,7 +2,7 @@
 
     @if(showSideContent()){
 
-    <div class="shrink-0 flex flex-col min-h-full order-2" [style.minWidth]="showSideContent() ? 'calc(100vw/3)' : null">
+    <div class="shrink-0 flex flex-col min-h-full order-2" [style.minWidth]="showSideContent() && isLargeScreen() ? 'calc(100vw/3)' : null">
         <div class="bg-white border border-slate-200 rounded-lg shadow-md p-6 flex-1 overflow-auto">
 
             @if(isLoading()){
@@ -28,7 +28,7 @@
     </div>
     }
 
-    <div class="flex flex-col flex-1 order-1 " [style.maxWidth]="showSideContent() ? 'calc(200vw/3 - 4rem)' : null">
+    <div class="flex flex-col flex-1 order-1 " [style.maxWidth]="showSideContent() && isLargeScreen() ? 'calc(200vw/3 - 4rem)' : null">
 
         @if(showHeader() && headerVisible){
         <div class="bg-white border border-slate-200 rounded-lg shadow-md p-6 mb-2 relative">

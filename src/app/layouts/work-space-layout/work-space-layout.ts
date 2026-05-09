@@ -1,4 +1,4 @@
-import { Component, Input, Signal, signal } from '@angular/core';
+import { Component, Input, OnDestroy, Signal, signal } from '@angular/core';
 import { LocationOption } from '../../common/classes/location-option';
 import { WorkSpaceLoaderService } from '../../services/common/work-space-loader-service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -8,6 +8,7 @@ import { ConfirmBox } from "../../shared/components/confirm-box/confirm-box";
 import { Toast } from "../../shared/components/toast/toast";
 import { TitleCasePipe } from '@angular/common';
 import { Loader } from '../../shared/elements/loader/loader';
+import { fromEvent, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-work-space-layout',
@@ -15,11 +16,14 @@ import { Loader } from '../../shared/elements/loader/loader';
   templateUrl: './work-space-layout.html',
   styleUrl: './work-space-layout.css',
 })
-export class WorkSpaceLayout extends LocationOption {
+export class WorkSpaceLayout extends LocationOption implements OnDestroy {
   isLoading: Signal<boolean>;
   showHeader: Signal<boolean>;
   showSideContent = signal(false);
   showBackground = signal(true);
+  isLargeScreen = signal(window.innerWidth >= 1024);
+
+  private resizeSub: Subscription;
 
   @Input() headerVisible: boolean = true;
 
@@ -46,6 +50,14 @@ export class WorkSpaceLayout extends LocationOption {
     this.showHeader = toSignal(this.wsLayoutService.showHeader$, {
       initialValue: true,
     });
+
+    this.resizeSub = fromEvent(window, 'resize').subscribe(() => {
+      this.isLargeScreen.set(window.innerWidth >= 1024);
+    });
+  }
+
+  ngOnDestroy() {
+    this.resizeSub.unsubscribe();
   }
 
   toggleHeader() {
