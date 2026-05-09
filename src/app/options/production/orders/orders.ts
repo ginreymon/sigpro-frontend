@@ -48,8 +48,7 @@ export class Orders implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadDocumentFromRoute();
-    this.loadSession();
+    this.reloadOrder();
   }
 
   get document() {
@@ -119,9 +118,7 @@ export class Orders implements OnInit {
   }
 
   reloadOrder() {
-    this.hasCheckedActiveRecord = false;
-    const order = this.productionOrder();
-    if (order) this.resetDocument(order.documentType, order.documentNumber);
+    this.loadDocumentFromRoute();
     this.loadSession();
   }
 

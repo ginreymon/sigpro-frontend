@@ -14,6 +14,7 @@ import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
+import { DialogService } from '../../../services/common/dialog-service';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class TaskTimer implements OnChanges {
   private tts = inject(TaskTimerService);
   private loaderService = inject(LoaderService);
   private fb = inject(FormBuilder);
+  private dialogService = inject(DialogService);  
 
   recordForm: FormGroup;
   isSubmitting = signal(false);
@@ -102,11 +104,12 @@ export class TaskTimer implements OnChanges {
       });
   }
 
-  deliver() {
+  deliver() {  
     this.tts.openQuantityModal();
   }
 
   cancelQuantity() {
+    this.recordForm.reset({ completed_quantity: 0, scrap_quantity: 0, rejected_quantity: 0, });    
     this.tts.closeQuantityModal();
   }
 
@@ -115,16 +118,30 @@ export class TaskTimer implements OnChanges {
   }
 
   saveQuantity() {
-    const record = this.tts.currentRecord();
+    if (this.isSubmitting()) return;
+    this.isSubmitting.set(true);
+    this.loaderService.showLoader();
+    const record = this.tts.currentRecord();   
     if (!record?.id) return;
-    this.tts.saveQuantity(record.id, {
-      ...this.recordForm.value,
-      end_time: new Date().toISOString(),
-    }).subscribe({
-      next: () => {
-        this.tts.reset();
-        this.saved.emit();
-      },
-    });
+    this.tts.saveQuantity(record.id, { ...this.recordForm.value })
+      .pipe(finalize(() => {
+        this.isSubmitting.set(false);
+        this.loaderService.hideLoader();
+        this.selectedSKU = null;
+      }))
+      .subscribe({
+        next: (rd) => {
+          this.tts.reset();
+          this.saved.emit();
+          const completed = Math.trunc(rd.completed_quantity ?? 0);
+          const rejected = Math.trunc(rd.rejected_quantity ?? 0);
+          const scrap = Math.trunc(rd.scrap_quantity ?? 0);
+          this.dialogService.openToast(
+            'Guardado',
+            `Completadas: ${completed} | Rechazadas: ${rejected} | Saldos: ${scrap}`,
+            'check'
+          );
+        },
+      });
   }
 }
