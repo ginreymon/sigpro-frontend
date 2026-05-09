@@ -51,7 +51,13 @@ export class TaskTimerService {
     return this.stateSubject.value;
   }
 
-  openDialog(rowColorDetail: ColorDetail, selectedSKU: SizeQtyDetail, currentOP: ProductionOrder, currentSession: WorkSession, title?: string) {
+  openDialog(
+    rowColorDetail: ColorDetail,
+    selectedSKU: SizeQtyDetail,
+    currentOP: ProductionOrder,
+    currentSession: WorkSession,
+    title?: string,
+  ) {
     this.setState({
       isConfirmed: false,
       rowColorDetail,
@@ -131,6 +137,12 @@ export class TaskTimerService {
 
   cancel() {
     this.stateSubject.next(this._initialState);
+  }
+
+  closeDialog() {
+    this.closePauseModal();
+    this.closeQuantityModal();
+    this.setState({ ...this.state, visible: false });
   }
 
   openQuantityModal() {

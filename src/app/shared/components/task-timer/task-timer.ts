@@ -178,7 +178,7 @@ export class TaskTimer {
         return this.recordService.update(record.id, payload);
       }),
       finalize(() => {
-        this.tTService.closeQuantityModal();
+        this.tTService.closeDialog();
         this.loaderService.hideLoader();
         this.saved.emit();
       })
