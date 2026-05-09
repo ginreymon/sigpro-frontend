@@ -4,7 +4,6 @@ import { ColorDetail } from '../../../models/production/color-detail';
 import { SizeQtyDetail } from '../../../models/production/size-detail';
 import { UiTableButton } from '../ui-table-button/ui-table-button';
 import { UiTooltip } from '../ui-tooltip/ui-tooltip';
-import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { WorkSession } from '../../../models/production/work-session';
 import { ButtonBaseType } from '../../../common/classes/button-base';
 import { DialogService } from '../../../services/common/dialog-service';
@@ -21,7 +20,6 @@ export class ProductionOrdersTable {
   skuColors: ColorDetail[] = [];
   totalBySizes: SizeQtyDetail[] = [];
   grandTotal: SizeQtyDetail | null = null;
-  tTService = inject(TaskTimerService);
   dialogService = inject(DialogService);
 
   get productionOrder() {
@@ -173,13 +171,6 @@ export class ProductionOrdersTable {
 
   selectSKU(cd: ColorDetail, sd: SizeQtyDetail) {
     if (!this.productionOrder || !this.currentSession) return;
-    const record = this.currentSession.active_activity.last_open_production_record;  
-    
-    if (record){
-      const doc =`${record.op_type} ${record.op_number}`;   
-      this.dialogService.openToast('Advertencia', `Existe una tarea en proceso que no ha finalizado (${doc.toUpperCase()}).`, 'fail');
-      return;
-    }
-    this.tTService.openDialog(cd, sd, this.productionOrder, this.currentSession);
+    this.onSelectSKU.emit({ color: cd, size: sd });
   }
 }

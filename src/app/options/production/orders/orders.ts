@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
 import { ProductionOrderService } from '../../../services/production/production-order-service';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -11,10 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/order-searcher/order-searcher';
 import { ProductionOrder } from '../../../models/production/production-order';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
-import { TaskTimer } from '../../../shared/components/task-timer/task-timer';
 import { UpperCasePipe } from '@angular/common';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
-import { TaskTimerService } from '../../../services/common/task-timer-service';
 
 @Component({
   selector: 'app-orders',
@@ -24,10 +22,9 @@ import { TaskTimerService } from '../../../services/common/task-timer-service';
     OrderSearcher,
     ProductionOrdersTable,
     UiButton,
-    TaskTimer,
     UpperCasePipe,
-    UiIcon,   
-],
+    UiIcon,
+  ],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
@@ -39,14 +36,12 @@ export class Orders implements OnInit {
   private route = inject(ActivatedRoute);
   private poService = inject(ProductionOrderService);
   private wslService = inject(WorkSpaceLoaderService);
-  private tTService = inject(TaskTimerService);
 
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
   cards = signal<{ title: string; data: any }[]>([]);
 
   constructor(private workSessionService: WorkSessionService) {
-    this.tryContinueTask();
   }
 
   ngOnInit(): void {
@@ -66,17 +61,6 @@ export class Orders implements OnInit {
         this.resetDocument(docType, docNumber);
       } else {
         this.setDocument(null);
-      }
-    });
-  }
-
-  private tryContinueTask() {
-    effect(() => {
-      const order = this.productionOrder();
-      const session = this.currentSession();
-
-      if (order && session) {
-        this.tTService.continueDialog(order, session);
       }
     });
   }
@@ -106,7 +90,6 @@ export class Orders implements OnInit {
   setDocument(doc: ProductionOrder | null) {
     this.productionOrder.set(doc);
     this.cards.set([]);
-    this.tTService.cancel();
     if (!doc) return;
 
     this.router.navigate([], {

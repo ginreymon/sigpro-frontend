@@ -1,9 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter, signal } from '@angular/core';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiOptionCard } from '../../elements/ui-option-card/ui-option-card';
 import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message';
-import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WorkBreakService } from '../../../services/production/work-break-service';
 import { WorkBreak } from '../../../models/production/work-break';
@@ -16,12 +15,11 @@ import { map } from 'rxjs';
   templateUrl: './pause-modal.html',
 })
 export class PauseModal {
-  private tTService = inject(TaskTimerService);
   private workBreakService = inject(WorkBreakService);
 
-  protected state = toSignal(this.tTService.state$, {
-    initialValue: this.tTService.state,
-  });
+  @Input() visible = false;
+  @Output() onCancel = new EventEmitter<void>();
+  @Output() onConfirm = new EventEmitter<{ workBreak: WorkBreak | null; customReason: string }>();
 
   protected workBreaks = toSignal(
     this.workBreakService.getAll().pipe(map(r => r.results)),
@@ -55,6 +53,14 @@ export class PauseModal {
     this.isCustomSelected.set(false);
     this.customReason.set('');
     this.touched.set(false);
-    this.tTService.closePauseModal();
+    this.onCancel.emit();
+  }
+
+  confirm() {
+    if (!this.isValid) return;
+    this.onConfirm.emit({
+      workBreak: this.selectedBreak(),
+      customReason: this.customReason(),
+    });
   }
 }
