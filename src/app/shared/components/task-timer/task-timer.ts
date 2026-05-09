@@ -180,6 +180,7 @@ export class TaskTimer {
       finalize(() => {
         this.tTService.closeQuantityModal();
         this.loaderService.hideLoader();
+        this.saved.emit();
       })
     ).subscribe({
       next: () => {        
@@ -187,8 +188,7 @@ export class TaskTimer {
           `Guardado`,
           `${s.currentOP?.reference} | ${s.rowColorDetail?.color} | Talla: ${s.selectedSKU?.size} | Completadas: ${completed_quantity} | Saldos: ${rejected_quantity} | Bajas: ${scrap_quantity}`,
           'check'
-        );
-        this.saved.emit();
+        );       
       },
     });
   }
