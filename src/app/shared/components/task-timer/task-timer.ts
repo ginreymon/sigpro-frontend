@@ -174,18 +174,16 @@ export class TaskTimer {
 
         return this.recordService.update(record.id, payload);
       }),
-      finalize(() => {
-        this.tTService.closeDialog();
-        this.loaderService.hideLoader();
-        this.saved.emit();
-      })
+      finalize(() => this.loaderService.hideLoader())
     ).subscribe({
-      next: (rd) => {       
+      next: (rd) => {
+        this.tTService.closeDialog();
+        this.saved.emit();
         this.dialogService.openToast(
-          `Guardado`,
-          `${s.currentOP?.reference} | ${s.rowColorDetail?.color} | Talla: ${s.selectedSKU?.size} | Completadas: ${rd.completed_quantity} | Saldos: ${rd.rejected_quantity} | Bajas: ${rd.scrap_quantity}`,
+          `Guardado (${s.rowColorDetail?.color} - Talla: ${s.selectedSKU?.size})`,
+          `Completadas: ${rd.completed_quantity} | Saldos: ${rd.rejected_quantity} | Bajas: ${rd.scrap_quantity}`,
           'check'
-        );       
+        );
       },
     });
   }
