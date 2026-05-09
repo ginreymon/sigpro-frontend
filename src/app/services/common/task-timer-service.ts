@@ -8,6 +8,8 @@ import { SizeQtyDetail } from '../../models/production/size-detail';
 import { WorkSession } from '../../models/production/work-session';
 import { WorkSessionService } from '../production/work-session-service';
 import { ProductionOrderService } from '../production/production-order-service';
+import { ProductionRecord } from '../../models/production/production-record';
+import { ProductionRecordService } from '../production/production-record-service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +18,7 @@ export class TaskTimerService {
   private workSessionService = inject(WorkSessionService);
   private productionOrderService = inject(ProductionOrderService);
   private route = inject(ActivatedRoute);
+  private recordService = inject(ProductionRecordService);
 
   private _initialState: TaskTimerState = {
     isConfirmed: false,
@@ -51,13 +54,23 @@ export class TaskTimerService {
     return this.stateSubject.value;
   }
 
-  openDialog(
-    rowColorDetail: ColorDetail,
-    selectedSKU: SizeQtyDetail,
-    currentOP: ProductionOrder,
-    currentSession: WorkSession,
-    title?: string,
-  ) {
+  buildRecord() {
+    const s = this.state;
+    return {
+      op_number: s.currentOP?.documentNumber,
+      op_type: s.currentOP?.documentType,
+      op_rowid: s.currentOP?.rowId,
+      sku_rowid: s.selectedSKU?.skuRowId,
+      work_session_activity: s.currentSession?.active_activity.id,
+      ordered_quantity: s.selectedSKU?.orderedQty,
+      planned_quantity: s.selectedSKU?.plannedQty,
+      completed_quantity: s.selectedSKU?.completedQty,
+      scrap_quantity: s.selectedSKU?.wasteQty,
+      rejected_quantity: s.selectedSKU?.rejectedQty,
+    } as ProductionRecord;
+  }
+
+  openDialog(rowColorDetail: ColorDetail, selectedSKU: SizeQtyDetail, currentOP: ProductionOrder, currentSession: WorkSession, currentRecord?:ProductionRecord, title?: string) {
     this.setState({
       isConfirmed: false,
       rowColorDetail,
@@ -66,7 +79,12 @@ export class TaskTimerService {
       currentSession,
       title,
       visible: true,
+      currentRecord,
     });
+  }
+
+  setCurrentRecord(currentRecord: ProductionRecord) {
+    this.setState({ ...this.state, currentRecord });
   }
 
   loadState(): Observable<TaskTimerState> {
@@ -80,7 +98,8 @@ export class TaskTimerService {
         .pipe(map((po) => po as ProductionOrder)),
     }).pipe(
       map(({ ws, po }) => {
-        const skuRowId = ws?.active_activity?.last_open_production_record?.sku_rowid;
+        const currentRecord = ws?.active_activity?.last_open_production_record;
+        const skuRowId = currentRecord?.sku_rowid;
         let rowColorDetail: ColorDetail | null = null;
         let selectedSKU: SizeQtyDetail | null = null;
 
@@ -101,6 +120,7 @@ export class TaskTimerService {
           selectedSKU,
           currentOP: po,
           currentSession: ws,
+          currentRecord,
         });
         return this.stateSubject.value;
       }),
@@ -123,9 +143,24 @@ export class TaskTimerService {
     }
 
     if (!params?.colorDetail || !params.selectedSku) return;
-
-    this.openDialog(params.colorDetail, params.selectedSku, po, ws, title);
+  
+    this.openDialog(params.colorDetail, params.selectedSku, po, ws, record, title);
     this.startTimer();
+  }
+
+  createRecord(): Observable<ProductionRecord> {
+    return this.recordService.create(this.buildRecord());
+  }
+
+  saveRecord(completed_quantity: number, scrap_quantity: number, rejected_quantity: number): Observable<ProductionRecord> {
+    const payload = {
+      ...this.buildRecord(),
+      rejected_quantity,
+      scrap_quantity,
+      completed_quantity,
+    };
+    
+    return this.recordService.update(this.state.currentRecord?.id!, payload);
   }
 
   startTimer() {

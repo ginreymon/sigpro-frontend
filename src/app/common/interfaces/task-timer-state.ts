@@ -1,5 +1,6 @@
 import { ColorDetail } from '../../models/production/color-detail';
 import { ProductionOrder } from '../../models/production/production-order';
+import { ProductionRecord } from '../../models/production/production-record';
 import { SizeQtyDetail } from '../../models/production/size-detail';
 import { WorkSession } from '../../models/production/work-session';
 
@@ -13,4 +14,5 @@ export interface TaskTimerState {
   visible: boolean;
   showQuantityModal: boolean;
   showPauseModal: boolean;
+  currentRecord?: ProductionRecord;
 }
