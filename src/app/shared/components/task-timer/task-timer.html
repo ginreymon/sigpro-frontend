@@ -1,25 +1,24 @@
-@if(state().visible){
-<app-box-layout [title]="title">
+@if(selectedSKU){
+<app-box-layout [title]="''">
 
     <div box-content class="flex flex-col justify-center items-center">
 
         <app-time-progress-circle class="mt-4" [class.hidden]="!state().isConfirmed || state().showQuantityModal" [startTime]="startTime()" [serverNow]="serverNow()"></app-time-progress-circle>
 
-        @if(!state().showQuantityModal){
-        <app-sku-detail class="w-full" [state]="state()"></app-sku-detail>
+        <app-sku-detail class="w-full" [selectedSKU]="selectedSKU"></app-sku-detail>
 
         <div class="w-full py-3 flex flex-col justify-start">
             <div class="w-full flex flex-row justify-between">
                 <div>
                     <h3 class="text-slate-500 text-xs">Unidades Ordenadas</h3>
                     <p class="text-m font-semibold mb-1 text-slate-900">
-                        {{ state().selectedSKU?.orderedQty }}
+                        {{ selectedSKU.orderedQty }}
                     </p>
                 </div>
                 <div>
                     <h3 class="text-slate-500 text-xs">Tiempo ({{ toDoQuantity() }})</h3>
                     <p class="text-m font-semibold mb-1 text-slate-900">
-                        {{ duration() * 1000 | date:'mm:ss':'UTC' }}
+                         {{ duration() * 1000 | date:'mm:ss':'UTC' }} min                
                     </p>
                 </div>
                 <div class="h-full flex flex-col items-end">
@@ -32,23 +31,22 @@
         </div>
 
         <div class="w-full border-t border-slate-200 pb-4">
-            <app-progress-bar class="w-full" [max]="state().selectedSKU?.orderedQty!" [progress]="state().selectedSKU?.completedQty!"></app-progress-bar>
+            <app-progress-bar class="w-full" [max]="selectedSKU.orderedQty" [progress]="selectedSKU.completedQty"></app-progress-bar>
         </div>
 
         @if(!state().isConfirmed && !isCompleted){
         <p class="text-gray-600 border-t border-slate-200 py-4">
             Al iniciar, se confirma la operación y comienza el conteo de tiempo.
         </p>
-        }
-        }
+        }        
 
         @if(state().showQuantityModal){
-        <app-sku-detail class="w-full" [state]="state()"></app-sku-detail>
+        <app-sku-detail class="w-full" [selectedSKU]="selectedSKU"></app-sku-detail>
 
         <form id="recordForm" class="w-full mt-4" [formGroup]="recordForm">
             <fieldset>
                 <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Completadas'">
-                    <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + remaining"></app-ui-large-input>
+                    <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + toDoQuantity()"></app-ui-large-input>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'rejected_quantity'" [label]="'Saldos'">
@@ -60,7 +58,7 @@
                 </app-ui-form-field>
             </fieldset>
         </form>
-        }
+        } 
 
     </div>
 
@@ -107,4 +105,4 @@
 </app-box-layout>
 }
 
-<app-pause-modal></app-pause-modal>
+

@@ -13,22 +13,18 @@ import { ProductionOrder } from '../../../models/production/production-order';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { UpperCasePipe } from '@angular/common';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
+import { TaskTimer } from "../../../shared/components/task-timer/task-timer";
+import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
+import { TaskTimerService } from '../../../services/common/task-timer-service';
 
 @Component({
   selector: 'app-orders',
-  imports: [
-    WorkSpaceLayout,
-    FormsModule,
-    OrderSearcher,
-    ProductionOrdersTable,
-    UiButton,
-    UpperCasePipe,
-    UiIcon,
-  ],
+  imports: [ WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer ],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
 export class Orders implements OnInit {
+
   private DAY_OPERATION_URL: string = 'production/day-operation';
   private OPERATION_ORDER_URL: string = 'production/orders';
 
@@ -36,10 +32,12 @@ export class Orders implements OnInit {
   private route = inject(ActivatedRoute);
   private poService = inject(ProductionOrderService);
   private wslService = inject(WorkSpaceLoaderService);
+  private tts = inject(TaskTimerService);
 
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
   cards = signal<{ title: string; data: any }[]>([]);
+  selectedSKU = signal<SkuTaskDetail | null>(null);
 
   constructor(private workSessionService: WorkSessionService) {
   }
@@ -71,7 +69,10 @@ export class Orders implements OnInit {
       .getActive()
       .pipe(finalize(() => this.wslService.end()))
       .subscribe({
-        next: (session) => this.currentSession.set(session ? session : null),
+        next: (session) => {
+          this.currentSession.set(session ? session : null);
+          this.tts.setSession(session ? session : null);
+        },
         error: () => this.router.navigateByUrl(this.DAY_OPERATION_URL),
       });
   }
@@ -123,5 +124,9 @@ export class Orders implements OnInit {
 
   goToDayOperation() {
     this.router.navigateByUrl(this.DAY_OPERATION_URL);
+  }
+
+  openTaskDialog(sku: SkuTaskDetail) {
+    this.selectedSKU.set(sku);
   }
 }

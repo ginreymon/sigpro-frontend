@@ -7,6 +7,8 @@ import { UiTooltip } from '../ui-tooltip/ui-tooltip';
 import { WorkSession } from '../../../models/production/work-session';
 import { ButtonBaseType } from '../../../common/classes/button-base';
 import { DialogService } from '../../../services/common/dialog-service';
+import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
+import { ProductionOrderService } from '../../../services/production/production-order-service';
 
 @Component({
   selector: 'app-production-orders-table',
@@ -21,9 +23,10 @@ export class ProductionOrdersTable {
   totalBySizes: SizeQtyDetail[] = [];
   grandTotal: SizeQtyDetail | null = null;
   dialogService = inject(DialogService);
+  poService = inject(ProductionOrderService);
 
   get productionOrder() {
-    return this._productionOrder;
+    return this._productionOrder; 
   }
 
   @Input()
@@ -36,7 +39,7 @@ export class ProductionOrdersTable {
 
   @Input() currentSession: WorkSession | null = null;
 
-  @Output() onSelectSKU = new EventEmitter<{ color: ColorDetail; size: SizeQtyDetail }>();
+  @Output() onSelectSKU = new EventEmitter<SkuTaskDetail>();
 
   buildColorSizeStructure() {
     if (!this._productionOrder) return;
@@ -169,8 +172,12 @@ export class ProductionOrdersTable {
     return 'label';
   }
 
-  selectSKU(cd: ColorDetail, sd: SizeQtyDetail) {
-    if (!this.productionOrder || !this.currentSession) return;
-    this.onSelectSKU.emit({ color: cd, size: sd });
+  selectSKU(docType:string, docNumber:number,skuRowId:number) {
+    this.poService.getSkuDetail(docType, docNumber, skuRowId)
+      .subscribe({
+        next:(sku)=> {  
+          this.onSelectSKU.emit(sku);
+        },
+      })
   }
 }

@@ -17,7 +17,7 @@
             </div>
             
             <div class="flex-1 min-h-0 overflow-hidden">
-                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()"></app-production-orders-table>
+                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
             </div>
 
             <div class="flex flex-row justify-end mt-4">
@@ -43,3 +43,4 @@
     
 </app-work-space-layout>
 
+<app-task-timer [selectedSKU]="selectedSKU()"></app-task-timer>
