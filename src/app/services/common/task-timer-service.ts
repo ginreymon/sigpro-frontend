@@ -185,7 +185,7 @@ export class TaskTimerService {
   }
 
   closeQuantityModal() {
-    this.setState({ ...this.state, showQuantityModal: false });
+    this.setState({ ...this.state, showQuantityModal: false, isConfirmed: false });
   }
 
   openPauseModal() {
