@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Module } from '../../models/core/module';
 import { Router } from '@angular/router';
 import { Option } from '../../models/core/option';
@@ -14,13 +14,14 @@ import { TitleCasePipe } from '@angular/common';
 export class Menu extends LocationOption implements OnInit {
   menuReady: boolean = false;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private cdr: ChangeDetectorRef) {
     super();
   }
 
   ngAfterViewInit() {
     setTimeout(() => {
       this.menuReady = true;
+      this.cdr.detectChanges();
     }, 500);
   }
 
