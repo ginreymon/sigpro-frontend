@@ -19,4 +19,5 @@ export interface ProductionRecord extends AuditEntity {
   server_now: string;
   end_time: string | null;
   net_duration: string | null;
+  is_paused?: boolean;
 }

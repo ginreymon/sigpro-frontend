@@ -43,6 +43,10 @@ export abstract class BaseCrudService<T> {
     return this.http.put<T>(`${this.endpoint}${id}/`, data);
   }
 
+  patch(id: number, data: Partial<T>): Observable<T> {
+    return this.http.patch<T>(`${this.endpoint}${id}/`, data);
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.endpoint}${id}/`);
   }

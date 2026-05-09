@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { DocType } from '../../models/production/doc-type';
 import { ProductionItem } from '../../models/production/production-item';
 import { Component } from '../../models/production/component';
+import { SkuTaskDetail } from '../../models/production/sku-task-detail';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +26,15 @@ export class ProductionOrderService {
     return this.http.get<any[]>(`${this.path}/production-components/`, {
       params,
     });
+  }
+
+  getSkuDetail(docType: string, docNumber: number, skuRowId: number, idPlan?: number): Observable<SkuTaskDetail> {
+    let params = new HttpParams()
+      .set('type', docType)
+      .set('number', docNumber)
+      .set('sku_rowid', skuRowId);
+    if (idPlan !== undefined) params = params.set('id_plan', idPlan);
+    return this.http.get<SkuTaskDetail>(`${this.path}/production-orders/sku-detail/`, { params });
   }
 
   getDocType(): Observable<DocType[]> {
