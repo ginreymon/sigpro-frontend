@@ -1,19 +1,21 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, finalize } from 'rxjs';
+import { BehaviorSubject, EMPTY, forkJoin, map, Observable } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { TaskTimerState } from '../../common/interfaces/task-timer-state';
 import { ProductionOrder } from '../../models/production/production-order';
 import { ColorDetail } from '../../models/production/color-detail';
 import { SizeQtyDetail } from '../../models/production/size-detail';
 import { WorkSession } from '../../models/production/work-session';
 import { WorkSessionService } from '../production/work-session-service';
-import { WorkSpaceLoaderService } from './work-space-loader-service';
+import { ProductionOrderService } from '../production/production-order-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskTimerService {
   private workSessionService = inject(WorkSessionService);
-  private wslService = inject(WorkSpaceLoaderService);
+  private productionOrderService = inject(ProductionOrderService);
+  private route = inject(ActivatedRoute);
 
   private _initialState: TaskTimerState = {
     isConfirmed: false,
@@ -61,30 +63,63 @@ export class TaskTimerService {
     });
   }
 
-  continueTask(po: ProductionOrder, title?: string) {
-    this.wslService.start();
-    this.workSessionService.getActive()
-      .pipe(finalize(() => this.wslService.end()))
-      .subscribe((ws: WorkSession) => {
-        const record = ws?.active_activity?.last_open_production_record;
-        if (!record) return;
+  loadState(): Observable<TaskTimerState> {
+    const { docType: documentType, docNumber: documentNumber } = this.route.snapshot.queryParams;
+    if (!documentType || !documentNumber) return EMPTY;
 
-        const skuRowId = record.sku_rowid;
-        let params = null;
+    return forkJoin({
+      ws: this.workSessionService.getActive(),
+      po: this.productionOrderService
+        .getOrder({ documentType, documentNumber }, true)
+        .pipe(map((po) => po as ProductionOrder)),
+    }).pipe(
+      map(({ ws, po }) => {
+        const skuRowId = ws?.active_activity?.last_open_production_record?.sku_rowid;
+        let rowColorDetail: ColorDetail | null = null;
+        let selectedSKU: SizeQtyDetail | null = null;
 
-        for (const color of po.colors) {
-          const size = color.sizes.find((s) => s.skuRowId == skuRowId);
-          if (size) {
-            params = { colorDetail: color, selectedSku: size };
-            break;
+        if (skuRowId) {
+          for (const color of po.colors) {
+            const size = color.sizes.find((s) => s.skuRowId == skuRowId);
+            if (size) {
+              rowColorDetail = color;
+              selectedSKU = size;
+              break;
+            }
           }
         }
 
-        if (!params?.colorDetail || !params.selectedSku) return;
+        this.stateSubject.next({
+          ...this.state,
+          rowColorDetail,
+          selectedSKU,
+          currentOP: po,
+          currentSession: ws,
+        });
+        return this.stateSubject.value;
+      }),
+    );
+  }
 
-        this.openDialog(params.colorDetail, params.selectedSku, po, ws, title);
-        this.startTimer();
-      });
+  continueDialog(po: ProductionOrder, ws: WorkSession, title?: string) {
+    const record = ws?.active_activity?.last_open_production_record;
+    if (!record) return;
+
+    const skuRowId = record.sku_rowid;
+    let params = null;
+
+    for (const color of po.colors) {
+      const size = color.sizes.find((s) => s.skuRowId == skuRowId);
+      if (size) {
+        params = { colorDetail: color, selectedSku: size };
+        break;
+      }
+    }
+
+    if (!params?.colorDetail || !params.selectedSku) return;
+
+    this.openDialog(params.colorDetail, params.selectedSku, po, ws, title);
+    this.startTimer();
   }
 
   startTimer() {
@@ -113,6 +148,4 @@ export class TaskTimerService {
   closePauseModal() {
     this.setState({ ...this.state, showPauseModal: false });
   }
-
-
 }

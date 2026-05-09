@@ -76,7 +76,7 @@ export class Orders implements OnInit {
       const session = this.currentSession();
 
       if (order && session) {
-        this.tTService.continueTask(order);
+        this.tTService.continueDialog(order, session);
       }
     });
   }
