@@ -159,7 +159,6 @@ export class TaskTimer {
     if (this.loading()) return;
     if (this.recordForm.invalid) return;
 
-    const { completed_quantity, scrap_quantity, rejected_quantity } = this.recordForm.value;
     const s = this.state();
 
     this.loaderService.showLoader();
@@ -170,9 +169,7 @@ export class TaskTimer {
 
         const payload = {
           ...this.buildRecord(),
-          completed_quantity,
-          scrap_quantity,
-          rejected_quantity,
+          ...this.recordForm.value
         };
 
         return this.recordService.update(record.id, payload);
@@ -183,10 +180,10 @@ export class TaskTimer {
         this.saved.emit();
       })
     ).subscribe({
-      next: () => {        
+      next: (rd) => {       
         this.dialogService.openToast(
           `Guardado`,
-          `${s.currentOP?.reference} | ${s.rowColorDetail?.color} | Talla: ${s.selectedSKU?.size} | Completadas: ${completed_quantity} | Saldos: ${rejected_quantity} | Bajas: ${scrap_quantity}`,
+          `${s.currentOP?.reference} | ${s.rowColorDetail?.color} | Talla: ${s.selectedSKU?.size} | Completadas: ${rd.completed_quantity} | Saldos: ${rd.rejected_quantity} | Bajas: ${rd.scrap_quantity}`,
           'check'
         );       
       },
