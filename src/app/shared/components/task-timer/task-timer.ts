@@ -1,4 +1,4 @@
-import { Component, computed, inject, Output, EventEmitter, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, computed, inject, Output, EventEmitter, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
@@ -12,6 +12,8 @@ import { PauseModal } from '../pause-modal/pause-modal';
 import { DatePipe } from '@angular/common';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
+import { LoaderService } from '../../../services/common/loader-service';
+import { finalize } from 'rxjs';
 
 
 @Component({
@@ -27,9 +29,11 @@ export class TaskTimer implements OnChanges {
   @Output() saved = new EventEmitter<void>();
 
   private tts = inject(TaskTimerService);
+  private loaderService = inject(LoaderService);
   private fb = inject(FormBuilder);
 
   recordForm: FormGroup;
+  isSubmitting = signal(false);
 
   protected state = computed(() => ({
     isConfirmed: this.tts.isStarted(),
@@ -83,10 +87,17 @@ export class TaskTimer implements OnChanges {
   }
 
   start() {
-    if (!this.selectedSKU) return;   
-    this.tts.start(this.selectedSKU).subscribe({
-      next: (record) => this.tts.confirm(record),
-    });
+    if (!this.selectedSKU || this.isSubmitting()) return;
+    this.isSubmitting.set(true);
+    this.loaderService.showLoader();
+    this.tts.start(this.selectedSKU)
+      .pipe(finalize(() => {
+        this.isSubmitting.set(false);
+        this.loaderService.hideLoader();
+      }))
+      .subscribe({
+        next: (record) => this.tts.confirm(record),
+      });
   }
 
   deliver() {

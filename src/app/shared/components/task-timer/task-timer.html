@@ -82,7 +82,7 @@
                 </app-ui-button>
 
                 @if(!isCompleted){
-                <app-ui-button (onClick)="start()">
+                <app-ui-button [disabled]="isSubmitting()" (onClick)="start()">
                     Iniciar
                     <app-ui-icon [iconName]="'circleRight'" [class]="'w-5 h-5'"></app-ui-icon>
                 </app-ui-button>
