@@ -59,6 +59,19 @@ export class TaskTimer implements OnChanges {
     return this.selectedSKU.completedQty >= this.selectedSKU.orderedQty;
   }  
 
+  get title() {
+    if (!this.state().isConfirmed)
+      return 'Confirmar'
+
+    if (this.state().isConfirmed && !this.state().showQuantityModal)
+      return 'Tarea en Proceso';
+
+    if (this.state().showQuantityModal)
+      return 'Ingresar cantidades';
+
+    return '';
+  }
+
   toDoQuantity(): number {
     if (!this.selectedSKU) return 0;
     return Math.max(0, this.selectedSKU.orderedQty - this.selectedSKU.completedQty);
