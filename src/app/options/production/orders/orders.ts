@@ -16,6 +16,7 @@ import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { TaskTimer } from "../../../shared/components/task-timer/task-timer";
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
+import { DialogService } from '../../../services/common/dialog-service';
 
 @Component({
   selector: 'app-orders',
@@ -33,6 +34,9 @@ export class Orders implements OnInit {
   private poService = inject(ProductionOrderService);
   private wslService = inject(WorkSpaceLoaderService);
   private tts = inject(TaskTimerService);
+  private dialogService = inject(DialogService);
+
+  private hasCheckedActiveRecord = false;
 
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
@@ -72,6 +76,7 @@ export class Orders implements OnInit {
         next: (session) => {
           this.currentSession.set(session ? session : null);
           this.tts.setSession(session ? session : null);
+          this.checkActiveRecord();
         },
         error: () => this.router.navigateByUrl(this.DAY_OPERATION_URL),
       });
@@ -91,6 +96,7 @@ export class Orders implements OnInit {
   setDocument(doc: ProductionOrder | null) {
     this.productionOrder.set(doc);
     this.cards.set([]);
+    this.checkActiveRecord();
     if (!doc) return;
 
     this.router.navigate([], {
@@ -112,6 +118,7 @@ export class Orders implements OnInit {
   }
 
   reloadOrder() {
+    this.hasCheckedActiveRecord = false;
     const order = this.productionOrder();
     if (order) this.resetDocument(order.documentType, order.documentNumber);
     this.loadSession();
@@ -128,5 +135,30 @@ export class Orders implements OnInit {
 
   openTaskDialog(sku: SkuTaskDetail) {
     this.selectedSKU.set(sku);
+  }
+
+  private checkActiveRecord() {
+    if (this.hasCheckedActiveRecord) return;
+    const session = this.currentSession();
+    const order = this.productionOrder();
+    if (!session || !order) return;
+    this.hasCheckedActiveRecord = true;
+    const record = session.active_activity?.last_open_production_record;
+    if (!record) return;
+    if (record.op_number === order.documentNumber && record.op_type === order.documentType) {
+      this.poService.getSkuDetail(record.op_type, record.op_number, record.sku_rowid).subscribe({
+        next: (sku) => {
+          if (sku) {
+            this.selectedSKU.set(sku);
+            this.tts.confirm(record);
+          }
+        },
+      });
+    } else {
+      this.dialogService.openToast(
+        'Orden sin finalizar',
+        `Hay una tarea activa en ${record.op_type} ${record.op_number}`
+      );
+    }
   }
 }

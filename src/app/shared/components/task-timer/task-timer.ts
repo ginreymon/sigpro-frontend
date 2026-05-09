@@ -77,6 +77,8 @@ export class TaskTimer implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedSKU']) {
+      const currentRecord = this.tts.currentRecord();
+      if (currentRecord && this.selectedSKU?.skuRowId === currentRecord.sku_rowid) return;
       this.tts.reset();
     }
   }
