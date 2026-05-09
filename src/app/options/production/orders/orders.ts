@@ -37,6 +37,7 @@ export class Orders implements OnInit {
   private dialogService = inject(DialogService);
 
   private hasCheckedActiveRecord = false;
+  private activeRecord: any = null;
 
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
@@ -134,6 +135,11 @@ export class Orders implements OnInit {
   }
 
   openTaskDialog(sku: SkuTaskDetail) {
+    if (this.hasCheckedActiveRecord && this.activeRecord) {
+      this.showActiveRecordToast();
+      return;
+    }
+
     this.selectedSKU.set(sku);
   }
 
@@ -145,6 +151,7 @@ export class Orders implements OnInit {
     this.hasCheckedActiveRecord = true;
     const record = session.active_activity?.last_open_production_record;
     if (!record) return;
+    this.activeRecord = record;
     if (record.op_number === order.documentNumber && record.op_type === order.documentType) {
       this.poService.getSkuDetail(record.op_type, record.op_number, record.sku_rowid).subscribe({
         next: (sku) => {
@@ -155,10 +162,17 @@ export class Orders implements OnInit {
         },
       });
     } else {
-      this.dialogService.openToast(
-        'Orden sin finalizar',
-        `Hay una tarea activa en ${record.op_type} ${record.op_number}`
-      );
+      this.showActiveRecordToast();
     }
+  }
+
+  private showActiveRecordToast() {
+    if (!this.activeRecord) return;
+
+    this.dialogService.openToast(
+      'Orden sin finalizar',
+      `Hay una tarea activa en ${this.activeRecord.op_type} ${this.activeRecord.op_number}`,
+      'fail'
+    );
   }
 }

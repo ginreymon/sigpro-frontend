@@ -4,9 +4,11 @@
     <div box-content class="flex flex-col justify-center items-center">
 
         <app-time-progress-circle class="mt-4" [class.hidden]="!state().isConfirmed || state().showQuantityModal" [startTime]="startTime()" [serverNow]="serverNow()"></app-time-progress-circle>
-
+        
         <app-sku-detail class="w-full" [selectedSKU]="selectedSKU"></app-sku-detail>
-
+        
+        @if(state().isConfirmed && !state().showQuantityModal){
+        
         <div class="w-full py-3 flex flex-col justify-start">
             <div class="w-full flex flex-row justify-between">
                 <div>
@@ -33,6 +35,7 @@
         <div class="w-full border-t border-slate-200 pb-4">
             <app-progress-bar class="w-full" [max]="selectedSKU.orderedQty" [progress]="selectedSKU.completedQty"></app-progress-bar>
         </div>
+        }
 
         @if(!state().isConfirmed && !isCompleted){
         <p class="text-gray-600 border-t border-slate-200 py-4">
@@ -41,8 +44,7 @@
         }        
 
         @if(state().showQuantityModal){
-        <app-sku-detail class="w-full" [selectedSKU]="selectedSKU"></app-sku-detail>
-
+      
         <form id="recordForm" class="w-full mt-4" [formGroup]="recordForm">
             <fieldset>
                 <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Completadas'">
