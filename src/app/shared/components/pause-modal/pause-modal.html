@@ -30,7 +30,9 @@
         }
 
         @if(touched() && !isValid){
-        <app-ui-error-message>Debe seleccionar al menos 1 opción</app-ui-error-message>
+        <app-ui-error-message>
+            {{ isCustomSelected()? 'Debe escribir el motivo' : 'Debe seleccionar al menos 1 opción' }}            
+        </app-ui-error-message>
         }
     </div>
 
