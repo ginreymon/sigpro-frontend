@@ -6,7 +6,11 @@ import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WorkBreakService } from '../../../services/production/work-break-service';
 import { WorkBreak } from '../../../models/production/work-break';
-import { map } from 'rxjs';
+import { finalize, map } from 'rxjs';
+import { WorkSessionActivityService } from '../../../services/production/work-session-activity-service';
+import { TaskTimerService } from '../../../services/common/task-timer-service';
+import { PausePayload, PauseResponse } from '../../../models/production/work-break-record';
+import { LoaderService } from '../../../services/common/loader-service';
 
 @Component({
   selector: 'app-pause-modal',
@@ -16,10 +20,13 @@ import { map } from 'rxjs';
 })
 export class PauseModal {
   private workBreakService = inject(WorkBreakService);
+  private activityService = inject(WorkSessionActivityService);
+  private loaderService = inject(LoaderService);
+  private tts = inject(TaskTimerService);
 
   @Input() visible = false;
   @Output() onCancel = new EventEmitter<void>();
-  @Output() onConfirm = new EventEmitter<{ workBreak: WorkBreak | null; customReason: string }>();
+  @Output() onPause = new EventEmitter<PauseResponse>();
 
   protected workBreaks = toSignal(
     this.workBreakService.getAll().pipe(map(r => r.results)),
@@ -56,11 +63,28 @@ export class PauseModal {
     this.onCancel.emit();
   }
 
-  confirm() {
+  pause() {
     if (!this.isValid) return;
-    this.onConfirm.emit({
-      workBreak: this.selectedBreak(),
-      customReason: this.customReason(),
-    });
+    const activityId = this.tts.activeActivityId();
+    if (!activityId) return;
+
+    const payload: PausePayload = this.selectedBreak()
+      ? { work_break: this.selectedBreak()!.id }
+      : { custom_reason: this.customReason().trim() };
+
+    this.loaderService.showLoader();
+    this.activityService.pause(activityId, payload)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: (pause) => {
+          console.log(pause);
+          this.onPause.emit(pause);
+          this.selectedBreak.set(null);
+          this.isCustomSelected.set(false);
+          this.customReason.set('');
+          this.touched.set(false);
+          this.tts.closePauseModal();
+        },
+      });
   }
 }

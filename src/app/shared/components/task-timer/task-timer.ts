@@ -15,6 +15,8 @@ import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 import { DialogService } from '../../../services/common/dialog-service';
+import { WorkBreak } from '../../../models/production/work-break';
+import { PauseResponse } from '../../../models/production/work-break-record';
 
 
 @Component({
@@ -122,14 +124,22 @@ export class TaskTimer implements OnChanges {
     this.tts.openQuantityModal();
   }
 
-  cancelQuantity() {
-    this.recordForm.reset({ completed_quantity: 0, scrap_quantity: 0, rejected_quantity: 0, });    
-    this.tts.closeQuantityModal();
-  }
-
   pause() {
     this.tts.openPauseModal();
   }
+
+  cancelPause(){
+    this.tts.closePauseModal();
+  }
+
+  setPause(pause: PauseResponse) {
+    
+  }
+
+  cancelQuantity() {
+    this.recordForm.reset({ completed_quantity: 0, scrap_quantity: 0, rejected_quantity: 0, });    
+    this.tts.closeQuantityModal();
+  } 
 
   saveQuantity() {
     if (this.isSubmitting()) return;

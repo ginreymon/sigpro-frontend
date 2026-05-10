@@ -1,7 +1,7 @@
 @if(visible){
 <app-box-layout [title]="'Pausar'">
 
-    <div box-content class="flex flex-col gap-3 py-4">
+    <div box-content class="flex flex-col gap-3 py-4 max-h-[60vh]">
         <div class="grid grid-cols-1 gap-3 items-stretch overflow-y-auto max-h-[30vh]">
             @for(wb of workBreaks(); track wb.id){
             <app-ui-option-card [obj]="wb" [selected]="selectedBreak()?.id === wb.id" (onToggle)="selectBreak($event)">
@@ -12,20 +12,20 @@
             </app-ui-option-card>
             }
 
-            <app-ui-option-card [selected]="isCustomSelected()" (onToggle)="selectCustom()">
+            <app-ui-option-card [selected]="isCustomSelected()" (onToggle)="selectCustom()" class="mb-2">
                 <p class="font-semibold text-sm">Otra razón</p>
                 <p class="text-xs text-slate-500 mt-1">Ingresa un motivo personalizado</p>
             </app-ui-option-card>
         </div>
 
         @if(isCustomSelected()){
-        <input
+        <textarea
             class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500"
             type="text"
             placeholder="Describe el motivo..."
             [value]="customReason()"
             (input)="customReason.set($any($event.target).value)"
-        />
+        ></textarea>
         }
 
         @if(touched() && !isValid){
@@ -38,7 +38,7 @@
             Cancelar
         </app-ui-button>
 
-        <app-ui-button [disabled]="!isValid">
+        <app-ui-button [disabled]="!isValid" (onClick)="pause()">
             Pausar
         </app-ui-button>
     </div>

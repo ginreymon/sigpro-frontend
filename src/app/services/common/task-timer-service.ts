@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { ProductionRecordService } from '../production/production-record-service';
 import { SkuTaskDetail } from '../../models/production/sku-task-detail';
 import { ProductionRecord } from '../../models/production/production-record';
@@ -9,6 +9,7 @@ export class TaskTimerService {
   private recordService = inject(ProductionRecordService);
 
   currentSession = signal<WorkSession | null>(null);
+  activeActivityId = computed(() => this.currentSession()?.active_activity?.id);
   isStarted = signal(false);
   showQuantityModal = signal(false);
   showPauseModal = signal(false);
