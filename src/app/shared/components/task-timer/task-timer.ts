@@ -118,6 +118,7 @@ export class TaskTimer implements OnChanges {
   }
 
   deliver() {  
+    this.recordForm.reset({ completed_quantity: 0, scrap_quantity: 0, rejected_quantity: 0, });    
     this.tts.openQuantityModal();
   }
 

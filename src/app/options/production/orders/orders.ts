@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
 import { ProductionOrderService } from '../../../services/production/production-order-service';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -45,6 +45,12 @@ export class Orders implements OnInit {
   selectedSKU = signal<SkuTaskDetail | null>(null);
 
   constructor(private workSessionService: WorkSessionService) {
+    effect(() => {
+      const session = this.currentSession();
+      const order = this.productionOrder();
+      if (!session || !order) return;
+      this.checkActiveRecord();
+    });
   }
 
   ngOnInit(): void {
@@ -75,8 +81,7 @@ export class Orders implements OnInit {
       .subscribe({
         next: (session) => {
           this.currentSession.set(session ? session : null);
-          this.tts.setSession(session ? session : null);
-          this.checkActiveRecord();
+          this.tts.setSession(session ? session : null);        
         },
         error: () => this.router.navigateByUrl(this.DAY_OPERATION_URL),
       });
@@ -95,8 +100,7 @@ export class Orders implements OnInit {
 
   setDocument(doc: ProductionOrder | null) {
     this.productionOrder.set(doc);
-    this.cards.set([]);
-    this.checkActiveRecord();
+    this.cards.set([]);   
     if (!doc) return;
 
     this.router.navigate([], {
@@ -118,6 +122,8 @@ export class Orders implements OnInit {
   }
 
   reloadOrder() {
+    this.hasCheckedActiveRecord = false;
+    this.activeRecord = null;
     this.loadDocumentFromRoute();
     this.loadSession();
   }
