@@ -44,10 +44,11 @@ export class Orders implements OnInit {
   cards = signal<{ title: string; data: any }[]>([]);
   selectedSKU = signal<SkuTaskDetail | null>(null);
 
-  constructor(private workSessionService: WorkSessionService) {
+  constructor(private workSessionService: WorkSessionService) { 
+    this.selectedSKU.set(null);  
     effect(() => {
       const session = this.currentSession();
-      const order = this.productionOrder();
+      const order = this.productionOrder();     
       if (!session || !order) return;
       this.checkActiveRecord();
     });
@@ -122,6 +123,7 @@ export class Orders implements OnInit {
   }
 
   reloadOrder() {
+    this.selectedSKU.set(null);
     this.hasCheckedActiveRecord = false;
     this.activeRecord = null;
     this.loadDocumentFromRoute();
@@ -155,8 +157,11 @@ export class Orders implements OnInit {
     const record = session.active_activity?.last_open_production_record;
     if (!record) return;
     this.activeRecord = record;
+    this.wslService.start();
     if (record.op_number === order.documentNumber && record.op_type === order.documentType) {
-      this.poService.getSkuDetail(record.op_type, record.op_number, record.sku_rowid).subscribe({
+      this.poService.getSkuDetail(record.op_type, record.op_number, record.sku_rowid)
+      .pipe(finalize(()=> this.wslService.end()))
+      .subscribe({
         next: (sku) => {
           if (sku) {
             this.selectedSKU.set(sku);
