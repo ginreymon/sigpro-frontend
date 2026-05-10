@@ -43,6 +43,7 @@ export class TaskTimer implements OnChanges {
     showQuantityModal: this.tts.showQuantityModal(),
     showPauseModal: this.tts.showPauseModal(),
     currentRecord: this.tts.currentRecord(),
+    activeBreak: this.tts.activeBreak()
   }));
 
   protected startTime = computed(() => {
@@ -141,7 +142,7 @@ export class TaskTimer implements OnChanges {
   }
 
   setPause(pause: PauseResponse) {
-    
+    this.saved.emit();
   }
 
   cancelQuantity() {

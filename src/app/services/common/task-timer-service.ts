@@ -10,6 +10,7 @@ export class TaskTimerService {
 
   currentSession = signal<WorkSession | null>(null);
   activeActivityId = computed(() => this.currentSession()?.active_activity?.id);
+  activeBreak = computed(() => this.currentSession()?.active_activity.active_break);
   isStarted = signal(false);
   showQuantityModal = signal(false);
   showPauseModal = signal(false);

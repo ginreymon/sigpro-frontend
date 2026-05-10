@@ -7,15 +7,26 @@
         </circle>
 
         <!-- Progress -->
-        <circle class="fill-none transition-[stroke-dashoffset] duration-500 ease-linear" [class.stroke-red-500]="isEnding()"
-            [class.stroke-brand-600]="!isEnding()" [attr.cx]="120" [attr.cy]="120" [attr.r]="radius"
+        <circle class="fill-none transition-[stroke-dashoffset] duration-500 ease-linear"
+            [class.stroke-red-500]="isEnding() && !isPaused"
+            [class.stroke-brand-600]="!isEnding() && !isPaused"
+            [class.stroke-orange-400]="isPaused"
+            [attr.cx]="120" [attr.cy]="120" [attr.r]="radius"
             [attr.stroke-width]="20" [attr.stroke-dasharray]="fullDash" [attr.stroke-dashoffset]="dashOffset()">
         </circle>
 
     </svg>
 
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-bold">
-        {{ displayTime() }}
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
+        <span class="text-4xl font-bold">{{ displayTime() }}</span>
+        
+        @if(isPaused){
+            @if(pauseCountdown()){
+                <span class="text-xs font-semibold text-orange-500">{{ pauseCountdown() }}</span>
+            } @else {
+                <span class="text-xs font-semibold text-orange-500">Pausado</span>
+            }
+        }
     </div>
 
 </div>

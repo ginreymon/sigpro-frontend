@@ -13,16 +13,38 @@ export class TimeProgressCircle implements OnDestroy {
   dashOffset = signal(this.fullDash);
   isEnding = signal<boolean>(false);
   displayTime = signal<string>('00:00:00');
+  pauseCountdown = signal<string>('00:00:00');
+  pauseEndElapsed: number = 0;
 
   private startTimestamp = 0;
   private offset = 0;
   private interval: any;
-
-  // seconds 
-  @Input() duration: number = 3600;
+  private checkingPause: boolean = false;
 
   private _serverNow: string | Date = new Date();
   private _startTime: string | Date = new Date();
+  private _pauseDurationSeconds: number = 0;
+  private _pauseStartTime: string | Date | null = null;
+
+  // seconds 
+  @Input() duration: number = 3600;
+  @Input() totalPauseSeconds: number = 0;
+
+  @Input()
+  set pauseStartTime(time: any) {
+    if (time) {
+      this._pauseStartTime = time;
+      this.checkingPause = true;
+    }
+  }
+
+  @Input()
+  set pauseDurationSeconds(seconds: any) {
+    if (seconds) {
+      this._pauseDurationSeconds = seconds;
+      this.checkingPause = true;
+    }
+  } 
 
   @Input()
   set startTime(date: string | Date) {
@@ -40,6 +62,10 @@ export class TimeProgressCircle implements OnDestroy {
 
   ngOnDestroy(): void {
     this.clearTimer();
+  }
+
+  get isPaused() {
+    return this.checkingPause;
   }
 
   private initialize() {
@@ -60,10 +86,25 @@ export class TimeProgressCircle implements OnDestroy {
 
     const tick = () => {
       const now = Date.now() + this.offset;
-      this.elapsed = Math.floor((now - this.startTimestamp) / 1000);     
+      this.elapsed = Math.floor((now - this.startTimestamp) / 1000);
       if (this.elapsed < 0) return;
+
+      if (this.checkingPause && this._pauseStartTime) {
+        const pauseStartTimestamp = new Date(this._pauseStartTime).getTime();
+        const pauseEndTimestamp = pauseStartTimestamp + (this._pauseDurationSeconds * 1000);
+        this.pauseEndElapsed = Math.floor((pauseEndTimestamp - now) / 1000);
+        this.checkingPause = this.pauseEndElapsed > 0;
+
+        if (this.checkingPause) {
+          this.elapsed = this.elapsed - this.pauseEndElapsed;
+          this.pauseCountdown.set(this.formatText(this.pauseEndElapsed));
+          return;
+        }
+      }
+
       this.updateText();
-      this.updateCircle();      
+      this.updateCircle();
+
     };
 
     tick();
@@ -77,12 +118,16 @@ export class TimeProgressCircle implements OnDestroy {
     }
   }
 
-  private updateText() {
-    const h = Math.floor(this.elapsed / 3600);
-    const m = Math.floor((this.elapsed % 3600) / 60);
-    const s = this.elapsed % 60;   
+  private formatText(elapsed: number) {
+    const h = Math.floor(elapsed / 3600);
+    const m = Math.floor((elapsed % 3600) / 60);
+    const s = elapsed % 60;
 
-    this.displayTime.set(`${this.pad(h)}:${this.pad(m)}:${this.pad(s)}`);
+    return `${this.pad(h)}:${this.pad(m)}:${this.pad(s)}`;
+  }
+
+  private updateText() {
+    this.displayTime.set(this.formatText(this.elapsed));
   }
 
   private updateCircle() {
