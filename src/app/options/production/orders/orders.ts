@@ -17,6 +17,7 @@ import { TaskTimer } from "../../../shared/components/task-timer/task-timer";
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { DialogService } from '../../../services/common/dialog-service';
+import { ProductionRecord } from '../../../models/production/production-record';
 
 @Component({
   selector: 'app-orders',
@@ -37,15 +38,14 @@ export class Orders implements OnInit {
   private dialogService = inject(DialogService);
 
   private hasCheckedActiveRecord = false;
-  private activeRecord: any = null;
+  private activeRecord: ProductionRecord | null = null;
 
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
   cards = signal<{ title: string; data: any }[]>([]);
   selectedSKU = signal<SkuTaskDetail | null>(null);
 
-  constructor(private workSessionService: WorkSessionService) { 
-    this.selectedSKU.set(null);  
+  constructor(private workSessionService: WorkSessionService) {
     effect(() => {
       const session = this.currentSession();
       const order = this.productionOrder();     
@@ -64,8 +64,16 @@ export class Orders implements OnInit {
     return `${doc.documentType} ${doc.documentNumber}`;
   }
 
+  private reset(){   
+    this.cards.set([]); 
+    this.selectedSKU.set(null);
+    this.hasCheckedActiveRecord = false;
+    this.activeRecord = null;   
+  }
+
   private loadDocumentFromRoute() {
-    this.route.queryParams.subscribe(({ docType, docNumber }) => {
+    this.productionOrder.set(null);      
+    this.route.queryParams.subscribe(({ docType, docNumber }) => {      
       if (docType && docNumber) {
         this.resetDocument(docType, docNumber);
       } else {
@@ -76,6 +84,7 @@ export class Orders implements OnInit {
 
   private loadSession() {
     this.wslService.start();
+    this.currentSession.set(null);
     this.workSessionService
       .getActive()
       .pipe(finalize(() => this.wslService.end()))
@@ -122,10 +131,8 @@ export class Orders implements OnInit {
     ]);
   }
 
-  reloadOrder() {
-    this.selectedSKU.set(null);
-    this.hasCheckedActiveRecord = false;
-    this.activeRecord = null;
+  reloadOrder() { 
+    this.reset();    
     this.loadDocumentFromRoute();
     this.loadSession();
   }
@@ -140,6 +147,11 @@ export class Orders implements OnInit {
   }
 
   openTaskDialog(sku: SkuTaskDetail) {
+    if (this.activeRecord?.sku_rowid === sku.skuRowId) {
+      this.reloadOrder();
+      return;
+    }
+
     if (this.hasCheckedActiveRecord && this.activeRecord) {
       this.showActiveRecordToast();
       return;
@@ -170,6 +182,7 @@ export class Orders implements OnInit {
         },
       });
     } else {
+      this.wslService.end();
       this.showActiveRecordToast();
     }
   }

@@ -1,4 +1,4 @@
-import { Component, computed, inject, Output, EventEmitter, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, computed, effect, inject, Output, EventEmitter, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
@@ -15,7 +15,6 @@ import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 import { DialogService } from '../../../services/common/dialog-service';
-import { WorkBreak } from '../../../models/production/work-break';
 import { PauseResponse } from '../../../models/production/work-break-record';
 
 
@@ -28,7 +27,7 @@ import { PauseResponse } from '../../../models/production/work-break-record';
 })
 export class TaskTimer implements OnChanges {
 
-  @Input() selectedSKU!: SkuTaskDetail | null;
+  @Input() selectedSKU: SkuTaskDetail | null = null;
   @Output() saved = new EventEmitter<void>();
 
   private tts = inject(TaskTimerService);
@@ -90,6 +89,15 @@ export class TaskTimer implements OnChanges {
       scrap_quantity: [0, [Validators.required, Validators.min(0)]],
       rejected_quantity: [0, [Validators.required, Validators.min(0)]],
     });
+
+    effect(() => {
+      if (!this.tts.showQuantityModal()) return;
+      const max = this.toDoQuantity();
+      const ctrl = this.recordForm.get('completed_quantity');
+      ctrl?.setValidators([Validators.required, Validators.min(0), Validators.max(max)]);
+      ctrl?.updateValueAndValidity();
+      this.recordForm.reset({ completed_quantity: 0, scrap_quantity: 0, rejected_quantity: 0 });
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -142,7 +150,7 @@ export class TaskTimer implements OnChanges {
   } 
 
   saveQuantity() {
-    if (this.isSubmitting()) return;
+    if (this.isSubmitting() || this.recordForm.invalid) return;
     this.isSubmitting.set(true);
     this.loaderService.showLoader();
     const record = this.tts.currentRecord();   
@@ -150,22 +158,21 @@ export class TaskTimer implements OnChanges {
     this.tts.saveQuantity(record.id, { ...this.recordForm.value })
       .pipe(finalize(() => {
         this.isSubmitting.set(false);
-        this.loaderService.hideLoader();
-        this.selectedSKU = null;
+        this.loaderService.hideLoader();       
       }))
       .subscribe({
         next: (rd) => {
           this.tts.reset();
-          this.saved.emit();
+          this.saved.emit();         
           const completed = Math.trunc(rd.completed_quantity ?? 0);
           const rejected = Math.trunc(rd.rejected_quantity ?? 0);
-          const scrap = Math.trunc(rd.scrap_quantity ?? 0);
+          const scrap = Math.trunc(rd.scrap_quantity ?? 0);         
           this.dialogService.openToast(
             'Guardado',
             `Completadas: ${completed} | Rechazadas: ${rejected} | Saldos: ${scrap}`,
             'check'
-          );
-        },
+          );          
+        },               
       });
   }
 }

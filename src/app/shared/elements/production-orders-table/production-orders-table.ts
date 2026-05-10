@@ -9,6 +9,8 @@ import { ButtonBaseType } from '../../../common/classes/button-base';
 import { DialogService } from '../../../services/common/dialog-service';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { ProductionOrderService } from '../../../services/production/production-order-service';
+import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-production-orders-table',
@@ -24,6 +26,8 @@ export class ProductionOrdersTable {
   grandTotal: SizeQtyDetail | null = null;
   dialogService = inject(DialogService);
   poService = inject(ProductionOrderService);
+
+  private wslService = inject(WorkSpaceLoaderService);
 
   get productionOrder() {
     return this._productionOrder; 
@@ -172,10 +176,12 @@ export class ProductionOrdersTable {
     return 'label';
   }
 
-  selectSKU(docType:string, docNumber:number,skuRowId:number) {
+  selectSKU(docType: string, docNumber: number, skuRowId: number) {
+    this.wslService.start();
     this.poService.getSkuDetail(docType, docNumber, skuRowId)
+      .pipe(finalize(() => this.wslService.end()))
       .subscribe({
-        next:(sku)=> {  
+        next: (sku) => {
           this.onSelectSKU.emit(sku);
         },
       })

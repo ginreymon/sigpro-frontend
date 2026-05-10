@@ -23,7 +23,7 @@
                     </p>
                 </div>
                 <div class="h-full flex flex-col items-end">
-                    <h3 class="text-slate-500 text-xs">Unidades por Hacer</h3>
+                    <h3 class="text-slate-500 text-xs">Unidades Por Hacer</h3>
                     <p [class]="`text-m font-semibold mb-1 text-slate-900`">
                         {{ toDoQuantity() }}
                     </p>
@@ -96,7 +96,7 @@
                 Cancelar
             </app-ui-button>
 
-            <app-ui-button (onClick)="saveQuantity()">
+            <app-ui-button [disabled]="recordForm.invalid || isSubmitting()" (onClick)="saveQuantity()">
                 Guardar
             </app-ui-button>
         }

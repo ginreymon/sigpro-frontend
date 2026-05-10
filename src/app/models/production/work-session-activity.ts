@@ -14,5 +14,6 @@ export interface WorkSessionActivity extends AuditEntity {
   last_open_production_record?: ProductionRecord;
   is_paused: boolean;
   active_time_seconds: number;
+  total_pause_time_seconds: number;
   active_break?: WorkBreakRecord | null;
 }
