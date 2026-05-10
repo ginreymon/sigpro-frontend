@@ -76,8 +76,7 @@ export class PauseModal {
     this.activityService.pause(activityId, payload)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
-        next: (pause) => {
-          console.log(pause);
+        next: (pause) => {        
           this.onPause.emit(pause);
           this.selectedBreak.set(null);
           this.isCustomSelected.set(false);
