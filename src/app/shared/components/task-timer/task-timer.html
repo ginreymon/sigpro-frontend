@@ -79,7 +79,14 @@
 
         @if(!state().showQuantityModal){
             @if(state().isConfirmed){
-                
+
+                @if(isPaused && state().activeBreak?.custom_reason){
+                <app-ui-button [intent]="'cancel'" [disabled]="isSubmitting()" (onClick)="resume()">
+                    <app-ui-icon [iconName]="'play'" [class]="'w-5 h-5'"></app-ui-icon>
+                    Reiniciar
+                </app-ui-button>
+                }
+
                 @if(!isPaused){
                 <app-ui-button [intent]="'cancel'" [disabled]="isSubmitting()" (onClick)="pause()">
                     <app-ui-icon [iconName]="'pause'" [class]="'w-5 h-5'"></app-ui-icon>
