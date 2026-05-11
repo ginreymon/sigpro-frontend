@@ -4,6 +4,7 @@ import { ProductionOrderService } from '../../../services/production/production-
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
+import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/order-searcher/order-searcher';
@@ -37,6 +38,7 @@ export class Orders implements OnInit {
   private tts = inject(TaskTimerService);
   private dialogService = inject(DialogService);
   private contextService = inject(ProductionContextService);
+  private loaderService = inject(LoaderService);
 
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
@@ -65,8 +67,12 @@ export class Orders implements OnInit {
 
   private loadContext(docType?: string, docNumber?: number) {
     this.wslService.start();
+    this.loaderService.showLoader();
     this.contextService.load(docType, docNumber)
-      .pipe(finalize(() => this.wslService.end()))
+      .pipe(finalize(() => {
+        this.wslService.end();
+        this.loaderService.hideLoader();
+      }))
       .subscribe({
         next: (context) => {
           this.currentSession.set(context.session);
