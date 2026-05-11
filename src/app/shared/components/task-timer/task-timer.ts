@@ -69,8 +69,11 @@ export class TaskTimer implements OnChanges {
   }
 
   get title() {
+    if(this.isPaused) 
+      return `Pausado`;
+
     if (!this.state().isConfirmed)
-      return 'Confirmar'
+      return 'Confirmar';
 
     if (this.state().isConfirmed && !this.state().showQuantityModal)
       return 'Tarea en Proceso';
