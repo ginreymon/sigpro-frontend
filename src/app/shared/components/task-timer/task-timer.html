@@ -11,6 +11,7 @@
         [pauseStartTime]="state().activeBreak?.start_time"
         [pauseDurationSeconds]="state().activeBreak?.duration_seconds"
         [totalPauseSeconds]="state().totalPauseSeconds"
+        (onResume)="reload()"
         ></app-time-progress-circle>
         
         @if(!state().showQuantityModal){

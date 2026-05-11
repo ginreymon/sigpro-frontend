@@ -110,6 +110,10 @@ export class TaskTimer implements OnChanges {
     }
   }
 
+  reload() {
+    this.saved.emit();   
+  }
+
   cancel() {
     this.selectedSKU = null;
     this.tts.reset();

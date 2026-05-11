@@ -48,18 +48,21 @@ export class TimeProgressCircle implements OnDestroy {
   } 
 
   @Input()
-  set startTime(date: string | Date) {
+  set startTime(date: string | Date | null) {
+    if (!date) return;
     this._startTime = date;
     this.initialize();
   }
 
   @Input()
-  set serverNow(date: string | Date) {
+  set serverNow(date: string | Date | null) {
+    if (!date) return;
     this._serverNow = date;
     this.initialize();
   }
 
-  @Output() completed = new EventEmitter<void>();
+  @Output() onCompleted = new EventEmitter<void>();
+  @Output() onResume = new EventEmitter<void>();
 
   ngOnDestroy(): void {
     this.clearTimer();
@@ -104,7 +107,7 @@ export class TimeProgressCircle implements OnDestroy {
           this.elapsed -= pauseElapsed;
           this.pauseCountdown.set(this.formatText(this.pauseEndElapsed));         
         }else{
-          
+          this.onResume.emit();
         }
       }
 
@@ -146,7 +149,7 @@ export class TimeProgressCircle implements OnDestroy {
     this.isEnding.set(remaining <= this.duration * 0.25);
 
     if (remaining <= 0) {
-      this.completed.emit();      
+      this.onCompleted.emit();      
     }
   }
 
