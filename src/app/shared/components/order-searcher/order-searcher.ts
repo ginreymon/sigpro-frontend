@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UiFormField } from '../../elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../elements/ui-input/ui-input';
@@ -29,7 +29,7 @@ import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message
   templateUrl: './order-searcher.html',
   styleUrl: './order-searcher.css',
 })
-export class OrderSearcher {
+export class OrderSearcher implements OnInit {
   errorMessage = signal<string | null>(null);
   orderForm: FormGroup;
 
@@ -38,13 +38,18 @@ export class OrderSearcher {
   wslService = inject(WorkSpaceLoaderService);
   loaderServive = inject(LoaderService);
   @Output() onFoundDoc = new EventEmitter<ProductionOrder | null>();
+  @Input() preloadedDocTypes: DocType[] | null | undefined;
 
   constructor(private fb: FormBuilder) {
-    this.getDocTypes();
     this.orderForm = fb.group({
       documentType: [null, Validators.required],
       documentNumber: [null, [Validators.required, Validators.pattern(/^\d+$/)]],
     });
+  }
+
+  ngOnInit(): void {
+    if (this.preloadedDocTypes?.length) this.doctypes.set(this.preloadedDocTypes);
+    else this.getDocTypes();
   }
 
   get documentType() {

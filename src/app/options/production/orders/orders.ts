@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
 import { ProductionOrderService } from '../../../services/production/production-order-service';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -44,6 +44,7 @@ export class Orders implements OnInit {
   private activeRecord: ProductionRecord | null = null;
 
   isLoading = signal(true);
+  contextDocTypes = computed(() => this.contextService.snapshot?.docTypes ?? []);
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
   cards = signal<{ title: string; data: any }[]>([]);
