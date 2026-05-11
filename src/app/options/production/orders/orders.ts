@@ -1,9 +1,7 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
 import { ProductionOrderService } from '../../../services/production/production-order-service';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { WorkSessionService } from '../../../services/production/work-session-service';
-import { WorkSession } from '../../../models/production/work-session';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
 import { finalize } from 'rxjs';
@@ -18,17 +16,19 @@ import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
+import { WorkSession } from '../../../models/production/work-session';
+import { ProductionContextService } from '../../../services/production/production-context-service';
 
 @Component({
   selector: 'app-orders',
-  imports: [ WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer ],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
 export class Orders implements OnInit {
 
-  private DAY_OPERATION_URL: string = 'production/day-operation';
-  private OPERATION_ORDER_URL: string = 'production/orders';
+  private DAY_OPERATION_URL = 'production/day-operation';
+  private OPERATION_ORDER_URL = 'production/orders';
 
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -36,6 +36,7 @@ export class Orders implements OnInit {
   private wslService = inject(WorkSpaceLoaderService);
   private tts = inject(TaskTimerService);
   private dialogService = inject(DialogService);
+  private contextService = inject(ProductionContextService);
 
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
@@ -45,17 +46,8 @@ export class Orders implements OnInit {
   cards = signal<{ title: string; data: any }[]>([]);
   selectedSKU = signal<SkuTaskDetail | null>(null);
 
-  constructor(private workSessionService: WorkSessionService) {
-    effect(() => {
-      const session = this.currentSession();
-      const order = this.productionOrder();     
-      if (!session || !order) return;
-      this.checkActiveRecord();
-    });
-  }
-
   ngOnInit(): void {
-    this.reloadOrder();
+    this.loadDocumentFromRoute();
   }
 
   get document() {
@@ -64,53 +56,46 @@ export class Orders implements OnInit {
     return `${doc.documentType} ${doc.documentNumber}`;
   }
 
-  private reset(){   
-    this.cards.set([]); 
+  private reset() {
+    this.cards.set([]);
     this.selectedSKU.set(null);
     this.hasCheckedActiveRecord = false;
-    this.activeRecord = null;   
+    this.activeRecord = null;
   }
 
-  private loadDocumentFromRoute() {
-    this.productionOrder.set(null);      
-    this.route.queryParams.subscribe(({ docType, docNumber }) => {      
-      if (docType && docNumber) {
-        this.resetDocument(docType, docNumber);
-      } else {
-        this.setDocument(null);
-      }
-    });
-  }
-
-  private loadSession() {
+  private loadContext(docType?: string, docNumber?: number) {
     this.wslService.start();
-    this.currentSession.set(null);
-    this.workSessionService
-      .getActive()
+    this.contextService.load(docType, docNumber)
       .pipe(finalize(() => this.wslService.end()))
       .subscribe({
-        next: (session) => {
-          this.currentSession.set(session ? session : null);
-          this.tts.setSession(session ? session : null);        
+        next: (context) => {
+          this.currentSession.set(context.session);
+          this.tts.setSession(context.session);
+          this.setDocument(context.order);
+          this.checkActiveRecord(context.session, context.order);
         },
         error: () => this.router.navigateByUrl(this.DAY_OPERATION_URL),
       });
   }
 
-  private resetDocument(documentType: any, documentNumber: any) {
-    this.wslService.start();
-    const payload: Partial<ProductionOrder> = { documentType, documentNumber };
-    this.poService
-      .getOrder(payload, true)
-      .pipe(finalize(() => this.wslService.end()))
-      .subscribe((doc) => {
-        this.setDocument(doc as ProductionOrder);
-      });
+  private loadDocumentFromRoute() {
+    this.productionOrder.set(null);
+    this.route.queryParams.subscribe(({ docType, docNumber }) => {
+      this.selectedSKU.set(null);
+      this.tts.reset();
+      this.hasCheckedActiveRecord = false;
+      this.activeRecord = null;
+      if (!docType || !docNumber) {
+        this.productionOrder.set(null);
+        this.cards.set([]);
+      }
+      this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
+    });
   }
 
   setDocument(doc: ProductionOrder | null) {
     this.productionOrder.set(doc);
-    this.cards.set([]);   
+    this.cards.set([]);
     if (!doc) return;
 
     this.router.navigate([], {
@@ -131,10 +116,11 @@ export class Orders implements OnInit {
     ]);
   }
 
-  reloadOrder() { 
-    this.reset();    
-    this.loadDocumentFromRoute();
-    this.loadSession();
+  reloadOrder() {
+    this.productionOrder.set(null);
+    this.reset();
+    const { docType, docNumber } = this.route.snapshot.queryParams;
+    this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
   }
 
   goToSearch() {
@@ -151,19 +137,15 @@ export class Orders implements OnInit {
       this.reloadOrder();
       return;
     }
-
     if (this.hasCheckedActiveRecord && this.activeRecord) {
       this.showActiveRecordToast();
       return;
     }
-
     this.selectedSKU.set(sku);
   }
 
-  private checkActiveRecord() {
+  private checkActiveRecord(session: WorkSession | null, order: ProductionOrder | null) {
     if (this.hasCheckedActiveRecord) return;
-    const session = this.currentSession();
-    const order = this.productionOrder();
     if (!session || !order) return;
     this.hasCheckedActiveRecord = true;
     const record = session.active_activity?.last_open_production_record;
@@ -172,15 +154,15 @@ export class Orders implements OnInit {
     this.wslService.start();
     if (record.op_number === order.documentNumber && record.op_type === order.documentType) {
       this.poService.getSkuDetail(record.op_type, record.op_number, record.sku_rowid)
-      .pipe(finalize(()=> this.wslService.end()))
-      .subscribe({
-        next: (sku) => {
-          if (sku) {
-            this.selectedSKU.set(sku);
-            this.tts.confirm(record);
-          }
-        },
-      });
+        .pipe(finalize(() => this.wslService.end()))
+        .subscribe({
+          next: (sku) => {
+            if (sku) {
+              this.selectedSKU.set(sku);
+              this.tts.confirm(record);
+            }
+          },
+        });
     } else {
       this.wslService.end();
       this.showActiveRecordToast();
@@ -189,7 +171,6 @@ export class Orders implements OnInit {
 
   private showActiveRecordToast() {
     if (!this.activeRecord) return;
-
     this.dialogService.openToast(
       'Orden sin finalizar',
       `Hay una tarea activa en ${this.activeRecord.op_type} ${this.activeRecord.op_number}`,
