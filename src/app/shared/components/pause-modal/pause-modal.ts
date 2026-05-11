@@ -10,11 +10,12 @@ import { WorkSessionActivityService } from '../../../services/production/work-se
 import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { PausePayload, PauseResponse } from '../../../models/production/work-break-record';
 import { LoaderService } from '../../../services/common/loader-service';
+import { UiIcon } from "../../elements/ui-icon/ui-icon";
 
 @Component({
   selector: 'app-pause-modal',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiOptionCard, UiErrorMessage],
+  imports: [BoxLayout, UiButton, UiOptionCard, UiErrorMessage, UiIcon],
   templateUrl: './pause-modal.html',
 })
 export class PauseModal implements OnInit {

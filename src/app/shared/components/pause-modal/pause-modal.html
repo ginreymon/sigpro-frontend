@@ -5,7 +5,10 @@
         <div class="grid grid-cols-1 gap-3 items-stretch overflow-y-auto max-h-[30vh]">
             @for(wb of workBreaks(); track wb.id){
             <app-ui-option-card [obj]="wb" [selected]="selectedBreak()?.id === wb.id" (onToggle)="selectBreak($event)">
-                <p class="font-semibold text-sm">{{ wb.name }}</p>
+                <a class="font-semibold text-sm flex flex-row justify-start w-full">
+                    <app-ui-icon [iconName]="'pause'" [class]="'w-5 h-5'"></app-ui-icon>           
+                    <span class="ml-1">{{ wb.name }}</span> 
+                </a>
                 @if(wb.description){
                 <p class="text-xs text-slate-500 mt-1">{{ wb.description }}</p>
                 }
@@ -14,7 +17,10 @@
             }
 
             <app-ui-option-card [selected]="isCustomSelected()" (onToggle)="selectCustom()" class="mb-2">
-                <p class="font-semibold text-sm">Otra razón</p>
+                <a class="font-semibold text-sm flex flex-row justify-start w-full">
+                    <app-ui-icon [iconName]="'pause'" [class]="'w-5 h-5'"></app-ui-icon>   
+                    <p class="font-semibold text-sm ml-1">Otra razón</p>
+                </a>
                 <p class="text-xs text-slate-500 mt-1">Ingresa un motivo personalizado</p>
             </app-ui-option-card>
         </div>
