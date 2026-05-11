@@ -1,22 +1,24 @@
 @if(selectedSKU){
 <app-box-layout [title]="title">
 
-    <div box-content class="flex flex-col justify-center items-center">
-
-        <app-time-progress-circle class="mt-4" 
-        [class.hidden]="!state().isConfirmed || state().showQuantityModal" 
-        [startTime]="startTime()" 
-        [serverNow]="serverNow()"
-        [duration]="duration()"
-        [pauseStartTime]="state().activeBreak?.start_time"
-        [pauseDurationSeconds]="state().activeBreak?.duration_seconds"
-        [totalPauseSeconds]="state().totalPauseSeconds"
-        (onResume)="reload()"
-        ></app-time-progress-circle>
+    <div box-content class="flex flex-col justify-center items-center">        
         
         @if(!state().showQuantityModal){
         <app-sku-detail class="w-full" [selectedSKU]="selectedSKU"></app-sku-detail>
+        }
+
+        <app-time-progress-circle class="mt-4" 
+            [class.hidden]="!state().isConfirmed || state().showQuantityModal" 
+            [startTime]="startTime()" 
+            [serverNow]="serverNow()"
+            [duration]="duration()"
+            [pauseStartTime]="state().activeBreak?.start_time"
+            [pauseDurationSeconds]="state().activeBreak?.duration_seconds"
+            [totalPauseSeconds]="state().totalPauseSeconds"
+            (onResume)="reload()"
+        ></app-time-progress-circle>
         
+        @if(!state().showQuantityModal){
         <div class="w-full py-3 flex flex-col justify-start">
             <div class="w-full flex flex-row justify-between">
                 <div>
