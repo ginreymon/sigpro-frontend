@@ -16,6 +16,7 @@ import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 import { DialogService } from '../../../services/common/dialog-service';
 import { PauseResponse } from '../../../models/production/work-break-record';
+import { WorkBreak } from '../../../models/production/work-break';
 
 
 @Component({
@@ -28,6 +29,7 @@ import { PauseResponse } from '../../../models/production/work-break-record';
 export class TaskTimer implements OnChanges {
 
   @Input() selectedSKU: SkuTaskDetail | null = null;
+  @Input() workBreaks: WorkBreak[] | null | undefined;
   @Output() saved = new EventEmitter<void>();
 
   private tts = inject(TaskTimerService);

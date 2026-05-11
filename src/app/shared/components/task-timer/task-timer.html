@@ -113,7 +113,7 @@
     </div>
 
 </app-box-layout>
-<app-pause-modal [visible]="state().showPauseModal" (onCancel)="cancelPause()" (onPause)="setPause($event)"></app-pause-modal>
+<app-pause-modal [visible]="state().showPauseModal" [preloadedWorkBreaks]="workBreaks" (onCancel)="cancelPause()" (onPause)="setPause($event)"></app-pause-modal>
 }
 
 

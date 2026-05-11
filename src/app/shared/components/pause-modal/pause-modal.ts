@@ -1,9 +1,8 @@
-import { Component, inject, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, Output, EventEmitter, signal } from '@angular/core';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiOptionCard } from '../../elements/ui-option-card/ui-option-card';
 import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { WorkBreakService } from '../../../services/production/work-break-service';
 import { WorkBreak } from '../../../models/production/work-break';
 import { finalize, map } from 'rxjs';
@@ -18,20 +17,24 @@ import { LoaderService } from '../../../services/common/loader-service';
   imports: [BoxLayout, UiButton, UiOptionCard, UiErrorMessage],
   templateUrl: './pause-modal.html',
 })
-export class PauseModal {
+export class PauseModal implements OnInit {
   private workBreakService = inject(WorkBreakService);
   private activityService = inject(WorkSessionActivityService);
   private loaderService = inject(LoaderService);
   private tts = inject(TaskTimerService);
 
   @Input() visible = false;
+  @Input() preloadedWorkBreaks: WorkBreak[] | null | undefined;
   @Output() onCancel = new EventEmitter<void>();
   @Output() onPause = new EventEmitter<PauseResponse>();
 
-  protected workBreaks = toSignal(
-    this.workBreakService.getAll().pipe(map(r => r.results)),
-    { initialValue: [] }
-  );
+  protected workBreaks = signal<WorkBreak[]>([]);
+
+  ngOnInit(): void {
+    if (this.preloadedWorkBreaks?.length) this.workBreaks.set(this.preloadedWorkBreaks);
+    else this.workBreakService.getAll().pipe(map(r => r.results))
+      .subscribe(breaks => this.workBreaks.set(breaks));
+  }
 
   protected selectedBreak = signal<WorkBreak | null>(null);
   protected isCustomSelected = signal(false);

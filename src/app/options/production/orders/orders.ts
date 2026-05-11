@@ -19,6 +19,7 @@ import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { ProductionContextService } from '../../../services/production/production-context-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-orders',
@@ -43,8 +44,11 @@ export class Orders implements OnInit {
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
 
+  private context = toSignal(this.contextService.context$, { initialValue: null });
+
   isLoading = signal(true);
-  contextDocTypes = computed(() => this.contextService.snapshot?.docTypes ?? []);
+  contextDocTypes = computed(() => this.context()?.docTypes ?? []);
+  contextWorkBreaks = computed(() => this.context()?.workBreaks ?? []);
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
   cards = signal<{ title: string; data: any }[]>([]);

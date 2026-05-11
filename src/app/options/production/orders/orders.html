@@ -43,4 +43,4 @@
     
 </app-work-space-layout>
 
-<app-task-timer [selectedSKU]="selectedSKU()" (saved)="reloadOrder()"></app-task-timer>
+<app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="reloadOrder()"></app-task-timer>
