@@ -43,6 +43,7 @@ export class Orders implements OnInit {
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
 
+  isLoading = signal(true);
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
   cards = signal<{ title: string; data: any }[]>([]);
@@ -66,10 +67,12 @@ export class Orders implements OnInit {
   }
 
   private loadContext(docType?: string, docNumber?: number) {
+    this.isLoading.set(true);
     this.wslService.start();
     this.loaderService.showLoader();
     this.contextService.load(docType, docNumber)
       .pipe(finalize(() => {
+        this.isLoading.set(false);
         this.wslService.end();
         this.loaderService.hideLoader();
       }))

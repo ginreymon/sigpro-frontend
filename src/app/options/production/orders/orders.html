@@ -27,7 +27,7 @@
                 </app-ui-button>
             </div>
         } 
-        @else {
+        @else if(!isLoading()) {
         <app-order-searcher (onFoundDoc)="setDocument($event)"></app-order-searcher>
         <div class="flex-1 min-h-0 overflow-hidden">
             <!-- Space for future features (set se searched ops list)-->
