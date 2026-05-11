@@ -8,7 +8,7 @@ import { WorkBreak } from '../../../models/production/work-break';
 import { finalize, map } from 'rxjs';
 import { WorkSessionActivityService } from '../../../services/production/work-session-activity-service';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
-import { PausePayload, PauseResponse } from '../../../models/production/work-break-record';
+import { PausePayload, WorkBreakRecord } from '../../../models/production/work-break-record';
 import { LoaderService } from '../../../services/common/loader-service';
 import { UiIcon } from "../../elements/ui-icon/ui-icon";
 
@@ -27,7 +27,7 @@ export class PauseModal implements OnInit {
   @Input() visible = false;
   @Input() preloadedWorkBreaks: WorkBreak[] | null | undefined;
   @Output() onCancel = new EventEmitter<void>();
-  @Output() onPause = new EventEmitter<PauseResponse>();
+  @Output() onPause = new EventEmitter<WorkBreakRecord>();
 
   protected workBreaks = signal<WorkBreak[]>([]);
 

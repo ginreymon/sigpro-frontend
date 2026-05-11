@@ -94,7 +94,7 @@ export class TimeProgressCircle implements OnDestroy {
       this.elapsed = Math.floor((now - this.startTimestamp) / 1000);
       if (this.elapsed < 0) return;
       
-      this.elapsed -= this.totalPauseSeconds;
+      // this.elapsed -= this.totalPauseSeconds;
 
       if (this.checkingPause && this._pauseStartTime) {
         const pauseStartTimestamp = new Date(this._pauseStartTime).getTime();

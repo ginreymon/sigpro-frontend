@@ -15,7 +15,7 @@
             [pauseStartTime]="state().activeBreak?.start_time"
             [pauseDurationSeconds]="state().activeBreak?.duration_seconds"
             [totalPauseSeconds]="state().totalPauseSeconds"
-            (onResume)="reload()"
+            (onResume)="resume()"
         ></app-time-progress-circle>
         
         @if(!state().showQuantityModal){
@@ -80,7 +80,7 @@
             @if(state().isConfirmed){
                 
                 @if(!isPaused){
-                <app-ui-button [intent]="'cancel'" (onClick)="pause()">
+                <app-ui-button [intent]="'cancel'" [disabled]="isSubmitting()" (onClick)="pause()">
                     <app-ui-icon [iconName]="'pause'" [class]="'w-5 h-5'"></app-ui-icon>
                     Pausar
                 </app-ui-button>

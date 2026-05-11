@@ -1,5 +1,7 @@
+﻿import { tap } from 'rxjs';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ProductionRecordService } from '../production/production-record-service';
+import { WorkSessionActivityService } from '../production/work-session-activity-service';
 import { SkuTaskDetail } from '../../models/production/sku-task-detail';
 import { ProductionRecord } from '../../models/production/production-record';
 import { WorkSession } from '../../models/production/work-session';
@@ -8,6 +10,7 @@ import { WorkBreakRecord } from '../../models/production/work-break-record';
 @Injectable({ providedIn: 'root' })
 export class TaskTimerService {
   private recordService = inject(ProductionRecordService);
+  private activityService = inject(WorkSessionActivityService);
 
   currentSession = signal<WorkSession | null>(null);
   activeActivityId = computed(() => this.currentSession()?.active_activity?.id);
@@ -66,17 +69,27 @@ export class TaskTimerService {
     });
   }
 
-  setResumeState() {
+  setResumeState(closedBreak: WorkBreakRecord) {
     const session = this.currentSession();
     if (!session?.active_activity) return;
+    const prev = session.active_activity;
     this.currentSession.set({
       ...session,
       active_activity: {
-        ...session.active_activity,
+        ...prev,
         is_paused: false,
         active_break: null,
+        total_pause_time_seconds: prev.total_pause_time_seconds + (closedBreak.duration_seconds ?? 0),
       },
     });
+  }
+
+  resume() {
+    const activityId = this.activeActivityId();
+    if (!activityId) return null;
+    return this.activityService.resume(activityId).pipe(
+      tap((closedBreak: WorkBreakRecord) => this.setResumeState(closedBreak))
+    );
   }
 
   reset() {

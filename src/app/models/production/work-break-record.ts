@@ -6,15 +6,10 @@ export interface WorkBreakRecord extends AuditEntity {
   custom_reason?: string | null;
   start_time: string;
   end_time?: string | null;
+  resumed_at?: string | null;
   duration_seconds?: number;
   name?: string;
   work_session_activity?: Number;
-}
-
-export interface PauseResponse {
-  work_break_record: WorkBreakRecord;
-  server_now: string;
-  server_end_pause: string;
 }
 
 export type PausePayload = | { work_break: number } | { custom_reason: string };

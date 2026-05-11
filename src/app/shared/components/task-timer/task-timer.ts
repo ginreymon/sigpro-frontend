@@ -15,7 +15,7 @@ import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 import { DialogService } from '../../../services/common/dialog-service';
-import { PauseResponse } from '../../../models/production/work-break-record';
+import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { WorkBreak } from '../../../models/production/work-break';
 
 
@@ -116,8 +116,17 @@ export class TaskTimer implements OnChanges {
     }
   }
 
-  reload() {
-    this.saved.emit();   
+  resume() {
+    const obs = this.tts.resume();
+    if (!obs) return;
+    this.isSubmitting.set(true);
+    this.loaderService.showLoader();
+    obs.pipe(
+      finalize(() => {
+        this.isSubmitting.set(false);
+        this.loaderService.hideLoader();
+      })
+    ).subscribe();
   }
 
   cancel() {
@@ -152,8 +161,8 @@ export class TaskTimer implements OnChanges {
     this.tts.closePauseModal();
   }
 
-  setPause(pause: PauseResponse) {
-    this.tts.setPauseState(pause.work_break_record);
+  setPause(pause: WorkBreakRecord) {
+    this.tts.setPauseState(pause);
   }
 
   cancelQuantity() {
