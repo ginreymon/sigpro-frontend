@@ -10,6 +10,7 @@
         [duration]="duration()"
         [pauseStartTime]="state().activeBreak?.start_time"
         [pauseDurationSeconds]="state().activeBreak?.duration_seconds"
+        [totalPauseSeconds]="state().totalPauseSeconds"
         ></app-time-progress-circle>
         
         @if(!state().showQuantityModal){

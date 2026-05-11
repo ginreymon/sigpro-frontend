@@ -43,17 +43,18 @@ export class TaskTimer implements OnChanges {
     showQuantityModal: this.tts.showQuantityModal(),
     showPauseModal: this.tts.showPauseModal(),
     currentRecord: this.tts.currentRecord(),
-    activeBreak: this.tts.activeBreak()
+    activeBreak: this.tts.activeBreak(),
+    totalPauseSeconds: this.tts.totalPauseSeconds(),
   }));
 
   protected startTime = computed(() => {
     const record = this.tts.currentRecord();
-    return record ? new Date(record.start_time) : new Date();
+    return record ? new Date(record.start_time) : null;
   });
 
   protected serverNow = computed(() => {
     const record = this.tts.currentRecord();
-    return record ? new Date(record.server_now) : new Date();
+    return record ? new Date(record.server_now) : null;
   });
 
   get isCompleted(): boolean {
@@ -142,7 +143,7 @@ export class TaskTimer implements OnChanges {
   }
 
   setPause(pause: PauseResponse) {
-    this.saved.emit();
+    this.tts.setPauseState(pause.work_break_record);
   }
 
   cancelQuantity() {

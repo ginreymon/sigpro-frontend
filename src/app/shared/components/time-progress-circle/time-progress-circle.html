@@ -7,7 +7,7 @@
         </circle>
 
         <!-- Progress -->
-        <circle class="fill-none transition-[stroke-dashoffset] duration-500 ease-linear"
+        <circle class="fill-none" [class.circle-animated]="isReady()"
             [class.stroke-red-500]="isEnding() && !isPaused"
             [class.stroke-brand-600]="!isEnding() && !isPaused"
             [class.stroke-orange-400]="isPaused"

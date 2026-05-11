@@ -3,6 +3,7 @@ import { ProductionRecordService } from '../production/production-record-service
 import { SkuTaskDetail } from '../../models/production/sku-task-detail';
 import { ProductionRecord } from '../../models/production/production-record';
 import { WorkSession } from '../../models/production/work-session';
+import { WorkBreakRecord } from '../../models/production/work-break-record';
 
 @Injectable({ providedIn: 'root' })
 export class TaskTimerService {
@@ -11,6 +12,7 @@ export class TaskTimerService {
   currentSession = signal<WorkSession | null>(null);
   activeActivityId = computed(() => this.currentSession()?.active_activity?.id);
   activeBreak = computed(() => this.currentSession()?.active_activity.active_break);
+  totalPauseSeconds = computed(() => this.currentSession()?.active_activity.total_pause_time_seconds?? 0);
   isStarted = signal(false);
   showQuantityModal = signal(false);
   showPauseModal = signal(false);
@@ -48,6 +50,32 @@ export class TaskTimerService {
 
   saveQuantity(recordId: number, data: Partial<ProductionRecord>) {
     return this.recordService.patch(recordId, data);
+  }
+
+  setPauseState(breakRecord: WorkBreakRecord) {
+    const session = this.currentSession();
+    if (!session?.active_activity) return;
+    this.currentSession.set({
+      ...session,
+      active_activity: {
+        ...session.active_activity,
+        is_paused: true,
+        active_break: breakRecord,
+      },
+    });
+  }
+
+  setResumeState() {
+    const session = this.currentSession();
+    if (!session?.active_activity) return;
+    this.currentSession.set({
+      ...session,
+      active_activity: {
+        ...session.active_activity,
+        is_paused: false,
+        active_break: null,
+      },
+    });
   }
 
   reset() {

@@ -1,0 +1,3 @@
+.circle-animated {
+  transition: stroke-dashoffset 500ms ease-in-out;
+}
