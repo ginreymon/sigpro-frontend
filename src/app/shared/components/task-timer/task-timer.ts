@@ -64,6 +64,10 @@ export class TaskTimer implements OnChanges {
     return this.selectedSKU.completedQty >= this.selectedSKU.orderedQty;
   }  
 
+  get isPaused(){
+    return this.tts.isPaused();
+  }
+
   get title() {
     if (!this.state().isConfirmed)
       return 'Confirmar'
