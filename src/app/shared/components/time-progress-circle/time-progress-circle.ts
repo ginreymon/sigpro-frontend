@@ -14,38 +14,47 @@ export class TimeProgressCircle implements OnDestroy {
   isEnding = signal<boolean>(false);
   isReady = signal(false);
   displayTime = signal<string>('00:00:00');
-  pauseCountdown = signal<string>('00:00:00');
+  pauseCountdown = signal<string>('');
   pauseEndElapsed: number = 0;
 
   private startTimestamp = 0;
   private offset = 0;
   private interval: any;
-  private checkingPause: boolean = false;
+  private resumeEmitted = false;
 
   private _serverNow: string | Date = new Date();
   private _startTime: string | Date = new Date();
   private _pauseDurationSeconds: number = 0;
   private _pauseStartTime: string | Date | undefined = undefined;
+  private _isPaused: boolean = false;
 
-  // seconds 
   @Input() duration: number = 3600;
   @Input() totalPauseSeconds: number = 0;
 
+  /**
+   * Fuente de verdad del estado pausa — viene del servicio (isPaused computed).
+   * Reemplaza checkingPause interno que fallaba con custom breaks.
+   */
+  @Input()
+  set isPaused(value: boolean) {
+    this._isPaused = value;
+    if (!value) {
+      this.resumeEmitted = false;
+      this.pauseCountdown.set('');
+    }
+  }
+  get isPaused(): boolean { return this._isPaused; }
+
   @Input()
   set pauseStartTime(time: string | Date | undefined) {
-    if (time) {
-      this._pauseStartTime = time;
-      this.checkingPause = true;
-    }
+    this._pauseStartTime = time ?? undefined;
+    this.resumeEmitted = false;
   }
 
   @Input()
   set pauseDurationSeconds(seconds: number | undefined) {
-    if (seconds) {
-      this._pauseDurationSeconds = seconds;
-      this.checkingPause = true;
-    }
-  } 
+    this._pauseDurationSeconds = Math.floor(Number(seconds) || 0);
+  }
 
   @Input()
   set startTime(date: string | Date | null) {
@@ -68,20 +77,12 @@ export class TimeProgressCircle implements OnDestroy {
     this.clearTimer();
   }
 
-  get isPaused() {
-    return this.checkingPause;
-  }
-
   private initialize() {
     if (!this._startTime || !this._serverNow) return;
-
-    this.elapsed = 0;
     const clientNow = Date.now();
     const serverNow = new Date(this._serverNow).getTime();
-
     this.offset = serverNow - clientNow;
     this.startTimestamp = new Date(this._startTime).getTime();
-
     this.startTimer();
   }
 
@@ -91,29 +92,38 @@ export class TimeProgressCircle implements OnDestroy {
 
     const tick = () => {
       const now = Date.now() + this.offset;
-      this.elapsed = Math.floor((now - this.startTimestamp) / 1000);
-      if (this.elapsed < 0) return;
-      
-      // this.elapsed -= this.totalPauseSeconds;
+      const rawElapsed = Math.floor((now - this.startTimestamp) / 1000);
+      if (rawElapsed < 0) return;
 
-      if (this.checkingPause && this._pauseStartTime) {
-        const pauseStartTimestamp = new Date(this._pauseStartTime).getTime();
-        const pauseEndTimestamp = pauseStartTimestamp + (this._pauseDurationSeconds * 1000);
-        this.pauseEndElapsed = Math.floor((pauseEndTimestamp - now) / 1000);
-        this.checkingPause = this.pauseEndElapsed > 0;
+      if (this._isPaused && this._pauseStartTime) {
+        // CONGELAR: calcular elapsed neto en el momento que inició la pausa
+        // rawAtPause = segundos brutos desde inicio hasta que arrancó la pausa
+        // elapsed = rawAtPause - totalPauseSeconds (pausas previas ya completadas)
+        const pauseStartMs = new Date(this._pauseStartTime).getTime();
+        const rawAtPause = Math.floor((pauseStartMs - this.startTimestamp) / 1000);
+        this.elapsed = Math.max(rawAtPause - this.totalPauseSeconds, 0);
 
-        if (this.checkingPause) {
-          const pauseElapsed = Math.floor((now - pauseStartTimestamp) / 1000);
-          this.elapsed -= pauseElapsed;
-          this.pauseCountdown.set(this.formatText(this.pauseEndElapsed));         
-        }else{
-          this.onResume.emit();
+        // Solo breaks predefinidos tienen countdown
+        if (this._pauseDurationSeconds > 0) {
+          const pauseEndTs = pauseStartMs + this._pauseDurationSeconds * 1000;
+          this.pauseEndElapsed = Math.floor((pauseEndTs - now) / 1000);
+          if (this.pauseEndElapsed > 0) {
+            this.pauseCountdown.set(this.formatText(this.pauseEndElapsed));
+          } else if (!this.resumeEmitted) {
+            // Break predefinido expiró — emitir una sola vez
+            this.resumeEmitted = true;
+            this.pauseCountdown.set('');
+            this.onResume.emit();
+          }
         }
+        // Custom break: pauseCountdown = '' → template muestra "Pausado"
+      } else {
+        // CORRIENDO: restar todas las pausas completadas
+        this.elapsed = Math.max(rawElapsed - this.totalPauseSeconds, 0);
       }
 
       this.updateText();
       this.updateCircle();
-
     };
 
     tick();
@@ -131,8 +141,7 @@ export class TimeProgressCircle implements OnDestroy {
   private formatText(elapsed: number) {
     const h = Math.floor(elapsed / 3600);
     const m = Math.floor((elapsed % 3600) / 60);
-    const s = elapsed % 60;
-
+    const s = Math.floor(elapsed % 60);
     return `${this.pad(h)}:${this.pad(m)}:${this.pad(s)}`;
   }
 
@@ -143,13 +152,10 @@ export class TimeProgressCircle implements OnDestroy {
   private updateCircle() {
     const progress = Math.min(this.elapsed / this.duration, 1);
     this.dashOffset.set(this.fullDash * (1 - progress));
-
     const remaining = this.duration - this.elapsed;
-
     this.isEnding.set(remaining <= this.duration * 0.25);
-
     if (remaining <= 0) {
-      this.onCompleted.emit();      
+      this.onCompleted.emit();
     }
   }
 

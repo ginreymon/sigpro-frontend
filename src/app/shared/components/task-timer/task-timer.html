@@ -7,11 +7,12 @@
         <app-sku-detail class="w-full" [selectedSKU]="selectedSKU"></app-sku-detail>
         }
 
-        <app-time-progress-circle class="mt-4" 
-            [class.hidden]="!state().isConfirmed || state().showQuantityModal" 
-            [startTime]="startTime()" 
+        <app-time-progress-circle class="mt-4"
+            [class.hidden]="!state().isConfirmed || state().showQuantityModal"
+            [startTime]="startTime()"
             [serverNow]="serverNow()"
             [duration]="duration()"
+            [isPaused]="isPaused"
             [pauseStartTime]="state().activeBreak?.start_time"
             [pauseDurationSeconds]="state().activeBreak?.duration_seconds"
             [totalPauseSeconds]="state().totalPauseSeconds"
