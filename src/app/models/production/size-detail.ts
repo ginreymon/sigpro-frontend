@@ -5,4 +5,5 @@ export interface SizeQtyDetail extends Totals {
   skuRowId: number;
   hasOpenRecords?: boolean;
   baseRouteQuantity?: number;
+  sam?: number | null;
 }
