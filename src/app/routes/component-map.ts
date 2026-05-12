@@ -6,6 +6,7 @@ import { WorkShifts } from '../options/admin/work-shifts/work-shifts';
 import { Modules } from '../options/admin/modules/modules';
 import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
 import { Orders } from '../options/production/orders/orders';
+import { SewingSAM } from '../options/production/sewing-sam/sewing-sam';
 
 export const componentMap: Record<string, Type<any>> = {
   'admin/roles': Roles,
@@ -15,4 +16,5 @@ export const componentMap: Record<string, Type<any>> = {
   'admin/work-breaks': WorkBreaks,
   'production/day-operation': DayOperation,
   'production/orders': Orders,
+  'production/sewing-sam': SewingSAM,
 };

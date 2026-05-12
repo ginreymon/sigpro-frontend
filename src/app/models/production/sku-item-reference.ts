@@ -1,0 +1,31 @@
+export interface SkuItemReference {
+  rowid_item: number;
+  reference: string;
+  description: string;
+  inv_type: string | null;
+  inventory_unit: string | null;
+  order_unit: string | null;
+  packing_unit: string | null;
+  replenishment_time: string | null;
+  lot_size: string | null;
+  safety_stock: string | null;
+  status: number | null;
+  sku_status: string | null;
+  cost: string | null;
+  suggested_price: string | null;
+  brand: string | null;
+  line: string | null;
+  group: string | null;
+  subgroup: string | null;
+  classification: string | null;
+  sewing: string | null;
+  print_design: string | null;
+  license: string | null;
+  collection: string | null;
+  world: string | null;
+  channel: string | null;
+  promotion: string | null;
+  priority: string | null;
+  pieces_per_set: string | null;
+  sam_value: string | null;
+}
