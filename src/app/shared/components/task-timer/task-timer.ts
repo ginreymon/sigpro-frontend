@@ -51,12 +51,12 @@ export class TaskTimer implements OnChanges {
 
   protected startTime = computed(() => {
     const record = this.tts.currentRecord();
-    return record ? new Date(record.start_time) : null;
+    return record ? record.start_time : null;
   });
 
   protected serverNow = computed(() => {
     const record = this.tts.currentRecord();
-    return record ? new Date(record.server_now) : null;
+    return record ? record.server_now : null;
   });
 
   get isCompleted(): boolean {

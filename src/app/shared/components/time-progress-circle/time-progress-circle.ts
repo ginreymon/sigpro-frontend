@@ -27,6 +27,9 @@ export class TimeProgressCircle implements OnDestroy {
   private _pauseDurationSeconds: number = 0;
   private _pauseStartTime: string | Date | undefined = undefined;
   private _isPaused: boolean = false;
+  
+  private _rawStartTime: string | Date | null = null;
+  private _rawServerNow: string | Date | null = null;
 
   @Input() duration: number = 3600;
   @Input() totalPauseSeconds: number = 0;
@@ -58,15 +61,21 @@ export class TimeProgressCircle implements OnDestroy {
 
   @Input()
   set startTime(date: string | Date | null) {
-    if (!date) return;
+    if (!date || date === this._rawStartTime) return;
+
+    this._rawStartTime = date;
     this._startTime = date;
+
     this.initialize();
   }
 
   @Input()
   set serverNow(date: string | Date | null) {
-    if (!date) return;
+    if (!date || date === this._rawServerNow) return;
+
+    this._rawServerNow = date;
     this._serverNow = date;
+
     this.initialize();
   }
 

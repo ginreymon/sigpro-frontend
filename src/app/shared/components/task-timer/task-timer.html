@@ -35,7 +35,7 @@
         </div>
         }
         
-        @if(!state().showQuantityModal){
+        @if(!(isPaused && state().activeBreak) && !state().showQuantityModal){
         <div class="w-full py-3 flex flex-col justify-start">
             <div class="w-full flex flex-row justify-between">
                 <div>
@@ -110,10 +110,12 @@
                 </app-ui-button>
                 }
 
+                @if(!(isPaused && state().activeBreak)){
                 <app-ui-button [disabled]="isPaused" (onClick)="deliver()">
                     <app-ui-icon [iconName]="'truck'" [class]="'w-5 h-5'"></app-ui-icon>
                     Entregar
                 </app-ui-button>
+                }
             }
             @else {
                 <app-ui-button [intent]="'cancel'" (onClick)="cancel()">
