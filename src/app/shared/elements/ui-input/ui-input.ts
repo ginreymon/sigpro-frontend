@@ -17,9 +17,11 @@ import { BaseControlValueAccessor } from '../../../common/classes/base-control-v
 })
 export class UiInput extends BaseControlValueAccessor<string> {
   @Input() type: string = 'text';
+  @Input() isFloat: boolean = false;
 
   handleInput(event: Event) {
     const input = event.target as HTMLInputElement;
+    if (this.isFloat && input.validity.badInput) return;
     this.value = input.value;
     this.onChange(this.value);
   }

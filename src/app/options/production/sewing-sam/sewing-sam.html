@@ -1,1 +1,94 @@
-<p>sewing-sam works!</p>
+<app-work-space-layout>
+  <div main-content class="h-full">
+    <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns" (onPagerChange)="pagerHandler($event)"
+      (onSearch)="searchHandler($event)" [actions]="actions" (onAction)="actionHandler($event)"
+      [tableToolsButtons]="tableToolsButtons">
+
+      <ng-template appTableTemplate="samTemplate" let-row>
+        @if (row.sam_value) {
+        <span class="font-semibold text-green-600">{{ row.sam_value }}</span>
+        } @else {
+        <span class="text-slate-400 text-xs">Sin SAM</span>
+        }
+      </ng-template>
+
+    </app-data-table>
+  </div>
+</app-work-space-layout>
+
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+
+  <div class="mb-4 flex items-center gap-4">
+    <app-char-square>
+      {{ rowObject.reference?.toUpperCase()?.charAt(0) }}
+    </app-char-square>
+    <div>
+      <h3 class="text-2xl font-semibold text-slate-900 mb-1">{{ rowObject.reference }}</h3>
+      <p class="text-sm text-slate-500">{{ rowObject.description }}</p>
+    </div>
+  </div>
+
+  <div class="mb-4 border-t border-slate-200 pt-4">
+    <h4 class="text-xl font-semibold text-gray-700 mb-2">Clasificación</h4>
+    <div class="space-y-2 text-sm">
+      <p><strong>Marca:</strong> {{ rowObject.brand }}</p>
+      <p><strong>Línea:</strong> {{ rowObject.line }}</p>
+      <p><strong>Grupo:</strong> {{ rowObject.group }}</p>
+      <p><strong>Subgrupo:</strong> {{ rowObject.subgroup }}</p>
+      <p><strong>Costura:</strong> {{ rowObject.sewing }}</p>
+      <p><strong>Estampado:</strong> {{ rowObject.print_design }}</p>
+      <p><strong>Colección:</strong> {{ rowObject.collection }}</p>
+      <p><strong>Mundo:</strong> {{ rowObject.world }}</p>
+      <p><strong>Canal:</strong> {{ rowObject.channel }}</p>
+    </div>
+  </div>
+
+  <div class="mb-4 border-t border-slate-200 pt-4">
+    <h4 class="text-xl font-semibold text-gray-700 mb-2">SAM</h4>
+    <div class="space-y-2 text-sm">
+      @if (rowObject.sam_value) {
+      <p><strong> Valor SAM: </strong> <span class="font-semibold text-green-600">{{ rowObject.sam_value }}</span></p>
+      } @else {
+      <p class="text-slate-400 italic">Sin SAM asignado</p>
+      }
+    </div>
+  </div>
+
+</app-side-modal-layout>
+
+
+<app-modal-layout [formId]="'samForm'" (onCancel)="closeModelForm()">
+
+  <form id="samForm" [formGroup]="modelForm" (ngSubmit)="submit()">
+    <fieldset [disabled]="showLoader()">
+
+      <app-ui-form-field [controlName]="'sam'" [label]="'SAM (minutos estándar)'">
+        <app-ui-input formControlName="sam" [id]="'sam'" [placeholder]="'Ej: 4.1260'" [control]="sam" [type]="'number'"
+          [isFloat]="true">
+        </app-ui-input>
+      </app-ui-form-field>
+
+      <div class="bg-slate-50 p-6 rounded flex flex-col items-start justify-between gap-4 mt-4">
+        <p class="text-sm text-brand-400 italic">
+          Referencia: <strong>{{ rowObject.reference }}</strong>
+        </p>
+        <p class="text-sm text-brand-400 italic">
+          Línea: <strong>{{ rowObject.line }}</strong>
+        </p>
+        <p class="text-sm text-brand-400 italic">
+          Centro de costo: <strong>{{ rowObject.sewing }}</strong>
+        </p>
+        <p class="text-sm text-brand-400 italic">
+          Descripción: <strong>{{ rowObject.description}}</strong>
+        </p>
+      </div>
+
+      @if (errorMessage()) {
+      <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+      }
+
+    </fieldset>
+  </form>
+
+</app-modal-layout>

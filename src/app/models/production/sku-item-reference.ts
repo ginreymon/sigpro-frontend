@@ -1,4 +1,5 @@
 export interface SkuItemReference {
+  id: number;
   rowid_item: number;
   reference: string;
   description: string;
@@ -28,4 +29,5 @@ export interface SkuItemReference {
   priority: string | null;
   pieces_per_set: string | null;
   sam_value: string | null;
+  sam_id: number | null;
 }
