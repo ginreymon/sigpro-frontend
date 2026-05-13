@@ -59,6 +59,23 @@ export class TaskTimer implements OnChanges {
     return record ? record.server_now : null;
   });
 
+  constructor() {
+    this.recordForm = this.fb.group({
+      completed_quantity: [0, [Validators.required, Validators.min(0)]],
+      scrap_quantity: [0, [Validators.required, Validators.min(0)]],
+      rejected_quantity: [0, [Validators.required, Validators.min(0)]],
+    });
+
+    effect(() => {
+      if (!this.tts.showQuantityModal()) return;
+      const max = this.toDoQuantity();
+      const ctrl = this.recordForm.get('completed_quantity');
+      ctrl?.setValidators([Validators.required, Validators.min(0), Validators.max(max)]);
+      ctrl?.updateValueAndValidity();
+      this.recordForm.reset({ completed_quantity: 0, scrap_quantity: 0, rejected_quantity: 0 });
+    });
+  }
+
   get isCompleted(): boolean {
     if (!this.selectedSKU) return false;
     return this.selectedSKU.completedQty >= this.selectedSKU.orderedQty;
@@ -89,27 +106,34 @@ export class TaskTimer implements OnChanges {
     return Math.max(0, this.selectedSKU.orderedQty - this.selectedSKU.completedQty);
   }
 
+  // duration in seconds
   duration(): number {
-    if (!this.selectedSKU) return 0;   
-    return this.toDoQuantity() * 3600 / this.selectedSKU.baseRouteQuantity;
+    if (!this.selectedSKU) return 0;
+    const sam = this.selectedSKU.sam ?? 0;
+    if (!sam) return 0;
+    const operators = this.tts.availableOperators() ?? 0;
+    if (!operators) return 0;
+    return this.toDoQuantity() * sam * 60 / operators;
   }
 
-  constructor() {
-    this.recordForm = this.fb.group({
-      completed_quantity: [0, [Validators.required, Validators.min(0)]],
-      scrap_quantity: [0, [Validators.required, Validators.min(0)]],
-      rejected_quantity: [0, [Validators.required, Validators.min(0)]],
-    });
-
-    effect(() => {
-      if (!this.tts.showQuantityModal()) return;
-      const max = this.toDoQuantity();
-      const ctrl = this.recordForm.get('completed_quantity');
-      ctrl?.setValidators([Validators.required, Validators.min(0), Validators.max(max)]);
-      ctrl?.updateValueAndValidity();
-      this.recordForm.reset({ completed_quantity: 0, scrap_quantity: 0, rejected_quantity: 0 });
-    });
-  }
+  formattedDuration(): string {
+    if (!this.selectedSKU) return 'Sin SKU';
+    const operators = this.tts.availableOperators() ?? 0;
+    if (operators <= 0) return 'Sin Oper.';
+    const sam = this.selectedSKU.sam ?? 0;
+    if (sam <= 0) return 'Sin SAM';
+    const secondsDuration = Math.round(this.duration());
+    const hours = Math.floor(secondsDuration / 3600)
+      .toString()
+      .padStart(2, '0');
+    const minutes = Math.floor((secondsDuration % 3600) / 60)
+      .toString()
+      .padStart(2, '0');
+    const seconds = (secondsDuration % 60)
+      .toString()
+      .padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  }  
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedSKU']) {

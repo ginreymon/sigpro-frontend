@@ -21,6 +21,7 @@ export class TaskTimerService {
   showPauseModal = signal(false);
   currentRecord = signal<ProductionRecord | null>(null);
   isPaused = computed(() => !!this.currentSession()?.active_activity.is_paused);
+  availableOperators = computed(()=> this.currentSession()?.employees_snapshot?.length ?? 0);
 
   setSession(session: WorkSession | null) {
     this.currentSession.set(session);

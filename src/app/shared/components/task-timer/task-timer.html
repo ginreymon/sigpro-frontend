@@ -47,7 +47,7 @@
                 <div>
                     <h3 class="text-slate-500 text-xs">Tiempo ({{ toDoQuantity() }})</h3>
                     <p class="text-m font-semibold mb-1 text-slate-900">
-                         {{ duration() * 1000 | date:'mm:ss':'UTC' }} min                
+                        {{ formattedDuration() }}
                     </p>
                 </div>
                 <div class="h-full flex flex-col items-end">

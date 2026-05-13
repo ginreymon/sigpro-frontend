@@ -14,4 +14,5 @@ export interface SkuTaskDetail {
   rejectedQty: number;
   baseRouteQuantity: number;
   hasOpenRecords: boolean;
+  sam: number | null;
 }
