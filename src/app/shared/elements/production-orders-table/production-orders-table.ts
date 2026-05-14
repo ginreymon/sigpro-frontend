@@ -9,7 +9,7 @@ import { ButtonBaseType } from '../../../common/classes/button-base';
 import { DialogService } from '../../../services/common/dialog-service';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { ProductionOrderService } from '../../../services/production/production-order-service';
-import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
+import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -27,7 +27,7 @@ export class ProductionOrdersTable {
   dialogService = inject(DialogService);
   poService = inject(ProductionOrderService);
 
-  private wslService = inject(WorkSpaceLoaderService);
+  private loaderService = inject(LoaderService);
 
   get productionOrder() {
     return this._productionOrder; 
@@ -177,9 +177,9 @@ export class ProductionOrdersTable {
   }
 
   selectSKU(docType: string, docNumber: number, skuRowId: number) {
-    this.wslService.start();
+    this.loaderService.showLoader();
     this.poService.getSkuDetail(docType, docNumber, skuRowId)
-      .pipe(finalize(() => this.wslService.end()))
+      .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (sku) => {
           this.onSelectSKU.emit(sku);
