@@ -5,7 +5,7 @@ import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-l
 import { ActivatedRoute, Router } from '@angular/router';
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
 import { LoaderService } from '../../../services/common/loader-service';
-import { finalize, switchMap } from 'rxjs';
+import { finalize } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/order-searcher/order-searcher';
 import { ProductionOrder } from '../../../models/production/production-order';
@@ -214,10 +214,26 @@ export class Orders implements OnInit {
     if (!sessionId) return;
     this.loaderService.showLoader();
     this.workSessionService.updateEmployees(sessionId, ids)
-      .pipe(
-        switchMap(() => this.workSessionService.getActive()),
-        finalize(() => this.loaderService.hideLoader()),
-      )
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => this.refreshSession(),
+      });
+  }
+
+  onTaskSaved() {
+    this.reset();
+    const { docType, docNumber } = this.route.snapshot.queryParams;
+    this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
+  }
+
+  onTaskStarted() {
+    this.refreshSession();
+  }
+
+  private refreshSession() {
+    this.loaderService.showLoader();
+    this.workSessionService.getActive()
+      .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (session: WorkSession) => {
           this.currentSession.set(session);

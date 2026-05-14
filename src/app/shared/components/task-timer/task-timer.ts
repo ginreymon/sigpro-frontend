@@ -31,6 +31,7 @@ export class TaskTimer implements OnChanges {
   @Input() selectedSKU: SkuTaskDetail | null = null;
   @Input() workBreaks: WorkBreak[] | null | undefined;
   @Output() saved = new EventEmitter<void>();
+  @Output() started = new EventEmitter<void>();
 
   private tts = inject(TaskTimerService);
   private loaderService = inject(LoaderService);
@@ -171,7 +172,11 @@ export class TaskTimer implements OnChanges {
         this.loaderService.hideLoader();
       }))
       .subscribe({
-        next: (record) => this.tts.confirm(record),
+        next: (record) => {
+          this.tts.confirm(record);
+          this.started.emit();
+        },
+        error: () => this.dialogService.openToast('Error', 'No se pudo iniciar la tarea', 'fail'),
       });
   }
 

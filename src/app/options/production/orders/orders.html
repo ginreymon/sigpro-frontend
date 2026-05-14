@@ -45,6 +45,6 @@
     
 </app-work-space-layout>
 
-<app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="reloadOrder()"></app-task-timer>
+<app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="onTaskSaved()" (started)="onTaskStarted()"></app-task-timer>
 
 <app-employees-modal [fetch]="true" [preselectedIds]="preselectedIds()" (onSave)="updateEmployees($event)"></app-employees-modal>
