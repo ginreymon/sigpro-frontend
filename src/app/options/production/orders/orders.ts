@@ -5,7 +5,7 @@ import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-l
 import { ActivatedRoute, Router } from '@angular/router';
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
 import { LoaderService } from '../../../services/common/loader-service';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/order-searcher/order-searcher';
 import { ProductionOrder } from '../../../models/production/production-order';
@@ -214,7 +214,10 @@ export class Orders implements OnInit {
     if (!sessionId) return;
     this.loaderService.showLoader();
     this.workSessionService.updateEmployees(sessionId, ids)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .pipe(
+        switchMap(() => this.workSessionService.getActive()),
+        finalize(() => this.loaderService.hideLoader()),
+      )
       .subscribe({
         next: (session: WorkSession) => {
           this.currentSession.set(session);
