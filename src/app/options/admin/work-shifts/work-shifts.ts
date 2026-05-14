@@ -131,10 +131,11 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
   }
 
   protected override submit(): void {
+    const pad = (v: number | null) => String(v ?? 0).padStart(2, '0');
     const workshift: Partial<WorkShift> = {
       ...this.modelForm.value,
-      start_time: `${this.startHour?.value}:${this.startMinutes?.value}`,
-      end_time: `${this.endHour?.value}:${this.endMinutes?.value}`,
+      start_time: `${pad(this.startHour?.value)}:${pad(this.startMinutes?.value)}`,
+      end_time: `${pad(this.endHour?.value)}:${pad(this.endMinutes?.value)}`,
     };
     super.submit(workshift);
   }

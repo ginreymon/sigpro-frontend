@@ -15,14 +15,26 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
     },
   ],
 })
-export class UiHourInput extends BaseControlValueAccessor<number|string> {
+export class UiHourInput extends BaseControlValueAccessor<number | null> {
   @Input() max = 23;
   @Input() min = 0;
   @Input() title = '';
 
+  get displayValue(): string {
+    if (this.value === null || this.value === undefined || this.value === ('' as any)) return '';
+    return String(Number(this.value)).padStart(2, '0');
+  }
+
   handleInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.value = input.value;
-    this.onChange(this.value);
+    const raw = (event.target as HTMLInputElement).value.replace(/\D/g, '');
+    const num = parseInt(raw, 10);
+    if (isNaN(num)) {
+      this.value = null;
+      this.onChange(null);
+      return;
+    }
+    const clamped = Math.min(Math.max(num, this.min), this.max);
+    this.value = clamped;
+    this.onChange(clamped);
   }
 }
