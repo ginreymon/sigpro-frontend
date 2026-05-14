@@ -19,8 +19,7 @@ import { WorkShiftService } from '../../../services/production/work-shift-servic
 import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { Employee } from '../../../models/production/employee';
-import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
-import { Searcher } from '../../../shared/components/searcher/searcher';
+import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
 import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
 import { UiCloseButton } from '../../../shared/elements/ui-close-button/ui-close-button';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -40,8 +39,7 @@ import { DayOperationDetail } from '../../../shared/components/day-operation-det
     EllipsisPipe,
     TitleCasePipe,
     UiErrorMessage,
-    ModalLayout,
-    Searcher,
+    EmployeesModal,
     UiTooltip,
     UiCloseButton,
     ReactiveFormsModule,
@@ -54,7 +52,6 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   protected override entityName: string = 'Operación';
   @ViewChild('moduleCarousel') moduleCarousel!: OperationCarousel;
   @ViewChild('workshiftCarousel') workshiftCarousel!: OperationCarousel;
-  @ViewChild('searcher') searcher!: Searcher;
 
   private OPERATION_ORDER_URL: string = 'production/orders';
   private workShiftService = inject(WorkShiftService);
@@ -67,8 +64,6 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   protected employees = signal<Employee[]>([]);
   protected currentSession = signal<WorkSession | null>(null);
   protected sessionCopy = signal<WorkSession | null>(null);
-  private _filteredEmployees: Employee[] = [];
-  selectedIds: number[] = [];
 
   constructor(private workSessionService: WorkSessionService) {
     super(workSessionService);
@@ -116,16 +111,6 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     return this.modelForm?.get('employee_ids');
   }
 
-  get filteredEmployees() {
-    if (!this._filteredEmployees.length) {
-      this._filteredEmployees = this.employees().sort((a, b) =>
-        a.first_name.localeCompare(b.first_name),
-      );
-    }
-
-    return this._filteredEmployees;
-  }
-
   get selectedModule() {
     return this.modules().find((m) => {
       return m.id == this.moduleId?.value;
@@ -150,8 +135,11 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
       this.moduleId?.markAsTouched();
       return;
     }
-    this.selectedIds = this.employeeIds?.value ?? [];
     this.dialogService.openModal('Empleados', 'Agregar');
+  }
+
+  onEmployeesSaved(ids: number[]): void {
+    this.employeeIds?.setValue(ids);
   }
 
   selectModule(id: number) {
@@ -183,10 +171,6 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     return this.workShiftId?.value === ws.id;
   }
 
-  isSelectedEmployee(emp: Employee) {
-    return this.selectedIds.includes(emp.id);
-  }
-
   nextModule() {
     this.moduleCarousel.next();
   }
@@ -203,39 +187,10 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     this.workshiftCarousel.prev();
   }
 
-  search(text: string) {
-    const words = text?.toLowerCase();
-    this._filteredEmployees = !words?.trim()
-      ? this.employees()
-      : this.employees().filter((emp) => {
-          return (
-            emp.first_name.toLowerCase().includes(words) ||
-            emp.last_name1.toLowerCase().includes(words) ||
-            emp.last_name2?.toLowerCase().includes(words) ||
-            emp.id_number.includes(words)
-          );
-        });
-  }
-
-  toggleEmployee(id: number) {
-    const current = this.selectedIds;
-    this.selectedIds = current.includes(id)
-      ? current.filter((x: number) => x !== id)
-      : [...current, id];
-  }
-
-  addEmployees() {
-    this.employeeIds?.setValue(this.selectedIds);
-    this.searcher.clear();
-    this.dialogService.closeModal();
-  }
-
   protected override closeModelForm(): void {
     this.prepareFormForAction();
-    this.searcher.clear();
-    this.selectedIds = [];
-    this._filteredEmployees = this.employees();
-    this.closeModelForm();
+    this.errorMessage.set(null);
+    this.dialogService.closeModal();
   }
 
   protected override submit(): void {

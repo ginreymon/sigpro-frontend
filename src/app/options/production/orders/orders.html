@@ -2,6 +2,8 @@
     
     <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
         @if(productionOrder()){            
+           
+            <app-work-shift-summary [cards]="workShiftCards()"></app-work-shift-summary>
           
             <div class="bg-white border border-slate-200 rounded-md p-3 mb-2 flex flex-row justify-between">                 
                 @for(card of cards(); track card; let i = $index){
@@ -10,7 +12,7 @@
                         <h3 class="text-slate-500 text-xs"> {{ card.title }} </h3>
                     }
                     <p [class]="`${i == 0? 'text-3xl': 'text-m'} font-semibold text-slate-900 mb-1`">
-                        {{ card.data | uppercase }}
+                        {{ card.data.toString() | uppercase }}
                     </p>
                 </div>
                 }
@@ -23,7 +25,7 @@
             <div class="flex flex-row justify-end mt-4">
                 <app-ui-button (onClick)="goToSearch()">
                     <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
-                   Anterior
+                    Cerrar OP
                 </app-ui-button>
             </div>
         } 
@@ -44,3 +46,8 @@
 </app-work-space-layout>
 
 <app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="reloadOrder()"></app-task-timer>
+
+<app-employees-modal
+  [employees]="currentSession()?.employees_snapshot ?? []"
+  [readOnly]="true"
+></app-employees-modal>

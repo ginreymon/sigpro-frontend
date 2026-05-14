@@ -1,0 +1,26 @@
+<app-modal-layout (onAccept)="save()" (onCancel)="cancel()" [hideAccept]="readOnly">
+
+  <app-searcher #searcher [intent]="'action'" (onSearch)="search($event)"></app-searcher>
+
+  <app-ui-form-field [label]="'Empleados'">
+    <div class="mb-2 flex flex-col justify-start gap-3 py-2 items-stretch overflow-y-auto max-h-[30vh]">
+      @for (employee of filteredEmployees; track employee.id) {
+        <app-ui-option-card
+          [disabled]="readOnly"
+          [selected]="isSelected(employee)"
+          (onToggle)="toggle(employee.id)"
+        >
+          <div class="font-medium text-sm flex flex-row justify-start items-center gap-2">
+            <app-ui-icon [iconName]="'user'" class="h-5 w-5"></app-ui-icon>
+            <p>
+              {{ employee.first_name | titlecase }}
+              {{ employee.last_name1 | titlecase }}
+              {{ employee.last_name2 | titlecase }}
+            </p>
+          </div>
+        </app-ui-option-card>
+      }
+    </div>
+  </app-ui-form-field>
+
+</app-modal-layout>

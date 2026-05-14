@@ -13,6 +13,8 @@ import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { UpperCasePipe } from '@angular/common';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { TaskTimer } from "../../../shared/components/task-timer/task-timer";
+import { WorkShiftSummary } from '../../../shared/components/work-shift-summary/work-shift-summary';
+import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { DialogService } from '../../../services/common/dialog-service';
@@ -20,10 +22,11 @@ import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { ProductionContextService } from '../../../services/production/production-context-service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { WorkShiftCard } from '../../../common/interfaces/work-shift-card';
 
 @Component({
   selector: 'app-orders',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
@@ -51,8 +54,9 @@ export class Orders implements OnInit {
   contextWorkBreaks = computed(() => this.context()?.workBreaks ?? []);
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
-  cards = signal<{ title: string; data: any }[]>([]);
+  cards = signal<WorkShiftCard[]>([]);
   selectedSKU = signal<SkuTaskDetail | null>(null);
+  workShiftCards = signal<WorkShiftCard[]>([]);
 
   ngOnInit(): void {
     this.loadDocumentFromRoute();
@@ -85,6 +89,7 @@ export class Orders implements OnInit {
         next: (context) => {
           this.currentSession.set(context.session);
           this.tts.setSession(context.session);
+          this.setWorkShiftCards(context.session);
           this.setDocument(context.order);
           this.checkActiveRecord(context.session, context.order);
         },
@@ -105,6 +110,17 @@ export class Orders implements OnInit {
       }
       this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
     });
+  }
+
+  setWorkShiftCards(s: WorkSession | null) {
+    this.workShiftCards.set([
+      { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s?.current_module?.number} ${s?.current_module?.name}` },
+      { title: 'Turno', iconName: 'alarmClock', data: `${s?.work_shift.name} : ${s?.work_shift.start_time.slice(0, 5)} - ${s?.work_shift.end_time.slice(0, 5)}` },
+      { title: 'Encomendados', iconName: 'user', data: s?.employees_snapshot?.length ?? 0, action: () => this.openEmployeesSnapshot() },
+      { title: 'Acumuladas', data: 10, thresholds: { green: 8, red: 5 } },
+      { title: 'Eficiencia', data: 20, thresholds: { green: 90, red: 70 } },
+      { title: 'Meta', data: 30, thresholds: { green: 25, red: 15 } },
+    ]);
   }
 
   setDocument(doc: ProductionOrder | null) {
@@ -181,6 +197,10 @@ export class Orders implements OnInit {
       this.wslService.end();
       this.showActiveRecordToast();
     }
+  }
+
+  openEmployeesSnapshot(): void {
+    this.dialogService.openModal('Encomendados');
   }
 
   private showActiveRecordToast() {
