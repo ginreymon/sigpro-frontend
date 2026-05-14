@@ -47,7 +47,4 @@
 
 <app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="reloadOrder()"></app-task-timer>
 
-<app-employees-modal
-  [snapshot]="currentSession()?.employees_snapshot ?? []"
-  [readOnly]="true"
-></app-employees-modal>
+<app-employees-modal [fetch]="true" [preselectedIds]="preselectedIds()" (onSave)="updateEmployees($event)"></app-employees-modal>

@@ -23,6 +23,7 @@ import { WorkSession } from '../../../models/production/work-session';
 import { ProductionContextService } from '../../../services/production/production-context-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WorkShiftCard } from '../../../common/interfaces/work-shift-card';
+import { WorkSessionService } from '../../../services/production/work-session-service';
 
 @Component({
   selector: 'app-orders',
@@ -43,6 +44,7 @@ export class Orders implements OnInit {
   private dialogService = inject(DialogService);
   private contextService = inject(ProductionContextService);
   private loaderService = inject(LoaderService);
+  private workSessionService = inject(WorkSessionService);
 
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
@@ -67,6 +69,10 @@ export class Orders implements OnInit {
     if (!doc) return '';
     return `${doc.documentType} ${doc.documentNumber}`;
   }
+
+  protected preselectedIds = computed(() =>
+    this.currentSession()?.employees_snapshot?.map(e => e.id) ?? []
+  );
 
   private reset() {
     this.cards.set([]);
@@ -200,7 +206,23 @@ export class Orders implements OnInit {
   }
 
   openEmployeesSnapshot(): void {
-    this.dialogService.openModal('Encomendados');
+    this.dialogService.openModal('Encomendados', 'Actualizar');
+  }
+
+  updateEmployees(ids: number[]) {
+    const sessionId = this.currentSession()?.id;
+    if (!sessionId) return;
+    this.loaderService.showLoader();
+    this.workSessionService.updateEmployees(sessionId, ids)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: (session: WorkSession) => {
+          this.currentSession.set(session);
+          this.contextService.updateSession(session);
+          this.tts.setSession(session);
+          this.setWorkShiftCards(session);
+        },
+      });
   }
 
   private showActiveRecordToast() {

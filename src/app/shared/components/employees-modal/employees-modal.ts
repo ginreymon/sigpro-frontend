@@ -1,5 +1,4 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Employee } from '../../../models/production/employee';
 import { DialogService } from '../../../services/common/dialog-service';
@@ -8,6 +7,10 @@ import { Searcher } from '../searcher/searcher';
 import { UiFormField } from '../../elements/ui-form-field/ui-form-field';
 import { UiOptionCard } from '../../elements/ui-option-card/ui-option-card';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
+import { EmployeeService } from '../../../services/production/employee-service';
+import { QueryParams } from '../../../common/interfaces/query-params';
+import { LoaderService } from '../../../services/common/loader-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-employees-modal',
@@ -15,33 +18,54 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
   templateUrl: './employees-modal.html',
   styleUrl: './employees-modal.css',
 })
-export class EmployeesModal {
-  @Input() snapshot: Employee[] = [];
-  @Input() preselectedIds: number[] = [];
+
+export class EmployeesModal implements OnInit {
   @Input() readOnly: boolean = false;
+  @Input() fetch: Boolean = false;
   @Output() onSave = new EventEmitter<number[]>();
 
   @ViewChild('searcher') private searcher!: Searcher;
 
+  @Input()
+  set preselectedIds(ids: number[]) {
+    this.selectedIds = ids;
+  }
+
+  @Input()
+  set employees(emps: Employee[]) {
+    this._employees.set(emps);
+    this.filteredEmployees.set(this.sortEmployees());
+  }
+
+  private _employees = signal<Employee[]>([]);
   private dialogService = inject(DialogService);
-  private destroyRef = inject(DestroyRef);
+  private employeeService = inject(EmployeeService);
+  private loaderService = inject(LoaderService);
 
-  selectedIds: number[] = [];
-  filteredEmployees: Employee[] = [];
+  protected selectedIds: number[] = [];
+  protected filteredEmployees = signal<Employee[]>([]);
 
-  constructor() {
-    this.dialogService.modalVisible$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((visible) => {
-        if (visible) {
-          this.selectedIds = [...this.preselectedIds];
-          this.filteredEmployees = this.sorted();
-        }
+  ngOnInit(): void {
+    if (this.fetch) {
+      this.fetchEmployees();
+    }
+  }
+
+  private fetchEmployees() {
+    this.loaderService.showLoader();
+    const params: QueryParams = { page: 1, limit: 9999999 };
+    this.employeeService.getAll(params)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: (res) => {
+          this._employees.set(res.results);
+          this.filteredEmployees.set(this.sortEmployees());
+        },
       });
   }
 
-  private sorted(): Employee[] {
-    return [...this.snapshot].sort((a, b) => a.first_name.localeCompare(b.first_name));
+  private sortEmployees(): Employee[] {
+    return [...this._employees()].sort((a, b) => a.first_name.localeCompare(b.first_name));
   }
 
   isSelected(emp: Employee): boolean {
@@ -57,15 +81,15 @@ export class EmployeesModal {
 
   search(text: string): void {
     const words = text?.toLowerCase().trim();
-    this.filteredEmployees = !words
-      ? this.sorted()
-      : this.snapshot.filter(
-          (emp) =>
-            emp.first_name.toLowerCase().includes(words) ||
-            emp.last_name1.toLowerCase().includes(words) ||
-            emp.last_name2?.toLowerCase().includes(words) ||
-            emp.id_number.includes(words),
-        );
+    this.filteredEmployees.set(!words
+      ? this.sortEmployees()
+      : this._employees().filter(
+        (emp) =>
+          emp.first_name.toLowerCase().includes(words) ||
+          emp.last_name1.toLowerCase().includes(words) ||
+          emp.last_name2?.toLowerCase().includes(words) ||
+          emp.id_number.includes(words),
+      ));
   }
 
   save(): void {
@@ -79,7 +103,7 @@ export class EmployeesModal {
   }
 
   private reset(): void {
-    this.filteredEmployees = this.sorted();
+    this.filteredEmployees.set(this.sortEmployees());
     this.searcher?.clear();
   }
 }
