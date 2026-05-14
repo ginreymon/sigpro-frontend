@@ -8,12 +8,12 @@
             <ng-template appTableTemplate="createUserTemplate" let-row>
 
                 @if(row.has_account){
-                <app-ui-label-button [classNames]="'w-30'" (onClick)="activateAccount(row)" [intent]="row.is_account_active?'cancel':'action'">
+                <app-ui-label-button [classNames]="'w-24'" (onClick)="activateAccount(row)" [intent]="row.is_account_active?'cancel':'action'">
                     {{ row.is_account_active? 'Desactivar':'Activar' }}
                 </app-ui-label-button>
                 }
                 @else {
-                <app-ui-label-button [classNames]="'w-30'" [intent]="'action'" (onClick)="createAccount(row)">
+                <app-ui-label-button [classNames]="'w-24'" [intent]="'action'" (onClick)="createAccount(row)">
                     Crear cuenta
                 </app-ui-label-button>
                 }
@@ -22,6 +22,10 @@
             
             <ng-template appTableTemplate="userStatusTemplate" let-row>
                 <app-ui-badge [active]="row.is_account_active"></app-ui-badge>
+            </ng-template>
+
+            <ng-template appTableTemplate="userNameTemplate" let-row>
+               <span class="font-semibold text-gray-600">{{ row.username }}</span>
             </ng-template>
 
         </app-data-table>

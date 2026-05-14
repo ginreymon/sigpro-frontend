@@ -63,7 +63,7 @@
       </app-ui-form-field>
       
       <app-ui-form-field [label]="'Opciones'" [controlName]="'option_ids'">        
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 items-stretch overflow-y-auto max-h-[30vh]">
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 items-stretch overflow-y-auto max-h-[30vh] py-2">
   
             @for (option of options(); track option.id) {
               <app-ui-option-card (onToggle)="toggleOption(option.id)" [selected]="isSelected(option.id)">
