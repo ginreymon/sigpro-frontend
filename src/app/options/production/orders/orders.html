@@ -48,6 +48,6 @@
 <app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="reloadOrder()"></app-task-timer>
 
 <app-employees-modal
-  [employees]="currentSession()?.employees_snapshot ?? []"
+  [snapshot]="currentSession()?.employees_snapshot ?? []"
   [readOnly]="true"
 ></app-employees-modal>

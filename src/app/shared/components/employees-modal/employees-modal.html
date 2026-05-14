@@ -2,7 +2,7 @@
 
   <app-searcher #searcher [intent]="'action'" (onSearch)="search($event)"></app-searcher>
 
-  <app-ui-form-field [label]="'Empleados'">
+  <app-ui-form-field [label]="`Empleados (${selectedIds.length})`">
     <div class="mb-2 flex flex-col justify-start gap-3 py-2 items-stretch overflow-y-auto max-h-[30vh]">
       @for (employee of filteredEmployees; track employee.id) {
         <app-ui-option-card

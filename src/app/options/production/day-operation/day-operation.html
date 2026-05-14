@@ -168,5 +168,5 @@
 
 </app-work-space-layout>
 
-<app-employees-modal [employees]="employees()" [preselectedIds]="employeeIds?.value ?? []"  (onSave)="onEmployeesSaved($event)"></app-employees-modal>
+<app-employees-modal [snapshot]="employees()" [preselectedIds]="employeeIds?.value ?? []"  (onSave)="onEmployeesSaved($event)"></app-employees-modal>
 

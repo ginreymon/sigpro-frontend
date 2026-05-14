@@ -16,7 +16,7 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
   styleUrl: './employees-modal.css',
 })
 export class EmployeesModal {
-  @Input() employees: Employee[] = [];
+  @Input() snapshot: Employee[] = [];
   @Input() preselectedIds: number[] = [];
   @Input() readOnly: boolean = false;
   @Output() onSave = new EventEmitter<number[]>();
@@ -41,7 +41,7 @@ export class EmployeesModal {
   }
 
   private sorted(): Employee[] {
-    return [...this.employees].sort((a, b) => a.first_name.localeCompare(b.first_name));
+    return [...this.snapshot].sort((a, b) => a.first_name.localeCompare(b.first_name));
   }
 
   isSelected(emp: Employee): boolean {
@@ -59,7 +59,7 @@ export class EmployeesModal {
     const words = text?.toLowerCase().trim();
     this.filteredEmployees = !words
       ? this.sorted()
-      : this.employees.filter(
+      : this.snapshot.filter(
           (emp) =>
             emp.first_name.toLowerCase().includes(words) ||
             emp.last_name1.toLowerCase().includes(words) ||
