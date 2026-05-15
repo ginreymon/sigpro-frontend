@@ -11,4 +11,10 @@ export interface Employee extends AuditEntity {
   last_name1: string;
   last_name2: string | null;
   id_number: string;
+  company_name: string | null;
+  contract_status: string | null;
+  cost_center_rowid: number | null;
+  cost_center_description: string | null;
+  cost_group_id: string | null;
+  cost_group_description: string | null;
 }

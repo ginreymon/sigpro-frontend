@@ -81,6 +81,7 @@ export class Users extends BaseCrudPage<Employee> {
       { field: 'first_name', label: 'Nombre' },
       { field: 'last_name1', label: 'Apellido' },
       { field: 'id_number', label: 'Cédula' },
+      { field: 'cost_center_description', label: 'Centro de costos' },
       { type: 'template', label: 'Usuario', templateName: 'userNameTemplate' },
       { type: 'template', label: 'Estado', templateName: 'userStatusTemplate' },
       { type: 'template', label: 'Acciones', templateName: 'createUserTemplate', align: 'center' },

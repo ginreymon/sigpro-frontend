@@ -25,7 +25,7 @@ export class WorkSpaceLayout extends LocationOption implements OnDestroy {
 
   private resizeSub: Subscription;
 
-  @Input() headerVisible: boolean = true;
+  @Input() headerVisible: boolean = false; // Esta variable se pone en true pa habilitar la visualización del header de la sección
 
   @Input()
   set backgroundVisible(value: boolean) {
