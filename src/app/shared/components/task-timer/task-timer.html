@@ -20,7 +20,7 @@
         ></app-time-progress-circle>
 
         @if(isPaused && state().activeBreak){
-        <div class="w-full border-y border-slate-200 py-3 flex flex-col gap-1">
+        <div class="w-full border-t border-slate-200 py-3 flex flex-col gap-1">
             @if(state().activeBreak?.custom_reason){
                 <p class="text-xs text-slate-500">Razón</p>
                 <p class="text-sm font-medium text-orange-600">{{ state().activeBreak?.custom_reason }}</p>
