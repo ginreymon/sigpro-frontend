@@ -58,7 +58,6 @@ export class Orders implements OnInit {
   productionOrder = signal<ProductionOrder | null>(null);
   cards = signal<WorkShiftCard[]>([]);
   selectedSKU = signal<SkuTaskDetail | null>(null);
-  workShiftCards = signal<WorkShiftCard[]>([]);
 
   ngOnInit(): void {
     this.loadDocumentFromRoute();
@@ -95,7 +94,6 @@ export class Orders implements OnInit {
         next: (context) => {
           this.currentSession.set(context.session);
           this.tts.setSession(context.session);
-          this.setWorkShiftCards(context.session);
           this.setDocument(context.order);
           this.checkActiveRecord(context.session, context.order);
         },
@@ -116,17 +114,6 @@ export class Orders implements OnInit {
       }
       this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
     });
-  }
-
-  setWorkShiftCards(s: WorkSession | null) {
-    this.workShiftCards.set([
-      { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s?.current_module?.number} ${s?.current_module?.name}` },
-      { title: 'Turno', iconName: 'alarmClock', data: `${s?.work_shift.name} : ${s?.work_shift.start_time.slice(0, 5)} - ${s?.work_shift.end_time.slice(0, 5)}` },
-      { title: 'Encomendados', iconName: 'user', data: s?.employees_snapshot?.length ?? 0, action: () => this.openEmployeesSnapshot() },
-      { title: 'Acumuladas', data: 10, thresholds: { green: 8, red: 5 } },
-      { title: 'Eficiencia', data: 20, thresholds: { green: 90, red: 70 } },
-      { title: 'Meta', data: 30, thresholds: { green: 25, red: 15 } },
-    ]);
   }
 
   setDocument(doc: ProductionOrder | null) {
@@ -239,7 +226,6 @@ export class Orders implements OnInit {
           this.currentSession.set(session);
           this.contextService.updateSession(session);
           this.tts.setSession(session);
-          this.setWorkShiftCards(session);
         },
       });
   }

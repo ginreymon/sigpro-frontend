@@ -7,6 +7,7 @@ import { Modules } from '../options/admin/modules/modules';
 import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
 import { Orders } from '../options/production/orders/orders';
 import { SewingSAM } from '../options/production/sewing-sam/sewing-sam';
+import { ModuleEfficiencyPage } from '../options/production/module-efficiency/module-efficiency';
 
 export const componentMap: Record<string, Type<any>> = {
   'admin/roles': Roles,
@@ -17,4 +18,5 @@ export const componentMap: Record<string, Type<any>> = {
   'production/day-operation': DayOperation,
   'production/orders': Orders,
   'production/sewing-sam': SewingSAM,
+  'production/module-efficiency': ModuleEfficiencyPage
 };

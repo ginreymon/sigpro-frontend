@@ -1,7 +1,7 @@
 <div class="bg-gray-200 text-gray-700 border border-gray-200 rounded-md px-3 py-1.5 mb-2 flex flex-row justify-between">
-  @for (card of cards; track card.title) {
+  @for (card of cards(); track card.title) {
     <div class="px-2">
-      <h3 class="text-slate-500 text-xs">{{ card.title }}</h3>
+      <h3 [class]="`text-slate-500 text-xs ${card.action?'ml-5':''}`">{{ card.title }}</h3>
 
       @if (card.action) {       
         <app-ui-table-button [intent]="'hover'" (onClick)="card.action()">
@@ -17,7 +17,9 @@
           @if (card.iconName) {
             <app-ui-icon [iconName]="card.iconName" class="h-4 w-4"></app-ui-icon>
           }
-          <p [class]="getDataClasses(card)">{{ card.data.toString() | uppercase }}</p>
+          <p [class]="getDataClasses(card)">
+            {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
+          </p>
         </div>
       }
     </div>
