@@ -8,6 +8,7 @@ import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
 import { Orders } from '../options/production/orders/orders';
 import { SewingSAM } from '../options/production/sewing-sam/sewing-sam';
 import { ModuleEfficiencyPage } from '../options/production/module-efficiency/module-efficiency';
+import { AppSettings } from '../options/configuration/app-settings/app-settings';
 
 export const componentMap: Record<string, Type<any>> = {
   'admin/roles': Roles,
@@ -18,5 +19,6 @@ export const componentMap: Record<string, Type<any>> = {
   'production/day-operation': DayOperation,
   'production/orders': Orders,
   'production/sewing-sam': SewingSAM,
-  'production/module-efficiency': ModuleEfficiencyPage
+  'production/module-efficiency': ModuleEfficiencyPage,
+  'configuration/app-settings': AppSettings,
 };

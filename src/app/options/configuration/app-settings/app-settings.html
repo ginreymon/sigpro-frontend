@@ -1,0 +1,98 @@
+<app-work-space-layout>
+    <div main-content class="h-full">
+        <app-data-table
+            [paginatedResponse]="paginatedResponse()"
+            [columns]="columns"
+            (onPagerChange)="pagerHandler($event)"
+            (onSearch)="searchHandler($event)"
+            [actions]="actions"
+            (onAction)="actionHandler($event)"
+            [tableToolsButtons]="tableToolsButtons">
+
+            <ng-template appTableTemplate="statusTemplate" let-row>
+                <app-ui-badge [active]="row.is_active"></app-ui-badge>
+            </ng-template>
+
+        </app-data-table>
+    </div>
+</app-work-space-layout>
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+
+    <div class="mb-4 flex items-center gap-4">
+        <app-char-square>
+            {{ rowObject.name?.toUpperCase()?.charAt(0) }}
+        </app-char-square>
+        <div>
+            <h3 class="text-2xl font-semibold text-slate-900">{{ rowObject.name }}</h3>
+            <p class="text-sm text-slate-500">Tipo: {{ rowObject.data_type }}</p>
+        </div>
+    </div>
+
+    <div class="mt-4 border-t border-slate-200 pt-4 space-y-2 text-sm">
+        <p><strong>Valor:</strong> {{ rowObject.value }}</p>
+        <p><strong>Tipo de dato:</strong> {{ rowObject.data_type }}</p>
+        <p><strong>Descripción:</strong> {{ rowObject.description || 'Sin descripción' }}</p>
+        <p><strong>Estado activo:</strong> {{ rowObject.is_active ? 'Sí' : 'No' }}</p>
+    </div>
+
+    <app-metadata [rowObject]="rowObject"></app-metadata>
+
+</app-side-modal-layout>
+
+<app-modal-layout [formId]="'appSettingForm'" (onCancel)="closeModelForm()">
+    <form id="appSettingForm" [formGroup]="modelForm" (ngSubmit)="submit()">
+        <fieldset [disabled]="showLoader()">
+
+            <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
+                <app-ui-input
+                    formControlName="name"
+                    [id]="'name'"
+                    [placeholder]="'Nombre de la configuración'"
+                    [control]="name">
+                </app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'value'" [label]="'Valor'">
+                <app-ui-input
+                    formControlName="value"
+                    [id]="'value'"
+                    [placeholder]="'Valor de la configuración'"
+                    [control]="value">
+                </app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'data_type'" [label]="'Tipo de dato'">
+                <app-ui-select
+                    formControlName="data_type"
+                    [id]="'data_type'"
+                    [control]="dataType"
+                    [items]="dataTypes"
+                    [key]="'label'"
+                    [keyValue]="'value'"
+                    [showDefaultOption]="false"
+                    [className]="'w-full'">
+                </app-ui-select>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'description'" [label]="'Descripción'">
+                <app-ui-large-input
+                    formControlName="description"
+                    [id]="'description'"
+                    [placeholder]="'Descripción opcional'">
+                </app-ui-large-input>
+            </app-ui-form-field>
+
+            @if(actionType === 'edit'){
+            <app-ui-form-field [controlName]="'is_active'" [label]="'Activo'" [layout]="'horizontal'">
+                <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
+            </app-ui-form-field>
+            }
+
+            @if(errorMessage()){
+            <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+            }
+
+        </fieldset>
+    </form>
+</app-modal-layout>
