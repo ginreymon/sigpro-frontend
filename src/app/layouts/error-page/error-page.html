@@ -1,0 +1,75 @@
+<div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-display">
+
+  <header class="w-full px-8 py-6 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 bg-brand rounded flex items-center justify-center">
+        <span class="text-white font-bold text-xl">S</span>
+      </div>
+      <span class="text-xl font-bold tracking-tight text-brand dark:text-white">
+        SIGPRO<span class="font-light opacity-70 ml-2">SISTEMA INTEGRAL DE GESTIÓN DE PRODUCCIÓN</span>
+      </span>
+    </div>
+  </header>
+
+  <main class="flex-grow flex items-center justify-center px-6 pb-10 lg:pb-0 relative overflow-hidden">
+    <div class="absolute top-1/4 -left-20 w-96 h-96 bg-brand-50 dark:bg-brand-900/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-brand-50 dark:bg-brand-900/30 rounded-full blur-3xl"></div>
+
+    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+
+      <div class="text-center lg:text-left">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand dark:text-brand-300 text-xs font-semibold uppercase tracking-wider mb-6">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
+          </span>
+          {{ pillLabel }}
+        </div>
+
+        <h1 class="text-9xl font-extrabold text-brand mb-2 select-none opacity-90">{{ code }}</h1>
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-800 dark:text-white">{{ title }}</h2>
+        <p class="text-lg text-slate-500 dark:text-slate-400 mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+          {{ description }}
+        </p>
+
+        <ng-content select="[actions]"></ng-content>
+      </div>
+
+      <div class="flex justify-center items-center">
+        <div class="relative w-full max-w-md aspect-square">
+          <div class="absolute inset-0 bg-gradient-to-br from-brand-100 dark:from-brand-900/30 to-transparent rounded-3xl rotate-3 scale-95 opacity-50"></div>
+          <div class="absolute inset-0 bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 p-8 flex flex-col items-center justify-center gap-6">
+            <div class="w-24 h-24 bg-brand-50 dark:bg-brand-900/40 rounded-2xl flex items-center justify-center">
+              <app-ui-icon [iconName]="illustrationIcon" [class]="'w-12 h-12 text-brand'"></app-ui-icon>
+            </div>
+            <div class="w-full space-y-3">
+              <div class="h-2 w-3/4 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+              <div class="h-2 w-1/2 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+              <div class="h-2 w-2/3 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+              <div class="flex gap-2 pt-4">
+                <div class="h-8 w-8 rounded bg-brand-50 dark:bg-brand-900/40"></div>
+                <div class="h-8 w-8 rounded bg-brand-50 dark:bg-brand-900/40"></div>
+                <div class="h-8 w-8 rounded bg-brand-50 dark:bg-brand-900/40"></div>
+              </div>
+            </div>
+            <div class="absolute -top-4 -right-4 bg-brand text-white p-4 rounded-xl shadow-lg border-2 border-white dark:border-slate-900 flex flex-col items-center gap-1 animate-bounce">
+              <app-ui-icon [iconName]="badgeIcon" [class]="'w-8 h-8'"></app-ui-icon>
+              <span class="text-[10px] font-bold uppercase tracking-widest">{{ badgeLabel }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="w-full py-6 px-8 border-t border-slate-200 dark:border-slate-800">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-sm text-slate-400 italic">
+        ID de Error: <span class="font-mono">{{ errorId }}</span>
+      </p>
+      <p class="text-xs text-slate-400">© {{ currentYear }} SIGPRO</p>
+    </div>
+  </footer>
+
+</div>

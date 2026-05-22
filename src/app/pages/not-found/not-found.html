@@ -1,1 +1,24 @@
-<p>not-found works!</p>
+<app-error-page
+  code="404"
+  pillLabel="Error del Sistema"
+  title="Página no encontrada"
+  description="Lo sentimos, la página que buscas no existe o ha sido movida. Verifica la URL o regresa al inicio para continuar."
+  errorId="404-NOT-FOUND"
+  illustrationIcon="magnifyingGlass"
+  badgeIcon="xmark"
+  badgeLabel="Not Found">
+
+  <div actions class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+    <a routerLink="/"
+       class="bg-brand hover:bg-brand-hover text-white px-8 py-4 rounded-lg font-bold transition-all hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2">
+      <app-ui-icon iconName="house" [class]="'w-4 h-4'"></app-ui-icon>
+      Volver al Inicio
+    </a>
+    <button (click)="goBack()"
+            class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand dark:hover:border-brand px-8 py-4 rounded-lg font-bold transition-all text-slate-700 dark:text-slate-200 flex items-center justify-center gap-2">
+      <app-ui-icon iconName="arrowLeft" [class]="'w-4 h-4'"></app-ui-icon>
+      Página Anterior
+    </button>
+  </div>
+
+</app-error-page>
