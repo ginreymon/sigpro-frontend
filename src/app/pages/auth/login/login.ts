@@ -9,12 +9,13 @@ import { finalize } from 'rxjs/operators';
 import { BaseAuthComponent } from '../../../common/classes/base-auth-component';
 import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
 import { FormActionBtn } from '../../../shared/elements/form-action-btn/form-action-btn';
+import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { Router } from '@angular/router';
 import { MenuService } from '../../../services/core/menu-service';
 
 @Component({
   selector: 'app-login',
-  imports: [AuthLayout, RouterLink, ReactiveFormsModule, Loader, TogglePasswordBtn, FormActionBtn],
+  imports: [AuthLayout, RouterLink, ReactiveFormsModule, Loader, TogglePasswordBtn, FormActionBtn, UiErrorMessage],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

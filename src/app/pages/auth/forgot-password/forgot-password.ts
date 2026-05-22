@@ -9,10 +9,11 @@ import { finalize } from 'rxjs';
 import { ResetPasswordService } from '../../../services/auth/reset-password-service';
 import { ResetPwRequest } from '../../../models/auth/reset-pw-request';
 import { Loader } from '../../../shared/elements/loader/loader';
+import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [AuthLayout, RouterLink, FormActionBtn, ReactiveFormsModule, Loader],
+  imports: [AuthLayout, RouterLink, FormActionBtn, ReactiveFormsModule, Loader, UiErrorMessage],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css',
 })

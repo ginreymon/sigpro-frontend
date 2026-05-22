@@ -12,6 +12,7 @@ import { finalize } from 'rxjs';
 import { Loader } from '../../../shared/elements/loader/loader';
 import { ValidationIcon } from "../../../shared/elements/validation-icon/validation-icon";
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
+import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 
 @Component({
   selector: 'app-confirm-password',
@@ -23,7 +24,8 @@ import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
     TogglePasswordBtn,
     Loader,
     ValidationIcon,
-    UiIcon
+    UiIcon,
+    UiErrorMessage
 ],
   templateUrl: './confirm-password.html',
   styleUrl: './confirm-password.css',

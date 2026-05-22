@@ -12,10 +12,10 @@
                 <input type="text" id="username" formControlName="username" placeholder="Usuario" [class]="getInputClasses(username)" autocomplete="username"/>
 
                 @if (username?.invalid && username?.touched) {
-                <small class="text-xs text-red-500 mt-1 block">
+                <app-ui-error-message>
                     @if (username?.errors?.['required']) { Usuario requerido }
                     @if (username?.errors?.['minlength']) { Mínimo 5 caracteres }
-                </small>
+                </app-ui-error-message>
                 }
             </div>
 
@@ -25,15 +25,15 @@
                 <app-toggle-password-btn (showPasswordChange)="setShowPassword($event)" [showPassword]="showPassword" [invalid]="!!(password?.invalid && password?.touched)"></app-toggle-password-btn>
 
                 @if (password?.invalid && password?.touched) {
-                <small class="text-xs text-red-500 mt-1 block">
+                <app-ui-error-message>
                     @if (password?.errors?.['required']) { Contraseña requerida }
                     @if (password?.errors?.['minlength']) { Mínimo 8 caracteres }
-                </small>
+                </app-ui-error-message>
                 }
             </div>
 
             @if (errorMessage) {
-                <p class="text-xs text-red-500 mb-4">{{ errorMessage }}</p>
+                <app-ui-error-message>{{ errorMessage }}</app-ui-error-message>
             }
 
             <div class="mb-4 text-right">
