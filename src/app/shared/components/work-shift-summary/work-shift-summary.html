@@ -1,3 +1,4 @@
+@if (cards().length > 0) {
 <div class="bg-gray-200 text-gray-700 border border-gray-200 rounded-md px-3 py-1.5 mb-2 flex flex-row justify-between">
   @for (card of cards(); track card.title) {
     <div class="px-2">
@@ -25,4 +26,4 @@
     </div>
   }
 </div>
-
+}

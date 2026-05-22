@@ -15,6 +15,7 @@ import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { TaskTimer } from "../../../shared/components/task-timer/task-timer";
 import { WorkShiftSummary } from '../../../shared/components/work-shift-summary/work-shift-summary';
 import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
+import { BalanceBottomSheet } from '../../../shared/components/balance-bottom-sheet/balance-bottom-sheet';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { DialogService } from '../../../services/common/dialog-service';
@@ -27,11 +28,16 @@ import { WorkSessionService } from '../../../services/production/work-session-se
 
 @Component({
   selector: 'app-orders',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal, BalanceBottomSheet],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
 export class Orders implements OnInit {
+  balanceVisible = signal(false);
+
+  openBalance() {
+    this.balanceVisible.set(true);
+  }
 
   private DAY_OPERATION_URL = 'production/day-operation';
   private OPERATION_ORDER_URL = 'production/orders';

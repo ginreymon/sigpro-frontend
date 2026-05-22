@@ -22,7 +22,11 @@
                 <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
             </div>
 
-            <div class="flex flex-row justify-end mt-4">
+            <div class="flex flex-row justify-end mt-4 gap-3">
+                <app-ui-button [intent]="'action'" (onClick)="openBalance()">
+                    <app-ui-icon [iconName]="'chartArea'" class="h-5 w-5"></app-ui-icon>
+                    Balance del día
+                </app-ui-button>
                 <app-ui-button (onClick)="goToSearch()">
                     <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
                     Cerrar OP
@@ -48,3 +52,7 @@
 <app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="onTaskSaved()" (started)="onTaskStarted()"></app-task-timer>
 
 <app-employees-modal [fetch]="true" [preselectedIds]="preselectedIds()" (onSave)="updateEmployees($event)"></app-employees-modal>
+
+<app-balance-bottom-sheet [visible]="balanceVisible()" (onClose)="balanceVisible.set(false)">
+  <!-- Contenido del balance del día -->
+</app-balance-bottom-sheet>
