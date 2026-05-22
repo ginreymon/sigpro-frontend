@@ -104,7 +104,7 @@ export class TaskTimer implements OnChanges {
 
   toDoQuantity(): number {
     if (!this.selectedSKU) return 0;
-    return Math.max(0, this.selectedSKU.orderedQty - this.selectedSKU.completedQty);
+    return Math.max(0, this.selectedSKU.orderedQty - this.selectedSKU.completedQty - this.selectedSKU.rejectedQty - this.selectedSKU.wasteQty);
   }
 
   // duration in seconds

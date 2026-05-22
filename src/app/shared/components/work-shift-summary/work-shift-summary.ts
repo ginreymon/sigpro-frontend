@@ -66,8 +66,9 @@ export class WorkShiftSummary implements OnInit {
 
     this.productivityService.getEfficiencyPeriod(params).subscribe({
       next: (data) => {
+        const total = data.total_completed + data.total_rejected + data.total_scrap;
         const efficiency = data.unit_target  > 0
-          ? Math.round(data.total_completed / data.unit_target  * 100 * 100) / 100
+          ? Math.round(total / data.unit_target  * 100 * 100) / 100
           : 0;
         this.cards.update(cards => cards.map((card) => {
           if (card.title === 'Acumuladas') return { ...card, data: data.total_completed };
