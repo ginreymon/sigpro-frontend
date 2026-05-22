@@ -7,30 +7,16 @@
 
             <h2 class="text-gray-900 text-lg mb-1 font-medium title-font">Iniciar sesión</h2>
 
-            <div class="relative mb-4">
-                <label for="username" class="leading-7 text-sm text-gray-600">Usuario</label>
-                <input type="text" id="username" formControlName="username" placeholder="Usuario" [class]="getInputClasses(username)" autocomplete="username"/>
+            <app-ui-form-field [controlName]="'username'" [label]="'Usuario'">
+                <app-ui-input formControlName="username" [id]="'username'" [placeholder]="'Usuario'" [control]="username"></app-ui-input>
+            </app-ui-form-field>
 
-                @if (username?.invalid && username?.touched) {
-                <app-ui-error-message>
-                    @if (username?.errors?.['required']) { Usuario requerido }
-                    @if (username?.errors?.['minlength']) { Mínimo 5 caracteres }
-                </app-ui-error-message>
-                }
-            </div>
-
-            <div class="relative mb-4">
-                <label for="password" class="leading-7 text-sm text-gray-600">Contraseña</label>
-                <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" [class]="getInputClasses(password)" placeholder="Contraseña" autocomplete="current-password"/>
-                <app-toggle-password-btn (showPasswordChange)="setShowPassword($event)" [showPassword]="showPassword" [invalid]="!!(password?.invalid && password?.touched)"></app-toggle-password-btn>
-
-                @if (password?.invalid && password?.touched) {
-                <app-ui-error-message>
-                    @if (password?.errors?.['required']) { Contraseña requerida }
-                    @if (password?.errors?.['minlength']) { Mínimo 8 caracteres }
-                </app-ui-error-message>
-                }
-            </div>
+            <app-ui-form-field [controlName]="'password'" [label]="'Contraseña'">
+                <div class="relative">
+                    <app-ui-input formControlName="password" [id]="'password'" [placeholder]="'Contraseña'" [control]="password" [type]="showPassword ? 'text' : 'password'"></app-ui-input>
+                    <app-toggle-password-btn (showPasswordChange)="setShowPassword($event)" [showPassword]="showPassword" [invalid]="!!(password?.invalid && password?.touched)"></app-toggle-password-btn>
+                </div>
+            </app-ui-form-field>
 
             @if (errorMessage) {
                 <app-ui-error-message>{{ errorMessage }}</app-ui-error-message>
@@ -42,6 +28,7 @@
                     ¿Olvidaste tu contraseña?
                 </a>
             </div>
+
         </fieldset>
 
         <app-form-action-btn [disabled]="isLoading()">

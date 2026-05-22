@@ -10,10 +10,12 @@ import { ResetPasswordService } from '../../../services/auth/reset-password-serv
 import { ResetPwRequest } from '../../../models/auth/reset-pw-request';
 import { Loader } from '../../../shared/elements/loader/loader';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
+import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [AuthLayout, RouterLink, FormActionBtn, ReactiveFormsModule, Loader, UiErrorMessage],
+  imports: [AuthLayout, RouterLink, FormActionBtn, ReactiveFormsModule, Loader, UiErrorMessage, UiFormField, UiInput],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css',
 })

@@ -10,12 +10,14 @@ import { BaseAuthComponent } from '../../../common/classes/base-auth-component';
 import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
 import { FormActionBtn } from '../../../shared/elements/form-action-btn/form-action-btn';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
+import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { Router } from '@angular/router';
 import { MenuService } from '../../../services/core/menu-service';
 
 @Component({
   selector: 'app-login',
-  imports: [AuthLayout, RouterLink, ReactiveFormsModule, Loader, TogglePasswordBtn, FormActionBtn, UiErrorMessage],
+  imports: [AuthLayout, RouterLink, ReactiveFormsModule, Loader, TogglePasswordBtn, FormActionBtn, UiErrorMessage, UiFormField, UiInput],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
