@@ -39,7 +39,7 @@
 
 <app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="onTaskSaved()" (started)="onTaskStarted()"></app-task-timer>
 
-<app-employees-modal [fetch]="true" [preselectedIds]="preselectedIds()" (onSave)="updateEmployees($event)"></app-employees-modal>
+<app-employees-modal [fetch]="true" [allowedCostCenters]="[110, 103]" [preselectedIds]="preselectedIds()" (onSave)="updateEmployees($event)"></app-employees-modal>
 
 <app-balance-bottom-sheet [visible]="balanceVisible()" (onClose)="balanceVisible.set(false)">
 </app-balance-bottom-sheet>

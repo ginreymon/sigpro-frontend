@@ -8,7 +8,6 @@ import { UiFormField } from '../../elements/ui-form-field/ui-form-field';
 import { UiOptionCard } from '../../elements/ui-option-card/ui-option-card';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { EmployeeService } from '../../../services/production/employee-service';
-import { QueryParams } from '../../../common/interfaces/query-params';
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 
@@ -22,6 +21,7 @@ import { finalize } from 'rxjs';
 export class EmployeesModal implements OnInit {
   @Input() readOnly: boolean = false;
   @Input() fetch: Boolean = false;
+  @Input() allowedCostCenters: number[] | null = null;
   @Output() onSave = new EventEmitter<number[]>();
 
   @ViewChild('searcher') private searcher!: Searcher;
@@ -51,17 +51,16 @@ export class EmployeesModal implements OnInit {
     }
   }
 
-  private readonly ALLOWED_COST_CENTERS = [110, 103];
-
   private fetchEmployees() {
     this.loaderService.showLoader();
-    const params: QueryParams = { page: 1, limit: 9999999 };
-    this.employeeService.getAll(params)
+    this.employeeService.all()
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
-        next: (res) => {
-          const filtered = res.results.filter(e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!));
-          this._employees.set(filtered);
+        next: (employees) => {
+          const results = this.allowedCostCenters
+            ? employees.filter(e => this.allowedCostCenters!.includes(e.cost_center_rowid!))
+            : employees;
+          this._employees.set(results);
           this.filteredEmployees.set(this.sortEmployees());
         },
       });

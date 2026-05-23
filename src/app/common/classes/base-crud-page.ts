@@ -2,7 +2,6 @@ import { Directive, inject, signal, WritableSignal } from '@angular/core';
 import { TableActions } from '../interfaces/table-actions';
 import { BaseCrudService } from '../../services/common/base-crud-service';
 import { TableColumn } from '../interfaces/table-column';
-import { QueryParams } from '../interfaces/query-params';
 import { finalize } from 'rxjs';
 import { BaseEntity } from '../interfaces/base-entity';
 import { TableToolsButtons } from '../interfaces/table-tools-buttons';
@@ -97,15 +96,11 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
 
   protected loadList<E extends Partial<AuditEntity>>(service: BaseCrudService<E>, entitiesSignal: WritableSignal<E[]>, filter = false, transform?: (items: E[]) => E[]) {
     this.wslService.start();
-    const params: QueryParams = { page: 1, limit: 1000000 };
     service
-      .getAll(params)
+      .all()
       .pipe(finalize(() => this.wslService.end()))
-      .subscribe((resp) => {
-        let entities = filter
-          ? resp.results.filter((e) => (e?.is_active ?? true) && !e?.is_deleted)
-          : resp.results;
-
+      .subscribe((entities) => {
+        if (filter) entities = entities.filter((e) => (e?.is_active ?? true) && !e?.is_deleted);
         entitiesSignal.set(transform ? transform(entities) : entities);
       });
   }

@@ -29,13 +29,13 @@ export class ProductionContextService {
       session: this.workSessionService.getActive().pipe(catchError(() => of(null))),
       docTypes: this.poService.getDocType().pipe(catchError(() => of([]))),
       workBreaks: loadWorkBreaks
-        ? this.workBreakService.getAll().pipe(map((r: any) => r.results ?? r), catchError(() => of([])))
+        ? this.workBreakService.all().pipe(catchError(() => of([])))
         : of([]),
       employees: loadEmployees
-        ? this.employeeService.getAll().pipe(map((r: any) => r.results ?? r), catchError(() => of([])))
+        ? this.employeeService.all().pipe(catchError(() => of([])))
         : of([]),
       workShifts: loadWorkShifts
-        ? this.workShiftService.getAll().pipe(map((r: any) => r.results ?? r), catchError(() => of([])))
+        ? this.workShiftService.all().pipe(catchError(() => of([])))
         : of([]),
     }).pipe(
       switchMap(({ session, docTypes, workBreaks, employees, workShifts }) => {

@@ -74,18 +74,18 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     this.wslService.start();
     forkJoin({
       session: this.workSessionService.getActive(),
-      workShifts: this.workShiftService.getAll({ page: 1, limit: 1000000 }),
-      modules: this.moduleService.getAll({ page: 1, limit: 1000000 }),
-      employees: this.employeeService.getAll({ page: 1, limit: 1000000 }),
+      workShifts: this.workShiftService.all(),
+      modules: this.moduleService.all(),
+      employees: this.employeeService.all(),
     })
       .pipe(finalize(() => this.wslService.end()))
       .subscribe({
         next: ({ session, workShifts, modules, employees }) => {
           this.currentSession.set(session as WorkSession);
           if (session) this.setModelFormValues(session);
-          this.workShifts.set(workShifts.results.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
-          this.modules.set(modules.results.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
-          this.employees.set(employees.results);
+          this.workShifts.set(workShifts.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
+          this.modules.set(modules.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
+          this.employees.set(employees);
         },
         error: () => this.currentSession.set(null),
       });
