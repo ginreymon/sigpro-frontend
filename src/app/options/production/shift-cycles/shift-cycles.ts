@@ -54,11 +54,15 @@ export class ShiftCycles implements OnInit {
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
 
+  private readonly ALLOWED_COST_CENTERS = [110, 103];
   private context = toSignal(this.contextService.context$, { initialValue: null });
 
   isLoading = signal(true);
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
   contextWorkBreaks = computed(() => this.context()?.workBreaks ?? []);
+  contextEmployees = computed(() =>
+    (this.context()?.employees ?? []).filter(e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!))
+  );
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
   selectedSKU = signal<SkuTaskDetail | null>(null);
