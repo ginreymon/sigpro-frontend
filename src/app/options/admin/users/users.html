@@ -122,7 +122,7 @@
 
             <app-ui-form-field [label]="'Role'" [controlName]="'role'">
                 
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-3 items-stretch overflow-y-auto max-h-[30vh]">
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-3 items-stretch py-2">
                     @for(rol of roles(); track rol.id){
                     <app-ui-option-card (onToggle)="toggleRole(rol.id)" [selected]="isSelected(rol.id)">
                         <div class="font-medium text-sm">
