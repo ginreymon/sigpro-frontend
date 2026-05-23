@@ -18,11 +18,11 @@ export class WorkShiftSummary implements OnInit {
 
   @Output() employeesClick = new EventEmitter<void>();
 
-  private productivityService = inject(ProductivityService);
-  private appConfig = inject(AppConfigService);
+  protected productivityService = inject(ProductivityService);
+  protected appConfig = inject(AppConfigService);
 
   cards = signal<WorkShiftCard[]>([]);
-  private pendingSession: WorkSession | null = null;
+  protected pendingSession: WorkSession | null = null;
 
   ngOnInit(): void {
     this.appConfig.load().subscribe(() => {
@@ -43,7 +43,7 @@ export class WorkShiftSummary implements OnInit {
     this.buildCards(s);
   }
 
-  private buildCards(s: WorkSession): void {
+  protected buildCards(s: WorkSession): void {
     this.cards.set([
       { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.number} ${s.current_module?.name}` },
       { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} : ${s.work_shift.start_time.slice(0, 5)} - ${s.work_shift.end_time.slice(0, 5)}` },
@@ -55,7 +55,7 @@ export class WorkShiftSummary implements OnInit {
     this.loadProductivityCards(s);
   }
 
-  private loadProductivityCards(s: WorkSession): void { 
+  protected loadProductivityCards(s: WorkSession): void {
     const today = new Date().toISOString().slice(0, 10);
     const params: ProductivityParams = {
       startDate: `${today}T${s.work_shift.start_time}`,
@@ -80,12 +80,12 @@ export class WorkShiftSummary implements OnInit {
     });
   }
 
-  getDataClasses(card: WorkShiftCard): string {
+  getDataClasses(card: WorkShiftCard, size: string = 'text-sm'): string {
     if (card.thresholds && typeof card.data === 'number') {
-      if (card.data >= card.thresholds.green) return 'text-sm font-semibold text-green-600';
-      if (card.data <= card.thresholds.red) return 'text-sm font-semibold text-red-600';
-      return 'text-sm font-semibold text-amber-500';
+      if (card.data >= card.thresholds.green) return `${size} font-semibold text-green-600`;
+      if (card.data <= card.thresholds.red) return `${size} font-semibold text-red-600`;
+      return `${size} font-semibold text-amber-500`;
     }
-    return 'text-sm font-semibold text-gray-700';
+    return `${size} font-semibold text-gray-700`;
   }
 }

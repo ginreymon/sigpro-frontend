@@ -15,11 +15,24 @@ export class Home implements OnInit {
 
   constructor(private authService: AuthService) { }
 
+  private getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buenos días';
+    if (hour < 18) return 'Buenas tardes';
+    return 'Buenas noches';
+  }
+
   ngOnInit() {
     const user = this.authService.getUser();
-    if (!user) return;
+    if (!user) return; 
 
-    this.greeting = user.username ?? '';
+    this.greeting = `${this.getGreeting()},`;
     this.homeComponent = homeComponentMap[user.home_view ?? ''] ?? HomeDefault;
+  }
+
+  get username() {
+    const user = this.authService.getUser();
+    if (!user) return '';
+    return `${user.username ?? ''}`
   }
 }
