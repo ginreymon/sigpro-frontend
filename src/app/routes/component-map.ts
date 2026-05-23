@@ -6,6 +6,7 @@ import { WorkShifts } from '../options/admin/work-shifts/work-shifts';
 import { Modules } from '../options/admin/modules/modules';
 import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
 import { Orders } from '../options/production/orders/orders';
+import { ShiftCycles } from '../options/production/shift-cycles/shift-cycles';
 import { SewingSAM } from '../options/production/sewing-sam/sewing-sam';
 import { ModuleEfficiencyPage } from '../options/production/module-efficiency/module-efficiency';
 import { AppSettings } from '../options/configuration/app-settings/app-settings';
@@ -18,6 +19,7 @@ export const componentMap: Record<string, Type<any>> = {
   'admin/work-breaks': WorkBreaks,
   'production/day-operation': DayOperation,
   'production/orders': Orders,
+  'production/shift-cycles': ShiftCycles,
   'production/sewing-sam': SewingSAM,
   'production/module-efficiency': ModuleEfficiencyPage,
   'configuration/app-settings': AppSettings,

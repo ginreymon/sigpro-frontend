@@ -4,6 +4,7 @@ import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
 import { HomeShiftCard } from '../../../../shared/components/home-shift-card/home-shift-card';
 import { WorkSessionService } from '../../../../services/production/work-session-service';
 import { WorkSession } from '../../../../models/production/work-session';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home-dethorn-remover',
@@ -17,6 +18,11 @@ export class HomeDethornRemover implements OnInit {
   readonly isLoading = signal(true);
 
   private workSessionService = inject(WorkSessionService);
+  private router = inject(Router);
+
+  goToShiftCycles() {
+    this.router.navigateByUrl('production/shift-cycles');
+  }
 
   ngOnInit(): void {
     this.workSessionService.getActive().subscribe({

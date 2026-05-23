@@ -80,7 +80,7 @@
             </p>
         </div>
 
-        <app-ui-button [intent]="'action'" [classNames]="'relative z-10 mt-6 self-start'">
+        <app-ui-button [intent]="'action'" [classNames]="'relative z-10 mt-6 self-start'" (onClick)="goToShiftCycles()">
             {{ hasPendingOperation() ? 'Continuar' : 'Comenzar' }}
             <app-ui-icon [iconName]="'circleRight'" [class]="'w-4 h-4'"></app-ui-icon>
         </app-ui-button>
