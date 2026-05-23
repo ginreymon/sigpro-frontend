@@ -23,7 +23,7 @@ import { EmployeesModal } from '../../../shared/components/employees-modal/emplo
 import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
 import { UiCloseButton } from '../../../shared/elements/ui-close-button/ui-close-button';
 import { ReactiveFormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
 import { DayOperationDetail } from '../../../shared/components/day-operation-detail/day-operation-detail';
 
@@ -72,18 +72,20 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   initialize() {
     this.wslService.start();
-    this.workSessionService
-      .getActive()
+    forkJoin({
+      session: this.workSessionService.getActive(),
+      workShifts: this.workShiftService.getAll({ page: 1, limit: 1000000 }),
+      modules: this.moduleService.getAll({ page: 1, limit: 1000000 }),
+      employees: this.employeeService.getAll({ page: 1, limit: 1000000 }),
+    })
       .pipe(finalize(() => this.wslService.end()))
       .subscribe({
-        next: (session) => {
+        next: ({ session, workShifts, modules, employees }) => {
           this.currentSession.set(session as WorkSession);
-          if (session) {
-            this.setModelFormValues(session);
-          }
-          this.loadList(this.workShiftService, this.workShifts, true);
-          this.loadList(this.moduleService, this.modules, true);
-          this.loadList(this.employeeService, this.employees, false);
+          if (session) this.setModelFormValues(session);
+          this.workShifts.set(workShifts.results.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
+          this.modules.set(modules.results.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
+          this.employees.set(employees.results);
         },
         error: () => this.currentSession.set(null),
       });
