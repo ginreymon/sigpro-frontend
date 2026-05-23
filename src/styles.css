@@ -4,6 +4,7 @@
 
 
 @theme {
+  --font-display: 'Hanken Grotesk', sans-serif;
   --color-brand: #180393;  
   --color-brand-hover: #1e05b8;
   --color-brand-soft: #2a1bb3;

@@ -12,10 +12,11 @@ import { Loader } from '../../../shared/elements/loader/loader';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
+import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [AuthLayout, RouterLink, FormActionBtn, ReactiveFormsModule, Loader, UiErrorMessage, UiFormField, UiInput],
+  imports: [AuthLayout, RouterLink, FormActionBtn, ReactiveFormsModule, Loader, UiErrorMessage, UiFormField, UiInput, UiIcon],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css',
 })

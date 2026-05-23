@@ -12,12 +12,13 @@ import { FormActionBtn } from '../../../shared/elements/form-action-btn/form-act
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
+import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { Router } from '@angular/router';
 import { MenuService } from '../../../services/core/menu-service';
 
 @Component({
   selector: 'app-login',
-  imports: [AuthLayout, RouterLink, ReactiveFormsModule, Loader, TogglePasswordBtn, FormActionBtn, UiErrorMessage, UiFormField, UiInput],
+  imports: [AuthLayout, RouterLink, ReactiveFormsModule, Loader, TogglePasswordBtn, FormActionBtn, UiErrorMessage, UiFormField, UiInput, UiIcon],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
