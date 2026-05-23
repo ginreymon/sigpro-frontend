@@ -2,7 +2,6 @@ import { Component, OnInit, Type } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { AuthService } from '../../services/auth/auth-service';
 import { homeComponentMap, HomeDefault } from '../../routes/home-component-map';
-import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -21,8 +20,6 @@ export class Home implements OnInit {
     if (!user) return;
 
     this.greeting = user.username ?? '';
-
-    const homeKey = localStorage.getItem(environment.USER_HOME_VIEW_NAME) ?? '';
-    this.homeComponent = homeComponentMap[homeKey] ?? HomeDefault;
+    this.homeComponent = homeComponentMap[user.home_view ?? ''] ?? HomeDefault;
   }
 }

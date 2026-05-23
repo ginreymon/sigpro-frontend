@@ -54,7 +54,12 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
     { label: 'Integer', value: 'INTEGER' },
     { label: 'Decimal', value: 'DECIMAL' },
     { label: 'Boolean', value: 'BOOLEAN' },
+    { label: 'JSON', value: 'JSON' },
   ];
+
+  getDataTypeLabel(value: string): string {
+    return this.dataTypes.find((d) => d.value === value)?.label ?? value;
+  }
 
   constructor(private appSettingService: AppSettingService) {
     super(appSettingService);
@@ -63,8 +68,8 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
   protected override get columns(): TableColumn<AppSetting>[] {
     return [
       { field: 'name', label: 'Nombre' },
-      { field: 'value', label: 'Valor' },
-      { field: 'data_type', label: 'Tipo' },
+      { type: 'template', label: 'Valor', templateName: 'valueTemplate' },
+      { type: 'template', label: 'Tipo', templateName: 'dataTypeTemplate' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
   }
