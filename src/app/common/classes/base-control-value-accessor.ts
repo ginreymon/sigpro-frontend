@@ -7,12 +7,13 @@ export abstract class BaseControlValueAccessor<T> implements ControlValueAccesso
   @Input() placeholder: string = '';
   @Input() id: string = '';
   @Input() control: AbstractControl | null = null;
+  @Input() extraInvalid: boolean = false;
 
   value!: T;
   disabled = false;
 
   get invalid(): boolean {
-    return !!this.control && this.control.invalid && this.control.touched;
+    return (!!this.control && this.control.invalid && this.control.touched) || this.extraInvalid;
   }
 
   onChange: (value: T) => void = () => {};

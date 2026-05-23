@@ -131,6 +131,10 @@ export class Users extends BaseCrudPage<Employee> {
 
     super.actionHandler(event);
 
+    if (event.type == 'create') {
+      this.initializeModelForm();
+    }
+
     if (event.type == 'edit') {
       this.modelForm.patchValue(event.obj);
       this.role?.setValue(event.obj.groups[0]?.id ?? null);
@@ -139,6 +143,12 @@ export class Users extends BaseCrudPage<Employee> {
 
   protected override submit(): void {
     if (!this.validateModelForm()) return;
+
+    if (this.actionType === 'create' && !this.passwordsMatch) {
+      this.confirmPassword?.markAsTouched();
+      return;
+    }
+
     this.loaderService.showLoader();
 
     const group_id = this.role?.value;
@@ -175,6 +185,7 @@ export class Users extends BaseCrudPage<Employee> {
   createAccount(obj: Employee) {
     this.rowObject = obj;
     this.actionType = 'create';
+    this.initializeModelForm();
     this.dialogService.openModal(`Crear cuenta - ${obj.first_name} ${obj.last_name1}`,'Crear cuenta');
   }
 

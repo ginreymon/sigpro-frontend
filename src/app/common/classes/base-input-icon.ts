@@ -6,15 +6,20 @@ import { getInputIconClasses } from '../functions/get-input-icon-classes';
 export abstract class BaseInputIcon {
 
   @Input() invalid: boolean = false;
+  @Input() extraInvalid: boolean = false;
   @Input() control: AbstractControl | null = null;
   @Input() large: boolean = false;
   @Input() positionClassNames: string = '';
 
   protected computeInvalid(): boolean {
     if (this.control) {
-      return this.control.invalid && this.control.touched;
+      return (this.control.invalid && this.control.touched) || this.extraInvalid;
     }
-    return this.invalid;
+    return this.invalid || this.extraInvalid;
+  }
+
+  get isInvalid(): boolean {
+    return this.computeInvalid();
   }
 
   get className(): string {

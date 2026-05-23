@@ -1,8 +1,8 @@
 <span [class]="className">
-    @if(invalid){
+    @if(isInvalid){
         <app-ui-icon [iconName]="'fail'" [class]="'w-6 h-6'"></app-ui-icon>
     }
-    @if(!invalid && matchPattern){
+    @if(!isInvalid && matchPattern){
         <app-ui-icon [iconName]="'check'" [class]="'w-6 h-6'"></app-ui-icon>   
     }
 </span>

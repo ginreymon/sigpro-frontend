@@ -101,15 +101,23 @@
             </app-ui-form-field>      
 
             @if(actionType == 'create'){
-            <app-ui-form-field [controlName]="'password'" [label]="'Contraseña'" [className]="'relative'">
-                <app-toggle-password-btn [control]="password" [positionClassNames]="'top-8 right-2'" (showPasswordChange)="toggleShowPassword($event)"></app-toggle-password-btn>
-                <app-ui-input formControlName="password" [id]="'password'" [type]="showPassword()?'text':'password'" [placeholder]="'Contraseña'" [control]="password"></app-ui-input>
-            </app-ui-form-field>      
- 
-            <app-ui-form-field [controlName]="'confirmPassword'" [label]="'Confirmar contraseña'" [className]="'relative'">
-                <app-validation-icon [positionClassNames]="'top-8 right-2'" [invalid]="!!(confirmPassword?.touched && (confirmPassword?.invalid || !passwordsMatch))" [matchPattern]="passwordsMatch"></app-validation-icon>
-                <app-ui-input formControlName="confirmPassword" [id]="'confirmPassword'" [type]="'password'" [placeholder]="'Confirmar contraseña'" [control]="confirmPassword"></app-ui-input>
-            </app-ui-form-field>   
+                <app-ui-form-field [controlName]="'password'" [label]="'Contraseña'">
+                    <div class="relative">
+                        <app-ui-input formControlName="password" [id]="'password'" [type]="showPassword()?'text':'password'" [placeholder]="'Contraseña'" [control]="password"></app-ui-input>
+                        <app-toggle-password-btn [control]="password" (showPasswordChange)="toggleShowPassword($event)"></app-toggle-password-btn>
+                    </div>
+                </app-ui-form-field>
+
+                <app-ui-form-field [controlName]="'confirmPassword'" [label]="'Confirmar contraseña'">
+                    <div class="relative">
+                        <app-ui-input formControlName="confirmPassword" [id]="'confirmPassword'" [type]="'password'" [placeholder]="'Confirmar contraseña'" [control]="confirmPassword" [extraInvalid]="!!(confirmPassword?.touched && !passwordsMatch)"></app-ui-input>
+                        <app-validation-icon [control]="confirmPassword" [extraInvalid]="!!(confirmPassword?.touched && !passwordsMatch)" [matchPattern]="passwordsMatch"></app-validation-icon>
+                    </div>
+                </app-ui-form-field>
+
+                @if(confirmPassword?.touched && !passwordsMatch && !confirmPassword?.errors?.['required']) {
+                <app-ui-error-message>Las contraseñas no coinciden</app-ui-error-message>
+                }   
             }               
 
             <app-ui-form-field [label]="'Role'" [controlName]="'role'">
