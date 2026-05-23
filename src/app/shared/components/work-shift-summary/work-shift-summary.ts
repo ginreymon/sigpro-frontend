@@ -23,9 +23,11 @@ export class WorkShiftSummary implements OnInit {
 
   cards = signal<WorkShiftCard[]>([]);
   protected pendingSession: WorkSession | null = null;
+  private configLoaded = false;
 
   ngOnInit(): void {
     this.appConfig.load().subscribe(() => {
+      this.configLoaded = true;
       if (this.pendingSession) {
         this.buildCards(this.pendingSession);
         this.pendingSession = null;
@@ -39,8 +41,11 @@ export class WorkShiftSummary implements OnInit {
       this.cards.set([]);
       return;
     }
-    this.pendingSession = s;
-    this.buildCards(s);
+    if (this.configLoaded) {
+      this.buildCards(s);
+    } else {
+      this.pendingSession = s;
+    }
   }
 
   protected buildCards(s: WorkSession): void {
