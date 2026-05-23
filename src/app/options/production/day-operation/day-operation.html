@@ -91,13 +91,15 @@
 
             <div class="flex justify-between items-center gap-1.5">
 
+                @if(currentSession() || moduleId?.value || workShiftId?.value || employeeIds?.value?.length){
                 <app-ui-button [intent]="currentSession()?'action':'cancel'" (onClick)="currentSession()? closeSession() :cancel()">
-                    {{currentSession()?'Salir':'Cancelar'}}
+                    {{currentSession()?'Cerrar día':'Cancelar'}}
 
                     @if(currentSession()){
-                    <app-ui-icon [iconName]="'logout'" [class]="'w-5 h-5'"></app-ui-icon>    
+                    <app-ui-icon [iconName]="'logout'" [class]="'w-5 h-5'"></app-ui-icon>
                     }
                 </app-ui-button>
+                }
 
                 @if(currentSession()){
                 <app-ui-button [intent]="'action'" (onClick)="switchEdit()">
