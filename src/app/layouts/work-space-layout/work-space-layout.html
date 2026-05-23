@@ -1,9 +1,9 @@
-<div class="flex flex-col lg:flex-row lg:justify-between flex-1 min-h-full h-full gap-2">
+<div class="flex flex-col lg:flex-row lg:justify-between flex-1 lg:min-h-full lg:h-full gap-2">
 
     @if(showSideContent()){
 
-    <div class="shrink-0 flex flex-col min-h-full order-2" [style.minWidth]="showSideContent() && isLargeScreen() ? 'calc(100vw/3)' : null">
-        <div class="bg-white border border-slate-200 rounded-lg shadow-md p-6 flex-1 overflow-auto">
+    <div class="shrink-0 flex flex-col lg:min-h-full order-2" [style.minWidth]="showSideContent() && isLargeScreen() ? 'calc(100vw/3)' : null">
+        <div class="bg-white border border-slate-200 rounded-lg shadow-md p-6 lg:flex-1 lg:overflow-auto">
 
             @if(isLoading()){
             <div class="space-y-4">
