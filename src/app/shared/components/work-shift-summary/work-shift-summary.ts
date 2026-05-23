@@ -10,7 +10,7 @@ import { AppConfigService } from '../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-work-shift-summary',
-  imports: [UiIcon, UpperCasePipe, UiTableButton],
+  imports: [UiIcon, UpperCasePipe],
   templateUrl: './work-shift-summary.html',
   styleUrl: './work-shift-summary.css',
 })
