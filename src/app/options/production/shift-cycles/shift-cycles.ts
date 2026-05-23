@@ -10,9 +10,9 @@ import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/order-searcher/order-searcher';
 import { ProductionOrder } from '../../../models/production/production-order';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
-import { UpperCasePipe } from '@angular/common';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { TaskTimer } from '../../../shared/components/task-timer/task-timer';
+import { OrderHeader } from '../../../shared/elements/order-header/order-header';
 import { WorkShiftSummary } from '../../../shared/components/work-shift-summary/work-shift-summary';
 import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
 import { BalanceBottomSheet } from '../../../shared/components/balance-bottom-sheet/balance-bottom-sheet';
@@ -23,12 +23,11 @@ import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { ProductionContextService } from '../../../services/production/production-context-service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { WorkShiftCard } from '../../../common/interfaces/work-shift-card';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal, BalanceBottomSheet],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal, BalanceBottomSheet, OrderHeader],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
@@ -62,7 +61,6 @@ export class ShiftCycles implements OnInit {
   contextWorkBreaks = computed(() => this.context()?.workBreaks ?? []);
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
-  cards = signal<WorkShiftCard[]>([]);
   selectedSKU = signal<SkuTaskDetail | null>(null);
 
   ngOnInit(): void {
@@ -80,7 +78,6 @@ export class ShiftCycles implements OnInit {
   );
 
   private reset() {
-    this.cards.set([]);
     this.selectedSKU.set(null);
     this.hasCheckedActiveRecord = false;
     this.activeRecord = null;
@@ -116,7 +113,6 @@ export class ShiftCycles implements OnInit {
       this.activeRecord = null;
       if (!docType || !docNumber) {
         this.productionOrder.set(null);
-        this.cards.set([]);
       }
       this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
     });
@@ -124,7 +120,6 @@ export class ShiftCycles implements OnInit {
 
   setDocument(doc: ProductionOrder | null) {
     this.productionOrder.set(doc);
-    this.cards.set([]);
     if (!doc) return;
 
     this.router.navigate([], {
@@ -134,15 +129,6 @@ export class ShiftCycles implements OnInit {
       },
       queryParamsHandling: 'merge',
     });
-
-    this.cards.set([
-      { title: 'OP', data: `${doc.documentType} ${doc.documentNumber}` },
-      { title: 'Referencia', data: doc.reference },
-      { title: 'Tipo de Confección', data: doc.classification.manufacture },
-      { title: 'Tipo de Estampación', data: doc.classification.print },
-      { title: 'Marca/Línea', data: `${doc.classification.brand}/${doc.classification.line}` },
-      { title: 'Clasifi. Comercial', data: doc.classification.commercial },
-    ]);
   }
 
   reloadOrder() {

@@ -1,0 +1,12 @@
+<div class="bg-white border border-slate-200 rounded-md p-3 mb-2 flex flex-row justify-between">
+    @for(card of cards(); track card; let i = $index){
+    <div class="px-2">
+        @if(i !== 0){
+            <h3 class="text-slate-500 text-xs"> {{ card.title }} </h3>
+        }
+        <p [class]="i == 0 ? 'text-3xl font-semibold text-slate-900 mb-1' : 'text-m font-semibold text-slate-900 mb-1'">
+            {{ card.data?.toString() ?? '' | uppercase }}
+        </p>
+    </div>
+    }
+</div>
