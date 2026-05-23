@@ -7,7 +7,8 @@ export abstract class BaseInputIcon {
 
   @Input() invalid: boolean = false;
   @Input() control: AbstractControl | null = null;
-  @Input() positionClassNames: string = 'right-3 top-9';
+  @Input() large: boolean = false;
+  @Input() positionClassNames: string = '';
 
   protected computeInvalid(): boolean {
     if (this.control) {
@@ -18,6 +19,7 @@ export abstract class BaseInputIcon {
 
   get className(): string {
     const isInvalid = this.computeInvalid();
-    return `${this.positionClassNames} ${getInputIconClasses(isInvalid)}`;
+    const position = this.positionClassNames || (this.large ? 'right-4 top-1/2 -translate-y-1/2' : 'right-3 top-1/2 -translate-y-1/2');
+    return `${position} ${getInputIconClasses(isInvalid)}`;
   }
 }

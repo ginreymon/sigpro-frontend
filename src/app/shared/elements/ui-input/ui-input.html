@@ -1,4 +1,4 @@
 <input [id]="id" [name]="id"
-    [class]="`w-full h-8 px-4 gap-2 rounded border text-sm outline-none transition-all duration-200 focus:ring-2 ${invalid?'border-red-500 focus:border-red-500 focus:ring-red-200':'border-gray-300 focus:border-brand-500 focus:ring-brand-200'} ${className}`"
+    [class]="`w-full px-4 gap-2 rounded border outline-none transition-all duration-200 focus:ring-2 ${large ? 'h-12 text-base' : 'h-8 text-sm'} ${invalid?'border-red-500 focus:border-red-500 focus:ring-red-200':'border-gray-300 focus:border-brand-500 focus:ring-brand-200'} ${className}`"
     [placeholder]="placeholder" [value]="value" [type]="type" [disabled]="disabled" (input)="handleInput($event)"
     (blur)="onTouched()" />
