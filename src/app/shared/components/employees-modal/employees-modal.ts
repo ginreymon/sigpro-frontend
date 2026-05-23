@@ -51,6 +51,8 @@ export class EmployeesModal implements OnInit {
     }
   }
 
+  private readonly ALLOWED_COST_CENTERS = [110, 103];
+
   private fetchEmployees() {
     this.loaderService.showLoader();
     const params: QueryParams = { page: 1, limit: 9999999 };
@@ -58,7 +60,8 @@ export class EmployeesModal implements OnInit {
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (res) => {
-          this._employees.set(res.results);
+          const filtered = res.results.filter(e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!));
+          this._employees.set(filtered);
           this.filteredEmployees.set(this.sortEmployees());
         },
       });
