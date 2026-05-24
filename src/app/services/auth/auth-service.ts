@@ -8,6 +8,7 @@ import { ConfirmPwRequest } from '../../models/auth/confirm-pw-request';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { RegisterRequest } from '../../models/auth/register-request';
+import { MenuService } from '../core/menu-service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private menuService: MenuService,
   ) {}
 
   login(data: LoginRequest): Observable<any> {
@@ -35,6 +37,7 @@ export class AuthService {
 
   logout() {
     localStorage.clear();
+    this.menuService.clearDynamicRoutes();
     this.isAuthenticatedSubject.next(false);
     this.router.navigateByUrl('/login');
   }

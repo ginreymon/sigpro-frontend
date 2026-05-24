@@ -50,25 +50,28 @@ export class MenuService {
     if (!this.menuSubject.value?.length) return;
 
     const currentConfig = this.router.config;
-
     const layoutRoute = currentConfig.find((r) => r.component === Layout);
-
     if (!layoutRoute) return;
 
+    const baseChildren = (layoutRoute.children ?? []).filter(c => c.pathMatch === 'full');
     const dynamicRoutes = getDynamicRoutes();
-
-    const alreadyLoaded = layoutRoute.children && layoutRoute.children.length > 1;
-    if (alreadyLoaded) return;
 
     const newConfig = currentConfig.map((r) => {
       if (r.component !== Layout) return r;
-
-      return {
-        ...r,
-        children: [...(r.children ?? []), ...dynamicRoutes],
-      };
+      return { ...r, children: [...baseChildren, ...dynamicRoutes] };
     });
 
+    this.router.resetConfig(newConfig);
+  }
+
+  clearDynamicRoutes() {
+    this.menuSubject.next(null);
+    const currentConfig = this.router.config;
+    const newConfig = currentConfig.map((r) => {
+      if (r.component !== Layout) return r;
+      const baseChildren = (r.children ?? []).filter(c => c.pathMatch === 'full');
+      return { ...r, children: baseChildren };
+    });
     this.router.resetConfig(newConfig);
   }
 }
