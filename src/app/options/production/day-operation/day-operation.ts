@@ -27,6 +27,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
 import { DayOperationDetail } from '../../../shared/components/day-operation-detail/day-operation-detail';
+import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
 
 @Component({
   selector: 'app-day-operation',
@@ -45,6 +46,7 @@ import { DayOperationDetail } from '../../../shared/components/day-operation-det
     UiCloseButton,
     ReactiveFormsModule,
     DayOperationDetail,
+    UiAlert,
   ],
   templateUrl: './day-operation.html',
   styleUrl: './day-operation.css',
@@ -68,6 +70,9 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   constructor(private workSessionService: WorkSessionService) {
     super(workSessionService);
+    this.modelForm.statusChanges.subscribe(status => {
+      if (status === 'VALID') this.errorMessage.set(null);
+    });
     this.initialize();
   }
 
@@ -203,6 +208,12 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
       return;
     }
 
+    if (!this.validateModelForm()) {
+      this.errorMessage.set('Completa todos los campos requeridos para continuar.');
+      return;
+    }
+
+    this.errorMessage.set(null);
     this.actionType = this.sessionCopy() ? 'edit' : 'create';
     this.rowObject.id = this.sessionCopy()?.id;
 

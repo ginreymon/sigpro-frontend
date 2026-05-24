@@ -1,0 +1,8 @@
+@if(message){
+<div [class]="'flex items-center gap-3 rounded-lg px-4 py-2 border w-full mt-2 ' + classes">
+  <app-ui-icon [iconName]="icon" [class]="'w-4 h-4 shrink-0'"></app-ui-icon>
+  <span class="text-sm font-medium flex-1">{{ message }}</span>
+  <div class="h-4 w-px bg-current opacity-30"></div>
+  <app-ui-close-button (onClose)="close()" [className]="`${closeClass} mt-1.5`"></app-ui-close-button>
+</div>
+}
