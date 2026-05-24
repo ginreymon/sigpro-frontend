@@ -1,6 +1,7 @@
-import { EventEmitter, Input, Output, signal } from '@angular/core';
+import { Directive, EventEmitter, Input, Output, signal } from '@angular/core';
 import { Searcher } from '../../shared/components/searcher/searcher';
 
+@Directive()
 export abstract class BaseSingleSelectModal<T extends { id: number }> {
   @Input() visible: boolean = false;
   @Input('selectedId') set setSelectedId(value: number | null) {
