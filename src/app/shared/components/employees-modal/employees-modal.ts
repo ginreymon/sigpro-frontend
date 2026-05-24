@@ -30,7 +30,7 @@ export class EmployeesModal implements OnInit {
 
   @Input()
   set preselectedIds(ids: number[]) {
-    this.selectedIds = ids;
+    this.selectedIds.set(ids);
   }
 
   @Input()
@@ -43,13 +43,13 @@ export class EmployeesModal implements OnInit {
   private employeeService = inject(EmployeeService);
   private loaderService = inject(LoaderService);
 
-  protected selectedIds: number[] = [];
+  protected selectedIds = signal<number[]>([]);
   protected filteredEmployees = signal<Employee[]>([]);
   protected showOnlySelected = signal(false);
   protected attempted = signal(false);
   protected displayedEmployees = computed(() =>
     this.showOnlySelected()
-      ? this.filteredEmployees().filter(e => this.selectedIds.includes(e.id))
+      ? this.filteredEmployees().filter(e => this.selectedIds().includes(e.id))
       : this.filteredEmployees()
   );
 
@@ -79,14 +79,17 @@ export class EmployeesModal implements OnInit {
   }
 
   isSelected(emp: Employee): boolean {
-    return this.selectedIds.includes(emp.id);
+    return this.selectedIds().includes(emp.id);
   }
 
   toggle(id: number): void {
     if (this.readOnly) return;
-    this.selectedIds = this.selectedIds.includes(id)
-      ? this.selectedIds.filter((x) => x !== id)
-      : [...this.selectedIds, id];
+    this.selectedIds.update(ids =>
+      ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]
+    );
+    if (this.showOnlySelected() && this.selectedIds().length === 0) {
+      this.showOnlySelected.set(false);
+    }
   }
 
   search(text: string): void {
@@ -103,11 +106,11 @@ export class EmployeesModal implements OnInit {
   }
 
   save(): void {
-    if (this.selectedIds.length === 0) {
+    if (this.selectedIds().length === 0) {
       this.attempted.set(true);
       return;
     }
-    this.onSave.emit(this.selectedIds);
+    this.onSave.emit(this.selectedIds());
     this.onClose.emit();
     this.reset();
   }

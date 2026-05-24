@@ -8,7 +8,7 @@
       ? 'border-brand-500 bg-brand-50 text-brand-700 ring-1 ring-brand-200'
       : 'border-gray-300 bg-white text-gray-600 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700'">
 
-      Solo seleccionados ({{selectedIds.length}})
+      Solo seleccionados ({{selectedIds().length}})
     </button>
      <p  class="text-xs">Empleados disponibles ({{filteredEmployees().length}})</p>
   </div>
@@ -32,7 +32,7 @@
 
   </app-ui-form-field>
 
-  @if(attempted() && selectedIds.length === 0) {
+  @if(attempted() && selectedIds().length === 0) {
     <app-ui-error-message>Debe seleccionar al menos un empleado</app-ui-error-message>
   }
 
