@@ -18,8 +18,8 @@
                 </div>
             </app-ui-form-field>
 
-            @if (errorMessage) {
-                <app-ui-error-message>{{ errorMessage }}</app-ui-error-message>
+            @if (errorMessage()) {
+                <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
             }
 
             <div class="mb-4 text-right">

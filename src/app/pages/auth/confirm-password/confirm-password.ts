@@ -74,7 +74,7 @@ export class ConfirmPassword extends BaseAuthComponent {
     const token = this.resetPasswordService.getToken();
 
     if (!token) {
-      this.errorMessage = 'El tiempo válido para restablecer la contrseña ya expiró';
+      this.errorMessage.set('El tiempo válido para restablecer la contrseña ya expiró');
       return;
     }
 
@@ -94,7 +94,7 @@ export class ConfirmPassword extends BaseAuthComponent {
           this.passwordChanged = true;
         },
         error: (err) => {
-          this.errorMessage = 'No fue posible restablecer la contraseña';
+          this.errorMessage.set('No fue posible restablecer la contraseña');
         },
       });
   }

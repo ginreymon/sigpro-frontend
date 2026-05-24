@@ -65,14 +65,14 @@ export class ForgotPassword extends BaseAuthComponent {
       .subscribe({
         next: (res) => {
           if (res.message) {
-            this.errorMessage = res.message;
+            this.errorMessage.set(res.message);
             return;
           }
           this.resetPassword.setToken(res.reset_token, res.expires_in_minutes);
           this.router.navigateByUrl('/confirm-password');
         },
         error: (err) => {
-          this.errorMessage = 'Usuario y número de identificación no válidos';
+          this.errorMessage.set('Usuario y número de identificación no válidos');
         },
       });
   }

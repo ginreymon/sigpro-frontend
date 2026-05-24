@@ -35,11 +35,11 @@ export class AuthService {
     );
   }
 
-  logout() {
+  logout(redirect = true) {
     localStorage.clear();
     this.menuService.clearDynamicRoutes();
     this.isAuthenticatedSubject.next(false);
-    this.router.navigateByUrl('/login');
+    if (redirect) this.router.navigateByUrl('/login');
   }
 
   passwordRequest(data: ResetPwRequest): Observable<any> {

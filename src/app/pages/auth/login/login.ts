@@ -55,7 +55,7 @@ export class Login extends BaseAuthComponent {
 
     this.isLoading.set(true);
     this.loaderService.showLoader();
-    this.auth.logout();
+    this.auth.logout(false);
     const loginData: LoginRequest = this.loginForm.value;
 
     this.auth.login(loginData)
@@ -71,7 +71,7 @@ export class Login extends BaseAuthComponent {
         });
       },
       error: (error) => {
-        this.errorMessage = 'Usuario o contraseña incorrectos';
+        this.errorMessage.set('Usuario o contraseña incorrectos');
       },
     });
   }

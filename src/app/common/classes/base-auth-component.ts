@@ -4,7 +4,7 @@ import { getInputClasses } from '../functions/get-input-classes';
 
 export class BaseAuthComponent {
   isLoading = signal(false);
-  errorMessage: string | null = null;
+  errorMessage = signal<string | null>(null);
   showPassword: boolean = false;
 
   setShowPassword(value: boolean) {
