@@ -5,6 +5,7 @@ import { HomeShiftCard } from '../../../../shared/components/home-shift-card/hom
 import { WorkSessionService } from '../../../../services/production/work-session-service';
 import { WorkSession } from '../../../../models/production/work-session';
 import { Router } from '@angular/router';
+import { environment } from '../../../../../environments/environment.development';
 
 @Component({
   selector: 'app-home-dethorn-remover',
@@ -21,14 +22,16 @@ export class HomeDethornRemover implements OnInit {
   private router = inject(Router);
 
   goToShiftCycles() {
-    this.router.navigateByUrl('production/shift-cycles');
+    this.activeSession()
+      ? this.router.navigateByUrl(environment.SHIFT_CYCLES_URL)
+      : this.router.navigateByUrl(environment.DAY_OPERATION_URL);
   }
 
   ngOnInit(): void {
     this.workSessionService.getActive().subscribe({
-      next: (session: WorkSession) => {
+      next: (session: WorkSession | null) => {
         this.activeSession.set(session);
-        this.hasPendingOperation.set(true);
+        this.hasPendingOperation.set(!!session);
         this.isLoading.set(false);
       },
       error: () => {

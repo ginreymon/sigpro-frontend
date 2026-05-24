@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { environment } from '../../../../environments/environment.development';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
 import { ProductionOrderService } from '../../../services/production/production-order-service';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -40,8 +41,8 @@ export class ShiftCycles implements OnInit {
     this.balanceVisible.set(true);
   }
 
-  private DAY_OPERATION_URL = 'production/day-operation';
-  private OPERATION_ORDER_URL = 'production/shift-cycles';
+  private DAY_OPERATION_URL = environment.DAY_OPERATION_URL;
+  private OPERATION_ORDER_URL = environment.SHIFT_CYCLES_URL;
 
   private router = inject(Router);
   private route = inject(ActivatedRoute);

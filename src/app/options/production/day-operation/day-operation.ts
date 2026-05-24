@@ -1,4 +1,5 @@
 import { Component, inject, signal, ViewChild } from '@angular/core';
+import { environment } from '../../../../environments/environment.development';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
@@ -53,7 +54,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   @ViewChild('moduleCarousel') moduleCarousel!: OperationCarousel;
   @ViewChild('workshiftCarousel') workshiftCarousel!: OperationCarousel;
 
-  private OPERATION_ORDER_URL: string = 'production/orders';
+  private OPERATION_ORDER_URL: string = environment.SHIFT_CYCLES_URL;
   private workShiftService = inject(WorkShiftService);
   private moduleService = inject(ModuleService);
   private employeeService = inject(EmployeeService);

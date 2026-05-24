@@ -6,4 +6,6 @@ export const environment = {
   DEFAULT_PAGE_SIZE: 20,
   LOW_EFFICIENCY_LIMIT: 'LIMITE_BAJA_EFICIENCIA',
   HIGH_EFFICIENCY_LIMIT: 'LIMITE_ALTA_EFICIENCIA',
+  DAY_OPERATION_URL: 'production/day-operation',
+  SHIFT_CYCLES_URL: 'production/shift-cycles',
 };
