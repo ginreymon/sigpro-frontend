@@ -1,5 +1,6 @@
 import { DocType } from './doc-type';
 import { Employee } from './employee';
+import { Module } from './module';
 import { ProductionOrder } from './production-order';
 import { WorkBreak } from './work-break';
 import { WorkSession } from './work-session';
@@ -12,4 +13,5 @@ export interface ProductionContext {
   workBreaks: WorkBreak[];
   employees: Employee[];
   workShifts: WorkShift[];
+  modules: Module[];
 }

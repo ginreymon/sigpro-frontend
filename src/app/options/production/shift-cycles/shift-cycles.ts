@@ -63,7 +63,7 @@ export class ShiftCycles implements OnInit {
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
   contextWorkBreaks = computed(() => this.context()?.workBreaks ?? []);
   contextWorkShifts = computed(() => this.context()?.workShifts ?? []);
-  contextModules = computed(() => this.currentSession()?.modules ?? []);
+  contextModules = computed(() => this.context()?.modules ?? []);
   contextEmployees = computed(() =>
     (this.context()?.employees ?? []).filter(e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!))
   );
