@@ -8,12 +8,12 @@
       ? 'border-brand-500 bg-brand-50 text-brand-700 ring-1 ring-brand-200'
       : 'border-gray-300 bg-white text-gray-600 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700'">
 
-      Solo seleccionados
+      Solo seleccionados ({{selectedIds.length}})
     </button>
      <p  class="text-xs">Empleados disponibles ({{filteredEmployees().length}})</p>
   </div>
 
-  <app-ui-form-field [label]="`Empleados (${selectedIds.length})`">
+  <app-ui-form-field [label]="'Empleados'">
 
     <div class="mb-2 flex flex-col justify-start gap-3 py-2 items-stretch overflow-y-auto max-h-[30vh]">
       @for (employee of displayedEmployees(); track employee.id) {
