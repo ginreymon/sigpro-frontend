@@ -20,7 +20,9 @@ export class WorkShiftModal {
     this._workShifts = value;
     this.filtered.set(value);
   }
-  @Input() selectedId: number | null = null;
+  @Input('selectedId') set setSelectedId(value: number | null) {
+    this._selectedId.set(value);
+  }
   @Output() onSelect = new EventEmitter<WorkShift>();
   @Output() onClose = new EventEmitter<void>();
 
@@ -29,14 +31,15 @@ export class WorkShiftModal {
   private _workShifts: WorkShift[] = [];
   filtered = signal<WorkShift[]>([]);
   attempted = signal(false);
+  _selectedId = signal<number | null>(null);
 
   isSelected(id: number): boolean {
-    return this.selectedId === id;
+    return this._selectedId() === id;
   }
 
   select(shift: WorkShift): void {
-    if (this.selectedId === shift.id) return;
-    this.selectedId = shift.id;
+    if (this._selectedId() === shift.id) return;
+    this._selectedId.set(shift.id);
   }
 
   search(text: string): void {
@@ -52,11 +55,11 @@ export class WorkShiftModal {
   }
 
   save(): void {
-    if (!this.selectedId) {
+    if (!this._selectedId()) {
       this.attempted.set(true);
       return;
     }
-    const shift = this._workShifts.find(s => s.id === this.selectedId);
+    const shift = this._workShifts.find(s => s.id === this._selectedId());
     if (shift) this.onSelect.emit(shift);
     this.onClose.emit();
     this.attempted.set(false);

@@ -20,7 +20,9 @@ export class ModuleModal {
     this._modules = value;
     this.filtered.set(value);
   }
-  @Input() selectedId: number | null = null;
+  @Input('selectedId') set setSelectedId(value: number | null) {
+    this._selectedId.set(value);
+  }
   @Output() onSelect = new EventEmitter<Module>();
   @Output() onClose = new EventEmitter<void>();
 
@@ -29,14 +31,15 @@ export class ModuleModal {
   private _modules: Module[] = [];
   filtered = signal<Module[]>([]);
   attempted = signal(false);
+  _selectedId = signal<number | null>(null);
 
   isSelected(id: number): boolean {
-    return this.selectedId === id;
+    return this._selectedId() === id;
   }
 
   select(module: Module): void {
-    if (this.selectedId === module.id) return;
-    this.selectedId = module.id;
+    if (this._selectedId() === module.id) return;
+    this._selectedId.set(module.id);
   }
 
   search(text: string): void {
@@ -52,11 +55,11 @@ export class ModuleModal {
   }
 
   save(): void {
-    if (!this.selectedId) {
+    if (!this._selectedId()) {
       this.attempted.set(true);
       return;
     }
-    const module = this._modules.find(m => m.id === this.selectedId);
+    const module = this._modules.find(m => m.id === this._selectedId());
     if (module) this.onSelect.emit(module);
     this.onClose.emit();
     this.attempted.set(false);

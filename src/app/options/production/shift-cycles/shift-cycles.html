@@ -24,6 +24,9 @@
         }
         @else if(!isLoading()) {
         <app-order-searcher [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)"></app-order-searcher>
+
+        <app-last-record-card></app-last-record-card>
+
         <div class="flex-1 min-h-0 overflow-hidden">
         </div>
         <div class="flex flex-row justify-end mt-4">

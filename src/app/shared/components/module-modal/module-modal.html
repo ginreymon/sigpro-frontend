@@ -20,7 +20,7 @@
     </div>
   </app-ui-form-field>
 
-  @if(attempted() && !selectedId) {
+  @if(attempted() && !_selectedId()) {
     <app-ui-error-message>Debe seleccionar un módulo</app-ui-error-message>
   }
 
