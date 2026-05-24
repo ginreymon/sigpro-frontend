@@ -143,6 +143,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   onEmployeesSaved(ids: number[]): void {
     this.employeeIds?.setValue(ids);
+    this.dialogService.closeModal();
   }
 
   selectModule(id: number) {
