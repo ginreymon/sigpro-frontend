@@ -1,7 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { environment } from '../../../../environments/environment.development';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
-import { ProductionOrderService } from '../../../services/production/production-order-service';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
@@ -12,7 +11,6 @@ import { OrderSearcher } from '../../../shared/components/order-searcher/order-s
 import { ProductionOrder } from '../../../models/production/production-order';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
-import { TaskTimer } from '../../../shared/components/task-timer/task-timer';
 import { OrderHeader } from '../../../shared/elements/order-header/order-header';
 import { WorkShiftSummary } from '../../../shared/components/work-shift-summary/work-shift-summary';
 import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
@@ -20,7 +18,6 @@ import { ModuleModal } from '../../../shared/components/module-modal/module-moda
 import { WorkShiftModal } from '../../../shared/components/work-shift-modal/work-shift-modal';
 import { BalanceBottomSheet } from '../../../shared/components/balance-bottom-sheet/balance-bottom-sheet';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
-import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
@@ -33,7 +30,7 @@ import { LastRecordCard } from '../../../shared/components/last-record-card/last
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
@@ -49,9 +46,7 @@ export class ShiftCycles implements OnInit {
 
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private poService = inject(ProductionOrderService);
   private wslService = inject(WorkSpaceLoaderService);
-  private tts = inject(TaskTimerService);
   private dialogService = inject(DialogService);
   private contextService = inject(ProductionContextService);
   private loaderService = inject(LoaderService);
@@ -65,7 +60,6 @@ export class ShiftCycles implements OnInit {
 
   isLoading = signal(true);
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
-  contextWorkBreaks = computed(() => this.context()?.workBreaks ?? []);
   contextWorkShifts = computed(() => this.context()?.workShifts ?? []);
   contextModules = computed(() => this.context()?.modules ?? []);
   contextEmployees = computed(() =>
@@ -73,7 +67,6 @@ export class ShiftCycles implements OnInit {
   );
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
-  selectedSKU = signal<SkuTaskDetail | null>(null);
   moduleModalVisible = signal(false);
   shiftModalVisible = signal(false);
   employeesModalVisible = signal(false);
@@ -93,7 +86,6 @@ export class ShiftCycles implements OnInit {
   );
 
   private reset() {
-    this.selectedSKU.set(null);
     this.hasCheckedActiveRecord = false;
     this.activeRecord = null;
   }
@@ -111,7 +103,6 @@ export class ShiftCycles implements OnInit {
       .subscribe({
         next: (context) => {
           this.currentSession.set(context.session);
-          this.tts.setSession(context.session);
           this.setDocument(context.order);
           this.checkActiveRecord(context.session, context.order);
         },
@@ -122,8 +113,6 @@ export class ShiftCycles implements OnInit {
   private loadDocumentFromRoute() {
     this.productionOrder.set(null);
     this.route.queryParams.subscribe(({ docType, docNumber }) => {
-      this.selectedSKU.set(null);
-      this.tts.reset();
       this.hasCheckedActiveRecord = false;
       this.activeRecord = null;
       if (!docType || !docNumber) {
@@ -171,7 +160,6 @@ export class ShiftCycles implements OnInit {
       this.showActiveRecordToast();
       return;
     }
-    this.selectedSKU.set(sku);
   }
 
   private checkActiveRecord(session: WorkSession | null, order: ProductionOrder | null) {
@@ -181,20 +169,7 @@ export class ShiftCycles implements OnInit {
     const record = session.active_activity?.last_open_production_record;
     if (!record) return;
     this.activeRecord = record;
-    this.wslService.start();
-    if (record.op_number === order.documentNumber && record.op_type === order.documentType) {
-      this.poService.getSkuDetail(record.op_type, record.op_number, record.sku_rowid)
-        .pipe(finalize(() => this.wslService.end()))
-        .subscribe({
-          next: (sku) => {
-            if (sku) {
-              this.selectedSKU.set(sku);
-              this.tts.confirm(record);
-            }
-          },
-        });
-    } else {
-      this.wslService.end();
+    if (!(record.op_number === order.documentNumber && record.op_type === order.documentType)) {
       this.showActiveRecordToast();
     }
   }
@@ -241,16 +216,6 @@ export class ShiftCycles implements OnInit {
       });
   }
 
-  onTaskSaved() {
-    this.reset();
-    const { docType, docNumber } = this.route.snapshot.queryParams;
-    this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
-  }
-
-  onTaskStarted() {
-    this.refreshSession();
-  }
-
   private refreshSession() {
     this.loaderService.showLoader();
     this.workSessionService.getActive()
@@ -259,7 +224,6 @@ export class ShiftCycles implements OnInit {
         next: (session: WorkSession) => {
           this.currentSession.set(session);
           this.contextService.updateSession(session);
-          this.tts.setSession(session);
         },
       });
   }

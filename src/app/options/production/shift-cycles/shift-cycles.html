@@ -40,8 +40,6 @@
 
 </app-work-space-layout>
 
-<app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="onTaskSaved()" (started)="onTaskStarted()"></app-task-timer>
-
 <app-employees-modal [visible]="employeesModalVisible()" [employees]="contextEmployees()" [preselectedIds]="preselectedIds()" (onSave)="updateEmployees($event)" (onClose)="employeesModalVisible.set(false)"></app-employees-modal>
 
 <app-module-modal [visible]="moduleModalVisible()" [modules]="contextModules()" [selectedId]="currentSession()?.current_module?.id ?? null" (onSelect)="onModuleSelected($event)" (onClose)="moduleModalVisible.set(false)"></app-module-modal>
