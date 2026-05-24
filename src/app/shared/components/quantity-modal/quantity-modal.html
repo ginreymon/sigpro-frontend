@@ -5,18 +5,21 @@
 
         <app-sku-detail class="w-full" [selectedSKU]="selectedSKU"></app-sku-detail>
 
-        <form id="quantityForm" class="w-full mt-4" [formGroup]="recordForm">
+        <form id="quantityForm" class="w-full mt-4  max-h-[40vh] overflow-y-auto" [formGroup]="recordForm">
             <fieldset>
                 <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Completadas'">
                     <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'0'"></app-ui-large-input>
+                    <small class="text-slate-500 text-xs">Unidades completadas ({{ selectedSKU?.completedQty }}) </small>                
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'rejected_quantity'" [label]="'Saldos'">
                     <app-ui-large-input [type]="'number'" formControlName="rejected_quantity" [placeholder]="'0'"></app-ui-large-input>
+                    <small class="text-slate-500 text-xs">Unidades en saldo ({{ selectedSKU?.rejectedQty }})</small>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'scrap_quantity'" [label]="'Bajas'">
                     <app-ui-large-input [type]="'number'" formControlName="scrap_quantity" [placeholder]="'0'"></app-ui-large-input>
+                    <small class="text-slate-500 text-xs">Unidades dadas de baja ({{ selectedSKU?.wasteQty }})</small>
                 </app-ui-form-field>
             </fieldset>
         </form>
