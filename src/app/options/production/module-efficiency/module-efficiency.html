@@ -56,7 +56,7 @@
                 <p class="text-sm text-gray-400 italic py-2 px-2">Sin módulos disponibles</p>
               }
             </app-operation-carousel>
-            <div class="absolute right-0 inset-y-0 w-10 bg-gradient-to-l from-gray-100 to-transparent pointer-events-none rounded-r-lg"></div>
+            <div class="absolute right-0 inset-y-0 w-10 bg-linear-to-l from-gray-100 to-transparent pointer-events-none rounded-r-lg"></div>
           </div>
         </app-ui-form-field>
 
@@ -89,7 +89,7 @@
                 <p class="text-sm text-gray-400 italic py-2 px-2">Sin turnos disponibles</p>
               }
             </app-operation-carousel>
-            <div class="absolute right-0 inset-y-0 w-10 bg-gradient-to-l from-gray-100 to-transparent pointer-events-none rounded-r-lg"></div>
+            <div class="absolute right-0 inset-y-0 w-10 bg-linear-to-l from-gray-100 to-transparent pointer-events-none rounded-r-lg"></div>
           </div>
         </app-ui-form-field>
 
@@ -125,8 +125,10 @@
         }
       </div>
 
+      <app-searcher #searcher [intent]="'action'" (onSearch)="search($event)" class="mb-2"></app-searcher>
+
       <div class="flex flex-1 overflow-auto min-h-0 flex-col gap-2 py-1">
-        @for(emp of employees(); track emp.id) {
+        @for(emp of filteredEmployees(); track emp.id) {
           <app-ui-option-card
             (onToggle)="selectEmployee(emp.id)"
             [selected]="isSelectedEmployee(emp)">

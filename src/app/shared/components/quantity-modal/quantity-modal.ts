@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
@@ -9,6 +9,7 @@ import { SkuDetail } from '../sku-detail/sku-detail';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { SkuQuantitySummary } from '../sku-quantity-summary/sku-quantity-summary';
 import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message';
+import { ProductionRecord } from '../../../models/production/production-record';
 
 @Component({
   selector: 'app-quantity-modal',
@@ -21,6 +22,8 @@ export class QuantityModal {
 
   private qms = inject(QuantityModalService);
   private fb = inject(FormBuilder);
+
+  @Output() onSave = new EventEmitter<Partial<ProductionRecord>>();
 
   protected visible = this.qms.visible;
   protected isSubmitting = signal(false);
@@ -63,8 +66,26 @@ export class QuantityModal {
     this.qms.close();
   }
 
-  save() { 
+  save() {
     if (this.recordForm.invalid || this.isSubmitting()) return;
-    // connection point: wire backend call here
+
+    const { completed_quantity, rejected_quantity, scrap_quantity } = this.recordForm.value;
+    const sku = this.selectedSKU;
+
+    const payload: Partial<ProductionRecord> = {
+      ...(sku && {
+        sku_rowid: sku.skuRowId,
+        op_rowid: sku.opRowId,
+        op_number: sku.opNumber,
+        op_type: sku.opType,
+        ordered_quantity: sku.orderedQty,
+        planned_quantity: sku.plannedQty,
+      }),
+      completed_quantity: Number(completed_quantity),
+      rejected_quantity: Number(rejected_quantity),
+      scrap_quantity: Number(scrap_quantity),
+    };
+
+    this.onSave.emit(payload);
   }
 }
