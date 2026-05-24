@@ -1,4 +1,5 @@
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, Signal, signal, ViewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { environment } from '../../../../environments/environment.development';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
@@ -11,7 +12,6 @@ import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-fiel
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { EllipsisPipe } from '../../../pipes/ellipsis-pipe';
 import { TitleCasePipe } from '@angular/common';
-import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { WorkShift } from '../../../models/production/work-shift';
 import { Module } from '../../../models/production/module';
 import { Validators } from '@angular/forms';
@@ -24,7 +24,7 @@ import { EmployeesModal } from '../../../shared/components/employees-modal/emplo
 import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
 import { UiCloseButton } from '../../../shared/elements/ui-close-button/ui-close-button';
 import { ReactiveFormsModule } from '@angular/forms';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize, forkJoin, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { DayOperationDetail } from '../../../shared/components/day-operation-detail/day-operation-detail';
 import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
@@ -39,8 +39,7 @@ import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
     UiFormField,
     UiIcon,
     EllipsisPipe,
-    TitleCasePipe,
-    UiErrorMessage,
+    TitleCasePipe,   
     EmployeesModal,
     UiTooltip,
     UiCloseButton,
@@ -67,12 +66,15 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   protected employees = signal<Employee[]>([]);
   protected currentSession = signal<WorkSession | null>(null);
   protected sessionCopy = signal<WorkSession | null>(null);
+  protected displayError!: Signal<string | null>;
 
   constructor(private workSessionService: WorkSessionService) {
     super(workSessionService);
-    this.modelForm.statusChanges.subscribe(status => {
-      if (status === 'VALID') this.errorMessage.set(null);
-    });
+    const formValid = toSignal(
+      this.modelForm.statusChanges.pipe(map(s => s === 'VALID')),
+      { initialValue: this.modelForm.valid },
+    );
+    this.displayError = computed(() => formValid() ? null : this.errorMessage());
     this.initialize();
   }
 
