@@ -1,0 +1,14 @@
+<div class="fixed top-14 right-4 z-60 pointer-events-none">
+  <div [class]="'pointer-events-auto bg-red-100 border border-red-200 shadow-lg rounded-lg px-4 py-2.5 flex items-center gap-3 transform transition-all duration-500 ease-out ' + (visible() ? 'translate-y-0 opacity-100' : 'translate-y-[100vh] opacity-0')">
+
+    <div class="flex items-center gap-2">
+      <app-ui-icon iconName="alarmClock" [class]="'w-5 h-5 text-red-700'"></app-ui-icon>
+      <span class="font-mono font-bold text-red-700 tracking-tight text-xl select-none">{{ currentTime() }}</span>
+    </div>
+
+    <div class="h-4 w-px bg-red-300"></div>
+
+    <app-ui-close-button (onClose)="close()" [className]="'border-red-700 text-red-700 hover:bg-red-200'"></app-ui-close-button>
+
+  </div>
+</div>

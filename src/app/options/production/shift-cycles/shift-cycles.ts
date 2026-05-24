@@ -27,10 +27,11 @@ import { ProductionContextService } from '../../../services/production/productio
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LastRecordCard } from '../../../shared/components/last-record-card/last-record-card';
+import { ShiftTimeAlert } from '../../../shared/components/shift-time-alert/shift-time-alert';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
