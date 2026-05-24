@@ -9,7 +9,7 @@ import { FormActionBtn } from '../../../shared/elements/form-action-btn/form-act
 import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
 import { ConfirmPwRequest } from '../../../models/auth/confirm-pw-request';
 import { finalize } from 'rxjs';
-import { Loader } from '../../../shared/elements/loader/loader';
+import { LoaderService } from '../../../services/common/loader-service';
 import { ValidationIcon } from "../../../shared/elements/validation-icon/validation-icon";
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
@@ -24,13 +24,12 @@ import { UiInput } from '../../../shared/elements/ui-input/ui-input';
     ReactiveFormsModule,
     FormActionBtn,
     TogglePasswordBtn,
-    Loader,
     ValidationIcon,
     UiIcon,
     UiErrorMessage,
     UiFormField,
-    UiInput
-],
+    UiInput,
+  ],
   templateUrl: './confirm-password.html',
   styleUrl: './confirm-password.css',
 })
@@ -43,6 +42,7 @@ export class ConfirmPassword extends BaseAuthComponent {
     private resetPasswordService: ResetPasswordService,
     private auth: AuthService,
     private router: Router,
+    private loaderService: LoaderService,
   ) {
     super();
     this.confirmForm = this.fb.group({
@@ -79,6 +79,7 @@ export class ConfirmPassword extends BaseAuthComponent {
     }
 
     this.isLoading.set(true);
+    this.loaderService.showLoader();
 
     const confirmData: ConfirmPwRequest = {
       token,
@@ -87,7 +88,7 @@ export class ConfirmPassword extends BaseAuthComponent {
 
     this.auth
       .confirmPassword(confirmData)
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(finalize(() => { this.isLoading.set(false); this.loaderService.hideLoader(); }))
       .subscribe({
         next: (res) => {
           this.passwordChanged = true;

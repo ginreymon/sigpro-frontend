@@ -4,7 +4,7 @@ import { AuthLayout } from '../../../layouts/auth-layout/auth-layout';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth-service';
 import { LoginRequest } from '../../../models/auth/login-request';
-import { Loader } from '../../../shared/elements/loader/loader';
+import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs/operators';
 import { BaseAuthComponent } from '../../../common/classes/base-auth-component';
 import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
@@ -18,7 +18,7 @@ import { MenuService } from '../../../services/core/menu-service';
 
 @Component({
   selector: 'app-login',
-  imports: [AuthLayout, RouterLink, ReactiveFormsModule, Loader, TogglePasswordBtn, FormActionBtn, UiErrorMessage, UiFormField, UiInput, UiIcon],
+  imports: [AuthLayout, RouterLink, ReactiveFormsModule, TogglePasswordBtn, FormActionBtn, UiErrorMessage, UiFormField, UiInput, UiIcon],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -30,6 +30,7 @@ export class Login extends BaseAuthComponent {
     private auth: AuthService,
     private router: Router,
     private menu: MenuService,
+    private loaderService: LoaderService,
   ) {
     super();
     this.loginForm = this.fb.group({
@@ -53,11 +54,12 @@ export class Login extends BaseAuthComponent {
     }
 
     this.isLoading.set(true);
+    this.loaderService.showLoader();
     this.auth.logout();
     const loginData: LoginRequest = this.loginForm.value;
 
     this.auth.login(loginData)
-    .pipe(finalize(() => this.isLoading.set(false)))
+    .pipe(finalize(() => { this.isLoading.set(false); this.loaderService.hideLoader(); }))
     .subscribe({
       next: (res) => {
         this.auth.setAccessToken(res.access);

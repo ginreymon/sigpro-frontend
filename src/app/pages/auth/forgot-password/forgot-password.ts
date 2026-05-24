@@ -8,7 +8,7 @@ import { AuthService } from '../../../services/auth/auth-service';
 import { finalize } from 'rxjs';
 import { ResetPasswordService } from '../../../services/auth/reset-password-service';
 import { ResetPwRequest } from '../../../models/auth/reset-pw-request';
-import { Loader } from '../../../shared/elements/loader/loader';
+import { LoaderService } from '../../../services/common/loader-service';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
@@ -16,7 +16,7 @@ import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [AuthLayout, RouterLink, FormActionBtn, ReactiveFormsModule, Loader, UiErrorMessage, UiFormField, UiInput, UiIcon],
+  imports: [AuthLayout, RouterLink, FormActionBtn, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, UiIcon],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css',
 })
@@ -28,6 +28,7 @@ export class ForgotPassword extends BaseAuthComponent {
     private auth: AuthService,
     private router: Router,
     private resetPassword: ResetPasswordService,
+    private loaderService: LoaderService,
   ) {
     super();
     this.requestForm = this.fb.group({
@@ -51,6 +52,7 @@ export class ForgotPassword extends BaseAuthComponent {
     }
 
     this.isLoading.set(true);
+    this.loaderService.showLoader();
 
     const requestData: ResetPwRequest = {
       id_number: this.idNumber!.value,
@@ -59,7 +61,7 @@ export class ForgotPassword extends BaseAuthComponent {
 
     this.auth
       .passwordRequest(requestData)
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(finalize(() => { this.isLoading.set(false); this.loaderService.hideLoader(); }))
       .subscribe({
         next: (res) => {
           if (res.message) {
