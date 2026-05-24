@@ -52,6 +52,10 @@
     Debe aceptar esta opción
     }
 
+    @if (control?.errors?.['notInteger']) {
+    Solo se permiten números enteros
+    }
+
 
   </app-ui-error-message>
   }

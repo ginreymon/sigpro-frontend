@@ -17,6 +17,7 @@ import { BaseControlValueAccessor } from '../../../common/classes/base-control-v
 })
 export class UiLargeInput extends BaseControlValueAccessor<string> {
   @Input() type: string = 'text';
+  @Input() hasAddon: boolean = false;
 
   handleInput(event: Event) {
     const input = event.target as HTMLInputElement;

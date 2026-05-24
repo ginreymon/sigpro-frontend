@@ -1,4 +1,9 @@
-<input [id]="id" [name]="id"
-    [class]="`w-full h-8 px-4 gap-2 rounded border text-sm outline-none transition-all duration-200 focus:ring-2 ${invalid?'border-red-500 focus:border-red-500 focus:ring-red-200':'border-gray-300 focus:border-brand-500 focus:ring-brand-200'} ${className}`"
-    [placeholder]="placeholder" [value]="value" [type]="type" [disabled]="disabled" (input)="handleInput($event)"
-    (blur)="onTouched()" />
+<div class="flex w-full">
+    <input [id]="id" [name]="id"
+        [class]="`w-full h-8 px-4 gap-2 border text-sm outline-none transition-all duration-200 focus:ring-2 ${hasAddon ? 'rounded-l rounded-r-none' : 'rounded'} ${invalid?'border-red-500 focus:border-red-500 focus:ring-red-200':'border-gray-300 focus:border-brand-500 focus:ring-brand-200'} ${className}`"
+        [placeholder]="placeholder" [value]="value" [type]="type" [disabled]="disabled" (input)="handleInput($event)"
+        (blur)="onTouched()" />
+    <span [class.hidden]="!hasAddon" class="flex items-center px-3 h-8 border border-l-0 border-gray-300 rounded-r bg-gray-50 text-xs font-semibold text-slate-500 shrink-0">
+        <ng-content select="[right-addon]"></ng-content>
+    </span>
+</div>
