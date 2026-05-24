@@ -30,6 +30,7 @@ export class EmployeesModal implements OnInit {
 
   @Input()
   set preselectedIds(ids: number[]) {
+    this._preselectedIds = ids;
     this.selectedIds.set(ids);
   }
 
@@ -40,6 +41,7 @@ export class EmployeesModal implements OnInit {
   }
 
   private _employees = signal<Employee[]>([]);
+  private _preselectedIds: number[] = [];
   private employeeService = inject(EmployeeService);
   private loaderService = inject(LoaderService);
 
@@ -116,6 +118,7 @@ export class EmployeesModal implements OnInit {
   }
 
   cancel(): void {
+    this.selectedIds.set([...this._preselectedIds]);
     this.onClose.emit();
     this.reset();
   }

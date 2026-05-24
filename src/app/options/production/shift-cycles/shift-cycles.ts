@@ -28,10 +28,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LastRecordCard } from '../../../shared/components/last-record-card/last-record-card';
 import { ShiftTimeAlert } from '../../../shared/components/shift-time-alert/shift-time-alert';
+import { QuantityModal } from '../../../shared/components/quantity-modal/quantity-modal';
+import { QuantityModalService } from '../../../services/common/quantity-modal-service';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, QuantityModal],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
@@ -52,6 +54,7 @@ export class ShiftCycles implements OnInit {
   private contextService = inject(ProductionContextService);
   private loaderService = inject(LoaderService);
   private workSessionService = inject(WorkSessionService);
+  private qms = inject(QuantityModalService);
 
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
@@ -68,6 +71,7 @@ export class ShiftCycles implements OnInit {
   );
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
+  selectedSKU = signal<SkuTaskDetail | null>(null);
   moduleModalVisible = signal(false);
   shiftModalVisible = signal(false);
   employeesModalVisible = signal(false);
@@ -161,6 +165,8 @@ export class ShiftCycles implements OnInit {
       this.showActiveRecordToast();
       return;
     }
+    this.selectedSKU.set(sku);
+    this.qms.open();
   }
 
   private checkActiveRecord(session: WorkSession | null, order: ProductionOrder | null) {
