@@ -130,6 +130,7 @@
       <div class="flex flex-1 overflow-auto min-h-0 flex-col gap-2 py-1">
         @for(emp of filteredEmployees(); track emp.id) {
           <app-ui-option-card
+            class="px-0.5"
             (onToggle)="selectEmployee(emp.id)"
             [selected]="isSelectedEmployee(emp)">
             <div class="font-medium text-sm flex flex-row justify-start items-center gap-2">

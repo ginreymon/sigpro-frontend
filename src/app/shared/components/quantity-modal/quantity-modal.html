@@ -5,6 +5,7 @@
 
         <app-sku-detail class="w-full" [selectedSKU]="selectedSKU"></app-sku-detail>
 
+        @if(maxAvailable){
         <form id="quantityForm" class="w-full mt-4  max-h-[40vh] overflow-y-auto" [formGroup]="recordForm">
             <fieldset>
                 <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Completadas'">
@@ -32,7 +33,8 @@
             </app-ui-error-message>
             }
         </form>
-
+        }
+        
         <app-sku-quantity-summary class="w-full" [selectedSKU]="selectedSKU"></app-sku-quantity-summary>
     </div>
 
