@@ -24,6 +24,8 @@ import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
+import { Module } from '../../../models/production/module';
+import { WorkShift } from '../../../models/production/work-shift';
 import { ProductionContextService } from '../../../services/production/production-context-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WorkSessionService } from '../../../services/production/work-session-service';
@@ -209,11 +211,30 @@ export class ShiftCycles implements OnInit {
     this.shiftModalVisible.set(true);
   }
 
+  onModuleSelected(module: Module): void {
+    this.updateSession({ module_id: module.id });
+  }
+
+  onWorkShiftSelected(shift: WorkShift): void {
+    this.updateSession({ work_shift_id: shift.id });
+  }
+
   updateEmployees(ids: number[]) {
     const sessionId = this.currentSession()?.id;
     if (!sessionId) return;
     this.loaderService.showLoader();
     this.workSessionService.updateEmployees(sessionId, ids)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => this.refreshSession(),
+      });
+  }
+
+  updateSession(data: Partial<WorkSession>): void {
+    const sessionId = this.currentSession()?.id;
+    if (!sessionId) return;
+    this.loaderService.showLoader();
+    this.workSessionService.patch(sessionId, data)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: () => this.refreshSession(),
