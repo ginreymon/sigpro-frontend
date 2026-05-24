@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Employee } from '../../../models/production/employee';
 import { DialogService } from '../../../services/common/dialog-service';
@@ -7,13 +7,14 @@ import { Searcher } from '../searcher/searcher';
 import { UiFormField } from '../../elements/ui-form-field/ui-form-field';
 import { UiOptionCard } from '../../elements/ui-option-card/ui-option-card';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
+import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-employees-modal',
-  imports: [ModalLayout, Searcher, UiFormField, UiOptionCard, UiIcon, TitleCasePipe],
+  imports: [ModalLayout, Searcher, UiFormField, UiOptionCard, UiIcon, UiErrorMessage, TitleCasePipe],
   templateUrl: './employees-modal.html',
   styleUrl: './employees-modal.css',
 })
@@ -44,6 +45,13 @@ export class EmployeesModal implements OnInit {
 
   protected selectedIds: number[] = [];
   protected filteredEmployees = signal<Employee[]>([]);
+  protected showOnlySelected = signal(false);
+  protected attempted = signal(false);
+  protected displayedEmployees = computed(() =>
+    this.showOnlySelected()
+      ? this.filteredEmployees().filter(e => this.selectedIds.includes(e.id))
+      : this.filteredEmployees()
+  );
 
   ngOnInit(): void {
     if (this.fetch) {
@@ -95,6 +103,10 @@ export class EmployeesModal implements OnInit {
   }
 
   save(): void {
+    if (this.selectedIds.length === 0) {
+      this.attempted.set(true);
+      return;
+    }
     this.dialogService.closeModal();
     this.onSave.emit(this.selectedIds);
     this.reset();
@@ -106,6 +118,8 @@ export class EmployeesModal implements OnInit {
 
   private reset(): void {
     this.filteredEmployees.set(this.sortEmployees());
+    this.showOnlySelected.set(false);
+    this.attempted.set(false);
     this.searcher?.clear();
   }
 }
