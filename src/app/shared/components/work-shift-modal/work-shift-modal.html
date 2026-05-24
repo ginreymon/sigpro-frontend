@@ -1,0 +1,24 @@
+<app-modal-layout [visible]="visible" [title]="'Turno'" [acceptLabel]="'Seleccionar'" (onAccept)="save()" (onCancel)="cancel()">
+
+  <app-searcher #searcher [intent]="'action'" (onSearch)="search($event)"></app-searcher>
+
+  <app-ui-form-field [label]="'Turno'">
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 items-stretch overflow-y-auto max-h-[30vh] py-2">
+      @for (shift of filtered(); track shift.id) {
+        <app-ui-option-card [selected]="isSelected(shift.id)" (onToggle)="select(shift)">
+          <div class="flex flex-row justify-start gap-2 items-center mb-1">
+            <app-ui-icon [iconName]="'alarmClock'" class="h-5 w-5"></app-ui-icon>
+            <p class="font-medium text-sm">{{ shift.name | titlecase | ellipsis:20 }}</p>
+          </div>
+          <p class="text-xs text-gray-500"><strong>Hora inicio:</strong> {{ shift.start_time.slice(0, 5) }}</p>
+          <p class="text-xs text-gray-500"><strong>Hora fin:</strong> {{ shift.end_time.slice(0, 5) }}</p>
+        </app-ui-option-card>
+      }
+    </div>
+  </app-ui-form-field>
+
+  @if(attempted() && !selectedId) {
+    <app-ui-error-message>Debe seleccionar un turno</app-ui-error-message>
+  }
+
+</app-modal-layout>

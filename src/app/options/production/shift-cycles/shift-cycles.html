@@ -3,7 +3,7 @@
     <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
         @if(productionOrder()){
 
-            <app-work-shift-summary [session]="currentSession()" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
+            <app-work-shift-summary [session]="currentSession()" (employeesClick)="openEmployeesSnapshot()" (moduleClick)="openModuleModal()" (shiftClick)="openShiftModal()"></app-work-shift-summary>
 
             <app-order-header [productionOrder]="productionOrder()"></app-order-header>
 
@@ -39,7 +39,11 @@
 
 <app-task-timer [selectedSKU]="selectedSKU()" [workBreaks]="contextWorkBreaks()" (saved)="onTaskSaved()" (started)="onTaskStarted()"></app-task-timer>
 
-<app-employees-modal [employees]="contextEmployees()" [preselectedIds]="preselectedIds()" (onSave)="updateEmployees($event)"></app-employees-modal>
+<app-employees-modal [visible]="employeesModalVisible()" [employees]="contextEmployees()" [preselectedIds]="preselectedIds()" (onSave)="updateEmployees($event)" (onClose)="employeesModalVisible.set(false)"></app-employees-modal>
+
+<app-module-modal [visible]="moduleModalVisible()" [modules]="contextModules()" [selectedId]="currentSession()?.current_module?.id ?? null" (onClose)="moduleModalVisible.set(false)"></app-module-modal>
+ 
+<app-work-shift-modal [visible]="shiftModalVisible()" [workShifts]="contextWorkShifts()" [selectedId]="currentSession()?.work_shift?.id ?? null" (onClose)="shiftModalVisible.set(false)"></app-work-shift-modal> -->
 
 <app-balance-bottom-sheet [visible]="balanceVisible()" (onClose)="balanceVisible.set(false)">
 </app-balance-bottom-sheet>

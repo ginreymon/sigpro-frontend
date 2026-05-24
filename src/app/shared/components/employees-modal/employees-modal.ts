@@ -1,7 +1,6 @@
 import { Component, computed, EventEmitter, inject, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 import { Employee } from '../../../models/production/employee';
-import { DialogService } from '../../../services/common/dialog-service';
 import { ModalLayout } from '../modal-layout/modal-layout';
 import { Searcher } from '../searcher/searcher';
 import { UiFormField } from '../../elements/ui-form-field/ui-form-field';
@@ -20,10 +19,12 @@ import { finalize } from 'rxjs';
 })
 
 export class EmployeesModal implements OnInit {
+  @Input() visible: boolean = false;
   @Input() readOnly: boolean = false;
   @Input() fetch: Boolean = false;
   @Input() allowedCostCenters: number[] | null = null;
   @Output() onSave = new EventEmitter<number[]>();
+  @Output() onClose = new EventEmitter<void>();
 
   @ViewChild('searcher') private searcher!: Searcher;
 
@@ -39,7 +40,6 @@ export class EmployeesModal implements OnInit {
   }
 
   private _employees = signal<Employee[]>([]);
-  private dialogService = inject(DialogService);
   private employeeService = inject(EmployeeService);
   private loaderService = inject(LoaderService);
 
@@ -107,12 +107,13 @@ export class EmployeesModal implements OnInit {
       this.attempted.set(true);
       return;
     }
-    this.dialogService.closeModal();
     this.onSave.emit(this.selectedIds);
+    this.onClose.emit();
     this.reset();
   }
 
   cancel(): void {
+    this.onClose.emit();
     this.reset();
   }
 

@@ -5,7 +5,6 @@ import { ProductivityService } from '../../../services/production/productivity-s
 import { ProductivityParams } from '../../../models/production/productivity-params';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { UpperCasePipe } from '@angular/common';
-import { UiTableButton } from '../../elements/ui-table-button/ui-table-button';
 import { AppConfigService } from '../../../services/core/app-config-service';
 
 @Component({
@@ -17,6 +16,8 @@ import { AppConfigService } from '../../../services/core/app-config-service';
 export class WorkShiftSummary implements OnInit {
 
   @Output() employeesClick = new EventEmitter<void>();
+  @Output() moduleClick = new EventEmitter<void>();
+  @Output() shiftClick = new EventEmitter<void>();
 
   protected productivityService = inject(ProductivityService);
   protected appConfig = inject(AppConfigService);
@@ -50,8 +51,8 @@ export class WorkShiftSummary implements OnInit {
 
   protected buildCards(s: WorkSession): void {
     this.cards.set([
-      { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.number} ${s.current_module?.name}`, action: () => null },
-      { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} : ${s.work_shift.start_time.slice(0, 5)} - ${s.work_shift.end_time.slice(0, 5)}`, action: () => null },
+      { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.number} ${s.current_module?.name}`, action: () => this.moduleClick.emit() },
+      { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} : ${s.work_shift.start_time.slice(0, 5)} - ${s.work_shift.end_time.slice(0, 5)}`, action: () => this.shiftClick.emit() },
       { title: 'Encomendados', iconName: 'user', data: s.employees_snapshot?.length ?? 0, action: () => this.employeesClick.emit() },
       { title: 'Acumuladas', data: '-', thresholds: { green: 0, red: 10000000 } },
       { title: 'Eficiencia', data: '-', thresholds: { green: this.appConfig.highEfficiencyLimit, red: this.appConfig.lowEfficiencyLimit } },

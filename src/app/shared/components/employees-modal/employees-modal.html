@@ -1,4 +1,4 @@
-<app-modal-layout (onAccept)="save()" (onCancel)="cancel()" [hideAccept]="readOnly">
+<app-modal-layout [visible]="visible" [title]="'Encomendados'" [acceptLabel]="'Actualizar'" [hideAccept]="readOnly" (onAccept)="save()" (onCancel)="cancel()">
 
   <app-searcher #searcher [intent]="'action'" (onSearch)="search($event)"></app-searcher>
 

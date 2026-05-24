@@ -15,6 +15,8 @@ import { TaskTimer } from '../../../shared/components/task-timer/task-timer';
 import { OrderHeader } from '../../../shared/elements/order-header/order-header';
 import { WorkShiftSummary } from '../../../shared/components/work-shift-summary/work-shift-summary';
 import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
+import { ModuleModal } from '../../../shared/components/module-modal/module-modal';
+import { WorkShiftModal } from '../../../shared/components/work-shift-modal/work-shift-modal';
 import { BalanceBottomSheet } from '../../../shared/components/balance-bottom-sheet/balance-bottom-sheet';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
@@ -27,7 +29,7 @@ import { WorkSessionService } from '../../../services/production/work-session-se
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal, BalanceBottomSheet, OrderHeader],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
@@ -60,12 +62,17 @@ export class ShiftCycles implements OnInit {
   isLoading = signal(true);
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
   contextWorkBreaks = computed(() => this.context()?.workBreaks ?? []);
+  contextWorkShifts = computed(() => this.context()?.workShifts ?? []);
+  contextModules = computed(() => this.currentSession()?.modules ?? []);
   contextEmployees = computed(() =>
     (this.context()?.employees ?? []).filter(e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!))
   );
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
   selectedSKU = signal<SkuTaskDetail | null>(null);
+  moduleModalVisible = signal(false);
+  shiftModalVisible = signal(false);
+  employeesModalVisible = signal(false);
 
   ngOnInit(): void {
     this.loadDocumentFromRoute();
@@ -189,7 +196,15 @@ export class ShiftCycles implements OnInit {
   }
 
   openEmployeesSnapshot(): void {
-    this.dialogService.openModal('Encomendados', 'Actualizar');
+    this.employeesModalVisible.set(true);
+  }
+
+  openModuleModal(): void {
+    this.moduleModalVisible.set(true);
+  }
+
+  openShiftModal(): void {
+    this.shiftModalVisible.set(true);
   }
 
   updateEmployees(ids: number[]) {
