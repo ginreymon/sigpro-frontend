@@ -128,14 +128,14 @@
     <aside aside-content class="h-full max-h-full">
         <div class="h-full max-h-full flex flex-col justify-start">
 
-            <div class="border-b border-default border-gray-300 pb-4 md:pb-5">
+            <div class="border-b border-default border-gray-300 pb-4 md:pb-5 flex flex-row justify-between items-center">
                 <h3 class="text-lg font-medium text-heading text-gray-900">
                     Encomendados
                 </h3>
                 @if(selectedModule?.operator_count){
-                <h4 [class]="`text-lg font-medium text-heading ${(employeeIds?.value.length != selectedModule?.operator_count)?'text-red-500':'text-gray-900'}`">
-                    {{ employeeIds?.value.length }} de {{ selectedModule?.operator_count }}
-                </h4>
+                <span [class]="'text-sm font-semibold px-2.5 py-1 rounded-full ' + ((employeeIds?.value.length != selectedModule?.operator_count) ? 'text-red-700 bg-red-100' : 'text-brand-700 bg-brand-100')">
+                    {{ employeeIds?.value.length }} / {{ selectedModule?.operator_count }}
+                </span>
                 }
             </div>
 
