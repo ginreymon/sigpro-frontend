@@ -31,17 +31,17 @@
         <app-ui-icon [iconName]="'chevronLeft'" [class]="'w-4 h-4'"></app-ui-icon>
       </button>
 
-      <div class="flex gap-1 flex-1 justify-center">
+      <div class="flex gap-1 flex-1">
         <button
           type="button"
-          class="py-1 text-sm font-semibold rounded-lg transition-colors cursor-pointer w-28 text-center"
+          class="flex-1 py-1 text-sm font-semibold rounded-lg transition-colors cursor-pointer text-center"
           [class]="viewMode() === 'months' ? 'bg-brand-100 text-brand-700' : 'text-gray-800 hover:bg-gray-100'"
           (click)="viewMode.set(viewMode() === 'months' ? 'days' : 'months')">
           {{ months[viewDate().month] }}
         </button>
         <button
           type="button"
-          class="py-1 text-sm font-semibold rounded-lg transition-colors cursor-pointer w-28 text-center"
+          class="flex-1 py-1 text-sm font-semibold rounded-lg transition-colors cursor-pointer text-center"
           [class]="viewMode() === 'years' ? 'bg-brand-100 text-brand-700' : 'text-gray-800 hover:bg-gray-100'"
           (click)="viewMode.set(viewMode() === 'years' ? 'days' : 'years')">
           {{ viewDate().year }}
@@ -124,7 +124,7 @@
     }
 
     <!-- Footer -->
-    <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
+    <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-300">
       <app-ui-button [intent]="'cancel'" (onClick)="close()">Cancelar</app-ui-button>
       <app-ui-button [intent]="'accept'" [disabled]="!tempDate()" (onClick)="accept()">Aceptar</app-ui-button>
     </div>
