@@ -53,7 +53,7 @@
 
 <app-shift-time-alert [enabled]="currentSession() !== null"></app-shift-time-alert>
 
-<app-quantity-modal [selectedSKU]="selectedSKU()"></app-quantity-modal>
+<app-quantity-modal [selectedSKU]="selectedSKU()" (onSave)="saveSKU($event)"></app-quantity-modal>
 
 }
 @else {

@@ -32,6 +32,11 @@
                 La suma de cantidades ({{ exceedsMaxError.total }}) supera el máximo disponible ({{ exceedsMaxError.max }}).
             </app-ui-error-message>
             }
+            @if(allZeroError && recordForm.dirty){
+            <app-ui-error-message>
+                Debe ingresar al menos una cantidad mayor a cero.
+            </app-ui-error-message>
+            }
         </form>
         }
         @else {

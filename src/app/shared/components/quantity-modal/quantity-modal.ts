@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
@@ -29,17 +29,29 @@ export class QuantityModal {
   protected visible = this.qms.visible;
   protected isSubmitting = signal(false);
 
+  constructor() {
+    effect(() => {
+      if (!this.visible()) {
+        this.recordForm.reset();
+      }
+    });
+  }
+
   recordForm: FormGroup = this.fb.group(
     {
       completed_quantity: [null, [Validators.required, Validators.min(0), this.integerValidator]],
       rejected_quantity: [null, [Validators.required, Validators.min(0), this.integerValidator]],
       scrap_quantity: [null, [Validators.required, Validators.min(0), this.integerValidator]],
     },
-    { validators: this.exceedsMaxValidator.bind(this) }
+    { validators: [this.exceedsMaxValidator.bind(this), this.atLeastOnePositiveValidator] }
   );
 
   get exceedsMaxError(): { max: number; total: number } | null {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
+  }
+
+  get allZeroError(): boolean {
+    return !!this.recordForm.errors?.['allZero'];
   }
 
   get maxAvailable(): number {  
@@ -54,6 +66,13 @@ export class QuantityModal {
     return Number.isInteger(Number(value)) ? null : { notInteger: true };
   }
 
+  private atLeastOnePositiveValidator(group: AbstractControl): ValidationErrors | null {
+    const completed = Number(group.get('completed_quantity')?.value) || 0;
+    const rejected = Number(group.get('rejected_quantity')?.value) || 0;
+    const scrap = Number(group.get('scrap_quantity')?.value) || 0;
+    return completed + rejected + scrap > 0 ? null : { allZero: true };
+  }
+
   private exceedsMaxValidator(group: AbstractControl): ValidationErrors | null {
     const completed = group.get('completed_quantity')?.value ?? 0;
     const rejected = group.get('rejected_quantity')?.value ?? 0;
@@ -63,7 +82,6 @@ export class QuantityModal {
   }
 
   cancel() {
-    this.recordForm.reset({ completed_quantity: null, rejected_quantity: null, scrap_quantity: null });
     this.qms.close();
   }
 

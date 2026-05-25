@@ -32,6 +32,7 @@ import { QuantityModal } from '../../../shared/components/quantity-modal/quantit
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
 import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
 import { Loader } from "../../../shared/elements/loader/loader";
+import { ProductionRecordService } from '../../../services/production/production-record-service';
 
 @Component({
   selector: 'app-shift-cycles',
@@ -57,6 +58,7 @@ export class ShiftCycles implements OnInit {
   private loaderService = inject(LoaderService);
   private workSessionService = inject(WorkSessionService);
   private qms = inject(QuantityModalService);
+  private productionRecordService = inject(ProductionRecordService);
 
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
@@ -222,6 +224,31 @@ export class ShiftCycles implements OnInit {
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: () => this.refreshSession(),
+      });
+  }
+
+  saveSKU(record: Partial<ProductionRecord>) {
+    const activityId = this.currentSession()?.active_activity?.id;
+    if (!activityId) return;
+
+    const payload: Partial<ProductionRecord> = {
+      ...record,
+      work_session_activity: activityId,
+    };
+
+    this.loaderService.showLoader();
+    this.productionRecordService.create(payload)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => {
+          this.qms.close();
+          this.reloadOrder();
+          const parts: string[] = [];
+          if (payload.completed_quantity) parts.push(`Completadas: ${payload.completed_quantity}`);
+          if (payload.rejected_quantity) parts.push(`Saldos: ${payload.rejected_quantity}`);
+          if (payload.scrap_quantity) parts.push(`Bajas: ${payload.scrap_quantity}`);
+          this.dialogService.openToast('Cantidades guardadas', parts.join(' · '), 'check');
+        },
       });
   }
 
