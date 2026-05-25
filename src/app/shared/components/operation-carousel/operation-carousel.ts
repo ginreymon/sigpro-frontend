@@ -19,6 +19,7 @@ export class OperationCarousel implements OnDestroy {
   isDragging = false;
   private touchStartX = 0;
   private readonly SWIPE_THRESHOLD = 50;
+  private readonly MOUSE_THRESHOLD = 80;
 
   private resizeSub: Subscription;
 
@@ -79,8 +80,8 @@ export class OperationCarousel implements OnDestroy {
 
   onMouseUp() {
     if (!this.isDragging) return;
-    if (this.dragDelta < -this.SWIPE_THRESHOLD) this.next();
-    else if (this.dragDelta > this.SWIPE_THRESHOLD) this.prev();
+    if (this.dragDelta < -this.MOUSE_THRESHOLD) this.next();
+    else if (this.dragDelta > this.MOUSE_THRESHOLD) this.prev();
     this.dragDelta = 0;
     this.isDragging = false;
   }
