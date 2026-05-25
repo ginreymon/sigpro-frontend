@@ -1,5 +1,16 @@
-<div #container class="scrollbar-thin-clean w-full min-h-0 overflow-hidden mt-1" [style.maxWidth]="isLargeScreen() ? 'calc(200vw/3 - 8rem)' : 'calc(100vw - 4rem)'">
-  <div #track class="min-w-full flex flex-row gap-2 py-2 pl-2 transition-transform duration-300" [style.transform]="'translateX(-' + currentOffset + 'px)'">
+<div #container class="scrollbar-thin-clean w-full min-h-0 overflow-hidden mt-1 cursor-grab active:cursor-grabbing select-none"
+  [style.maxWidth]="isLargeScreen() ? 'calc(200vw/3 - 8rem)' : 'calc(100vw - 4rem)'"
+  (touchstart)="onTouchStart($event)"
+  (touchmove)="onTouchMove($event)"
+  (touchend)="onTouchEnd()"
+  (mousedown)="onMouseDown($event)"
+  (mousemove)="onMouseMove($event)"
+  (mouseup)="onMouseUp()"
+  (mouseleave)="onMouseUp()">
+  <div #track class="min-w-full flex flex-row gap-2 py-2 pl-2"
+    [class.transition-transform]="!isDragging"
+    [class.duration-300]="!isDragging"
+    [style.transform]="'translateX(-' + (currentOffset - dragDelta) + 'px)'">
     <ng-content></ng-content>
   </div>
 </div>
