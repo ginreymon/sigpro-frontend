@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TitleCasePipe } from '@angular/common';
-import { forkJoin } from 'rxjs';
+import { forkJoin, finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
@@ -14,6 +14,7 @@ import { Searcher } from '../../../shared/components/searcher/searcher';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { ModuleService } from '../../../services/production/module-service';
 import { WorkShiftService } from '../../../services/production/work-shift-service';
+import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
 import { Employee } from '../../../models/production/employee';
 import { Module } from '../../../models/production/module';
 import { WorkShift } from '../../../models/production/work-shift';
@@ -45,6 +46,7 @@ export class ModuleEfficiency implements OnInit {
   private employeeService = inject(EmployeeService);
   private moduleService = inject(ModuleService);
   private workShiftService = inject(WorkShiftService);
+  private wslService = inject(WorkSpaceLoaderService);
 
   filterForm: FormGroup = this.fb.group({
     fecha_inicio: [null, Validators.required],
@@ -60,17 +62,20 @@ export class ModuleEfficiency implements OnInit {
   filteredEmployees = signal<Employee[]>([]);
 
   ngOnInit() {
+    this.wslService.start();
     forkJoin({
       modules: this.moduleService.all(),
       workShifts: this.workShiftService.all(),
       employees: this.employeeService.all(),
-    }).subscribe(({ modules, workShifts, employees }) => {
-      this.modules.set(modules);
-      this.workShifts.set(workShifts);
-      const sorted = this.sortEmployees(employees);
-      this.employees.set(sorted);
-      this.filteredEmployees.set(sorted);
-    });
+    })
+      .pipe(finalize(() => this.wslService.end()))
+      .subscribe(({ modules, workShifts, employees }) => {
+        this.modules.set(modules);
+        this.workShifts.set(workShifts);
+        const sorted = this.sortEmployees(employees);
+        this.employees.set(sorted);
+        this.filteredEmployees.set(sorted);
+      });
   }
 
   private sortEmployees(list: Employee[]): Employee[] {
