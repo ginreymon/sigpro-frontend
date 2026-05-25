@@ -10,10 +10,11 @@ import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message
 import { EmployeeService } from '../../../services/production/employee-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
+import { UiLabelButton } from "../../elements/ui-label-button/ui-label-button";
 
 @Component({
   selector: 'app-employees-modal',
-  imports: [ModalLayout, Searcher, UiFormField, UiOptionCard, UiIcon, UiErrorMessage, TitleCasePipe],
+  imports: [ModalLayout, Searcher, UiFormField, UiOptionCard, UiIcon, UiErrorMessage, TitleCasePipe, UiLabelButton],
   templateUrl: './employees-modal.html',
   styleUrl: './employees-modal.css',
 })

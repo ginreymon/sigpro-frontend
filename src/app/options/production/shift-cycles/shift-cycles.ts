@@ -30,10 +30,12 @@ import { LastRecordCard } from '../../../shared/components/last-record-card/last
 import { ShiftTimeAlert } from '../../../shared/components/shift-time-alert/shift-time-alert';
 import { QuantityModal } from '../../../shared/components/quantity-modal/quantity-modal';
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
+import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
+import { Loader } from "../../../shared/elements/loader/loader";
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, QuantityModal],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, QuantityModal, UnplannedShiftMessage, Loader],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
