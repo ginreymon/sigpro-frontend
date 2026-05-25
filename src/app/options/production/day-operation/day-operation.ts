@@ -211,7 +211,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     }
 
     if (!this.validateModelForm()) {
-      this.errorMessage.set('Completa todos los campos requeridos para continuar.');
+      this.errorMessage.set('Complete todos los campos requeridos para continuar.');
       return;
     }
 
