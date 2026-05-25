@@ -169,10 +169,14 @@ export class ProductionOrdersTable {
     });
   }
 
+  getProducedQty(size: any): number {
+    return Number(size.completedQty) + Number(size.rejectedQty) + Number(size.wasteQty);
+  }
+
   getButtonIntent(size: any): ButtonBaseType {
-    if (size.completedQty === size.orderedQty) return 'cancel';
+    if (this.getProducedQty(size) === size.orderedQty) return 'cancel';
     if (size.hasOpenRecords === true) return 'action';
-    if (size.completedQty > 0) return 'danger';
+    if (this.getProducedQty(size) > 0) return 'danger';
     return 'label';
   }
 

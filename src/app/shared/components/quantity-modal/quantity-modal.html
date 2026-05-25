@@ -34,6 +34,9 @@
             }
         </form>
         }
+        @else {
+        <app-quantity-detail class="w-full border-b border-slate-200" [selectedSKU]="selectedSKU"></app-quantity-detail>
+        }
         
         <app-sku-quantity-summary class="w-full" [selectedSKU]="selectedSKU"></app-sku-quantity-summary>
     </div>

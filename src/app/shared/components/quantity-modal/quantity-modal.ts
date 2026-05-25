@@ -10,11 +10,12 @@ import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { SkuQuantitySummary } from '../sku-quantity-summary/sku-quantity-summary';
 import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message';
 import { ProductionRecord } from '../../../models/production/production-record';
+import { QuantityDetail } from "../quantity-detail/quantity-detail";
 
 @Component({
   selector: 'app-quantity-modal',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, SkuDetail, SkuQuantitySummary, UiErrorMessage],
+  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, SkuDetail, SkuQuantitySummary, UiErrorMessage, QuantityDetail],
   templateUrl: './quantity-modal.html',
 })
 export class QuantityModal {
@@ -41,10 +42,10 @@ export class QuantityModal {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
   }
 
-  get maxAvailable(): number {
+  get maxAvailable(): number {  
     if (!this.selectedSKU) return 0;
     const { orderedQty, completedQty, wasteQty, rejectedQty } = this.selectedSKU;
-    return orderedQty - (completedQty + wasteQty + rejectedQty);
+    return Number(orderedQty) - (Number(completedQty) + Number(wasteQty) + Number(rejectedQty));
   }
 
   private integerValidator(control: AbstractControl): ValidationErrors | null {

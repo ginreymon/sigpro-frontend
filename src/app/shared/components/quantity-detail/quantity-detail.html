@@ -1,0 +1,12 @@
+@if(cards.length){
+<div class="w-full flex flex-row justify-between py-4 ">
+    @for (card of cards; track $index; let last = $last) {
+    <div [class]="'flex flex-col ' + (last ? 'items-end text-right' : '')">
+        <h3 class="text-slate-500 text-xs">{{ card.title }}</h3>
+        <p [class]="`text-m font-semibold mb-1 ${card.error?'text-red-600':'text-slate-900'}`">
+            {{ card.data.toString() | uppercase }}
+        </p>
+    </div>
+    }            
+</div>
+}

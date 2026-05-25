@@ -35,7 +35,7 @@
                         @if(size.skuRowId != 0){
                         <app-ui-table-button [intent]="getButtonIntent(size)" (onClick)="selectSKU(productionOrder.documentType, productionOrder.documentNumber, size.skuRowId)">
                             @if(getButtonIntent(size) === 'danger'){
-                                {{ size.completedQty }}/{{ size.orderedQty + size.rejectedQty + size.wasteQty }}
+                                {{ getProducedQty(size) }} / {{ size.orderedQty }}
                             } @else {
                                 {{ size.orderedQty }}
                             }
