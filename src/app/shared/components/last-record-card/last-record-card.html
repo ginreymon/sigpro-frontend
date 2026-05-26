@@ -20,4 +20,9 @@
     </div>
     <app-ui-icon [iconName]="'chevronRight'" class="h-4 w-4 text-gray-400 shrink-0"></app-ui-icon>
   </button>
+} @else {
+  <div class="w-full flex flex-col items-center justify-center gap-3 py-8">
+    <app-ui-icon [iconName]="'clockRotateLeft'" class="h-10 w-10 text-gray-400"></app-ui-icon>
+    <p class="text-sm text-gray-500">No hay OPs registradas</p>
+  </div>
 }

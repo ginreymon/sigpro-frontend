@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, Output, EventEmitter, signal } from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
@@ -9,25 +9,23 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
   imports: [UiIcon],
   templateUrl: './last-record-card.html',
 })
-export class LastRecordCard implements OnInit {
-  @Output() loaded = new EventEmitter<boolean>();
+export class LastRecordCard {
+  @Input() set trigger(v: unknown) { if (v !== undefined) this.load(); }
   lastRecord = signal<ProductionRecord | null>(null);
   lastRecordLoading = signal(true);
 
   private router = inject(Router);
   private productionRecordService = inject(ProductionRecordService);
 
-  ngOnInit(): void {
+  private load(): void {
+    this.lastRecordLoading.set(true);
+    this.lastRecord.set(null);
     this.productionRecordService.getLast().subscribe({
       next: (record) => {
         this.lastRecord.set(record);
         this.lastRecordLoading.set(false);
-        this.loaded.emit(!!record);
       },
-      error: () => {
-        this.lastRecordLoading.set(false);
-        this.loaded.emit(false);
-      },
+      error: () => this.lastRecordLoading.set(false),
     });
   }
 

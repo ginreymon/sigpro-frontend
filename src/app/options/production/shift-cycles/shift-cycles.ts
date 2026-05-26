@@ -75,7 +75,7 @@ export class ShiftCycles implements OnInit {
   );
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
-  hasLastRecord = signal<boolean | null>(null);
+  lastRecordTrigger = signal(0);
   selectedSKU = signal<SkuTaskDetail | null>(null);
   moduleModalVisible = signal(false);
   shiftModalVisible = signal(false);
@@ -115,6 +115,7 @@ export class ShiftCycles implements OnInit {
           this.currentSession.set(context.session);
           this.setDocument(context.order);
           this.checkActiveRecord(context.session, context.order);
+          if (!context.order) this.lastRecordTrigger.update(n => n + 1);
         },
         error: () => this.router.navigateByUrl(this.DAY_OPERATION_URL),
       });
