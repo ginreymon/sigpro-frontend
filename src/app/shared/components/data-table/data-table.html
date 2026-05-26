@@ -80,7 +80,9 @@
 
     </div>
 
+    @if (showPager) {
     <app-table-pager class="shrink-0" [totalItems]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
         (onChange)="pagerHandler($event)"></app-table-pager>
+    }
 
 </div>

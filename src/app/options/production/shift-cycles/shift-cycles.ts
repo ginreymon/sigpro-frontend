@@ -17,6 +17,7 @@ import { EmployeesModal } from '../../../shared/components/employees-modal/emplo
 import { ModuleModal } from '../../../shared/components/module-modal/module-modal';
 import { WorkShiftModal } from '../../../shared/components/work-shift-modal/work-shift-modal';
 import { BalanceBottomSheet } from '../../../shared/components/balance-bottom-sheet/balance-bottom-sheet';
+import { ProductivityParams } from '../../../models/production/productivity-params';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
@@ -33,19 +34,31 @@ import { QuantityModalService } from '../../../services/common/quantity-modal-se
 import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
 import { Loader } from "../../../shared/elements/loader/loader";
 import { ProductionRecordService } from '../../../services/production/production-record-service';
+import { PauseModal } from '../../../shared/components/pause-modal/pause-modal';
+import { PauseModalService } from '../../../services/common/pause-modal-service';
+import { WorkBreakRecord } from '../../../models/production/work-break-record';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, QuantityModal, UnplannedShiftMessage, Loader],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, QuantityModal, UnplannedShiftMessage, Loader, PauseModal],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
 export class ShiftCycles implements OnInit {
+  private readonly BALANCE_END_EXTRA_HOURS = 8;
+
   balanceVisible = signal(false);
 
-  openBalance() {
-    this.balanceVisible.set(true);
-  }
+  balanceParams = computed<ProductivityParams | null>(() => {
+    const session = this.currentSession();
+    if (!session) return null;
+    return {
+      startDate: this.buildShiftDatetime(session.work_shift.start_time),
+      endDate: this.buildShiftDatetime(session.work_shift.end_time, this.BALANCE_END_EXTRA_HOURS),
+      moduleId: session.module_id,
+      shiftId: session.work_shift_id,
+    };
+  });
 
   private DAY_OPERATION_URL = environment.DAY_OPERATION_URL;
   private OPERATION_ORDER_URL = environment.SHIFT_CYCLES_URL;
@@ -58,6 +71,7 @@ export class ShiftCycles implements OnInit {
   private loaderService = inject(LoaderService);
   private workSessionService = inject(WorkSessionService);
   private qms = inject(QuantityModalService);
+  protected pms = inject(PauseModalService);
   private productionRecordService = inject(ProductionRecordService);
 
   private hasCheckedActiveRecord = false;
@@ -93,6 +107,14 @@ export class ShiftCycles implements OnInit {
   protected preselectedIds = computed(() =>
     this.currentSession()?.employees_snapshot?.map(e => e.id) ?? []
   );
+
+  private buildShiftDatetime(timeStr: string, extraHours = 0): string {
+    const [h, m, s] = timeStr.split(':').map(Number);
+    const d = new Date();
+    d.setHours(h + extraHours, m, s, 0);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
 
   private reset() {
     this.hasCheckedActiveRecord = false;
@@ -271,5 +293,18 @@ export class ShiftCycles implements OnInit {
       `Hay una tarea activa en ${this.activeRecord.op_type} ${this.activeRecord.op_number}`,
       'fail'
     );
+  }
+  
+  openBalance() {
+    this.balanceVisible.set(true);
+  }
+
+  openPauses() {
+    this.pms.open();
+  }
+
+  onPauseSaved(record: WorkBreakRecord) {
+    this.pms.close();
+    this.dialogService.openToast('Pausa registrada', record.name ?? record.custom_reason ?? '', 'check');
   }
 }

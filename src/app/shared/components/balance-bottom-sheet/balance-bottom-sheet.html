@@ -5,17 +5,47 @@
     (click)="close()">
   </div>
 
-  <div [class]="'fixed inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-xl transition-transform duration-300 ' + (visible ? 'translate-y-0' : 'translate-y-full')">
+  <div [class]="'fixed inset-x-0 top-16 bottom-0 bg-white rounded-t-2xl shadow-xl transition-transform duration-300 ' + (visible ? 'translate-y-0' : 'translate-y-full')">
 
-    <div class="flex flex-col p-6">
+    <div class="h-full flex flex-col p-6">
 
       <div class="flex items-center justify-between border-b border-gray-200 pb-4">
         <h3 class="text-lg font-semibold text-gray-900">Balance del día</h3>
         <app-ui-close-button (onClose)="close()"></app-ui-close-button>
       </div>
 
-      <div class="py-6 max-h-[60vh] overflow-y-auto text-gray-600">
-        <ng-content></ng-content>
+      <div class="py-4 flex-1 min-h-0 overflow-y-auto">
+        <app-data-table
+          [paginatedResponse]="paginatedResponse()"
+          [columns]="columns"
+          [actions]="actions"
+          [showPager]="false"         
+          (onSearch)="onSearch($event)">
+
+          <ng-template appTableTemplate="cantidadesTemplate" let-row>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
+              <span class="text-slate-400">Ord.</span>
+              <span class="font-semibold text-slate-700 text-right">{{ row.total_ordered }}</span>
+              <span class="text-slate-400">Comp.</span>
+              <span class="font-semibold text-green-600 text-right">{{ row.total_completed }}</span>
+              <span class="text-slate-400">Saldos.</span>
+              <span class="font-semibold text-amber-500 text-right">{{ row.total_rejected }}</span>
+              <span class="text-slate-400">Bajas</span>
+              <span class="font-semibold text-red-500 text-right">{{ row.total_scrap }}</span>             
+            </div>
+          </ng-template>       
+
+          <ng-template appTableTemplate="ultimoRegistroTemplate" let-row>
+            @if (row.last_record_end) {
+              <span [class]="'font-medium ' + (isLate(row.last_record_end) ? 'text-red-600' : 'text-slate-700')">
+                {{ toLocalDate(row.last_record_end) | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+            } @else {
+              <span class="text-slate-400 text-xs">—</span>
+            }
+          </ng-template>
+
+        </app-data-table>
       </div>
 
       <div class="border-t border-gray-200 pt-4 flex justify-end">

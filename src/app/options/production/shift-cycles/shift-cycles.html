@@ -12,15 +12,23 @@
                 <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
             </div>
 
-            <div class="flex flex-row justify-end mt-4 gap-3">
-                <app-ui-button [intent]="'action'" (onClick)="openBalance()">
-                    <app-ui-icon [iconName]="'chartArea'" class="h-5 w-5"></app-ui-icon>
-                    Balance del día
-                </app-ui-button>
-                <app-ui-button (onClick)="goToSearch()">
-                    <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
-                    Cerrar OP
-                </app-ui-button>
+            <div class="flex flex-row justify-between mt-4 gap-3">
+                <div class="flex flex-row gap-3">
+                    <app-ui-button [intent]="'action'" (onClick)="openPauses()">
+                        <app-ui-icon [iconName]="'pause'" class="h-5 w-5"></app-ui-icon>
+                        Pausas
+                    </app-ui-button>
+                    <app-ui-button [intent]="'action'" (onClick)="openBalance()">
+                        <app-ui-icon [iconName]="'chartArea'" class="h-5 w-5"></app-ui-icon>
+                        Balance del día
+                    </app-ui-button>
+                </div>
+                <div class="flex flex-row gap-3">
+                    <app-ui-button (onClick)="goToSearch()">
+                        <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                        Cerrar OP
+                    </app-ui-button>
+                </div>
             </div>
         }
         @else if(!isLoading()) {
@@ -49,11 +57,18 @@
 
 <app-work-shift-modal [visible]="shiftModalVisible()" [workShifts]="contextWorkShifts()" [selectedId]="currentSession()?.work_shift?.id ?? null" (onSelect)="onWorkShiftSelected($event)" (onClose)="shiftModalVisible.set(false)"></app-work-shift-modal>
 
-<app-balance-bottom-sheet [visible]="balanceVisible()" (onClose)="balanceVisible.set(false)"></app-balance-bottom-sheet>
+<app-balance-bottom-sheet
+  [visible]="balanceVisible()"
+  [params]="balanceParams()"
+  [shiftEndTime]="currentSession()?.work_shift?.end_time ?? null"
+  (onClose)="balanceVisible.set(false)">
+</app-balance-bottom-sheet>
 
 <app-shift-time-alert [enabled]="currentSession() !== null"></app-shift-time-alert>
 
 <app-quantity-modal [selectedSKU]="selectedSKU()" (onSave)="saveSKU($event)"></app-quantity-modal>
+
+<app-pause-modal (onCancel)="pms.close()" (onPause)="onPauseSaved($event)"></app-pause-modal>
 
 }
 @else {

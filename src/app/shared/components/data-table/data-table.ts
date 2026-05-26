@@ -53,6 +53,7 @@ export class DataTable<T> {
   };
 
   @Input() footer: T[] = [];
+  @Input() showPager: boolean = true;
 
   private _originalColumns: TableColumn<T>[] = [];
   private _rawData: TableRow<T>[] = [];
@@ -78,7 +79,7 @@ export class DataTable<T> {
     this.buildColumns();
   }
   
-  @Input() set tableToolsButtons(btns: TableToolsButtons) {
+  @Input() set tableToolsButtons(btns: Partial<TableToolsButtons>) {
     this._tableToolsButtons = {
       ...this._tableToolsButtons,
       ...btns,

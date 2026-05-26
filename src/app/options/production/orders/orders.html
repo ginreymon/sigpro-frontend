@@ -53,6 +53,8 @@
 
 <app-employees-modal [fetch]="true" [preselectedIds]="preselectedIds()" (onSave)="updateEmployees($event)"></app-employees-modal>
 
-<app-balance-bottom-sheet [visible]="balanceVisible()" (onClose)="balanceVisible.set(false)">
-  <!-- Contenido del balance del día -->
+<app-balance-bottom-sheet
+  [visible]="balanceVisible()"
+  [params]="balanceParams()"
+  (onClose)="balanceVisible.set(false)">
 </app-balance-bottom-sheet>

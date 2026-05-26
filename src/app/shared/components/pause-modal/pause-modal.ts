@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, Output, EventEmitter, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, Output, EventEmitter, signal } from '@angular/core';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiOptionCard } from '../../elements/ui-option-card/ui-option-card';
@@ -11,6 +11,7 @@ import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { PausePayload, WorkBreakRecord } from '../../../models/production/work-break-record';
 import { LoaderService } from '../../../services/common/loader-service';
 import { UiIcon } from "../../elements/ui-icon/ui-icon";
+import { PauseModalService } from '../../../services/common/pause-modal-service';
 
 @Component({
   selector: 'app-pause-modal',
@@ -23,16 +24,19 @@ export class PauseModal implements OnInit {
   private activityService = inject(WorkSessionActivityService);
   private loaderService = inject(LoaderService);
   private tts = inject(TaskTimerService);
+  private pms = inject(PauseModalService);
 
-  @Input() visible = false;
-  @Input() preloadedWorkBreaks: WorkBreak[] | null | undefined;
+  visible = input(false);
+  protected isVisible = computed(() => this.visible() || this.pms.visible());
+  preloadedWorkBreaks = input<WorkBreak[] | null | undefined>();
   @Output() onCancel = new EventEmitter<void>();
   @Output() onPause = new EventEmitter<WorkBreakRecord>();
 
   protected workBreaks = signal<WorkBreak[]>([]);
 
   ngOnInit(): void {
-    if (this.preloadedWorkBreaks?.length) this.workBreaks.set(this.preloadedWorkBreaks);
+    const preloaded = this.preloadedWorkBreaks();
+    if (preloaded?.length) this.workBreaks.set(preloaded);
     else this.workBreakService.getAll().pipe(map(r => r.results))
       .subscribe(breaks => this.workBreaks.set(breaks));
   }

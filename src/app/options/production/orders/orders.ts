@@ -16,6 +16,7 @@ import { TaskTimer } from "../../../shared/components/task-timer/task-timer";
 import { WorkShiftSummary } from '../../../shared/components/work-shift-summary/work-shift-summary';
 import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
 import { BalanceBottomSheet } from '../../../shared/components/balance-bottom-sheet/balance-bottom-sheet';
+import { ProductivityParams } from '../../../models/production/productivity-params';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { DialogService } from '../../../services/common/dialog-service';
@@ -35,8 +36,27 @@ import { WorkSessionService } from '../../../services/production/work-session-se
 export class Orders implements OnInit {
   balanceVisible = signal(false);
 
+  balanceParams = computed<ProductivityParams | null>(() => {
+    const session = this.currentSession();
+    if (!session) return null;
+    return {
+      startDate: this.buildShiftDatetime(session.work_shift.start_time),
+      endDate: this.buildShiftDatetime(session.work_shift.end_time),
+      moduleId: session.module_id,
+      shiftId: session.work_shift_id,
+    };
+  });
+
   openBalance() {
     this.balanceVisible.set(true);
+  }
+
+  private buildShiftDatetime(timeStr: string): string {
+    const [h, m, s] = timeStr.split(':').map(Number);
+    const d = new Date();
+    d.setHours(h, m, s, 0);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   }
 
   private DAY_OPERATION_URL = 'production/day-operation';
