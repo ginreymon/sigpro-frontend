@@ -17,7 +17,6 @@ import { EmployeesModal } from '../../../shared/components/employees-modal/emplo
 import { ModuleModal } from '../../../shared/components/module-modal/module-modal';
 import { WorkShiftModal } from '../../../shared/components/work-shift-modal/work-shift-modal';
 import { BalanceBottomSheet } from '../../../shared/components/balance-bottom-sheet/balance-bottom-sheet';
-import { ProductivityParams } from '../../../models/production/productivity-params';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
@@ -45,20 +44,7 @@ import { WorkBreakRecord } from '../../../models/production/work-break-record';
   styleUrl: './shift-cycles.css',
 })
 export class ShiftCycles implements OnInit {
-  private readonly BALANCE_END_EXTRA_HOURS = 8;
-
   balanceVisible = signal(false);
-
-  balanceParams = computed<ProductivityParams | null>(() => {
-    const session = this.currentSession();
-    if (!session) return null;
-    return {
-      startDate: this.buildShiftDatetime(session.work_shift.start_time),
-      endDate: this.buildShiftDatetime(session.work_shift.end_time, this.BALANCE_END_EXTRA_HOURS),
-      moduleId: session.module_id,
-      shiftId: session.work_shift_id,
-    };
-  });
 
   private DAY_OPERATION_URL = environment.DAY_OPERATION_URL;
   private OPERATION_ORDER_URL = environment.SHIFT_CYCLES_URL;
@@ -107,14 +93,6 @@ export class ShiftCycles implements OnInit {
   protected preselectedIds = computed(() =>
     this.currentSession()?.employees_snapshot?.map(e => e.id) ?? []
   );
-
-  private buildShiftDatetime(timeStr: string, extraHours = 0): string {
-    const [h, m, s] = timeStr.split(':').map(Number);
-    const d = new Date();
-    d.setHours(h + extraHours, m, s, 0);
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-  }
 
   private reset() {
     this.hasCheckedActiveRecord = false;

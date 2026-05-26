@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal, computed, input, effect } from '@angular/core';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiCloseButton } from '../../elements/ui-close-button/ui-close-button';
 import { DataTable } from '../data-table/data-table';
+import { WorkSession } from '../../../models/production/work-session';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ProductivityParams } from '../../../models/production/productivity-params';
 import { ProductivitySummaryRow } from '../../../models/production/productivity-summary-row';
@@ -18,10 +19,12 @@ import { DatePipe } from '@angular/common';
   styleUrl: './balance-bottom-sheet.css',
 })
 export class BalanceBottomSheet implements OnChanges {
+  private readonly BALANCE_END_EXTRA_HOURS = 8;
+  
   @Input() visible: boolean = false;
-  @Input() params: ProductivityParams | null = null;
   @Input() shiftEndTime: string | null = null;
   @Output() onClose = new EventEmitter<void>();
+  currentSession = input<WorkSession | null>(null);
 
   paginatedResponse = signal<PaginatedResponse<ProductivitySummaryRow> | null>(null);
   private allResults: ProductivitySummaryRow[] = [];
@@ -40,10 +43,15 @@ export class BalanceBottomSheet implements OnChanges {
     { type: 'template', label: 'Cantidades',  templateName: 'cantidadesTemplate' },
   ];
 
-  constructor(private productivityService: ProductivityService) {}
+  constructor(private productivityService: ProductivityService) {
+    effect(() => {
+      const session = this.currentSession();
+      if (session && this.visible) this.loadData();
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['visible']?.currentValue === true && this.params) {
+    if (changes['visible']?.currentValue === true && this.currentSession()) {
       this.loadData();
     }
   }
@@ -51,7 +59,7 @@ export class BalanceBottomSheet implements OnChanges {
   private loadData(): void {
     this.paginatedResponse.set(null);
     this.productivityService.getSummary({
-      ...this.params!,
+      ...this.balanceParams()!,
       clientNow: new Date().toISOString(),
     }).subscribe({
       next: (response) => {
@@ -92,5 +100,24 @@ export class BalanceBottomSheet implements OnChanges {
 
   close(): void {
     this.onClose.emit();
+  }
+
+  balanceParams = computed<ProductivityParams | null>(() => {
+    const session = this.currentSession();
+    if (!session) return null;
+    return {
+      startDate: this.buildShiftDatetime(session.work_shift.start_time),
+      endDate: this.buildShiftDatetime(session.work_shift.end_time, this.BALANCE_END_EXTRA_HOURS),
+      moduleId: session.module_id,
+      shiftId: session.work_shift_id,
+    };
+  });
+
+  private buildShiftDatetime(timeStr: string, extraHours = 0): string {
+    const [h, m, s] = timeStr.split(':').map(Number);
+    const d = new Date();
+    d.setHours(h + extraHours, m, s, 0);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   }
 }

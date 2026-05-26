@@ -57,12 +57,7 @@
 
 <app-work-shift-modal [visible]="shiftModalVisible()" [workShifts]="contextWorkShifts()" [selectedId]="currentSession()?.work_shift?.id ?? null" (onSelect)="onWorkShiftSelected($event)" (onClose)="shiftModalVisible.set(false)"></app-work-shift-modal>
 
-<app-balance-bottom-sheet
-  [visible]="balanceVisible()"
-  [params]="balanceParams()"
-  [shiftEndTime]="currentSession()?.work_shift?.end_time ?? null"
-  (onClose)="balanceVisible.set(false)">
-</app-balance-bottom-sheet>
+<app-balance-bottom-sheet [visible]="balanceVisible()" [currentSession]="currentSession()" [shiftEndTime]="currentSession()?.work_shift?.end_time ?? null" (onClose)="balanceVisible.set(false)"></app-balance-bottom-sheet>
 
 <app-shift-time-alert [enabled]="currentSession() !== null"></app-shift-time-alert>
 
