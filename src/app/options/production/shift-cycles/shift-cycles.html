@@ -20,7 +20,7 @@
                     </app-ui-button>
                     <app-ui-button [intent]="'action'" (onClick)="openBalance()">
                         <app-ui-icon [iconName]="'chartArea'" class="h-5 w-5"></app-ui-icon>
-                        Balance del día
+                        Balance del módulo
                     </app-ui-button>
                 </div>
                 <div class="flex flex-row gap-3">
@@ -34,11 +34,18 @@
         @else if(!isLoading()) {
         <app-order-searcher [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)"></app-order-searcher>
 
-        <div class="flex-1 min-h-0 mt-3 bg-gray-100 rounded-lg border border-gray-200 overflow-y-auto px-3 pb-3">
+        @if (hasLastRecord() !== false) {
+          <div class="flex-1 min-h-0 mt-3 bg-gray-100 rounded-lg border border-gray-200 overflow-y-auto px-3 pb-3">
             <div class="flex flex-row flex-wrap gap-3 content-start">
-                <app-last-record-card></app-last-record-card>
+              <app-last-record-card (loaded)="hasLastRecord.set($event)"></app-last-record-card>
             </div>
-        </div>
+          </div>
+        } @else {
+          <div class="flex-1 min-h-0 mt-3 bg-gray-100 rounded-lg border border-gray-200 flex flex-col items-center justify-center gap-3">
+            <app-ui-icon [iconName]="'clockRotateLeft'" class="h-10 w-10 text-gray-400"></app-ui-icon>
+            <p class="text-sm text-gray-500">No hay OPs registradas</p>
+          </div>
+        }
 
         <div class="flex flex-row justify-end mt-4">
             <app-ui-button (onClick)="goToDayOperation()">

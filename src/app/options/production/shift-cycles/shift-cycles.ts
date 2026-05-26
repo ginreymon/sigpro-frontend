@@ -75,6 +75,7 @@ export class ShiftCycles implements OnInit {
   );
   currentSession = signal<WorkSession | null>(null);
   productionOrder = signal<ProductionOrder | null>(null);
+  hasLastRecord = signal<boolean | null>(null);
   selectedSKU = signal<SkuTaskDetail | null>(null);
   moduleModalVisible = signal(false);
   shiftModalVisible = signal(false);

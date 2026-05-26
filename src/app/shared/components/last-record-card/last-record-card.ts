@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, Output, EventEmitter, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
@@ -10,6 +10,7 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
   templateUrl: './last-record-card.html',
 })
 export class LastRecordCard implements OnInit {
+  @Output() loaded = new EventEmitter<boolean>();
   lastRecord = signal<ProductionRecord | null>(null);
   lastRecordLoading = signal(true);
 
@@ -21,8 +22,12 @@ export class LastRecordCard implements OnInit {
       next: (record) => {
         this.lastRecord.set(record);
         this.lastRecordLoading.set(false);
+        this.loaded.emit(!!record);
       },
-      error: () => this.lastRecordLoading.set(false),
+      error: () => {
+        this.lastRecordLoading.set(false);
+        this.loaded.emit(false);
+      },
     });
   }
 

@@ -1,8 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal, computed, input, effect } from '@angular/core';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiCloseButton } from '../../elements/ui-close-button/ui-close-button';
+import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { DataTable } from '../data-table/data-table';
 import { WorkSession } from '../../../models/production/work-session';
+import { finalize } from 'rxjs';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ProductivityParams } from '../../../models/production/productivity-params';
 import { ProductivitySummaryRow } from '../../../models/production/productivity-summary-row';
@@ -14,7 +16,7 @@ import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-balance-bottom-sheet',
-  imports: [UiButton, UiCloseButton, DataTable, TableTemplate, DatePipe],
+  imports: [UiButton, UiCloseButton, UiIcon, DataTable, TableTemplate, DatePipe],
   templateUrl: './balance-bottom-sheet.html',
   styleUrl: './balance-bottom-sheet.css',
 })
@@ -26,8 +28,10 @@ export class BalanceBottomSheet implements OnChanges {
   @Output() onClose = new EventEmitter<void>();
   currentSession = input<WorkSession | null>(null);
 
+  isLoading = signal(false);
   paginatedResponse = signal<PaginatedResponse<ProductivitySummaryRow> | null>(null);
   private allResults: ProductivitySummaryRow[] = [];
+  readonly skeletonRows = Array(5).fill(0);
 
   readonly actions: Partial<TableActions> = {
     delete: { enabled: true, iconName: 'trash', toolTip: 'Eliminar' },
@@ -57,12 +61,14 @@ export class BalanceBottomSheet implements OnChanges {
   }
 
   private loadData(): void {
+    this.isLoading.set(true);
     this.paginatedResponse.set(null);
     this.productivityService.getSummary({
       ...this.balanceParams()!,
       clientNow: new Date().toISOString(),
-    }).subscribe({
-      next: (response) => {
+    }).pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (response) => {
           const sorted = [...response.results].sort((a, b) => {
             if (!a.last_record_end) return 1;
             if (!b.last_record_end) return -1;
@@ -71,7 +77,7 @@ export class BalanceBottomSheet implements OnChanges {
           this.allResults = sorted;
           this.paginatedResponse.set({ ...response, results: sorted });
         },
-    });
+      });
   }
 
   onSearch(query: string): void {

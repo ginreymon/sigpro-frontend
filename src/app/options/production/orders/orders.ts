@@ -29,7 +29,7 @@ import { WorkSessionService } from '../../../services/production/work-session-se
 
 @Component({
   selector: 'app-orders',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal, BalanceBottomSheet],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UpperCasePipe, UiIcon, TaskTimer, WorkShiftSummary, EmployeesModal],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
