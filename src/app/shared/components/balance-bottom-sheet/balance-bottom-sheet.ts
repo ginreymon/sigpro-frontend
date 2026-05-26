@@ -34,7 +34,7 @@ export class BalanceBottomSheet implements OnChanges {
   readonly skeletonRows = Array(5).fill(0);
 
   readonly actions: Partial<TableActions> = {
-    delete: { enabled: true, iconName: 'trash', toolTip: 'Eliminar' },
+    // edit: { enabled: true, iconName: 'pencil', toolTip: 'Editar' },
   };
 
   readonly columns: TableColumn<ProductivitySummaryRow>[] = [
@@ -43,7 +43,7 @@ export class BalanceBottomSheet implements OnChanges {
     { field: 'op_type',           label: 'Tipo Doc' },
     { field: 'op_number',         label: 'N° OP' },
     { field: 'sku_reference',     label: 'Referencia' },      
-    { type: 'template', label: 'Hora Registro',  templateName: 'ultimoRegistroTemplate' },
+    { type: 'template', label: 'Hora Último Registro',  templateName: 'ultimoRegistroTemplate' },
     { type: 'template', label: 'Cantidades',  templateName: 'cantidadesTemplate' },
   ];
 
