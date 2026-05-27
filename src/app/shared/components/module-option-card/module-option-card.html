@@ -9,7 +9,9 @@
         <strong class="text-xs text-gray-500"> {{ mod.name | titlecase | ellipsis:25 }}</strong>
       </p>
     } @else {
-      <p class="font-medium text-sm">Todos</p>
+      <p class="font-medium text-sm">
+        <strong class="text-xs text-gray-500">Todos</strong>
+      </p>
     }
   </div>
 </app-ui-option-card>
