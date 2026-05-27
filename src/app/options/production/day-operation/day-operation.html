@@ -71,18 +71,14 @@
                     }
                     <div class="relative bg-gray-100 rounded-lg border border-gray-200">
                         <app-operation-carousel #workshiftCarousel>
-                            @for(workshift of workShifts();track workshift){
-                            <app-ui-option-card [className]="'min-w-50 max-w-50'" (onToggle)="selectWorkShift(workshift.id)"
+                            @for(workshift of workShifts(); track workshift){
+                              <app-work-shift-option-card
+                                [shift]="workshift"
+                                (onToggle)="selectWorkShift(workshift.id)"
                                 [selected]="isSelectedWorkShift(workshift)">
-                                <div class="flex flex-row justify-start gap-2 items-center mb-1">
-                                    <app-ui-icon [iconName]="'alarmClock'" class="h-5 w-5"></app-ui-icon>
-                                    <p class="font-medium text-sm"> {{ workshift.name | titlecase | ellipsis:20 }} </p>
-                                </div>
-                                <p class="text-xs text-gray-500"> <strong>Hora inicio :</strong> {{ workshift.start_time }} </p>
-                                <p class="text-xs text-gray-500"> <strong>Hora fin:</strong> {{ workshift.end_time }} </p>
-                            </app-ui-option-card>
+                              </app-work-shift-option-card>
                             } @empty {
-                            <p class="text-sm text-gray-400 italic py-1 px-2">Sin turnos disponibles</p>
+                              <p class="text-sm text-gray-400 italic py-1 px-2">Sin turnos disponibles</p>
                             }
                         </app-operation-carousel>
                         <div class="absolute right-0 inset-y-0 w-10 bg-linear-to-l from-gray-100 to-transparent pointer-events-none rounded-r-lg"></div>

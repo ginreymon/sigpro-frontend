@@ -9,6 +9,7 @@ import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { OperationCarousel } from '../../../shared/components/operation-carousel/operation-carousel';
 import { ModuleOptionCard } from '../../../shared/components/module-option-card/module-option-card';
+import { WorkShiftOptionCard } from '../../../shared/components/work-shift-option-card/work-shift-option-card';
 import { UiDatePicker } from '../../../shared/elements/ui-date-picker/ui-date-picker';
 import { EllipsisPipe } from '../../../pipes/ellipsis-pipe';
 import { Searcher } from '../../../shared/components/searcher/searcher';
@@ -34,6 +35,7 @@ import { WorkShift } from '../../../models/production/work-shift';
     UiOptionCard,
     OperationCarousel,
     ModuleOptionCard,
+    WorkShiftOptionCard,
     UiDatePicker,
     TitleCasePipe,
     EllipsisPipe,

@@ -1,0 +1,10 @@
+<app-ui-option-card
+  (onToggle)="onToggle.emit()"
+  [selected]="selected">
+  <div class="flex flex-row justify-start gap-2 items-center mb-1">
+    <app-ui-icon [iconName]="'alarmClock'" class="h-5 w-5"></app-ui-icon>
+    <p class="font-medium text-sm">{{ shift.name | titlecase | ellipsis:20 }}</p>
+  </div>
+  <p class="text-xs text-gray-500"><strong>Inicio:</strong> {{ shift.start_time }}</p>
+  <p class="text-xs text-gray-500"><strong>Fin:</strong> {{ shift.end_time }}</p>
+</app-ui-option-card>

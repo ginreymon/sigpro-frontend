@@ -71,17 +71,11 @@
           <div class="relative bg-gray-100 rounded-lg border border-gray-200">
             <app-operation-carousel #workshiftCarousel>
               @for(shift of workShifts(); track shift.id) {
-                <app-ui-option-card
-                  [className]="'min-w-50 max-w-50'"
+                <app-work-shift-option-card
+                  [shift]="shift"
                   (onToggle)="selectShift(shift.id)"
                   [selected]="isSelectedShift(shift)">
-                  <div class="flex flex-row justify-start gap-2 items-center mb-1">
-                    <app-ui-icon [iconName]="'alarmClock'" class="h-5 w-5"></app-ui-icon>
-                    <p class="font-medium text-sm">{{ shift.name | titlecase | ellipsis:20 }}</p>
-                  </div>
-                  <p class="text-xs text-gray-500"><strong>Inicio:</strong> {{ shift.start_time }}</p>
-                  <p class="text-xs text-gray-500"><strong>Fin:</strong> {{ shift.end_time }}</p>
-                </app-ui-option-card>
+                </app-work-shift-option-card>
               }
               @empty {
                 <p class="text-sm text-gray-400 italic py-2 px-2">Sin turnos disponibles</p>

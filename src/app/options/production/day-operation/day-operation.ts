@@ -29,6 +29,7 @@ import { Router } from '@angular/router';
 import { DayOperationDetail } from '../../../shared/components/day-operation-detail/day-operation-detail';
 import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
 import { ModuleOptionCard } from '../../../shared/components/module-option-card/module-option-card';
+import { WorkShiftOptionCard } from '../../../shared/components/work-shift-option-card/work-shift-option-card';
 
 @Component({
   selector: 'app-day-operation',
@@ -48,6 +49,7 @@ import { ModuleOptionCard } from '../../../shared/components/module-option-card/
     DayOperationDetail,
     UiAlert,
     ModuleOptionCard,
+    WorkShiftOptionCard,
   ],
   templateUrl: './day-operation.html',
   styleUrl: './day-operation.css',
