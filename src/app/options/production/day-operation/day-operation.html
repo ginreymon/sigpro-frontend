@@ -41,20 +41,14 @@
                     }
                     <div class="relative bg-gray-100 rounded-lg border border-gray-200">
                         <app-operation-carousel #moduleCarousel>
-                            @for(module of modules();track module){
-                            <app-ui-option-card [className]="'min-w-50 max-w-50'" (onToggle)="selectModule(module.id)"
+                            @for(module of modules(); track module){
+                              <app-module-option-card
+                                [mod]="module"
+                                (onToggle)="selectModule(module.id)"
                                 [selected]="isSelectedModule(module)">
-                                <div class=" flex flex-row justify-start gap-2 items-center">
-                                    <app-ui-icon [iconName]="'screwdriverWrench'" class="h-5 w-5"></app-ui-icon>
-                                    <p class="font-medium text-sm">{{ module.number }}
-                                        <span class="text-xs text-gray-500">
-                                            <strong> {{ module.name | titlecase | ellipsis:25 }}</strong>
-                                        </span>
-                                    </p>
-                                </div>
-                            </app-ui-option-card>
+                              </app-module-option-card>
                             } @empty {
-                            <p class="text-sm text-gray-400 italic py-1 px-2">Sin módulos disponibles</p>
+                              <p class="text-sm text-gray-400 italic py-1 px-2">Sin módulos disponibles</p>
                             }
                         </app-operation-carousel>
                         <div class="absolute right-0 inset-y-0 w-10 bg-linear-to-l from-gray-100 to-transparent pointer-events-none rounded-r-lg"></div>

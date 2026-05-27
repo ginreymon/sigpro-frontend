@@ -8,6 +8,7 @@ import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { OperationCarousel } from '../../../shared/components/operation-carousel/operation-carousel';
+import { ModuleOptionCard } from '../../../shared/components/module-option-card/module-option-card';
 import { UiDatePicker } from '../../../shared/elements/ui-date-picker/ui-date-picker';
 import { EllipsisPipe } from '../../../pipes/ellipsis-pipe';
 import { Searcher } from '../../../shared/components/searcher/searcher';
@@ -32,6 +33,7 @@ import { WorkShift } from '../../../models/production/work-shift';
     UiIcon,
     UiOptionCard,
     OperationCarousel,
+    ModuleOptionCard,
     UiDatePicker,
     TitleCasePipe,
     EllipsisPipe,
@@ -56,7 +58,7 @@ export class ModuleEfficiency implements OnInit {
   filterForm: FormGroup = this.fb.group({
     fecha_inicio: [null, Validators.required],
     fecha_fin: [null, Validators.required],
-    modulo_id: [null, Validators.required],
+    modulo_id: [null],
     turno_id: [null],
     empleado_id: [null],
   });
@@ -126,6 +128,14 @@ export class ModuleEfficiency implements OnInit {
   get turnoId() { return this.filterForm.get('turno_id'); }
   get empleadoId() { return this.filterForm.get('empleado_id'); }
 
+  isAllModulesSelected(): boolean {
+    return this.moduloId?.value === null;
+  }
+
+  selectAllModules(): void {
+    this.moduloId?.setValue(null);
+  }
+
   isSelectedModule(mod: Module): boolean {
     return this.moduloId?.value === mod.id;
   }
@@ -177,8 +187,10 @@ export class ModuleEfficiency implements OnInit {
         const url  = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href  = url;
-        const modName  = this.modules().find(m => m.id === modulo_id)?.name ?? 'modulo';
-        link.download = `${modName.replace(/\s+/g, '_')}_${fecha_inicio}_${fecha_fin}.xlsx`;
+        const modName = modulo_id
+          ? (this.modules().find(m => m.id === modulo_id)?.name?.replace(/\s+/g, '_') ?? 'modulo')
+          : 'todos';
+        link.download = `${modName}_${fecha_inicio}_${fecha_fin}.xlsx`;
         link.click();
         URL.revokeObjectURL(url);
       });

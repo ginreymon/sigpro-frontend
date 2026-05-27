@@ -1,0 +1,15 @@
+<app-ui-option-card
+  (onToggle)="onToggle.emit()"
+  [selected]="selected">
+  <div class="flex flex-row justify-start gap-2 items-center">
+    <app-ui-icon [iconName]="mod ? 'screwdriverWrench' : 'columns'" class="h-5 w-5"></app-ui-icon>
+    @if(mod) {
+      <p class="font-medium text-sm">
+        {{ mod.number }}
+        <strong class="text-xs text-gray-500"> {{ mod.name | titlecase | ellipsis:25 }}</strong>
+      </p>
+    } @else {
+      <p class="font-medium text-sm">Todos</p>
+    }
+  </div>
+</app-ui-option-card>

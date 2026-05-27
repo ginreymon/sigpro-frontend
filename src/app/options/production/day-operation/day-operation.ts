@@ -28,6 +28,7 @@ import { finalize, forkJoin, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { DayOperationDetail } from '../../../shared/components/day-operation-detail/day-operation-detail';
 import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
+import { ModuleOptionCard } from '../../../shared/components/module-option-card/module-option-card';
 
 @Component({
   selector: 'app-day-operation',
@@ -39,13 +40,14 @@ import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
     UiFormField,
     UiIcon,
     EllipsisPipe,
-    TitleCasePipe,   
+    TitleCasePipe,
     EmployeesModal,
     UiTooltip,
     UiCloseButton,
     ReactiveFormsModule,
     DayOperationDetail,
     UiAlert,
+    ModuleOptionCard,
   ],
   templateUrl: './day-operation.html',
   styleUrl: './day-operation.css',
