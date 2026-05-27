@@ -13,6 +13,7 @@ import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableTemplate } from '../../../directives/table-template';
 import { DatePipe } from '@angular/common';
+import { shiftTimeToUtcIso } from '../../../common/functions/date-utils';
 
 @Component({
   selector: 'app-balance-bottom-sheet',
@@ -120,10 +121,6 @@ export class BalanceBottomSheet implements OnChanges {
   });
 
   private buildShiftDatetime(timeStr: string, extraHours = 0): string {
-    const [h, m, s] = timeStr.split(':').map(Number);
-    const d = new Date();
-    d.setHours(h + extraHours, m, s, 0);
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    return shiftTimeToUtcIso(timeStr, extraHours);
   }
 }

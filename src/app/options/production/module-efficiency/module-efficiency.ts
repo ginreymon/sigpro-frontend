@@ -17,6 +17,7 @@ import { WorkShiftService } from '../../../services/production/work-shift-servic
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { ProductivityService } from '../../../services/production/productivity-service';
+import { localDateToUtcIso } from '../../../common/functions/date-utils';
 import { Employee } from '../../../models/production/employee';
 import { Module } from '../../../models/production/module';
 import { WorkShift } from '../../../models/production/work-shift';
@@ -163,8 +164,8 @@ export class ModuleEfficiency implements OnInit {
 
     this.loaderService.showLoader();
     this.productivityService.exportSummaryExcel({
-      startDate:        `${fecha_inicio}T00:00:00`,
-      endDate:          this.nextDayIso(fecha_fin),
+      startDate:        localDateToUtcIso(fecha_inicio),
+      endDate:          localDateToUtcIso(fecha_fin, 1),
       clientNow:        new Date().toISOString(),
       moduleId:         modulo_id   ?? undefined,
       shiftId:          turno_id    ?? undefined,
@@ -183,12 +184,4 @@ export class ModuleEfficiency implements OnInit {
       });
   }
 
-  private nextDayIso(dateStr: string): string {
-    const [y, m, d] = dateStr.split('-').map(Number);
-    const next = new Date(y, m - 1, d + 1);
-    const yy   = next.getFullYear();
-    const mm   = String(next.getMonth() + 1).padStart(2, '0');
-    const dd   = String(next.getDate()).padStart(2, '0');
-    return `${yy}-${mm}-${dd}T00:00:00`;
-  }
 }

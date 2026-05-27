@@ -1,5 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { WorkShiftCard } from '../../../common/interfaces/work-shift-card';
+import { shiftTimeToUtcIso } from '../../../common/functions/date-utils';
 import { WorkSession } from '../../../models/production/work-session';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ProductivityParams } from '../../../models/production/productivity-params';
@@ -66,12 +67,14 @@ export class WorkShiftSummary implements OnInit {
   }
 
   protected loadProductivityCards(s: WorkSession): void {
-    const today = new Date().toISOString().slice(0, 10);
+    const startUtc = shiftTimeToUtcIso(s.work_shift.start_time);
+    const endUtc   = shiftTimeToUtcIso(s.work_shift.end_time);
+
     const params: ProductivityParams = {
-      startDate: `${today}T${s.work_shift.start_time}`,
-      endDate: `${today}T${s.work_shift.end_time}`,
-      moduleId: s.current_module?.id,
-      shiftId: s.work_shift.id,
+      startDate: startUtc,
+      endDate:   endUtc,
+      moduleId:  s.current_module?.id,
+      shiftId:   s.work_shift.id,
     };
 
     this.productivityService.getEfficiencyPeriod(params).subscribe({
