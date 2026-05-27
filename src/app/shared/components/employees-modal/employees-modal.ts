@@ -1,24 +1,18 @@
 import { Component, computed, EventEmitter, inject, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
-import { TitleCasePipe } from '@angular/common';
 import { Employee } from '../../../models/production/employee';
 import { ModalLayout } from '../modal-layout/modal-layout';
-import { Searcher } from '../searcher/searcher';
-import { UiFormField } from '../../elements/ui-form-field/ui-form-field';
-import { UiOptionCard } from '../../elements/ui-option-card/ui-option-card';
-import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { LoaderService } from '../../../services/common/loader-service';
+import { EmployeePicker } from '../employee-picker/employee-picker';
 import { finalize } from 'rxjs';
-import { UiLabelButton } from "../../elements/ui-label-button/ui-label-button";
 
 @Component({
   selector: 'app-employees-modal',
-  imports: [ModalLayout, Searcher, UiFormField, UiOptionCard, UiIcon, UiErrorMessage, TitleCasePipe, UiLabelButton],
+  imports: [ModalLayout, UiErrorMessage, EmployeePicker],
   templateUrl: './employees-modal.html',
   styleUrl: './employees-modal.css',
 })
-
 export class EmployeesModal implements OnInit {
   @Input() visible: boolean = false;
   @Input() readOnly: boolean = false;
@@ -27,7 +21,7 @@ export class EmployeesModal implements OnInit {
   @Output() onSave = new EventEmitter<number[]>();
   @Output() onClose = new EventEmitter<void>();
 
-  @ViewChild('searcher') private searcher!: Searcher;
+  @ViewChild(EmployeePicker) private picker!: EmployeePicker;
 
   @Input()
   set preselectedIds(ids: number[]) {
@@ -38,22 +32,18 @@ export class EmployeesModal implements OnInit {
   @Input()
   set employees(emps: Employee[]) {
     this._employees.set(emps);
-    this.filteredEmployees.set(this.sortEmployees());
   }
 
-  private _employees = signal<Employee[]>([]);
+  private _employees   = signal<Employee[]>([]);
   private _preselectedIds: number[] = [];
   private employeeService = inject(EmployeeService);
-  private loaderService = inject(LoaderService);
+  private loaderService   = inject(LoaderService);
 
   protected selectedIds = signal<number[]>([]);
-  protected filteredEmployees = signal<Employee[]>([]);
-  protected showOnlySelected = signal(false);
-  protected attempted = signal(false);
-  protected displayedEmployees = computed(() =>
-    this.showOnlySelected()
-      ? this.filteredEmployees().filter(e => this.selectedIds().includes(e.id))
-      : this.filteredEmployees()
+  protected attempted   = signal(false);
+
+  protected sortedEmployees = computed(() =>
+    [...this._employees()].sort((a, b) => a.first_name.localeCompare(b.first_name)),
   );
 
   ngOnInit(): void {
@@ -62,50 +52,26 @@ export class EmployeesModal implements OnInit {
     }
   }
 
-  private fetchEmployees() {
+  private fetchEmployees(): void {
     this.loaderService.showLoader();
-    this.employeeService.all()
+    this.employeeService
+      .all()
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (employees) => {
           const results = this.allowedCostCenters
-            ? employees.filter(e => this.allowedCostCenters!.includes(e.cost_center_rowid!))
+            ? employees.filter((e) => this.allowedCostCenters!.includes(e.cost_center_rowid!))
             : employees;
           this._employees.set(results);
-          this.filteredEmployees.set(this.sortEmployees());
         },
       });
   }
 
-  private sortEmployees(): Employee[] {
-    return [...this._employees()].sort((a, b) => a.first_name.localeCompare(b.first_name));
-  }
-
-  isSelected(emp: Employee): boolean {
-    return this.selectedIds().includes(emp.id);
-  }
-
   toggle(id: number): void {
     if (this.readOnly) return;
-    this.selectedIds.update(ids =>
-      ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]
+    this.selectedIds.update((ids) =>
+      ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
     );
-    if (this.showOnlySelected() && this.selectedIds().length === 0) {
-      this.showOnlySelected.set(false);
-    }
-  }
-
-  search(text: string): void {
-    const words = text?.toLowerCase().trim();
-    this.filteredEmployees.set(!words
-      ? this.sortEmployees()
-      : this._employees().filter(
-        (emp) =>
-          emp.first_name.toLowerCase().includes(words) ||
-          emp.last_name1.toLowerCase().includes(words) ||
-          emp.last_name2?.toLowerCase().includes(words) ||
-          emp.id_number.includes(words),
-      ));
   }
 
   save(): void {
@@ -125,9 +91,7 @@ export class EmployeesModal implements OnInit {
   }
 
   private reset(): void {
-    this.filteredEmployees.set(this.sortEmployees());
-    this.showOnlySelected.set(false);
     this.attempted.set(false);
-    this.searcher?.clear();
+    this.picker?.clear();
   }
 }

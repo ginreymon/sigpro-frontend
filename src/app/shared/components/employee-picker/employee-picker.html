@@ -1,7 +1,18 @@
 <app-searcher [intent]="'action'" (onSearch)="search($event)" class="mb-2"></app-searcher>
 
+@if (showSelectionBar()) {
+  <div class="flex justify-between mt-4 mb-2">
+    <app-ui-label-button
+      [intent]="showOnlySelected() ? 'label' : 'action'"
+      (onClick)="showOnlySelected.set(!showOnlySelected())">
+      Solo seleccionados ({{ selectedIds().length }})
+    </app-ui-label-button>
+    <p class="text-xs">Empleados disponibles ({{ filtered().length }})</p>
+  </div>
+}
+
 <div class="flex flex-1 overflow-auto min-h-0 flex-col gap-2 py-1">
-  @for (emp of filtered(); track emp.id) {
+  @for (emp of displayed(); track emp.id) {
     <app-ui-option-card
       class="px-0.5"
       [disabled]="!selectable()"

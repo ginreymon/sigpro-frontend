@@ -1,34 +1,19 @@
 <app-modal-layout [visible]="visible" [title]="'Encomendados'" [acceptLabel]="'Actualizar'" [hideAccept]="readOnly" (onAccept)="save()" (onCancel)="cancel()">
 
-  <app-searcher #searcher [intent]="'action'" (onSearch)="search($event)"></app-searcher>
-
-  <div class="flex justify-between mt-4 mb-2">   
-    <app-ui-label-button [intent]="showOnlySelected()?'label':'action'"  (onClick)="showOnlySelected.set(!showOnlySelected())">
-      Solo seleccionados ({{selectedIds().length}})
-    </app-ui-label-button>
-     <p  class="text-xs">Empleados disponibles ({{filteredEmployees().length}})</p>
-  </div>
-
   <app-ui-form-field [label]="'Empleados'">
-
-    <div class="mb-2 flex flex-col justify-start gap-3 py-2 items-stretch overflow-y-auto max-h-[30vh]">
-      @for (employee of displayedEmployees(); track employee.id) {
-      <app-ui-option-card [disabled]="readOnly" [selected]="isSelected(employee)" (onToggle)="toggle(employee.id)">
-        <div class="font-medium text-sm flex flex-row justify-start items-center gap-2">
-          <app-ui-icon [iconName]="'user'" class="h-5 w-5"></app-ui-icon>
-          <p>
-            {{ employee.first_name | titlecase }}
-            {{ employee.last_name1 | titlecase }}
-            {{ employee.last_name2 | titlecase }}
-          </p>
-        </div>
-      </app-ui-option-card>
-      }
+    <div class="flex flex-col max-h-[30vh]">
+      <app-employee-picker
+        [employees]="sortedEmployees()"
+        [selectedIds]="selectedIds()"
+        [multiSelect]="true"
+        [selectable]="!readOnly"
+        [showSelectionBar]="true"
+        (onToggle)="toggle($event)">
+      </app-employee-picker>
     </div>
-
   </app-ui-form-field>
 
-  @if(attempted() && selectedIds().length === 0) {
+  @if (attempted() && selectedIds().length === 0) {
     <app-ui-error-message>Debe seleccionar al menos un empleado</app-ui-error-message>
   }
 
