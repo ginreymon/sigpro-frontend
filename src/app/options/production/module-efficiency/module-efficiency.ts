@@ -1,18 +1,16 @@
 import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TitleCasePipe } from '@angular/common';
 import { forkJoin, finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
-import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { OperationCarousel } from '../../../shared/components/operation-carousel/operation-carousel';
 import { ModuleOptionCard } from '../../../shared/components/module-option-card/module-option-card';
 import { WorkShiftOptionCard } from '../../../shared/components/work-shift-option-card/work-shift-option-card';
 import { UiDatePicker } from '../../../shared/elements/ui-date-picker/ui-date-picker';
 import { EllipsisPipe } from '../../../pipes/ellipsis-pipe';
-import { Searcher } from '../../../shared/components/searcher/searcher';
+import { EmployeePicker } from '../../../shared/components/employee-picker/employee-picker';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { ModuleService } from '../../../services/production/module-service';
 import { WorkShiftService } from '../../../services/production/work-shift-service';
@@ -32,13 +30,11 @@ import { WorkShift } from '../../../models/production/work-shift';
     UiFormField,
     UiButton,
     UiIcon,
-    UiOptionCard,
     OperationCarousel,
     ModuleOptionCard,
     WorkShiftOptionCard,
-    UiDatePicker,
-    TitleCasePipe,   
-    Searcher,
+    UiDatePicker,   
+    EmployeePicker,
   ],
   templateUrl: './module-efficiency.html',
   styleUrl: './module-efficiency.css',
@@ -46,7 +42,6 @@ import { WorkShift } from '../../../models/production/work-shift';
 export class ModuleEfficiency implements OnInit {
   @ViewChild('moduleCarousel') moduleCarousel!: OperationCarousel;
   @ViewChild('workshiftCarousel') workshiftCarousel!: OperationCarousel;
-  @ViewChild('searcher') private searcher!: Searcher;
 
   private fb = inject(FormBuilder);
   private employeeService = inject(EmployeeService);
@@ -67,7 +62,6 @@ export class ModuleEfficiency implements OnInit {
   modules = signal<Module[]>([]);
   workShifts = signal<WorkShift[]>([]);
   employees = signal<Employee[]>([]);
-  filteredEmployees = signal<Employee[]>([]);
 
   ngOnInit() {
     this.filterForm.get('fecha_inicio')!.valueChanges.subscribe(() => this.validateDateRange(false));
@@ -85,7 +79,6 @@ export class ModuleEfficiency implements OnInit {
         this.workShifts.set(workShifts);
         const sorted = this.sortEmployees(employees);
         this.employees.set(sorted);
-        this.filteredEmployees.set(sorted);
       });
   }
 
@@ -108,21 +101,6 @@ export class ModuleEfficiency implements OnInit {
 
   private sortEmployees(list: Employee[]): Employee[] {
     return [...list].sort((a, b) => a.first_name.localeCompare(b.first_name));
-  }
-
-  search(text: string): void {
-    const words = text?.toLowerCase().trim();
-    this.filteredEmployees.set(
-      !words
-        ? this.sortEmployees(this.employees())
-        : this.employees().filter(
-            (emp) =>
-              emp.first_name.toLowerCase().includes(words) ||
-              emp.last_name1.toLowerCase().includes(words) ||
-              emp.last_name2?.toLowerCase().includes(words) ||
-              emp.id_number.includes(words),
-          ),
-    );
   }
 
   get moduloId() { return this.filterForm.get('modulo_id'); }

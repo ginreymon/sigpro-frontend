@@ -107,7 +107,7 @@
 
       <div class="border-b border-gray-300 pb-4 md:pb-5 flex flex-row justify-between items-center mb-3">
         <h3 class="text-lg font-medium text-gray-900">Empleado</h3>
-        @if(empleadoId?.value) {
+        @if (empleadoId?.value) {
           <span class="text-xs font-semibold px-2.5 py-1 rounded-full text-brand-700 bg-brand-100">
             Seleccionado
           </span>
@@ -116,31 +116,12 @@
         }
       </div>
 
-      <app-searcher #searcher [intent]="'action'" (onSearch)="search($event)" class="mb-2"></app-searcher>
-
-      <div class="flex flex-1 overflow-auto min-h-0 flex-col gap-2 py-1">
-        @for(emp of filteredEmployees(); track emp.id) {
-          <app-ui-option-card
-            class="px-0.5"
-            (onToggle)="selectEmployee(emp.id)"
-            [selected]="isSelectedEmployee(emp)">
-            <div class="font-medium text-sm flex flex-row justify-start items-center gap-2">
-              <app-ui-icon [iconName]="'user'" class="h-5 w-5"></app-ui-icon>
-              <p>
-                {{ emp.first_name | titlecase }}
-                {{ emp.last_name1 | titlecase }}
-                @if(emp.last_name2) { {{ emp.last_name2 | titlecase }} }
-              </p>
-            </div>
-          </app-ui-option-card>
-        }
-        @empty {
-          <div class="flex flex-col items-center justify-center flex-1 gap-3 text-gray-300 py-6">
-            <app-ui-icon [iconName]="'user'" class="h-12 w-12"></app-ui-icon>
-            <p class="text-sm text-gray-400">Sin empleados disponibles</p>
-          </div>
-        }
-      </div>
+      <app-employee-picker
+        [employees]="employees()"
+        [selectedId]="empleadoId?.value"
+        [selectable]="true"
+        (onSelect)="selectEmployee($event)">
+      </app-employee-picker>
 
     </div>
   </aside>

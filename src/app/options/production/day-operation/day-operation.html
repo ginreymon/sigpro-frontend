@@ -129,51 +129,23 @@
     <aside aside-content class="h-full max-h-full">
         <div class="h-full max-h-full flex flex-col justify-start">
 
-            <div class="border-b border-default border-gray-300 pb-4 md:pb-5 flex flex-row justify-between items-center">
+            <div class="border-b border-default border-gray-300 pb-4 md:pb-5 flex flex-row justify-between items-center mb-3">
                 <h3 class="text-lg font-medium text-heading text-gray-900">
                     Encomendados
                 </h3>
-                @if(selectedModule?.operator_count){
+                @if (selectedModule?.operator_count) {
                 <span [class]="'text-sm font-semibold px-2.5 py-1 rounded-full ' + ((employeeIds?.value.length != selectedModule?.operator_count) ? 'text-red-700 bg-red-100' : 'text-brand-700 bg-brand-100')">
                     {{ employeeIds?.value.length }} / {{ selectedModule?.operator_count }}
                 </span>
                 }
             </div>
 
-            <div class="flex flex-1 overflow-auto min-h-0 flex-col justify-start items-center gap-2 w-full">
-
-                <div class="flex flex-col flex-1 min-h-0 gap-3 py-2 w-full">
-
-                    @for(id of employeeIds?.value; track id){
-                    <app-ui-option-card [disabled]="true">
-                        <div class="font-medium text-sm flex flex-row justify-between items-center w-full">
-                            <div class="font-medium text-sm flex flex-row justify-start items-center gap-2">
-                                <app-ui-icon [iconName]="'user'" class="h-5 w-5"></app-ui-icon>
-                                <p>
-                                    {{ getEmployee(id)?.first_name | titlecase }}
-                                    {{ getEmployee(id)?.last_name1 | titlecase }}
-                                    {{ getEmployee(id)?.last_name2 | titlecase }}
-                                </p>
-                            </div>
-
-                            @if(!currentSession()){
-                            <app-ui-tooltip [message]="'Sacar de la lista'" [tooltip]="'left'">
-                                <app-ui-close-button (onClose)="deleteEmployee(id)"></app-ui-close-button>
-                            </app-ui-tooltip>
-                            }
-
-                        </div>
-                    </app-ui-option-card>
-                    } @empty {
-                    <div class="flex flex-col items-center justify-center flex-1 gap-3 text-gray-300 py-6">
-                        <app-ui-icon [iconName]="'user'" class="h-12 w-12"></app-ui-icon>
-                        <p class="text-sm text-gray-400">Sin encomendados agregados</p>
-                    </div>
-                    }
-
-                </div>
-
-            </div>
+            <app-employee-picker
+                [employees]="assignedEmployees"
+                [deletable]="!currentSession()"
+                emptyMessage="Sin encomendados agregados"
+                (onDelete)="deleteEmployee($event)">
+            </app-employee-picker>
 
         </div>
     </aside>

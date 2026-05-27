@@ -7,11 +7,8 @@ import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { WorkSession } from '../../../models/production/work-session';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { OperationCarousel } from '../../../shared/components/operation-carousel/operation-carousel';
-import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
-import { EllipsisPipe } from '../../../pipes/ellipsis-pipe';
-import { TitleCasePipe } from '@angular/common';
 import { WorkShift } from '../../../models/production/work-shift';
 import { Module } from '../../../models/production/module';
 import { Validators } from '@angular/forms';
@@ -21,8 +18,7 @@ import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { Employee } from '../../../models/production/employee';
 import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
-import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
-import { UiCloseButton } from '../../../shared/elements/ui-close-button/ui-close-button';
+import { EmployeePicker } from '../../../shared/components/employee-picker/employee-picker';
 import { ReactiveFormsModule } from '@angular/forms';
 import { finalize, forkJoin, map } from 'rxjs';
 import { Router } from '@angular/router';
@@ -37,13 +33,10 @@ import { WorkShiftOptionCard } from '../../../shared/components/work-shift-optio
     WorkSpaceLayout,
     UiButton,
     OperationCarousel,
-    UiOptionCard,
     UiFormField,
-    UiIcon,   
-    TitleCasePipe,
+    UiIcon,
     EmployeesModal,
-    UiTooltip,
-    UiCloseButton,
+    EmployeePicker,
     ReactiveFormsModule,
     DayOperationDetail,
     UiAlert,
@@ -130,10 +123,11 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     });
   }
 
-  getEmployee(id: number) {
-    return this.employees().find((e) => {
-      return e.id == id;
-    });
+  get assignedEmployees(): Employee[] {
+    const ids: number[] = this.employeeIds?.value ?? [];
+    return ids
+      .map((id) => this.employees().find((e) => e.id === id))
+      .filter((e): e is Employee => e !== undefined);
   }
 
   deleteEmployee(_id: number) {

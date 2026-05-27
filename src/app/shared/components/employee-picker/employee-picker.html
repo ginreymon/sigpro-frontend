@@ -1,0 +1,33 @@
+<app-searcher [intent]="'action'" (onSearch)="search($event)" class="mb-2"></app-searcher>
+
+<div class="flex flex-1 overflow-auto min-h-0 flex-col gap-2 py-1">
+  @for (emp of filtered(); track emp.id) {
+    <app-ui-option-card
+      class="px-0.5"
+      [disabled]="!selectable()"
+      [selected]="isSelected(emp.id)"
+      (onToggle)="toggle(emp.id)">
+      <div class="font-medium text-sm flex flex-row justify-between items-center w-full">
+        <div class="font-medium text-sm flex flex-row justify-start items-center gap-2">
+          <app-ui-icon [iconName]="'user'" class="h-5 w-5"></app-ui-icon>
+          <p>
+            {{ emp.first_name | titlecase }}
+            {{ emp.last_name1 | titlecase }}
+            @if (emp.last_name2) { {{ emp.last_name2 | titlecase }} }
+          </p>
+        </div>
+        @if (deletable()) {
+          <app-ui-tooltip [message]="'Sacar de la lista'" [tooltip]="'left'">
+            <app-ui-close-button (onClose)="remove(emp.id)"></app-ui-close-button>
+          </app-ui-tooltip>
+        }
+      </div>
+    </app-ui-option-card>
+  }
+  @empty {
+    <div class="flex flex-col items-center justify-center flex-1 gap-3 text-gray-300 py-6">
+      <app-ui-icon [iconName]="'user'" class="h-12 w-12"></app-ui-icon>
+      <p class="text-sm text-gray-400">{{ emptyMessage() }}</p>
+    </div>
+  }
+</div>
