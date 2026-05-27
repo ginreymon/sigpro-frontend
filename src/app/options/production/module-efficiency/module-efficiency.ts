@@ -53,7 +53,7 @@ export class ModuleEfficiency implements OnInit {
     fecha_fin: [null, Validators.required],
     modulo_id: [null, Validators.required],
     turno_id: [null, Validators.required],
-    empleado_id: [null, Validators.required],
+    empleado_id: [null],
   });
 
   modules = signal<Module[]>([]);
@@ -62,6 +62,9 @@ export class ModuleEfficiency implements OnInit {
   filteredEmployees = signal<Employee[]>([]);
 
   ngOnInit() {
+    this.filterForm.get('fecha_inicio')!.valueChanges.subscribe(() => this.validateDateRange(false));
+    this.filterForm.get('fecha_fin')!.valueChanges.subscribe(() => this.validateDateRange(true));
+
     this.wslService.start();
     forkJoin({
       modules: this.moduleService.all(),
@@ -76,6 +79,23 @@ export class ModuleEfficiency implements OnInit {
         this.employees.set(sorted);
         this.filteredEmployees.set(sorted);
       });
+  }
+
+  private validateDateRange(markTouched: boolean): void {
+    const inicio     = this.filterForm.get('fecha_inicio')?.value;
+    const fin        = this.filterForm.get('fecha_fin')?.value;
+    const finControl = this.filterForm.get('fecha_fin')!;
+
+    if (inicio && fin && fin < inicio) {
+      const current = finControl.errors ?? {};
+      finControl.setErrors({ ...current, fechaFinMenor: true });
+      if (markTouched) finControl.markAsTouched();
+    } else {
+      if (finControl.errors?.['fechaFinMenor']) {
+        const { fechaFinMenor, ...rest } = finControl.errors;
+        finControl.setErrors(Object.keys(rest).length ? rest : null);
+      }
+    }
   }
 
   private sortEmployees(list: Employee[]): Employee[] {
