@@ -4,7 +4,7 @@
     <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
         @if(productionOrder()){
 
-            <app-work-shift-summary [session]="currentSession()" (employeesClick)="openEmployeesSnapshot()" (moduleClick)="openModuleModal()" (shiftClick)="openShiftModal()"></app-work-shift-summary>
+            <app-work-shift-summary [session]="currentSession()" [shiftEditable]="true" [employeesEditable]="true" (employeesClick)="openEmployeesSnapshot()" (moduleClick)="openModuleModal()" (shiftClick)="openShiftModal()"></app-work-shift-summary>
 
             <app-order-header [productionOrder]="productionOrder()"></app-order-header>
 
@@ -64,6 +64,8 @@
 <app-quantity-modal [selectedSKU]="selectedSKU()" (onSave)="saveSKU($event)"></app-quantity-modal>
 
 <app-pause-modal (onCancel)="pms.close()" (onPause)="onPauseSaved($event)"></app-pause-modal>
+
+<!-- <app-shift-hourly-record [enabled]="currentSession() !== null"></app-shift-hourly-record> -->
 
 }
 @else {

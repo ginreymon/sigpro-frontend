@@ -5,18 +5,18 @@
       <h3 class="text-slate-500 text-xs">{{ card.title }}</h3>
 
       @if (card.action) {
-        <div class="flex flex-row gap-1 items-center mt-0.5 cursor-pointer rounded hover:text-gray-700 hover:bg-gray-100 transition-colors" (click)="card.action()">
+        <div [class]="getActionClasses(card)" (click)="card.action()">
           @if (card.iconName) {
             <app-ui-icon [iconName]="card.iconName" class="h-4 w-4"></app-ui-icon>
           }
-          <p [class]="getDataClasses(card)">
+          <span [class]="getDataClasses(card)">
             {{ card.data.toString() | uppercase }}
-          </p>
+          </span>
         </div>
       }
-            
+
       @else {
-        <div class="flex flex-row gap-1 items-center mt-0.5">
+        <div class="inline-flex flex-row gap-1 items-center mt-0.5">
           @if (card.iconName) {
             <app-ui-icon [iconName]="card.iconName" class="h-4 w-4"></app-ui-icon>
           }

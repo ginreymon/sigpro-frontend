@@ -36,10 +36,11 @@ import { ProductionRecordService } from '../../../services/production/production
 import { PauseModal } from '../../../shared/components/pause-modal/pause-modal';
 import { PauseModalService } from '../../../services/common/pause-modal-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
+import { ShiftHourlyRecord } from '../../../shared/components/shift-hourly-record/shift-hourly-record';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, QuantityModal, UnplannedShiftMessage, Loader, PauseModal],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, Loader, PauseModal],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })

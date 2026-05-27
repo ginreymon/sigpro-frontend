@@ -8,8 +8,8 @@
 
         <!-- Progress -->
         <circle class="fill-none" [class.circle-animated]="isReady()"
-            [class.stroke-red-500]="isEnding() && !isPaused"
-            [class.stroke-brand-600]="!isEnding() && !isPaused"
+            [class.stroke-red-500]="(isEnding() || forceError) && !isPaused && !isCompleted()"
+            [class.stroke-brand-600]="((!isEnding() && !forceError) || isCompleted()) && !isPaused"
             [class.stroke-orange-600]="isPaused"
             [attr.cx]="120" [attr.cy]="120" [attr.r]="radius"
             [attr.stroke-width]="20" [attr.stroke-dasharray]="fullDash" [attr.stroke-dashoffset]="dashOffset()">

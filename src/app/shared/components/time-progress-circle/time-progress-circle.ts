@@ -12,6 +12,7 @@ export class TimeProgressCircle implements OnDestroy {
   fullDash = 2 * Math.PI * this.radius;
   dashOffset = signal(this.fullDash);
   isEnding = signal<boolean>(false);
+  isCompleted = signal(false);
   isReady = signal(false);
   displayTime = signal<string>('00:00:00');
   pauseCountdown = signal<string>('');
@@ -33,6 +34,8 @@ export class TimeProgressCircle implements OnDestroy {
 
   @Input() duration: number = 3600;
   @Input() totalPauseSeconds: number = 0;
+  @Input() forceError: boolean = false;
+  @Input() showRealTime: boolean = false;
 
   /**
    * Fuente de verdad del estado pausa — viene del servicio (isPaused computed).
@@ -98,6 +101,7 @@ export class TimeProgressCircle implements OnDestroy {
   private startTimer() {
     this.clearTimer();
     this.isReady.set(false);
+    this.isCompleted.set(false);
 
     const tick = () => {
       const now = Date.now() + this.offset;
@@ -155,7 +159,12 @@ export class TimeProgressCircle implements OnDestroy {
   }
 
   private updateText() {
-    this.displayTime.set(this.formatText(this.elapsed));
+    if (this.showRealTime) {
+      const now = new Date(Date.now() + this.offset);
+      this.displayTime.set(`${this.pad(now.getHours())}:${this.pad(now.getMinutes())}:${this.pad(now.getSeconds())}`);
+    } else {
+      this.displayTime.set(this.formatText(this.elapsed));
+    }
   }
 
   private updateCircle() {
@@ -164,6 +173,7 @@ export class TimeProgressCircle implements OnDestroy {
     const remaining = this.duration - this.elapsed;
     this.isEnding.set(remaining <= this.duration * 0.25);
     if (remaining <= 0) {
+      this.isCompleted.set(true);
       this.onCompleted.emit();
     }
   }

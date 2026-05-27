@@ -1,0 +1,38 @@
+@if (isOpen()) {
+<app-box-layout [title]="missed() ? 'Registro pendiente' : 'Registro hora'">
+
+  <div box-content class="flex flex-col items-center gap-4 py-4">
+    <app-time-progress-circle
+      [startTime]="hourStart()"
+      [serverNow]="serverNow()"
+      [duration]="3600"
+      [isPaused]="false"
+      [totalPauseSeconds]="0"
+      [forceError]="missed()"
+      [showRealTime]="true"
+    ></app-time-progress-circle>
+
+    @if (missed()) {
+      <p class="text-sm text-red-500 text-center font-medium">
+        No se registró a tiempo. Registre en la próxima ventana.
+      </p>
+    } @else if (!isInWindow()) {
+      <p class="text-sm text-gray-500 text-center">
+        El registro se habilitará 10 minutos antes de cada hora.
+      </p>
+    } @else {
+      <p class="text-sm text-brand-600 text-center font-medium">
+        Ventana de registro activa.
+      </p>
+    }
+  </div>
+
+  <div box-buttons>
+    <app-ui-button [disabled]="!isInWindow()" (onClick)="register()">
+      <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>
+      Registrar
+    </app-ui-button>
+  </div>
+
+</app-box-layout>
+}
