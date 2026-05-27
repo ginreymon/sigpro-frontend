@@ -15,6 +15,8 @@ import { EmployeeService } from '../../../services/production/employee-service';
 import { ModuleService } from '../../../services/production/module-service';
 import { WorkShiftService } from '../../../services/production/work-shift-service';
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
+import { LoaderService } from '../../../services/common/loader-service';
+import { ProductivityService } from '../../../services/production/productivity-service';
 import { Employee } from '../../../models/production/employee';
 import { Module } from '../../../models/production/module';
 import { WorkShift } from '../../../models/production/work-shift';
@@ -47,12 +49,14 @@ export class ModuleEfficiency implements OnInit {
   private moduleService = inject(ModuleService);
   private workShiftService = inject(WorkShiftService);
   private wslService = inject(WorkSpaceLoaderService);
+  private loaderService = inject(LoaderService);
+  private productivityService = inject(ProductivityService);
 
   filterForm: FormGroup = this.fb.group({
     fecha_inicio: [null, Validators.required],
     fecha_fin: [null, Validators.required],
     modulo_id: [null, Validators.required],
-    turno_id: [null, Validators.required],
+    turno_id: [null],
     empleado_id: [null],
   });
 
@@ -153,4 +157,38 @@ export class ModuleEfficiency implements OnInit {
   nextModule() { this.moduleCarousel?.next(); }
   prevShift() { this.workshiftCarousel?.prev(); }
   nextShift() { this.workshiftCarousel?.next(); }
+
+  exportFile(): void {
+    const { fecha_inicio, fecha_fin, modulo_id, turno_id, empleado_id } = this.filterForm.value;
+
+    this.loaderService.showLoader();
+    this.productivityService.exportSummaryExcel({
+      startDate:        `${fecha_inicio}T00:00:00`,
+      endDate:          this.nextDayIso(fecha_fin),
+      clientNow:        new Date().toISOString(),
+      moduleId:         modulo_id   ?? undefined,
+      shiftId:          turno_id    ?? undefined,
+      employeeId:       empleado_id ?? undefined,
+      utcOffsetMinutes: -new Date().getTimezoneOffset(),
+    })
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe(blob => {
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href  = url;
+        const modName  = this.modules().find(m => m.id === modulo_id)?.name ?? 'modulo';
+        link.download = `${modName.replace(/\s+/g, '_')}_${fecha_inicio}_${fecha_fin}.xlsx`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+  }
+
+  private nextDayIso(dateStr: string): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const next = new Date(y, m - 1, d + 1);
+    const yy   = next.getFullYear();
+    const mm   = String(next.getMonth() + 1).padStart(2, '0');
+    const dd   = String(next.getDate()).padStart(2, '0');
+    return `${yy}-${mm}-${dd}T00:00:00`;
+  }
 }

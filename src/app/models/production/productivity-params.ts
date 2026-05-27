@@ -5,4 +5,5 @@ export interface ProductivityParams {
   moduleId?: number;
   shiftId?: number;
   employeeId?: number;
+  utcOffsetMinutes?: number;
 }

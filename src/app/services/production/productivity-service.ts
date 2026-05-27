@@ -41,4 +41,17 @@ export class ProductivityService {
       map(results => ({ count: results.length, next: null, previous: null, results }))
     );
   }
+
+  exportSummaryExcel(p: ProductivityParams): Observable<Blob> {
+    let params = new HttpParams()
+      .set('start_date', p.startDate)
+      .set('end_date', p.endDate)
+      .set('client_now', p.clientNow ?? new Date().toISOString())
+      .set('utc_offset_minutes', p.utcOffsetMinutes ?? -new Date().getTimezoneOffset());
+    if (p.moduleId !== undefined) params = params.set('module_id', p.moduleId);
+    if (p.shiftId !== undefined) params = params.set('shift_id', p.shiftId);
+    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
+
+    return this.http.get(`${this.path}/summary/export/excel/`, { params, responseType: 'blob' });
+  }
 }
