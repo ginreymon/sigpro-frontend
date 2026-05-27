@@ -4,7 +4,7 @@ import { UiCloseButton } from '../../elements/ui-close-button/ui-close-button';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { DataTable } from '../data-table/data-table';
 import { WorkSession } from '../../../models/production/work-session';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ProductivityParams } from '../../../models/production/productivity-params';
 import { ProductivitySummaryRow } from '../../../models/production/productivity-summary-row';
@@ -14,6 +14,7 @@ import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableTemplate } from '../../../directives/table-template';
 import { DatePipe } from '@angular/common';
 import { shiftTimeToUtcIso } from '../../../common/functions/date-utils';
+import { AppConfigService } from '../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-balance-bottom-sheet',
@@ -22,8 +23,6 @@ import { shiftTimeToUtcIso } from '../../../common/functions/date-utils';
   styleUrl: './balance-bottom-sheet.css',
 })
 export class BalanceBottomSheet implements OnChanges {
-  private readonly BALANCE_END_EXTRA_HOURS = 8;
-  
   @Input() visible: boolean = false;
   @Input() shiftEndTime: string | null = null;
   @Output() onClose = new EventEmitter<void>();
@@ -48,7 +47,10 @@ export class BalanceBottomSheet implements OnChanges {
     { type: 'template', label: 'Cantidades',  templateName: 'cantidadesTemplate' },
   ];
 
-  constructor(private productivityService: ProductivityService) {
+  constructor(
+    private productivityService: ProductivityService,
+    private appConfig: AppConfigService,
+  ) {
     effect(() => {
       const session = this.currentSession();
       if (session && this.visible) this.loadData();
@@ -64,10 +66,13 @@ export class BalanceBottomSheet implements OnChanges {
   private loadData(): void {
     this.isLoading.set(true);
     this.paginatedResponse.set(null);
-    this.productivityService.getSummary({
-      ...this.balanceParams()!,
-      clientNow: new Date().toISOString(),
-    }).pipe(finalize(() => this.isLoading.set(false)))
+    this.appConfig.load().pipe(
+      switchMap(() => this.productivityService.getSummary({
+        ...this.balanceParams()!,
+        clientNow: new Date().toISOString(),
+      })),
+      finalize(() => this.isLoading.set(false)),
+    )
       .subscribe({
         next: (response) => {
           const sorted = [...response.results].sort((a, b) => {
@@ -114,7 +119,7 @@ export class BalanceBottomSheet implements OnChanges {
     if (!session) return null;
     return {
       startDate: this.buildShiftDatetime(session.work_shift.start_time),
-      endDate: this.buildShiftDatetime(session.work_shift.end_time, this.BALANCE_END_EXTRA_HOURS),
+      endDate: this.buildShiftDatetime(session.work_shift.end_time, this.appConfig.balanceEndExtraHours),
       moduleId: session.module_id,
       shiftId: session.work_shift_id,
     };

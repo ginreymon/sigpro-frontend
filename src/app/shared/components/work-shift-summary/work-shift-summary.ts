@@ -69,7 +69,7 @@ export class WorkShiftSummary implements OnInit {
 
   protected loadProductivityCards(s: WorkSession): void {
     const startUtc = shiftTimeToUtcIso(s.work_shift.start_time);
-    const endUtc   = shiftTimeToUtcIso(s.work_shift.end_time);
+    const endUtc   = shiftTimeToUtcIso(s.work_shift.end_time, this.appConfig.balanceEndExtraHours);
 
     const params: ProductivityParams = {
       startDate: startUtc,

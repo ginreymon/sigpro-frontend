@@ -8,6 +8,7 @@ export class AppConfigService {
   private static readonly SETTING_NAMES = [
     environment.LOW_EFFICIENCY_LIMIT,
     environment.HIGH_EFFICIENCY_LIMIT,
+    environment.BALANCE_END_EXTRA_HOURS,
   ];
 
   private settings = new Map<string, string>();
@@ -52,5 +53,9 @@ export class AppConfigService {
 
   get highEfficiencyLimit(): number {
     return this.getNumber(environment.HIGH_EFFICIENCY_LIMIT, 100);
+  }
+
+  get balanceEndExtraHours(): number {
+    return this.getNumber(environment.BALANCE_END_EXTRA_HOURS, 8);
   }
 }
