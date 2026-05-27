@@ -59,9 +59,10 @@ export class WorkShiftSummary implements OnInit {
       { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.number} ${s.current_module?.name}`, action: () =>  this.moduleEditable?this.moduleClick.emit(): null },
       { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} : ${s.work_shift.start_time.slice(0, 8)} - ${s.work_shift.end_time.slice(0, 8)}`, action: () => this.shiftEditable ? this.shiftClick.emit() : null },
       { title: 'Encomendados', iconName: 'user', data: s.employees_snapshot?.length ?? 0, action: () => this.employeesEditable ? this.employeesClick.emit() : null },
-      { title: 'Acumuladas', data: '-', thresholds: { green: 0, red: 10000000 } },
+      { title: 'Meta', data: '-', thresholds: { green: 0, red: Infinity } },
+      { title: 'Acumuladas', data: '-', thresholds: { green: 0, red: Infinity } },
+      { title: 'Bajas/Saldos', data: '-', thresholds: { green: Infinity, red: Infinity } },
       { title: 'Eficiencia', data: '-', thresholds: { green: this.appConfig.highEfficiencyLimit, red: this.appConfig.lowEfficiencyLimit } },
-      { title: 'Meta', data: '-', thresholds: { green: 0, red: 1000000 } },
     ]);
     this.loadProductivityCards(s);
   }
@@ -79,13 +80,10 @@ export class WorkShiftSummary implements OnInit {
 
     this.productivityService.getEfficiencyPeriod(params).subscribe({
       next: (data) => {
-        const total = data.total_completed + data.total_rejected + data.total_scrap;
-        const efficiency = data.unit_target  > 0
-          ? Math.round(total / data.unit_target  * 100 * 100) / 100
-          : 0;
         this.cards.update(cards => cards.map((card) => {
           if (card.title === 'Acumuladas') return { ...card, data: data.total_completed };
-          if (card.title === 'Eficiencia') return { ...card, data: efficiency };
+          if (card.title === 'Bajas/Saldos') return { ...card, data: (data.total_rejected + data.total_scrap) };
+          if (card.title === 'Eficiencia') return { ...card, data: Math.round(data.efficiency * 100) / 100 };
           if (card.title === 'Meta') return { ...card, data: Math.round(data.unit_target) };
           return card;
         }));
@@ -110,4 +108,5 @@ export class WorkShiftSummary implements OnInit {
     }
     return `${size} font-semibold text-gray-700`;
   }
+
 }

@@ -20,4 +20,7 @@ export interface EfficiencyPeriod {
   total_available_seconds: number;
   interval_target: number;
   unit_target: number;
+  total_produced: number;
+  weighted_avg_sam: number;
+  efficiency: number;
 }
