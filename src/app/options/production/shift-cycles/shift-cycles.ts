@@ -285,7 +285,7 @@ export class ShiftCycles implements OnInit {
   }
 
   openPauses() {
-    this.pms.open();
+    this.pms.open(this.currentSession()?.active_activity?.id);
   }
 
   onPauseSaved(record: WorkBreakRecord) {

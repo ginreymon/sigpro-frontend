@@ -7,7 +7,6 @@ import { WorkBreakService } from '../../../services/production/work-break-servic
 import { WorkBreak } from '../../../models/production/work-break';
 import { finalize, map } from 'rxjs';
 import { WorkSessionActivityService } from '../../../services/production/work-session-activity-service';
-import { TaskTimerService } from '../../../services/common/task-timer-service';
 import { PausePayload, WorkBreakRecord } from '../../../models/production/work-break-record';
 import { LoaderService } from '../../../services/common/loader-service';
 import { UiIcon } from "../../elements/ui-icon/ui-icon";
@@ -23,7 +22,6 @@ export class PauseModal implements OnInit {
   private workBreakService = inject(WorkBreakService);
   private activityService = inject(WorkSessionActivityService);
   private loaderService = inject(LoaderService);
-  private tts = inject(TaskTimerService);
   private pms = inject(PauseModalService);
 
   visible = input(false);
@@ -74,7 +72,7 @@ export class PauseModal implements OnInit {
 
   pause() {
     if (!this.isValid) return;
-    const activityId = this.activityIdOverride ?? this.tts.activeActivityId();
+    const activityId = this.activityIdOverride ?? this.pms.activeActivityId();
     if (!activityId) return;
 
     const payload: PausePayload = this.selectedBreak()
@@ -91,7 +89,6 @@ export class PauseModal implements OnInit {
           this.isCustomSelected.set(false);
           this.customReason.set('');
           this.touched.set(false);
-          this.tts.closePauseModal();
         },
       });
   }

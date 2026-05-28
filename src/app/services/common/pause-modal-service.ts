@@ -7,10 +7,14 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class PauseModalService {
   private visibleSubject = new BehaviorSubject<boolean>(false);
-  visible$ = this.visibleSubject.asObservable();
-  visible = toSignal(this.visibleSubject.asObservable(), { initialValue: false });
+  private activityIdSubject = new BehaviorSubject<number | null>(null);
 
-  open() {
+  visible$ = this.visibleSubject.asObservable();
+  visible = toSignal(this.visibleSubject, { initialValue: false });
+  activeActivityId = toSignal(this.activityIdSubject, { initialValue: null });
+
+  open(activityId?: number | null) {
+    this.activityIdSubject.next(activityId ?? null);
     this.visibleSubject.next(true);
   }
 
