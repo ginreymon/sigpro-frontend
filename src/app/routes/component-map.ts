@@ -5,7 +5,6 @@ import { DayOperation } from '../options/production/day-operation/day-operation'
 import { WorkShifts } from '../options/admin/work-shifts/work-shifts';
 import { Modules } from '../options/admin/modules/modules';
 import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
-import { Orders } from '../options/production/orders/orders';
 import { ShiftCycles } from '../options/production/shift-cycles/shift-cycles';
 import { SewingSAM } from '../options/production/sewing-sam/sewing-sam';
 import { ModuleEfficiency } from '../options/production/module-efficiency/module-efficiency';
@@ -17,8 +16,7 @@ export const componentMap: Record<string, Type<any>> = {
   'admin/work-shifts': WorkShifts,
   'admin/modules': Modules,
   'admin/work-breaks': WorkBreaks,
-  'production/day-operation': DayOperation,
-  'production/orders': Orders,
+  'production/day-operation': DayOperation,  
   'production/shift-cycles': ShiftCycles,
   'production/sewing-sam': SewingSAM,
   'production/module-efficiency': ModuleEfficiency,
