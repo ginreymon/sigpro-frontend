@@ -193,14 +193,17 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     if (!sessionId) return;
     this.dialogService.openConfirm(
       'Última entrega',
-      '¿Confirmar última entrega? Esta acción finalizará la sesión.',
+      '¿Confirmar última entrega? Con esta acción finalizará la jornada.',
       'Confirmar',
       () => {
         this.loaderService.showLoader();
         this.workSessionService.finalizeEditing(sessionId)
           .pipe(finalize(() => this.loaderService.hideLoader()))
           .subscribe({
-            next: () => this.onFinalize.emit(),
+            next: () => {
+              this.dialogService.closeConfirm();
+              this.onFinalize.emit();
+            },
           });
       }
     );
