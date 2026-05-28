@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { UpperCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ProductionContextService } from '../../../services/production/production-context-service';
+import { Component as ProductionComponent } from '../../../models/production/component';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { UiTooltip } from '../ui-tooltip/ui-tooltip';
 
@@ -43,16 +44,28 @@ export class OrderInfoBar {
         numericValue: null,
         thresholds: null,
         tooltip: 'Cambiar OP',
-        action: () => this.router.navigate([], {
-          queryParams: { docType: order.documentType, docNumber: order.documentNumber },
-          queryParamsHandling: 'merge',
-        }),
+        action: () => this.goToSearch(),
       },
-      { title: 'Referencia', display: order.reference, numericValue: null, thresholds: null },
+      {
+        title: 'Referencia',
+        display: order.reference,
+        numericValue: null,
+        thresholds: null,
+        tooltip: 'Ver materiales',
+        action: () => this.showMaterials(order.components),
+      },
       { title: 'Acumuladas', display: accumulated != null ? `${accumulated}` : '-', numericValue: accumulated, thresholds: { green: 0, red: Infinity } },
       { title: 'Eficiencia', display: effRaw != null ? `${effRaw}%` : '-', numericValue: effRaw, thresholds: { green: this.appConfig.highEfficiencyLimit, red: this.appConfig.lowEfficiencyLimit } },
     ] as InfoCard[];
   });
+
+  private showMaterials(components: ProductionComponent[]): void {
+    console.log('Lista de materiales:', components);
+  }
+
+  private goToSearch(): void {
+    this.router.navigate([], { queryParams: {} });
+  }
 
   protected getDataClass(card: InfoCard): string {
     if (card.thresholds && card.numericValue != null) {

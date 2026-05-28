@@ -5,11 +5,12 @@
   zClass="z-40"
   (onRestoreClick)="isTransparent.set(false)">
 
-  <button box-header-actions
-    class="p-1 rounded hover:bg-gray-100 transition-colors text-gray-400"
-    (click)="$event.stopPropagation(); isTransparent.set(!isTransparent())">
-    <app-ui-icon [iconName]="isTransparent() ? 'eyeOff' : 'eye'" class="w-4 h-4"></app-ui-icon>
-  </button>
+  <app-ui-tooltip box-header-actions [message]="'Transparente'">
+    <button class="p-1 rounded hover:bg-gray-100 transition-colors text-gray-400 cursor-pointer"
+      (click)="$event.stopPropagation(); isTransparent.set(!isTransparent())">
+      <app-ui-icon [iconName]="isTransparent() ? 'eyeOff' : 'eye'" class="w-4 h-4"></app-ui-icon>
+    </button>
+  </app-ui-tooltip>
 
   <div box-content [class]="'flex flex-col items-center gap-4 pt-4'">
 
