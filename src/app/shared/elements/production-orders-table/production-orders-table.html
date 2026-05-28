@@ -11,7 +11,7 @@
 
                     @for(size of sizes; track size ){
                     <th class="title-font tracking-wider font-medium text-center px-8">
-                        <app-ui-tooltip [message]="`Talla ${size}`" [tooltip]="'left'">
+                        <app-ui-tooltip [message]="`Talla ${size}`" [escape]="true">
                             <span
                                 class="text-gray-700 bg-gray-100 px-6 w-16 inline-flex justify-center items-center rounded-full text-xs font-semibold py-1">
                                 {{ size }}
