@@ -6,7 +6,7 @@ import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-l
 import { DataTable } from '../../../shared/components/data-table/data-table';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
-import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
@@ -65,12 +65,26 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
     const minutesValidators = [Validators.required, Validators.min(0), Validators.max(59)];
     this.modelForm = this.fb.group({
       name: [null, [Validators.required, Validators.minLength(4)]],
-      startHour: [null, hourValidators],
-      endHour: [null, hourValidators],
-      startMinutes: [null, minutesValidators],
-      endMinutes: [null, minutesValidators],
+      startHour: [0, hourValidators],
+      endHour: [0, hourValidators],
+      startMinutes: [0, minutesValidators],
+      endMinutes: [0, minutesValidators],
       is_active: [true],
-    });
+    }, { validators: WorkShifts.timeOrderValidator });
+  }
+
+  private static timeOrderValidator(group: AbstractControl): ValidationErrors | null {
+    const sh = Number(group.get('startHour')?.value ?? 0);
+    const sm = Number(group.get('startMinutes')?.value ?? 0);
+    const eh = Number(group.get('endHour')?.value ?? 0);
+    const em = Number(group.get('endMinutes')?.value ?? 0);
+    return sh * 60 + sm >= eh * 60 + em ? { timeOrder: true } : null;
+  }
+
+  get timeOrderInvalid(): boolean {
+    if (!this.modelForm.hasError('timeOrder')) return false;
+    return !!(this.startHour?.touched || this.startMinutes?.touched ||
+              this.endHour?.touched   || this.endMinutes?.touched);
   }
 
   get name() {

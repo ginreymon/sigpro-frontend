@@ -87,8 +87,12 @@
         
                 </div>
                 
-            </app-ui-form-field> 
-            
+            </app-ui-form-field>
+
+            @if (timeOrderInvalid) {
+              <app-ui-error-message>La hora de inicio debe ser menor que la hora de finalización</app-ui-error-message>
+            }
+
             @if(actionType == 'edit'){
             <app-ui-form-field [controlName]="'is_active'" [label]="'Estado'" [layout]="'horizontal'">
                 <app-ui-checkbox formControlName="is_active" [id]="'is_active'" [control]="isActive"></app-ui-checkbox>             
