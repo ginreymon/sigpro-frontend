@@ -1,12 +1,16 @@
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-10 overflow-x-hidden overflow-y-auto transition-transform duration-300">
-    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+<div class="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto transition-all duration-300 cursor-default"
+     [class]="transparent ? 'bg-transparent cursor-pointer' : 'bg-black/50 bg-opacity-10'"
+     (click)="transparent && onRestoreClick.emit()">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md transition-opacity duration-300"
+         [class.opacity-20]="transparent">
 
         @if(title){
-        <h2 class="text-lg font-semibold text-gray-900">
-            {{ title | titlecase  }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900">{{ title | titlecase }}</h2>
+            <ng-content select="[box-header-actions]"></ng-content>
+        </div>
         }
-        
+
         @if(message){
         <p class="text-gray-600 mt-2">{{ message }}</p>
         }

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TitleCasePipe } from '@angular/common';
 
 @Component({
@@ -10,4 +10,6 @@ import { TitleCasePipe } from '@angular/common';
 export class BoxLayout {
   @Input() message: string | null = null;
   @Input() title: string | null = null;
+  @Input() transparent = false;
+  @Output() onRestoreClick = new EventEmitter<void>();
 }

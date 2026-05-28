@@ -35,6 +35,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   private settingEnabled = false;
 
   protected isOpen = signal(false);
+  protected isTransparent = signal(false);
   protected isInWindow = signal(false);
   protected missed = signal(false);
   protected hourStart = signal<Date>(this.getHourStart());

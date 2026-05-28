@@ -1,5 +1,14 @@
 @if (isOpen() && !currentSession?.editing_finalized) {
-<app-box-layout [title]="isPaused() ? 'Jornada pausada' : missed() ? 'Registro pendiente' : 'Registro hora'">
+<app-box-layout
+  [title]="isPaused() ? 'Jornada pausada' : missed() ? 'Registro pendiente' : 'Registro hora'"
+  [transparent]="isTransparent()"
+  (onRestoreClick)="isTransparent.set(false)">
+
+  <button box-header-actions
+    class="p-1 rounded hover:bg-gray-100 transition-colors text-gray-400"
+    (click)="$event.stopPropagation(); isTransparent.set(!isTransparent())">
+    <app-ui-icon [iconName]="isTransparent() ? 'eyeOff' : 'eye'" class="w-4 h-4"></app-ui-icon>
+  </button>
 
   <div box-content [class]="'flex flex-col items-center gap-4 pt-4'">
 
