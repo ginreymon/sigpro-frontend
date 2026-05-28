@@ -6,6 +6,7 @@ export type AppSettingDataType = 'STRING' | 'INTEGER' | 'DECIMAL' | 'BOOLEAN';
 
 export interface AppSetting extends TimeAuditEntity, UserAuditEntity, ActiveEntity {
   name: string;
+  key: string | null;
   value: string;
   data_type: AppSettingDataType;
   description: string | null;

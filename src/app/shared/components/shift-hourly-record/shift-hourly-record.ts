@@ -1,8 +1,9 @@
-import { Component, Input, OnChanges, OnDestroy, signal, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnChanges, OnDestroy, OnInit, signal, SimpleChanges } from '@angular/core';
 import { BoxLayout } from '../box-layout/box-layout';
 import { TimeProgressCircle } from '../time-progress-circle/time-progress-circle';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
+import { AppConfigService } from '../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-shift-hourly-record',
@@ -10,8 +11,11 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
   imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon],
   templateUrl: './shift-hourly-record.html',
 })
-export class ShiftHourlyRecord implements OnChanges, OnDestroy {
+export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Input() enabled = false;
+
+  private appConfig = inject(AppConfigService);
+  private settingEnabled = false;
 
   protected isOpen = signal(false);
   protected isInWindow = signal(false);
@@ -23,9 +27,16 @@ export class ShiftHourlyRecord implements OnChanges, OnDestroy {
   private wasInWindow = false;
   private registeredThisWindow = false;
 
+  ngOnInit(): void {
+    this.appConfig.load().subscribe(() => {
+      this.settingEnabled = this.appConfig.showShiftHourlyComponent;
+      if (this.enabled && this.settingEnabled) this.startTimer();
+    });
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if ('enabled' in changes) {
-      this.enabled ? this.startTimer() : this.stopTimer();
+      this.enabled && this.settingEnabled ? this.startTimer() : this.stopTimer();
     }
   }
 

@@ -4,9 +4,6 @@ export const environment = {
   REFRESH_TOKEN_NAME: 'refresh_token',
   MENU_NAME: 'menu',
   DEFAULT_PAGE_SIZE: 20,
-  LOW_EFFICIENCY_LIMIT: 'LIMITE_BAJA_EFICIENCIA',
-  HIGH_EFFICIENCY_LIMIT: 'LIMITE_ALTA_EFICIENCIA',
-  BALANCE_END_EXTRA_HOURS: 'HORAS_EXTRA_FIN_BALANCE',
   DAY_OPERATION_URL: 'production/day-operation',
   SHIFT_CYCLES_URL: 'production/shift-cycles',
 };

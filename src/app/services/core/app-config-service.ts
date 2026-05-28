@@ -1,16 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, shareReplay, tap, catchError, map } from 'rxjs';
 import { AppSettingService } from './app-setting-service';
-import { environment } from '../../../environments/environment';
+import { AppSettingKey } from './app-setting-keys';
 
 @Injectable({ providedIn: 'root' })
 export class AppConfigService {
-  private static readonly SETTING_NAMES = [
-    environment.LOW_EFFICIENCY_LIMIT,
-    environment.HIGH_EFFICIENCY_LIMIT,
-    environment.BALANCE_END_EXTRA_HOURS,
-  ];
-
   private settings = new Map<string, string>();
   private load$: Observable<void> | null = null;
 
@@ -19,9 +13,9 @@ export class AppConfigService {
   load(): Observable<void> {
     if (!this.load$) {
       this.load$ = this.appSettingService
-        .getValues(AppConfigService.SETTING_NAMES)
+        .getAllKeyedValues()
         .pipe(
-          tap((items) => items.forEach((s) => this.settings.set(s.name, s.value))),
+          tap((items) => items.forEach((s) => s.key && this.settings.set(s.key, s.value))),
           map(() => void 0),
           catchError(() => of(void 0)),
           shareReplay(1),
@@ -36,11 +30,11 @@ export class AppConfigService {
     this.load().subscribe();
   }
 
-  get(key: string): string | undefined {
+  get(key: AppSettingKey): string | undefined {
     return this.settings.get(key);
   }
 
-  getNumber(key: string, defaultValue = 0): number {
+  getNumber(key: AppSettingKey, defaultValue = 0): number {
     const val = this.settings.get(key);
     if (val === undefined) return defaultValue;
     const num = Number(val);
@@ -48,14 +42,18 @@ export class AppConfigService {
   }
 
   get lowEfficiencyLimit(): number {
-    return this.getNumber(environment.LOW_EFFICIENCY_LIMIT, 0);
+    return this.getNumber(AppSettingKey.LOW_EFFICIENCY, 0);
   }
 
   get highEfficiencyLimit(): number {
-    return this.getNumber(environment.HIGH_EFFICIENCY_LIMIT, 100);
+    return this.getNumber(AppSettingKey.HIGH_EFFICIENCY, 100);
   }
 
   get balanceEndExtraHours(): number {
-    return this.getNumber(environment.BALANCE_END_EXTRA_HOURS, 8);
+    return this.getNumber(AppSettingKey.BAL_HOURS, 8);
+  }
+
+  get showShiftHourlyComponent(): boolean {
+    return this.get(AppSettingKey.SHOW_HOURLY) === 'true';
   }
 }

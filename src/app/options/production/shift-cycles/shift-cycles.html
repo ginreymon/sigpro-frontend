@@ -65,7 +65,9 @@
 
 <app-pause-modal (onCancel)="pms.close()" (onPause)="onPauseSaved($event)"></app-pause-modal>
 
-<!-- <app-shift-hourly-record [enabled]="currentSession() !== null"></app-shift-hourly-record> -->
+@if(currentSession() && productionOrder()){
+    <app-shift-hourly-record [enabled]="currentSession() !== null"></app-shift-hourly-record>
+}
 
 }
 @else {
