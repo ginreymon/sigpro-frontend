@@ -1,18 +1,36 @@
 @if (isOpen()) {
-<app-box-layout [title]="missed() ? 'Registro pendiente' : 'Registro hora'">
+<app-box-layout [title]="isPaused() ? 'Jornada pausada' : missed() ? 'Registro pendiente' : 'Registro hora'">
 
-  <div box-content class="flex flex-col items-center gap-4 py-4">
+  <div box-content [class]="'flex flex-col items-center gap-4 pt-4 ' + (isPaused() && currentBreak() ? 'pb-0' : 'pb-4')">
+
     <app-time-progress-circle
       [startTime]="hourStart()"
       [serverNow]="serverNow()"
       [duration]="3600"
-      [isPaused]="false"
+      [isPaused]="isPaused()"
+      [pauseStartTime]="currentBreak()?.start_time"
+      [pauseDurationSeconds]="currentBreak()?.duration_seconds"
       [totalPauseSeconds]="0"
       [forceError]="missed()"
-      [showRealTime]="true"
+      [showRealTime]="!isPaused()"
+      (onResume)="onBreakExpired()"
     ></app-time-progress-circle>
 
-    @if (missed()) {
+    @if (isPaused() && currentBreak()) {
+      <div class="w-full border-t border-slate-200 pt-3 flex flex-col gap-1">
+        @if (currentBreak()?.custom_reason) {
+          <p class="text-xs text-slate-500">Razón</p>
+          <p class="text-sm font-medium text-orange-600">{{ currentBreak()?.custom_reason }}</p>
+        } @else {
+          <p class="text-sm font-semibold text-orange-600">{{ currentBreak()?.name }}</p>
+          @if (currentBreak()?.duration_seconds) {
+            <p class="text-xs text-slate-500">
+              {{ currentBreak()!.duration_seconds! * 1000 | date:'mm:ss':'UTC' }} min
+            </p>
+          }
+        }
+      </div>
+    } @else if (missed()) {
       <p class="text-sm text-red-500 text-center font-medium">
         No se registró a tiempo. Registre en la próxima ventana.
       </p>
@@ -21,18 +39,36 @@
         El registro se habilitará {{ windowMinutes }} minutos antes de cada hora.
       </p>
     } @else {
-      <p class="text-sm text-brand-600 text-center font-medium">
+      <p class="text-sm text-brand-400 text-center font-medium">
         Ventana de registro activa.
       </p>
     }
   </div>
 
-  <div box-buttons>
-    <app-ui-button [disabled]="!isInWindow()" (onClick)="register()">
-      <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>
-      Registrar
-    </app-ui-button>
+  <div box-buttons class="flex flex-row gap-3">
+    @if (isPaused()) {
+      @if (currentBreak()?.custom_reason) {
+        <app-ui-button [intent]="'action'" (onClick)="resume()">
+          <app-ui-icon [iconName]="'play'" class="w-5 h-5"></app-ui-icon>
+          Reanudar
+        </app-ui-button>
+      }
+    } @else {
+      @if (activityId) {
+        <app-ui-button [intent]="'cancel'" (onClick)="pause()">
+          <app-ui-icon [iconName]="'pause'" class="w-5 h-5"></app-ui-icon>
+          Pausar
+        </app-ui-button>
+      }
+      <app-ui-button [disabled]="!isInWindow()" (onClick)="register()">
+        <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>
+        Registrar
+      </app-ui-button>
+    }
   </div>
 
 </app-box-layout>
+
+<app-pause-modal [visible]="showPauseModal()" [activityIdOverride]="activityId" (onCancel)="cancelPause()" (onPause)="onPause($event)"></app-pause-modal>
+
 }

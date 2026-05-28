@@ -4,17 +4,27 @@ import { TimeProgressCircle } from '../time-progress-circle/time-progress-circle
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { AppConfigService } from '../../../services/core/app-config-service';
+import { WorkSessionActivityService } from '../../../services/production/work-session-activity-service';
+import { LoaderService } from '../../../services/common/loader-service';
+import { WorkBreakRecord } from '../../../models/production/work-break-record';
+import { PauseModal } from '../pause-modal/pause-modal';
+import { DatePipe } from '@angular/common';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-shift-hourly-record',
   standalone: true,
-  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon],
+  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, PauseModal, DatePipe],
   templateUrl: './shift-hourly-record.html',
 })
 export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Input() enabled = false;
+  @Input() activityId: number | null | undefined;
+  @Input() activeBreak: WorkBreakRecord | null | undefined;
 
   private appConfig = inject(AppConfigService);
+  private activityService = inject(WorkSessionActivityService);
+  private loaderService = inject(LoaderService);
   private settingEnabled = false;
 
   protected isOpen = signal(false);
@@ -22,6 +32,9 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   protected missed = signal(false);
   protected hourStart = signal<Date>(this.getHourStart());
   protected serverNow = signal<Date>(new Date());
+  protected isPaused = signal(false);
+  protected currentBreak = signal<WorkBreakRecord | null>(null);
+  protected showPauseModal = signal(false);
 
   private intervalId?: ReturnType<typeof setInterval>;
   private wasInWindow = false;
@@ -36,6 +49,10 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.appConfig.load().subscribe(() => {
       this.settingEnabled = this.appConfig.showShiftHourlyComponent;
       this.windowSeconds = this.appConfig.shiftHourlyWindowSeconds;
+      if (this.activeBreak) {
+        this.isPaused.set(true);
+        this.currentBreak.set(this.activeBreak);
+      }
       if (this.enabled && this.settingEnabled) this.startTimer();
     });
   }
@@ -55,6 +72,37 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.registeredThisWindow = true;
     this.missed.set(false);
     this.isOpen.set(false);
+  }
+
+  protected pause(): void {
+    this.showPauseModal.set(true);
+  }
+
+  protected onPause(record: WorkBreakRecord): void {
+    this.isPaused.set(true);
+    this.currentBreak.set(record);
+    this.showPauseModal.set(false);
+  }
+
+  protected cancelPause(): void {
+    this.showPauseModal.set(false);
+  }
+
+  protected resume(): void {
+    if (!this.activityId) return;
+    this.loaderService.showLoader();
+    this.activityService.resume(this.activityId)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => {
+          this.isPaused.set(false);
+          this.currentBreak.set(null);
+        },
+      });
+  }
+
+  protected onBreakExpired(): void {
+    this.resume();
   }
 
   private getHourStart(): Date {

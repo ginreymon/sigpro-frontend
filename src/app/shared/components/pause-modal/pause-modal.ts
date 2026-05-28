@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, OnInit, Output, EventEmitter, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, Output, EventEmitter, signal, Input } from '@angular/core';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiOptionCard } from '../../elements/ui-option-card/ui-option-card';
@@ -29,6 +29,7 @@ export class PauseModal implements OnInit {
   visible = input(false);
   protected isVisible = computed(() => this.visible() || this.pms.visible());
   preloadedWorkBreaks = input<WorkBreak[] | null | undefined>();
+  @Input() activityIdOverride?: number | null;
   @Output() onCancel = new EventEmitter<void>();
   @Output() onPause = new EventEmitter<WorkBreakRecord>();
 
@@ -73,7 +74,7 @@ export class PauseModal implements OnInit {
 
   pause() {
     if (!this.isValid) return;
-    const activityId = this.tts.activeActivityId();
+    const activityId = this.activityIdOverride ?? this.tts.activeActivityId();
     if (!activityId) return;
 
     const payload: PausePayload = this.selectedBreak()
