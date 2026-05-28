@@ -189,8 +189,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: () => {
-          this.onFinalize.emit()
-          this.isOpen.set(false);
+          this.onFinalize.emit()        
         }
       });
   }
