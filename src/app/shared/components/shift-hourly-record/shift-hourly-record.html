@@ -2,6 +2,7 @@
 <app-box-layout
   [title]="isPaused() ? 'Jornada pausada' : missed() ? 'Registro pendiente' : 'Registro hora'"
   [transparent]="isTransparent()"
+  zClass="z-40"
   (onRestoreClick)="isTransparent.set(false)">
 
   <button box-header-actions

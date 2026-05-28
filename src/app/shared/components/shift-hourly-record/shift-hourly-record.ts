@@ -7,6 +7,7 @@ import { AppConfigService } from '../../../services/core/app-config-service';
 import { WorkSessionActivityService } from '../../../services/production/work-session-activity-service';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LoaderService } from '../../../services/common/loader-service';
+import { DialogService } from '../../../services/common/dialog-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { PauseModal } from '../pause-modal/pause-modal';
@@ -33,6 +34,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   private activityService = inject(WorkSessionActivityService);
   private workSessionService = inject(WorkSessionService);
   private loaderService = inject(LoaderService);
+  private dialogService = inject(DialogService);
   private settingEnabled = false;
 
   protected isOpen = signal(false);
@@ -189,13 +191,18 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   lastDelivery(): void {
     const sessionId = this.currentSession?.id;
     if (!sessionId) return;
-    this.loaderService.showLoader();
-    this.workSessionService.finalizeEditing(sessionId)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe({
-        next: () => {
-          this.onFinalize.emit()        
-        }
-      });
+    this.dialogService.openConfirm(
+      'Última entrega',
+      '¿Confirmar última entrega? Esta acción finalizará la sesión.',
+      'Confirmar',
+      () => {
+        this.loaderService.showLoader();
+        this.workSessionService.finalizeEditing(sessionId)
+          .pipe(finalize(() => this.loaderService.hideLoader()))
+          .subscribe({
+            next: () => this.onFinalize.emit(),
+          });
+      }
+    );
   }
 }
