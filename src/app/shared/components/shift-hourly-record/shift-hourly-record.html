@@ -65,16 +65,19 @@
         </app-ui-button>
       }
     } @else {
-      @if (activityId) {
-        <app-ui-button [intent]="'cancel'" (onClick)="lastDelivery()">
+      @if (activityId) {        
+        <app-ui-button [intent]="'action'" (onClick)="lastDelivery()">
           <app-ui-icon [iconName]="'truck'" class="w-5 h-5"></app-ui-icon>
+        </app-ui-button>
+        <app-ui-button [intent]="'cancel'" (onClick)="openEmployeesSnapshot()">
+          <app-ui-icon [iconName]="'user'" class="w-5 h-5"></app-ui-icon>
         </app-ui-button>
         <app-ui-button [intent]="'cancel'" (onClick)="openBalanceModule()">
           <app-ui-icon [iconName]="'chartArea'" class="w-5 h-5"></app-ui-icon>
         </app-ui-button>
         <app-ui-button class="ml-auto" [intent]="'cancel'" (onClick)="pause()">
         <app-ui-icon [iconName]="'pause'" class="w-5 h-5"></app-ui-icon>
-          Pausar
+        
         </app-ui-button>
       }
       <app-ui-button [disabled]="!isInWindow()" (onClick)="register()">

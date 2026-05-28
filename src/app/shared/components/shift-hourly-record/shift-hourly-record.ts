@@ -27,6 +27,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Input() activeBreak: WorkBreakRecord | null | undefined;
   @Input() currentSession: WorkSession | null | undefined;
   @Output() onFinalize = new EventEmitter<void>();
+  @Output() onOpenEmployees = new EventEmitter<void>();
 
   private appConfig = inject(AppConfigService);
   private activityService = inject(WorkSessionActivityService);
@@ -179,6 +180,10 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
 
   openBalanceModule(): void {
     this.showBalanceSheet.set(true);
+  }
+
+  openEmployeesSnapshot(): void {
+    this.onOpenEmployees.emit();
   }
 
   lastDelivery(): void {

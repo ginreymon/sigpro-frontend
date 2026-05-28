@@ -4,7 +4,7 @@
     <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
         @if(productionOrder()){
 
-            <app-work-shift-summary [session]="currentSession()" [shiftEditable]="true" [employeesEditable]="true" (employeesClick)="openEmployeesSnapshot()" (moduleClick)="openModuleModal()" (shiftClick)="openShiftModal()"></app-work-shift-summary>
+            <app-work-shift-summary [session]="currentSession()" [employeesEditable]="true" (employeesClick)="openEmployeesSnapshot()" (moduleClick)="openModuleModal()" (shiftClick)="openShiftModal()"></app-work-shift-summary>
 
             <app-order-header [productionOrder]="productionOrder()"></app-order-header>
 
@@ -67,13 +67,14 @@
 
 <app-pause-modal (onCancel)="pms.close()" (onPause)="onPauseSaved($event)"></app-pause-modal>
 
-@if(currentSession() && productionOrder()){
+@if(currentSession() && productionOrder() && !employeesModalVisible()){
     <app-shift-hourly-record
       [enabled]="currentSession() !== null"
       [activityId]="currentSession()?.active_activity?.id"
       [activeBreak]="currentSession()?.active_activity?.active_break ?? null"
       [currentSession]="currentSession()"
       (onFinalize)="refreshSession()"
+      (onOpenEmployees)="openEmployeesSnapshot()"
     ></app-shift-hourly-record>
 }
 
