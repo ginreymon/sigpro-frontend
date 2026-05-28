@@ -26,10 +26,16 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   private intervalId?: ReturnType<typeof setInterval>;
   private wasInWindow = false;
   private registeredThisWindow = false;
+  private windowSeconds = 300;
+
+  protected get windowMinutes(): number {
+    return Math.round(this.windowSeconds / 60);
+  }
 
   ngOnInit(): void {
     this.appConfig.load().subscribe(() => {
       this.settingEnabled = this.appConfig.showShiftHourlyComponent;
+      this.windowSeconds = this.appConfig.shiftHourlyWindowSeconds;
       if (this.enabled && this.settingEnabled) this.startTimer();
     });
   }
@@ -83,7 +89,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     const nextHour = new Date(currentHourStart.getTime() + 3600_000);
     const remainingSeconds = Math.floor((nextHour.getTime() - now.getTime()) / 1000);
     const elapsedInHour = Math.floor((now.getTime() - currentHourStart.getTime()) / 1000);
-    const inWindow = (remainingSeconds <= 300 && remainingSeconds > 0) || elapsedInHour <= 300;
+    const inWindow = (remainingSeconds <= this.windowSeconds && remainingSeconds > 0) || elapsedInHour <= this.windowSeconds;
 
     if (currentHourStart.getTime() !== this.hourStart().getTime()) {
       this.hourStart.set(currentHourStart);
@@ -97,7 +103,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
       this.isOpen.set(true);
     }
 
-    if (!inWindow && elapsedInHour > 300 && this.wasInWindow) {
+    if (!inWindow && elapsedInHour > this.windowSeconds && this.wasInWindow) {
       this.wasInWindow = false;
       if (!this.registeredThisWindow) {
         this.missed.set(true);

@@ -56,4 +56,8 @@ export class AppConfigService {
   get showShiftHourlyComponent(): boolean {
     return this.get(AppSettingKey.SHOW_HOURLY) === 'true';
   }
+
+  get shiftHourlyWindowSeconds(): number {
+    return this.getNumber(AppSettingKey.SHIFT_HOURLY_WINDOW, 5) * 60;
+  }
 }

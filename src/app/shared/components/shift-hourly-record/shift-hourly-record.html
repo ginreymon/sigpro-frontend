@@ -18,7 +18,7 @@
       </p>
     } @else if (!isInWindow()) {
       <p class="text-sm text-gray-500 text-center">
-        El registro se habilitará 10 minutos antes de cada hora.
+        El registro se habilitará {{ windowMinutes }} minutos antes de cada hora.
       </p>
     } @else {
       <p class="text-sm text-brand-600 text-center font-medium">
