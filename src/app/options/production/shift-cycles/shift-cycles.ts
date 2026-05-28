@@ -92,6 +92,10 @@ export class ShiftCycles implements OnInit {
     return `${doc.documentType} ${doc.documentNumber}`;
   }
 
+  protected finalizeDay = computed(() => {
+    return !!this.currentSession()?.editing_finalized
+  });
+
   protected preselectedIds = computed(() =>
     this.currentSession()?.employees_snapshot?.map(e => e.id) ?? []
   );
@@ -255,7 +259,7 @@ export class ShiftCycles implements OnInit {
       });
   }
 
-  private refreshSession() {
+  refreshSession() {
     this.loaderService.showLoader();
     this.workSessionService.getActive()
       .pipe(finalize(() => this.loaderService.hideLoader()))
@@ -287,5 +291,18 @@ export class ShiftCycles implements OnInit {
   onPauseSaved(record: WorkBreakRecord) {
     this.pms.close();
     this.dialogService.openToast('Pausa registrada', record.name ?? record.custom_reason ?? '', 'check');
+  }
+
+  closeSession() {
+    this.loaderService.showLoader();
+    this.workSessionService
+      .closeSession(this.currentSession()?.id!)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: (value) => {
+          this.currentSession.set(null);
+          this.router.navigateByUrl('/');
+        },
+      });
   }
 }

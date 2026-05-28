@@ -1,10 +1,11 @@
-import { Component, inject, Input, OnChanges, OnDestroy, OnInit, signal, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, signal, SimpleChanges } from '@angular/core';
 import { BoxLayout } from '../box-layout/box-layout';
 import { TimeProgressCircle } from '../time-progress-circle/time-progress-circle';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { WorkSessionActivityService } from '../../../services/production/work-session-activity-service';
+import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { WorkSession } from '../../../models/production/work-session';
@@ -25,9 +26,11 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Input() activityId: number | null | undefined;
   @Input() activeBreak: WorkBreakRecord | null | undefined;
   @Input() currentSession: WorkSession | null | undefined;
+  @Output() onFinalize = new EventEmitter<void>();
 
   private appConfig = inject(AppConfigService);
   private activityService = inject(WorkSessionActivityService);
+  private workSessionService = inject(WorkSessionService);
   private loaderService = inject(LoaderService);
   private settingEnabled = false;
 
@@ -177,5 +180,17 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.showBalanceSheet.set(true);
   }
 
-  lastDelivery(): void {}
+  lastDelivery(): void {
+    const sessionId = this.currentSession?.id;
+    if (!sessionId) return;
+    this.loaderService.showLoader();
+    this.workSessionService.finalizeEditing(sessionId)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => {
+          this.onFinalize.emit()
+          this.isOpen.set(false);
+        }
+      });
+  }
 }

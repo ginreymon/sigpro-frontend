@@ -14,19 +14,21 @@
 
             <div class="flex flex-row justify-between mt-4 gap-3">
                 <div class="flex flex-row gap-3">
+                    @if(!finalizeDay()){
                     <app-ui-button [intent]="'action'" (onClick)="openPauses()">
                         <app-ui-icon [iconName]="'pause'" class="h-5 w-5"></app-ui-icon>
                         Pausas
                     </app-ui-button>
+                    }                    
                     <app-ui-button [intent]="'action'" (onClick)="openBalance()">
                         <app-ui-icon [iconName]="'chartArea'" class="h-5 w-5"></app-ui-icon>
                         Balance del módulo
                     </app-ui-button>
                 </div>
-                <div class="flex flex-row gap-3">
-                    <app-ui-button (onClick)="goToSearch()">
-                        <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
-                        Cerrar OP
+                <div class="flex flex-row gap-3">                  
+                    <app-ui-button (onClick)="finalizeDay()? closeSession() :goToSearch()">
+                        <app-ui-icon [iconName]="finalizeDay()?'logout':'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                        {{ finalizeDay()?'Cerrar día':'Cerrar OP' }}
                     </app-ui-button>
                 </div>
             </div>
@@ -71,6 +73,7 @@
       [activityId]="currentSession()?.active_activity?.id"
       [activeBreak]="currentSession()?.active_activity?.active_break ?? null"
       [currentSession]="currentSession()"
+      (onFinalize)="refreshSession()"
     ></app-shift-hourly-record>
 }
 

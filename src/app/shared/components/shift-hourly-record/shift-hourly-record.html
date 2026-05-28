@@ -1,4 +1,4 @@
-@if (isOpen()) {
+@if (isOpen() && !currentSession?.editing_finalized) {
 <app-box-layout [title]="isPaused() ? 'Jornada pausada' : missed() ? 'Registro pendiente' : 'Registro hora'">
 
   <div box-content [class]="'flex flex-col items-center gap-4 pt-4'">
