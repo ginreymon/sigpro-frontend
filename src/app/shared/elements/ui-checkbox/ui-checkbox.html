@@ -1,5 +1,21 @@
-<input type="checkbox" [id]="id" [name]="id" [checked]="value" [disabled]="disabled" [class]="`
-    w-4 h-4 rounded border
-    transition-all duration-200  
-    ${className}
-  `" (change)="handleChange($event)" (blur)="onTouched()" />
+<button
+  type="button"
+  role="switch"
+  [id]="id"
+  [attr.aria-checked]="value"
+  [disabled]="disabled || null"
+  (click)="toggle()"
+  (blur)="onTouched()"
+  class="relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+  [class.bg-brand-500]="value"
+  [class.bg-gray-200]="!value"
+  [class.opacity-40]="disabled"
+  [class.cursor-not-allowed]="disabled"
+  [class.cursor-pointer]="!disabled">
+  <span
+    aria-hidden="true"
+    class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"
+    [class.translate-x-5]="value"
+    [class.translate-x-0]="!value">
+  </span>
+</button>

@@ -2,6 +2,7 @@ import { Component, computed, EventEmitter, inject, Input, OnInit, Output, signa
 import { Employee } from '../../../models/production/employee';
 import { ModalLayout } from '../modal-layout/modal-layout';
 import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message';
+import { UiFormField } from '../../elements/ui-form-field/ui-form-field';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { EmployeePicker } from '../employee-picker/employee-picker';
@@ -9,7 +10,7 @@ import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-employees-modal',
-  imports: [ModalLayout, UiErrorMessage, EmployeePicker],
+  imports: [ModalLayout, UiErrorMessage, UiFormField, EmployeePicker],
   templateUrl: './employees-modal.html',
   styleUrl: './employees-modal.css',
 })

@@ -15,9 +15,9 @@ import { BaseControlValueAccessor } from '../../../common/classes/base-control-v
   ],
 })
 export class UiCheckbox extends BaseControlValueAccessor<boolean> {
-  handleChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.value = input.checked;
+  toggle(): void {
+    if (this.disabled) return;
+    this.value = !this.value;
     this.onChange(this.value);
   }
 }
