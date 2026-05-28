@@ -15,11 +15,12 @@ import { BalanceBottomSheet } from '../balance-bottom-sheet/balance-bottom-sheet
 import { DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
 import { OrderInfoBar } from '../../elements/order-info-bar/order-info-bar';
+import { UiTooltip } from '../../elements/ui-tooltip/ui-tooltip';
 
 @Component({
   selector: 'app-shift-hourly-record',
   standalone: true,
-  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, PauseModal, BalanceBottomSheet, DatePipe, OrderInfoBar],
+  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, PauseModal, BalanceBottomSheet, DatePipe, OrderInfoBar, UiTooltip],
   templateUrl: './shift-hourly-record.html',
 })
 export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {

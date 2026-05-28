@@ -1,25 +1,30 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UpperCasePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { ProductionContextService } from '../../../services/production/production-context-service';
 import { AppConfigService } from '../../../services/core/app-config-service';
+import { UiTooltip } from '../ui-tooltip/ui-tooltip';
 
 interface InfoCard {
   title: string;
   display: string;
   numericValue: number | null;
   thresholds: { green: number; red: number } | null;
+  tooltip?: string;
+  action?: () => void;
 }
 
 @Component({
   selector: 'app-order-info-bar',
   standalone: true,
-  imports: [UpperCasePipe],
+  imports: [UpperCasePipe, UiTooltip],
   templateUrl: './order-info-bar.html',
 })
 export class OrderInfoBar {
   private contextService = inject(ProductionContextService);
   private appConfig = inject(AppConfigService);
+  private router = inject(Router);
 
   private context = toSignal(this.contextService.context$, { initialValue: null });
 
@@ -32,7 +37,17 @@ export class OrderInfoBar {
     const accumulated = efficiency?.total_completed ?? null;
 
     return [
-      { title: 'OP', display: `${order.documentType} ${order.documentNumber}`, numericValue: null, thresholds: null },
+      {
+        title: 'OP',
+        display: `${order.documentType} ${order.documentNumber}`,
+        numericValue: null,
+        thresholds: null,
+        tooltip: 'Cambiar OP',
+        action: () => this.router.navigate([], {
+          queryParams: { docType: order.documentType, docNumber: order.documentNumber },
+          queryParamsHandling: 'merge',
+        }),
+      },
       { title: 'Referencia', display: order.reference, numericValue: null, thresholds: null },
       { title: 'Acumuladas', display: accumulated != null ? `${accumulated}` : '-', numericValue: accumulated, thresholds: { green: 0, red: Infinity } },
       { title: 'Eficiencia', display: effRaw != null ? `${effRaw}%` : '-', numericValue: effRaw, thresholds: { green: this.appConfig.highEfficiencyLimit, red: this.appConfig.lowEfficiencyLimit } },
