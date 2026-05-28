@@ -3,7 +3,7 @@ import { ProductionOrder } from '../../../models/production/production-order';
 import { ColorDetail } from '../../../models/production/color-detail';
 import { SizeQtyDetail } from '../../../models/production/size-detail';
 import { UiTableButton } from '../ui-table-button/ui-table-button';
-import { UiTooltip } from '../ui-tooltip/ui-tooltip';
+import { UiTooltipFixed } from '../ui-tooltip-fixed/ui-tooltip-fixed';
 import { WorkSession } from '../../../models/production/work-session';
 import { ButtonBaseType } from '../../../common/classes/button-base';
 import { DialogService } from '../../../services/common/dialog-service';
@@ -14,7 +14,7 @@ import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-production-orders-table',
-  imports: [UiTableButton, UiTooltip],
+  imports: [UiTableButton, UiTooltipFixed],
   templateUrl: './production-orders-table.html',
   styleUrl: './production-orders-table.css',
 })

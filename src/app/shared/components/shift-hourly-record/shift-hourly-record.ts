@@ -160,15 +160,18 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
       this.hourStart.set(currentHourStart);
       this.serverNow.set(new Date(now));
       this.missed.set(false);
-      this.wasInWindow = false;
-      this.registeredThisWindow = false;
+      // wasInWindow and registeredThisWindow NOT reset here — the registration window
+      // spans the hour boundary (e.g. 17:55–18:05), resetting at 18:00 would wrongly
+      // reopen the component. Both flags are reset by the window-open/close blocks below.
     }
 
     if (inWindow && !this.wasInWindow) {
       this.wasInWindow = true;
-      this.registeredThisWindow = false;
       this.missed.set(false);
-      this.isOpen.set(true);
+      if (!this.registeredThisWindow) {
+        this.isOpen.set(true);
+      }
+      this.registeredThisWindow = false;
     }
 
     if (!inWindow && elapsedInHour > this.windowSeconds && this.wasInWindow) {
@@ -180,7 +183,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
 
     this.isInWindow.set(inWindow);
 
-    if (!inWindow && !this.isOpen()) {
+    if (!inWindow && !this.isOpen() && !this.registeredThisWindow) {
       this.isOpen.set(true);
     }
   }

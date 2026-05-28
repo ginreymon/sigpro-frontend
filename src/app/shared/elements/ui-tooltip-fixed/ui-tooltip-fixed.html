@@ -1,0 +1,9 @@
+<div class="relative inline-block" (mouseenter)="onEnter($event)" (mouseleave)="onLeave()">
+    <ng-content></ng-content>
+    @if (message && visible) {
+    <div [style]="fixedStyle"
+         class="bg-gray-900 text-white text-xs px-2 py-1 rounded-md shadow-lg whitespace-nowrap pointer-events-none">
+        {{ message }}
+    </div>
+    }
+</div>
