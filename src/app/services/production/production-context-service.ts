@@ -1,7 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ProductionContext } from '../../models/production/production-context';
 import { ProductionOrder } from '../../models/production/production-order';
+import { EfficiencyPeriod } from '../../models/production/efficiency-period';
 import { WorkSessionService } from './work-session-service';
 import { ProductionOrderService } from './production-order-service';
 import { WorkBreakService } from './work-break-service';
@@ -21,6 +22,12 @@ export class ProductionContextService {
 
   private _context$ = new BehaviorSubject<ProductionContext | null>(null);
   context$ = this._context$.asObservable();
+
+  readonly efficiencyPeriod = signal<EfficiencyPeriod | null>(null);
+
+  setEfficiency(data: EfficiencyPeriod): void {
+    this.efficiencyPeriod.set(data);
+  }
 
   get snapshot(): ProductionContext | null {
     return this._context$.value;

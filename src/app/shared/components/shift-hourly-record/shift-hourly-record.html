@@ -1,7 +1,9 @@
 @if (isOpen()) {
 <app-box-layout [title]="isPaused() ? 'Jornada pausada' : missed() ? 'Registro pendiente' : 'Registro hora'">
 
-  <div box-content [class]="'flex flex-col items-center gap-4 pt-4 ' + (isPaused() && currentBreak() ? 'pb-0' : 'pb-4')">
+  <div box-content [class]="'flex flex-col items-center gap-4 pt-4'">
+
+    <app-order-info-bar class="w-full"></app-order-info-bar>
 
     <app-time-progress-circle
       [startTime]="hourStart()"
@@ -31,21 +33,21 @@
         }
       </div>
     } @else if (missed()) {
-      <p class="text-sm text-red-500 text-center font-medium">
+      <p class="w-full text-sm text-red-500 text-left font-medium">
         No se registró a tiempo. Registre en la próxima ventana.
       </p>
     } @else if (!isInWindow()) {
-      <p class="text-sm text-gray-500 text-center">
+      <p class="w-full text-sm text-gray-500 text-left">
         El registro se habilitará {{ windowMinutes }} minutos antes de cada hora.
       </p>
     } @else {
-      <p class="text-sm text-brand-400 text-center font-medium">
+      <p class="w-full text-sm text-brand-400 text-left font-medium">
         Ventana de registro activa.
       </p>
     }
   </div>
 
-  <div box-buttons class="flex flex-row gap-3">
+  <div box-buttons class="w-full flex flex-row justify-end gap-3 border-t border-slate-200 pt-4">
     @if (isPaused()) {
       @if (currentBreak()?.custom_reason) {
         <app-ui-button [intent]="'action'" (onClick)="resume()">

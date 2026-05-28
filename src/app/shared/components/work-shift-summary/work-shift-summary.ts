@@ -7,6 +7,7 @@ import { ProductivityParams } from '../../../models/production/productivity-para
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { UpperCasePipe } from '@angular/common';
 import { AppConfigService } from '../../../services/core/app-config-service';
+import { ProductionContextService } from '../../../services/production/production-context-service';
 
 @Component({
   selector: 'app-work-shift-summary',
@@ -26,6 +27,7 @@ export class WorkShiftSummary implements OnInit {
 
   protected productivityService = inject(ProductivityService);
   protected appConfig = inject(AppConfigService);
+  private contextService = inject(ProductionContextService);
 
   cards = signal<WorkShiftCard[]>([]);
   protected pendingSession: WorkSession | null = null;
@@ -80,6 +82,7 @@ export class WorkShiftSummary implements OnInit {
 
     this.productivityService.getEfficiencyPeriod(params).subscribe({
       next: (data) => {
+        this.contextService.setEfficiency(data);
         this.cards.update(cards => cards.map((card) => {
           if (card.title === 'Acumuladas') return { ...card, data: data.total_completed };
           if (card.title === 'Bajas/Saldos') return { ...card, data: (data.total_rejected + data.total_scrap) };

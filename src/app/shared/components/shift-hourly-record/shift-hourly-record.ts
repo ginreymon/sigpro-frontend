@@ -10,11 +10,12 @@ import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { PauseModal } from '../pause-modal/pause-modal';
 import { DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
+import { OrderInfoBar } from '../../elements/order-info-bar/order-info-bar';
 
 @Component({
   selector: 'app-shift-hourly-record',
   standalone: true,
-  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, PauseModal, DatePipe],
+  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, PauseModal, DatePipe, OrderInfoBar],
   templateUrl: './shift-hourly-record.html',
 })
 export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
