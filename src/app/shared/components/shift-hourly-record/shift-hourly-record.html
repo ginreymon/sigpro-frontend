@@ -47,18 +47,24 @@
     }
   </div>
 
-  <div box-buttons class="w-full flex flex-row justify-end gap-3 border-t border-slate-200 pt-4">
+  <div box-buttons class="w-full flex flex-row gap-3 border-t border-slate-200 pt-4">
     @if (isPaused()) {
       @if (currentBreak()?.custom_reason) {
-        <app-ui-button [intent]="'action'" (onClick)="resume()">
+        <app-ui-button class="ml-auto" [intent]="'action'" (onClick)="resume()">
           <app-ui-icon [iconName]="'play'" class="w-5 h-5"></app-ui-icon>
           Reanudar
         </app-ui-button>
       }
     } @else {
       @if (activityId) {
-        <app-ui-button [intent]="'cancel'" (onClick)="pause()">
-          <app-ui-icon [iconName]="'pause'" class="w-5 h-5"></app-ui-icon>
+        <app-ui-button [intent]="'cancel'" (onClick)="lastDelivery()">
+          <app-ui-icon [iconName]="'truck'" class="w-5 h-5"></app-ui-icon>
+        </app-ui-button>
+        <app-ui-button [intent]="'cancel'" (onClick)="openBalanceModule()">
+          <app-ui-icon [iconName]="'chartArea'" class="w-5 h-5"></app-ui-icon>
+        </app-ui-button>
+        <app-ui-button class="ml-auto" [intent]="'cancel'" (onClick)="pause()">
+        <app-ui-icon [iconName]="'pause'" class="w-5 h-5"></app-ui-icon>
           Pausar
         </app-ui-button>
       }
@@ -72,5 +78,7 @@
 </app-box-layout>
 
 <app-pause-modal [visible]="showPauseModal()" [activityIdOverride]="activityId" (onCancel)="cancelPause()" (onPause)="onPause($event)"></app-pause-modal>
+
+<app-balance-bottom-sheet [visible]="showBalanceSheet()" [currentSession]="currentSession ?? null" [shiftEndTime]="currentSession?.work_shift?.end_time ?? null" (onClose)="showBalanceSheet.set(false)"></app-balance-bottom-sheet>
 
 }

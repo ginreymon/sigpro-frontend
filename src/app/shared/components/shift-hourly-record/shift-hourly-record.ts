@@ -7,7 +7,9 @@ import { AppConfigService } from '../../../services/core/app-config-service';
 import { WorkSessionActivityService } from '../../../services/production/work-session-activity-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
+import { WorkSession } from '../../../models/production/work-session';
 import { PauseModal } from '../pause-modal/pause-modal';
+import { BalanceBottomSheet } from '../balance-bottom-sheet/balance-bottom-sheet';
 import { DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
 import { OrderInfoBar } from '../../elements/order-info-bar/order-info-bar';
@@ -15,13 +17,14 @@ import { OrderInfoBar } from '../../elements/order-info-bar/order-info-bar';
 @Component({
   selector: 'app-shift-hourly-record',
   standalone: true,
-  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, PauseModal, DatePipe, OrderInfoBar],
+  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, PauseModal, BalanceBottomSheet, DatePipe, OrderInfoBar],
   templateUrl: './shift-hourly-record.html',
 })
 export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Input() enabled = false;
   @Input() activityId: number | null | undefined;
   @Input() activeBreak: WorkBreakRecord | null | undefined;
+  @Input() currentSession: WorkSession | null | undefined;
 
   private appConfig = inject(AppConfigService);
   private activityService = inject(WorkSessionActivityService);
@@ -36,6 +39,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   protected isPaused = signal(false);
   protected currentBreak = signal<WorkBreakRecord | null>(null);
   protected showPauseModal = signal(false);
+  protected showBalanceSheet = signal(false);
 
   private intervalId?: ReturnType<typeof setInterval>;
   private wasInWindow = false;
@@ -168,4 +172,10 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
       this.isOpen.set(true);
     }
   }
+
+  openBalanceModule(): void {
+    this.showBalanceSheet.set(true);
+  }
+
+  lastDelivery(): void {}
 }

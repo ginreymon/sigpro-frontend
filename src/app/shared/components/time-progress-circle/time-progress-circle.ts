@@ -159,7 +159,10 @@ export class TimeProgressCircle implements OnDestroy {
   }
 
   private updateText() {
-    if (this.showRealTime) {
+    if (this._isPaused && this._pauseStartTime) {
+      const pauseStart = new Date(this._pauseStartTime);
+      this.displayTime.set(`${this.pad(pauseStart.getHours())}:${this.pad(pauseStart.getMinutes())}:${this.pad(pauseStart.getSeconds())}`);
+    } else if (this.showRealTime) {
       const now = new Date(Date.now() + this.offset);
       this.displayTime.set(`${this.pad(now.getHours())}:${this.pad(now.getMinutes())}:${this.pad(now.getSeconds())}`);
     } else {

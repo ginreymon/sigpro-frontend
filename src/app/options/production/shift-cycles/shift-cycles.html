@@ -70,6 +70,7 @@
       [enabled]="currentSession() !== null"
       [activityId]="currentSession()?.active_activity?.id"
       [activeBreak]="currentSession()?.active_activity?.active_break ?? null"
+      [currentSession]="currentSession()"
     ></app-shift-hourly-record>
 }
 
