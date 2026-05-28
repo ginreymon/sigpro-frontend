@@ -11,6 +11,7 @@ export interface WorkSession extends AuditEntity {
   ended_at: string | null;
   total_time: string | null;
   is_closed: boolean;
+  editing_finalized: boolean;
   current_module?: Module;
   modules: Module[]; 
   employees_snapshot?: Employee[];
