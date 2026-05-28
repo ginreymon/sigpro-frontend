@@ -94,6 +94,9 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     if (currentHourStart.getTime() !== this.hourStart().getTime()) {
       this.hourStart.set(currentHourStart);
       this.serverNow.set(new Date(now));
+      this.missed.set(false);
+      this.wasInWindow = false;
+      this.registeredThisWindow = false;
     }
 
     if (inWindow && !this.wasInWindow) {
