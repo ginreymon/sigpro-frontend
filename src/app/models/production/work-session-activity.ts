@@ -12,6 +12,7 @@ export interface WorkSessionActivity extends AuditEntity {
   employees_snapshot: Employee[];
   total_time_minutes: number | null;
   last_open_production_record?: ProductionRecord;
+  last_production_record?: ProductionRecord;
   is_paused: boolean;
   active_time_seconds: number;
   total_pause_time_seconds: number;
