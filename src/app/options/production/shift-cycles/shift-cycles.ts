@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.development';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -33,14 +33,12 @@ import { QuantityModalService } from '../../../services/common/quantity-modal-se
 import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
 import { Loader } from "../../../shared/elements/loader/loader";
 import { ProductionRecordService } from '../../../services/production/production-record-service';
-import { PauseModal } from '../../../shared/components/pause-modal/pause-modal';
-import { PauseModalService } from '../../../services/common/pause-modal-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { ShiftHourlyRecord } from '../../../shared/components/shift-hourly-record/shift-hourly-record';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, Loader, PauseModal],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, Loader],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
@@ -58,8 +56,9 @@ export class ShiftCycles implements OnInit {
   private loaderService = inject(LoaderService);
   private workSessionService = inject(WorkSessionService);
   private qms = inject(QuantityModalService);
-  protected pms = inject(PauseModalService);
   private productionRecordService = inject(ProductionRecordService);
+
+  @ViewChild(ShiftHourlyRecord) private shiftHourlyRecord?: ShiftHourlyRecord;
 
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
@@ -285,11 +284,10 @@ export class ShiftCycles implements OnInit {
   }
 
   openPauses() {
-    this.pms.open(this.currentSession()?.active_activity?.id);
+    this.shiftHourlyRecord?.pause();
   }
 
   onPauseSaved(record: WorkBreakRecord) {
-    this.pms.close();
     this.dialogService.openToast('Pausa registrada', record.name ?? record.custom_reason ?? '', 'check');
   }
 

@@ -10,6 +10,7 @@ import { LoaderService } from '../../../services/common/loader-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { WorkSession } from '../../../models/production/work-session';
+import { ProductionRecord } from '../../../models/production/production-record';
 import { PauseModal } from '../pause-modal/pause-modal';
 import { BalanceBottomSheet } from '../balance-bottom-sheet/balance-bottom-sheet';
 import { DatePipe } from '@angular/common';
@@ -28,8 +29,10 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Input() activityId: number | null | undefined;
   @Input() activeBreak: WorkBreakRecord | null | undefined;
   @Input() currentSession: WorkSession | null | undefined;
+  @Input() lastProductionRecord?: ProductionRecord | null;
   @Output() onFinalize = new EventEmitter<void>();
   @Output() onOpenEmployees = new EventEmitter<void>();
+  @Output() onActivityPaused = new EventEmitter<WorkBreakRecord>();
 
   private appConfig = inject(AppConfigService);
   private activityService = inject(WorkSessionActivityService);
@@ -87,7 +90,8 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.isOpen.set(false);
   }
 
-  protected pause(): void {
+  public pause(): void {
+    this.isOpen.set(true);
     this.showPauseModal.set(true);
   }
 
@@ -95,6 +99,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.isPaused.set(true);
     this.currentBreak.set(record);
     this.showPauseModal.set(false);
+    this.onActivityPaused.emit(record);
   }
 
   protected cancelPause(): void {
@@ -132,10 +137,17 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.hourStart.set(this.getHourStart());
     this.serverNow.set(new Date());
     this.wasInWindow = false;
-    this.registeredThisWindow = false;
-    this.isOpen.set(true);
+    const alreadyRegistered = this.isAlreadyRegisteredInCurrentWindow();
+    this.registeredThisWindow = alreadyRegistered;
+    this.isOpen.set(!alreadyRegistered);
     this.tick();
     this.intervalId = setInterval(() => this.tick(), 1000);
+  }
+
+  private isAlreadyRegisteredInCurrentWindow(): boolean {
+    const record = this.lastProductionRecord;
+    if (!record?.end_time) return false;
+    return new Date(record.end_time) > new Date();
   }
 
   private stopTimer(): void {
@@ -176,9 +188,8 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
 
     if (!inWindow && elapsedInHour > this.windowSeconds && this.wasInWindow) {
       this.wasInWindow = false;
-      if (!this.registeredThisWindow) {
-        this.missed.set(true);
-      }
+      this.registeredThisWindow = false;
+      this.missed.set(true);
     }
 
     this.isInWindow.set(inWindow);
