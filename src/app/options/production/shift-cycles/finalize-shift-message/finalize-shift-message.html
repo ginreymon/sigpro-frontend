@@ -1,0 +1,8 @@
+<app-unplanned-shift-message
+    [title]="'Jornada activa encontrada'"
+    [description]="'Existe una jornada activa pendiente de cierre. Finalízala para iniciar una nueva jornada.'">
+    <app-ui-button (onClick)="onClose.emit()">
+        <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+        Cerrar día
+    </app-ui-button>
+</app-unplanned-shift-message>

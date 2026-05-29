@@ -34,20 +34,25 @@
             </div>
         }
         @else if(!isLoading()) {
-        <app-order-searcher [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)"></app-order-searcher>
+            @if(finalizeDay()){
+                <app-finalize-shift-message (onClose)="closeSession()"></app-finalize-shift-message>
+            }
+            @else {
+                <app-order-searcher [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)"></app-order-searcher>
 
-        <div class="flex-1 min-h-0 mt-3 bg-gray-100 rounded-lg border border-gray-200 overflow-y-auto px-3 pb-3">
-          <div class="flex flex-row flex-wrap gap-3 content-start py-3">
-            <app-last-record-card [trigger]="lastRecordTrigger()"></app-last-record-card>
-          </div>
-        </div>
+                <div class="flex-1 min-h-0 mt-3 bg-gray-100 rounded-lg border border-gray-200 overflow-y-auto px-3 pb-3">
+                <div class="flex flex-row flex-wrap gap-3 content-start py-3">
+                    <app-last-record-card [trigger]="lastRecordTrigger()"></app-last-record-card>
+                </div>
+                </div>
 
-        <div class="flex flex-row justify-end mt-4">
-            <app-ui-button (onClick)="goToDayOperation()">
-                <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
-                Jornada
-            </app-ui-button>
-        </div>
+                <div class="flex flex-row justify-end mt-4">
+                    <app-ui-button (onClick)="goToDayOperation()">
+                        <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                        Jornada
+                    </app-ui-button>
+                </div>
+            }        
         }
     </div>
 

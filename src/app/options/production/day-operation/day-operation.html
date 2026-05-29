@@ -1,3 +1,7 @@
+@if(currentSession()?.editing_finalized){
+    <app-finalize-shift-message (onClose)="closeSession()"></app-finalize-shift-message>
+}
+@else {
 <app-work-space-layout [sideContentVisible]="true">
     <form [formGroup]="modelForm" (ngSubmit)="submit()" main-content
         class="flex flex-col justify-between h-full max-h-full overflow-hidden">
@@ -153,4 +157,4 @@
 </app-work-space-layout>
 
 <app-employees-modal [employees]="employees()" [preselectedIds]="employeeIds?.value ?? []"  (onSave)="onEmployeesSaved($event)"></app-employees-modal>
-
+}
