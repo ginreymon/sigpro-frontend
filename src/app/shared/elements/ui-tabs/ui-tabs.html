@@ -1,0 +1,13 @@
+<nav class="flex border-b border-gray-200">
+  @for (tab of tabs; track tab.key) {
+    <button
+      (click)="setTab(tab.key)"
+      [class.border-b-2]="activeTab() === tab.key"
+      [class.border-brand-400]="activeTab() === tab.key"
+      [class.text-brand-400]="activeTab() === tab.key"
+      [class.text-gray-400]="activeTab() !== tab.key"
+      class="px-6 py-3 text-sm font-medium hover:text-brand-400 transition-colors cursor-pointer">
+      {{ tab.label }}
+    </button>
+  }
+</nav>

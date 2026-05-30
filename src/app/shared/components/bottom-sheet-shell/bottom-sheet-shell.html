@@ -1,0 +1,29 @@
+<div [class]="'fixed inset-0 z-50 ' + (visible ? 'pointer-events-auto' : 'pointer-events-none')">
+
+  <div
+    [class]="'fixed inset-0 bg-black/50 transition-opacity duration-300 ' + (visible ? 'opacity-100' : 'opacity-0')"
+    (click)="close()">
+  </div>
+
+  <div [class]="'fixed inset-x-0 ' + (fullscreen ? 'top-0' : 'top-16 rounded-t-2xl') + ' bottom-0 bg-white shadow-xl transition-transform duration-300 ' + (visible ? 'translate-y-0' : 'translate-y-full')">
+
+    <div class="h-full flex flex-col p-6">
+
+      <div class="flex items-center justify-between border-b border-gray-200 pb-4">
+        <h3 class="text-lg font-semibold text-gray-900">{{ title }}</h3>
+        <app-ui-close-button (onClose)="close()"></app-ui-close-button>
+      </div>
+
+      <div class="py-4 flex-1 min-h-0 overflow-y-auto">
+        <ng-content></ng-content>
+      </div>
+
+      <div class="border-t border-gray-200 pt-4 flex justify-end">
+        <app-ui-button [intent]="'cancel'" (onClick)="close()">Cerrar</app-ui-button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

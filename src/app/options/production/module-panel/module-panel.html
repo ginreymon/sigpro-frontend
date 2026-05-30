@@ -1,0 +1,56 @@
+<div class="flex flex-col h-full">
+
+  <div class="pb-4 mb-4 border-b border-gray-200">
+    <h1 class="text-2xl font-semibold text-gray-800">Estado de producción</h1>
+  </div>
+
+  <div class="flex-1 min-h-0 overflow-y-auto">
+    <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
+
+      @for (mod of modules(); track mod.number) {
+        <div class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between min-h-45 hover:shadow-md transition-shadow cursor-pointer" (click)="openSheet(mod)">
+
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-1">
+                MÓDULO {{ padNumber(mod.number) }}
+              </span>
+              <h3 class="text-base font-semibold text-gray-800">{{ mod.name }}</h3>
+            </div>
+            <span [class]="badgeClass(mod.status)">{{ mod.status }}</span>
+          </div>
+
+          <div class="mt-4 flex items-end justify-between">
+            <div>
+              <span [class]="efficiencyClass(mod.status)">{{ mod.efficiency.toFixed(1) }}%</span>
+              <div class="flex items-center gap-1 mt-1">
+                @if (mod.trend !== 0) {
+                  <app-ui-icon
+                    [iconName]="mod.trend > 0 ? 'angleUp' : 'angleDown'"
+                    [class]="trendIconClass(mod.trend)">
+                  </app-ui-icon>
+                }
+                <span [class]="trendTextClass(mod.trend)">{{ trendLabel(mod.trend) }}</span>
+              </div>
+            </div>
+
+            <div class="w-16 h-12 flex items-end gap-1">
+              @for (bar of mod.history; track $index; let last = $last) {
+                <div [class]="barClass(mod.status, last)" [style.height]="bar + '%'"></div>
+              }
+            </div>
+          </div>
+
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>
+
+<app-module-detail-bottom-sheet
+  [visible]="sheetVisible()"
+  [module]="selectedModule()"
+  (onClose)="closeSheet()">
+</app-module-detail-bottom-sheet>

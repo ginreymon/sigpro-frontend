@@ -32,7 +32,7 @@
 
                     @for(size of skuColor.sizes; track size){
                     <td class="text-center">
-                        @if(size.skuRowId != 0){
+                        @if(!readOnly && size.skuRowId != 0){
                         <app-ui-table-button [intent]="getButtonIntent(size)" (onClick)="selectSKU(productionOrder.documentType, productionOrder.documentNumber, size.skuRowId)">
                             @if(getButtonIntent(size) === 'danger'){
                                 {{ getProducedQty(size) }} / {{ size.orderedQty }}
@@ -40,6 +40,13 @@
                                 {{ size.orderedQty }}
                             }
                         </app-ui-table-button>
+                        }
+                        @if(readOnly && size.skuRowId != 0){
+                        <app-ui-tooltip [message]="`${skuColor.color} / TALLA ${size.size}`">
+                            <span class="text-gray-700 px-6 w-16 inline-flex justify-center items-center rounded-full font-semibold py-1">                       
+                                {{ size.orderedQty }}                          
+                            </span>
+                        </app-ui-tooltip>          
                         }
                     </td>
                     }

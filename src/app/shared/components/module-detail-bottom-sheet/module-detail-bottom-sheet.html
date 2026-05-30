@@ -1,0 +1,16 @@
+@if (module) {
+  <app-bottom-sheet-shell
+    [visible]="visible"
+    [title]="'Módulo ' + padNumber(module.number)"
+    [fullscreen]="false"
+    (onClose)="close()">
+
+    <div class="flex flex-col items-center gap-2 py-6">
+      <span class="text-xs font-bold tracking-widest text-gray-400 uppercase">
+        MÓDULO {{ padNumber(module.number) }}
+      </span>
+      <h2 class="text-4xl font-bold text-gray-900 text-center">{{ module.name }}</h2>
+    </div>
+
+  </app-bottom-sheet-shell>
+}

@@ -1,10 +1,7 @@
-import { Component, computed, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, signal, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.development';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { ActivatedRoute, Router } from '@angular/router';
-import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
-import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/order-searcher/order-searcher';
@@ -23,7 +20,6 @@ import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { Module } from '../../../models/production/module';
 import { WorkShift } from '../../../models/production/work-shift';
-import { ProductionContextService } from '../../../services/production/production-context-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LastRecordCard } from '../../../shared/components/last-record-card/last-record-card';
@@ -32,10 +28,12 @@ import { QuantityModal } from '../../../shared/components/quantity-modal/quantit
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
 import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
 import { FinalizeShiftMessage } from './finalize-shift-message/finalize-shift-message';
-import { Loader } from "../../../shared/elements/loader/loader";
+import { Loader } from '../../../shared/elements/loader/loader';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { ShiftHourlyRecord } from '../../../shared/components/shift-hourly-record/shift-hourly-record';
+import { ProductionContext } from '../../../models/production/production-context';
+import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
 
 @Component({
   selector: 'app-shift-cycles',
@@ -43,18 +41,13 @@ import { ShiftHourlyRecord } from '../../../shared/components/shift-hourly-recor
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
-export class ShiftCycles implements OnInit {
+export class ShiftCycles extends BaseProductionOrderPage {
   balanceVisible = signal(false);
 
   private DAY_OPERATION_URL = environment.DAY_OPERATION_URL;
   private OPERATION_ORDER_URL = environment.SHIFT_CYCLES_URL;
 
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private wslService = inject(WorkSpaceLoaderService);
   private dialogService = inject(DialogService);
-  private contextService = inject(ProductionContextService);
-  private loaderService = inject(LoaderService);
   private workSessionService = inject(WorkSessionService);
   private qms = inject(QuantityModalService);
   private productionRecordService = inject(ProductionRecordService);
@@ -67,24 +60,18 @@ export class ShiftCycles implements OnInit {
   private readonly ALLOWED_COST_CENTERS = [110, 103];
   private context = toSignal(this.contextService.context$, { initialValue: null });
 
-  isLoading = signal(true);
-  contextDocTypes = computed(() => this.context()?.docTypes ?? []);
-  contextWorkShifts = computed(() => this.context()?.workShifts ?? []);
-  contextModules = computed(() => this.context()?.modules ?? []);
-  contextEmployees = computed(() =>
-    (this.context()?.employees ?? []).filter(e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!))
-  );
-  currentSession = signal<WorkSession | null>(null);
-  productionOrder = signal<ProductionOrder | null>(null);
   lastRecordTrigger = signal(0);
   selectedSKU = signal<SkuTaskDetail | null>(null);
   moduleModalVisible = signal(false);
   shiftModalVisible = signal(false);
   employeesModalVisible = signal(false);
 
-  ngOnInit(): void {
-    this.loadDocumentFromRoute();
-  }
+  contextDocTypes = computed(() => this.context()?.docTypes ?? []);
+  contextWorkShifts = computed(() => this.context()?.workShifts ?? []);
+  contextModules = computed(() => this.context()?.modules ?? []);
+  contextEmployees = computed(() =>
+    (this.context()?.employees ?? []).filter(e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!))
+  );
 
   get document() {
     const doc = this.productionOrder();
@@ -92,70 +79,24 @@ export class ShiftCycles implements OnInit {
     return `${doc.documentType} ${doc.documentNumber}`;
   }
 
-  protected finalizeDay = computed(() => {
-    return !!this.currentSession()?.editing_finalized
-  });
+  protected finalizeDay = computed(() => !!this.currentSession()?.editing_finalized);
 
   protected preselectedIds = computed(() =>
     this.currentSession()?.employees_snapshot?.map(e => e.id) ?? []
   );
 
-  private reset() {
+  protected override beforeLoad(): void {
     this.hasCheckedActiveRecord = false;
     this.activeRecord = null;
   }
 
-  private loadContext(docType?: string, docNumber?: number) {
-    this.isLoading.set(true);
-    this.wslService.start();
-    this.loaderService.showLoader();
-    this.contextService.load(docType, docNumber)
-      .pipe(finalize(() => {
-        this.isLoading.set(false);
-        this.wslService.end();
-        this.loaderService.hideLoader();
-      }))
-      .subscribe({
-        next: (context) => {
-          this.currentSession.set(context.session);
-          this.setDocument(context.order);
-          this.checkActiveRecord(context.session, context.order);
-          if (!context.order) this.lastRecordTrigger.update(n => n + 1);
-        },
-        error: () => this.router.navigateByUrl(this.DAY_OPERATION_URL),
-      });
+  protected override onContextLoaded(context: ProductionContext): void {
+    this.checkActiveRecord(context.session, context.order);
+    if (!context.order) this.lastRecordTrigger.update(n => n + 1);
   }
 
-  private loadDocumentFromRoute() {
-    this.productionOrder.set(null);
-    this.route.queryParams.subscribe(({ docType, docNumber }) => {
-      this.hasCheckedActiveRecord = false;
-      this.activeRecord = null;
-      if (!docType || !docNumber) {
-        this.productionOrder.set(null);
-      }
-      this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
-    });
-  }
-
-  setDocument(doc: ProductionOrder | null) {
-    this.productionOrder.set(doc);
-    if (!doc) return;
-
-    this.router.navigate([], {
-      queryParams: {
-        docType: doc.documentType,
-        docNumber: doc.documentNumber,
-      },
-      queryParamsHandling: 'merge',
-    });
-  }
-
-  reloadOrder() {
-    this.productionOrder.set(null);
-    this.reset();
-    const { docType, docNumber } = this.route.snapshot.queryParams;
-    this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
+  protected override onContextError(): void {
+    this.router.navigateByUrl(this.DAY_OPERATION_URL);
   }
 
   goToSearch() {
@@ -218,9 +159,7 @@ export class ShiftCycles implements OnInit {
     this.loaderService.showLoader();
     this.workSessionService.updateEmployees(sessionId, ids)
       .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe({
-        next: () => this.refreshSession(),
-      });
+      .subscribe({ next: () => this.refreshSession() });
   }
 
   updateSession(data: Partial<WorkSession>): void {
@@ -229,19 +168,14 @@ export class ShiftCycles implements OnInit {
     this.loaderService.showLoader();
     this.workSessionService.patch(sessionId, data)
       .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe({
-        next: () => this.refreshSession(),
-      });
+      .subscribe({ next: () => this.refreshSession() });
   }
 
   saveSKU(record: Partial<ProductionRecord>) {
     const activityId = this.currentSession()?.active_activity?.id;
     if (!activityId) return;
 
-    const payload: Partial<ProductionRecord> = {
-      ...record,
-      work_session_activity: activityId,
-    };
+    const payload: Partial<ProductionRecord> = { ...record, work_session_activity: activityId };
 
     this.loaderService.showLoader();
     this.productionRecordService.create(payload)
@@ -279,7 +213,7 @@ export class ShiftCycles implements OnInit {
       'fail'
     );
   }
-  
+
   openBalance() {
     this.balanceVisible.set(true);
   }
@@ -298,7 +232,7 @@ export class ShiftCycles implements OnInit {
       .closeSession(this.currentSession()?.id!)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
-        next: (value) => {
+        next: () => {
           this.currentSession.set(null);
           this.router.navigateByUrl('/');
         },

@@ -11,10 +11,11 @@ import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { ProductionOrderService } from '../../../services/production/production-order-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
+import { UiTooltip } from "../ui-tooltip/ui-tooltip";
 
 @Component({
   selector: 'app-production-orders-table',
-  imports: [UiTableButton, UiTooltipFixed],
+  imports: [UiTableButton, UiTooltipFixed, UiTooltip],
   templateUrl: './production-orders-table.html',
   styleUrl: './production-orders-table.css',
 })
@@ -42,7 +43,7 @@ export class ProductionOrdersTable {
   }
 
   @Input() currentSession: WorkSession | null = null;
-
+  @Input() readOnly: boolean = false;
   @Output() onSelectSKU = new EventEmitter<SkuTaskDetail>();
 
   buildColorSizeStructure() {

@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal, computed, input, effect } from '@angular/core';
-import { UiButton } from '../../elements/ui-button/ui-button';
-import { UiCloseButton } from '../../elements/ui-close-button/ui-close-button';
+import { BottomSheetShell } from '../bottom-sheet-shell/bottom-sheet-shell';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { DataTable } from '../data-table/data-table';
 import { WorkSession } from '../../../models/production/work-session';
@@ -18,7 +17,7 @@ import { AppConfigService } from '../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-balance-bottom-sheet',
-  imports: [UiButton, UiCloseButton, UiIcon, DataTable, TableTemplate, DatePipe],
+  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DatePipe],
   templateUrl: './balance-bottom-sheet.html',
   styleUrl: './balance-bottom-sheet.css',
 })
