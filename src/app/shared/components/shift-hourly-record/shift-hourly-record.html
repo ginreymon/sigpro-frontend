@@ -20,6 +20,7 @@
       [startTime]="hourStart()"
       [serverNow]="serverNow()"
       [duration]="3600"
+      [endingThresholdMinutes]="windowMinutes"
       [isPaused]="isPaused()"
       [pauseStartTime]="currentBreak()?.start_time"
       [pauseDurationSeconds]="currentBreak()?.duration_seconds"

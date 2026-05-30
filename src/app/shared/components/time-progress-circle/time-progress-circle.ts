@@ -33,6 +33,7 @@ export class TimeProgressCircle implements OnDestroy {
   private _rawServerNow: string | Date | null = null;
 
   @Input() duration: number = 3600;
+  @Input() endingThresholdMinutes: number | null = null;
   @Input() totalPauseSeconds: number = 0;
   @Input() forceError: boolean = false;
   @Input() showRealTime: boolean = false;
@@ -174,7 +175,10 @@ export class TimeProgressCircle implements OnDestroy {
     const progress = Math.min(this.elapsed / this.duration, 1);
     this.dashOffset.set(this.fullDash * (1 - progress));
     const remaining = this.duration - this.elapsed;
-    this.isEnding.set(remaining <= this.duration * 0.25);
+    const threshold = this.endingThresholdMinutes !== null
+      ? this.endingThresholdMinutes * 60
+      : this.duration * 0.25;
+    this.isEnding.set(remaining <= threshold);
     if (remaining <= 0) {
       this.isCompleted.set(true);
       this.onCompleted.emit();
