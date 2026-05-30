@@ -28,7 +28,6 @@ import { QuantityModal } from '../../../shared/components/quantity-modal/quantit
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
 import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
 import { FinalizeShiftMessage } from '../../../shared/components/finalize-shift-message/finalize-shift-message';
-import { Loader } from '../../../shared/elements/loader/loader';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { ShiftHourlyRecord } from '../../../shared/components/shift-hourly-record/shift-hourly-record';
@@ -37,7 +36,7 @@ import { BaseProductionOrderPage } from '../../../common/classes/base-production
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, Loader, FinalizeShiftMessage],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, FinalizeShiftMessage],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })

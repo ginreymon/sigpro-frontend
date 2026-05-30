@@ -4,15 +4,12 @@ import { WorkSpaceLoaderService } from '../../services/common/work-space-loader-
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UiCloseButton } from '../../shared/elements/ui-close-button/ui-close-button';
 import { WorkSpaceLayoutService } from '../../services/common/work-space-layout-service';
-import { ConfirmBox } from "../../shared/components/confirm-box/confirm-box";
-import { Toast } from "../../shared/components/toast/toast";
 import { TitleCasePipe } from '@angular/common';
-import { Loader } from '../../shared/elements/loader/loader';
 import { fromEvent, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-work-space-layout',
-  imports: [UiCloseButton, ConfirmBox, Toast, TitleCasePipe, Loader],
+  imports: [UiCloseButton, TitleCasePipe],
   templateUrl: './work-space-layout.html',
   styleUrl: './work-space-layout.css',
 })
