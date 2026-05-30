@@ -1,4 +1,4 @@
-import { Component, computed, effect, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
@@ -9,6 +9,13 @@ import { UiButton } from "../../../shared/elements/ui-button/ui-button";
 import { SewingSamTable } from '../../../shared/elements/sewing-sam-table/sewing-sam-table';
 import { environment } from '../../../../environments/environment';
 
+const ALL_TABS: TabItem[] = [
+  { key: 'tab1', label: 'Orden OP' },
+  { key: 'tab2', label: 'Materiales' },
+  { key: 'tab3', label: 'SAM Confección' },
+];
+const SAM_TABS: TabItem[] = [{ key: 'tab3', label: 'SAM Confección' }];
+
 @Component({
   selector: 'app-order-detail',
   imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, ProductionOrdersTable, UiButton, SewingSamTable],
@@ -16,24 +23,26 @@ import { environment } from '../../../../environments/environment';
   styleUrl: './order-detail.css',
 })
 export class OrderDetail extends BaseProductionOrderPage {
-
   protected override loadExtras = false;
 
-  activeTab = signal('tab1');
+  private get hasParams(): boolean {
+    const { docType, docNumber } = this.route.snapshot.queryParams;
+    return !!(docType && docNumber);
+  }
 
-  tabs = computed<TabItem[]>(() =>
-    this.productionOrder()
-      ? [
-          { key: 'tab1', label: 'Orden OP' },
-          { key: 'tab2', label: 'Materiales' },
-          { key: 'tab3', label: 'SAM Confección' },
-        ]
-      : [{ key: 'tab3', label: 'SAM Confección' }]
-  );
+  activeTab = signal(this.hasParams ? 'tab1' : 'tab3');
+  tabs = signal<TabItem[]>(this.hasParams ? ALL_TABS : SAM_TABS);
 
-  private _tabReset = effect(() => {
-    this.activeTab.set(this.productionOrder() ? 'tab1' : 'tab3');
-  });
+  protected override beforeLoad(): void {
+    const { docType, docNumber } = this.route.snapshot.queryParams;
+    if (docType && docNumber) {
+      this.tabs.set(ALL_TABS);
+      this.activeTab.set('tab1');
+    } else {
+      this.tabs.set(SAM_TABS);
+      this.activeTab.set('tab3');
+    }
+  }
 
   goToShiftCycles(): void {
     const { docType, docNumber } = this.route.snapshot.queryParams;

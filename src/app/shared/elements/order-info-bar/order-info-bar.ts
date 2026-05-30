@@ -51,7 +51,7 @@ export class OrderInfoBar {
         display: order.reference,
         numericValue: null,
         thresholds: null,
-        tooltip: 'Ver materiales',
+        tooltip: 'Materiales / SAM',
         action: () => this.showMaterials(order.documentType, order.documentNumber),
       },
       { title: 'Acumuladas', display: accumulated != null ? `${accumulated}` : '-', numericValue: accumulated, thresholds: { green: 0, red: Infinity } },

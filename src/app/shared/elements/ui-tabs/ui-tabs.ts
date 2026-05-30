@@ -16,6 +16,10 @@ export class UiTabs implements OnChanges {
 
   activeTab = signal('');
 
+  @Input() set activeKey(key: string) {
+    if (key && key !== this.activeTab()) this.activeTab.set(key);
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['tabs'] && this.tabs.length && !this.activeTab()) {
       this.activeTab.set(this.initialTab ?? this.tabs[0].key);
