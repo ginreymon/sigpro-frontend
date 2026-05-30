@@ -152,10 +152,8 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   }
 
   private setInWindow(value: boolean): void {
-    if (this.isInWindow() !== value) {
-      this.isInWindow.set(value);
-      this.inWindowChange.emit(value);
-    }
+    this.isInWindow.set(value);
+    this.inWindowChange.emit(value);
   }
 
   private stopTimer(): void {

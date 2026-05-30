@@ -51,6 +51,12 @@
         }
       </ng-template>
 
+      <ng-template appTableTemplate="createUserTemplate" let-row>           
+          <app-ui-label-button [classNames]="'w-24'" (onClick)="updateRecords(row)" [intent]="'accept'">
+            Modificar
+          </app-ui-label-button>              
+      </ng-template>    
+
     </app-data-table>
   }
 

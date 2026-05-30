@@ -14,16 +14,19 @@ import { TableTemplate } from '../../../directives/table-template';
 import { DatePipe } from '@angular/common';
 import { shiftTimeToUtcIso } from '../../../common/functions/date-utils';
 import { AppConfigService } from '../../../services/core/app-config-service';
+import { UiLabelButton } from "../../elements/ui-label-button/ui-label-button";
+import { DialogService } from '../../../services/common/dialog-service';
 
 @Component({
   selector: 'app-balance-bottom-sheet',
-  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DatePipe],
+  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DatePipe, UiLabelButton],
   templateUrl: './balance-bottom-sheet.html',
   styleUrl: './balance-bottom-sheet.css',
 })
 export class BalanceBottomSheet implements OnChanges {
   @Input() visible: boolean = false;
   @Input() shiftEndTime: string | null = null;
+  @Input() inWindow = true;
   @Output() onClose = new EventEmitter<void>();
   currentSession = input<WorkSession | null>(null);
 
@@ -44,11 +47,13 @@ export class BalanceBottomSheet implements OnChanges {
     { field: 'sku_reference',     label: 'Referencia' },      
     { type: 'template', label: 'Hora Último Registro',  templateName: 'ultimoRegistroTemplate' },
     { type: 'template', label: 'Cantidades',  templateName: 'cantidadesTemplate' },
+    { type: 'template', label: '',            templateName: 'createUserTemplate', align: 'right' },
   ];
 
   constructor(
     private productivityService: ProductivityService,
     private appConfig: AppConfigService,
+    private dialogService: DialogService,
   ) {
     effect(() => {
       const session = this.currentSession();
@@ -126,5 +131,13 @@ export class BalanceBottomSheet implements OnChanges {
 
   private buildShiftDatetime(timeStr: string, extraHours = 0): string {
     return shiftTimeToUtcIso(timeStr, extraHours);
+  }
+
+  updateRecords(row: ProductivitySummaryRow): void {
+    if (!this.inWindow) {
+      this.dialogService.openToast('Fuera de ventana', 'Solo puedes modificar registros dentro de la ventana de tiempo.', 'fail');
+      return;
+    }
+    console.log(row);
   }
 }
