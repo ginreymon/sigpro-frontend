@@ -8,7 +8,7 @@ import { Component, EventEmitter, Input, Output, signal, OnDestroy } from '@angu
 })
 export class TimeProgressCircle implements OnDestroy {
   elapsed: number = 0;
-  radius = 100;
+  radius = 90;
   fullDash = 2 * Math.PI * this.radius;
   dashOffset = signal(this.fullDash);
   isEnding = signal<boolean>(false);
