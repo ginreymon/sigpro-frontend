@@ -27,7 +27,7 @@ import { ShiftTimeAlert } from '../../../shared/components/shift-time-alert/shif
 import { QuantityModal } from '../../../shared/components/quantity-modal/quantity-modal';
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
 import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
-import { FinalizeShiftMessage } from './finalize-shift-message/finalize-shift-message';
+import { FinalizeShiftMessage } from '../../../shared/components/finalize-shift-message/finalize-shift-message';
 import { Loader } from '../../../shared/elements/loader/loader';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
@@ -43,6 +43,7 @@ import { BaseProductionOrderPage } from '../../../common/classes/base-production
 })
 export class ShiftCycles extends BaseProductionOrderPage {
   balanceVisible = signal(false);
+  protected inWindow = signal(true);
 
   private DAY_OPERATION_URL = environment.DAY_OPERATION_URL;
   private OPERATION_ORDER_URL = environment.SHIFT_CYCLES_URL;

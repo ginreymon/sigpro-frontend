@@ -26,7 +26,7 @@ import { DayOperationDetail } from '../../../shared/components/day-operation-det
 import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
 import { ModuleOptionCard } from '../../../shared/components/module-option-card/module-option-card';
 import { WorkShiftOptionCard } from '../../../shared/components/work-shift-option-card/work-shift-option-card';
-import { FinalizeShiftMessage } from "../shift-cycles/finalize-shift-message/finalize-shift-message";
+import { FinalizeShiftMessage } from "../../../shared/components/finalize-shift-message/finalize-shift-message";
 
 @Component({
   selector: 'app-day-operation',

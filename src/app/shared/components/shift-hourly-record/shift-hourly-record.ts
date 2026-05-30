@@ -33,6 +33,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Output() onFinalize = new EventEmitter<void>();
   @Output() onOpenEmployees = new EventEmitter<void>();
   @Output() onActivityPaused = new EventEmitter<WorkBreakRecord>();
+  @Output() inWindowChange = new EventEmitter<boolean>();
 
   private appConfig = inject(AppConfigService);
   private activityService = inject(WorkSessionActivityService);
@@ -150,11 +151,18 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     return new Date(record.end_time) > new Date();
   }
 
+  private setInWindow(value: boolean): void {
+    if (this.isInWindow() !== value) {
+      this.isInWindow.set(value);
+      this.inWindowChange.emit(value);
+    }
+  }
+
   private stopTimer(): void {
     clearInterval(this.intervalId);
     this.intervalId = undefined;
     this.isOpen.set(false);
-    this.isInWindow.set(false);
+    this.setInWindow(false);
     this.missed.set(false);
     this.wasInWindow = false;
     this.registeredThisWindow = false;
@@ -192,7 +200,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
       this.missed.set(true);
     }
 
-    this.isInWindow.set(inWindow);
+    this.setInWindow(inWindow);
 
     if (!inWindow && !this.isOpen() && !this.registeredThisWindow) {
       this.isOpen.set(true);

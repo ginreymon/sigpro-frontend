@@ -1,7 +1,7 @@
 import { Component, output } from '@angular/core';
-import { UnplannedShiftMessage } from '../../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
-import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
-import { UiIcon } from '../../../../shared/elements/ui-icon/ui-icon';
+import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
+import { UiButton } from '../../elements/ui-button/ui-button';
+import { UiIcon } from '../../elements/ui-icon/ui-icon';
 
 @Component({
   selector: 'app-finalize-shift-message',

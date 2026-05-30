@@ -68,7 +68,7 @@
 
 <app-shift-time-alert [enabled]="currentSession() !== null"></app-shift-time-alert>
 
-<app-quantity-modal [selectedSKU]="selectedSKU()" (onSave)="saveSKU($event)"></app-quantity-modal>
+<app-quantity-modal [selectedSKU]="selectedSKU()" [inWindow]="inWindow()" (onSave)="saveSKU($event)"></app-quantity-modal>
 
 @if(currentSession() && productionOrder() && !employeesModalVisible()){
     <app-shift-hourly-record
@@ -80,6 +80,7 @@
       (onFinalize)="refreshSession()"
       (onOpenEmployees)="openEmployeesSnapshot()"
       (onActivityPaused)="onPauseSaved($event)"
+      (inWindowChange)="inWindow.set($event)"
     ></app-shift-hourly-record>
 }
 
