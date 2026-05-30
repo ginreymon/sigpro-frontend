@@ -32,7 +32,7 @@ export class OrderDetail extends BaseProductionOrderPage {
   );
 
   private _tabReset = effect(() => {
-    if (!this.productionOrder()) this.activeTab.set('tab3');
+    this.activeTab.set(this.productionOrder() ? 'tab1' : 'tab3');
   });
 
   goToShiftCycles(): void {
