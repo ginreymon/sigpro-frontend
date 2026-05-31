@@ -1,6 +1,6 @@
 @if (isOpen() && !currentSession?.editing_finalized) {
 <app-box-layout
-  [title]="isPaused() ? 'Jornada pausada' : missed() ? 'Registro pendiente' : 'Registro hora'"
+  [title]="isPaused() ? 'Jornada pausada' : 'Registro hora'"
   [transparent]="isTransparent()"
   zClass="z-40"
   (onRestoreClick)="isTransparent.set(false)">
@@ -25,7 +25,6 @@
       [pauseStartTime]="currentBreak()?.start_time"
       [pauseDurationSeconds]="currentBreak()?.duration_seconds"
       [totalPauseSeconds]="0"
-      [forceError]="missed()"
       [showRealTime]="!isPaused()"
       (onResume)="onBreakExpired()"
     ></app-time-progress-circle>
@@ -44,10 +43,6 @@
           }
         }
       </div>
-    } @else if (missed()) {
-      <p class="w-full text-sm text-red-500 text-left font-medium">
-        No se registró a tiempo. Registre en la próxima ventana.
-      </p>
     } @else if (!isInWindow()) {
       <p class="w-full text-sm text-gray-500 text-left">
         El registro se habilitará {{ windowMinutes }} minutos antes de cada hora.

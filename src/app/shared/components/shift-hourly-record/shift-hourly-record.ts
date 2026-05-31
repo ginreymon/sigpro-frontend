@@ -45,7 +45,6 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   protected isOpen = signal(false);
   protected isTransparent = signal(false);
   protected isInWindow = signal(false);
-  protected missed = signal(false);
   protected hourStart = signal<Date>(this.getHourStart());
   protected serverNow = signal<Date>(new Date());
   protected isPaused = signal(false);
@@ -87,7 +86,6 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   protected register(): void {
     if (!this.isInWindow()) return;
     this.registeredThisWindow = true;
-    this.missed.set(false);
     this.isOpen.set(false);
   }
 
@@ -171,7 +169,6 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.intervalId = undefined;
     this.isOpen.set(false);
     this.setInWindow(false);
-    this.missed.set(false);
     this.wasInWindow = false;
     this.registeredThisWindow = false;
   }
@@ -187,7 +184,6 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     if (currentHourStart.getTime() !== this.hourStart().getTime()) {
       this.hourStart.set(currentHourStart);
       this.serverNow.set(new Date(now));
-      this.missed.set(false);
       // wasInWindow and registeredThisWindow NOT reset here — the registration window
       // spans the hour boundary (e.g. 17:55–18:05), resetting at 18:00 would wrongly
       // reopen the component. Both flags are reset by the window-open/close blocks below.
@@ -195,7 +191,6 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
 
     if (inWindow && !this.wasInWindow) {
       this.wasInWindow = true;
-      this.missed.set(false);
       if (!this.registeredThisWindow) {
         this.isOpen.set(true);
       }
@@ -205,7 +200,6 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     if (!inWindow && elapsedInHour > this.windowSeconds && this.wasInWindow) {
       this.wasInWindow = false;
       this.registeredThisWindow = false;
-      this.missed.set(true);
     }
 
     this.setInWindow(inWindow);
