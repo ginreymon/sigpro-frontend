@@ -45,11 +45,11 @@
       </div>
     } @else if (!isInWindow()) {
       <p class="w-full text-sm text-gray-500 text-left">
-        El registro se habilitará {{ windowMinutes }} minutos antes de cada hora.
+        Podrá registrar las cantidades de <span class="font-medium">{{ windowRange.start }} </span> a <span class="font-medium">{{ windowRange.end }}</span>.
       </p>
     } @else {
-      <p class="w-full text-sm text-brand-400 text-left font-medium">
-        Ventana de registro activa.
+      <p class="w-full text-sm text-brand-400 text-left">
+        Ventana de registro activa de <span class="font-medium">{{ windowRange.start }} </span> a <span class="font-medium">{{ windowRange.end }}</span>.
       </p>
     }
   </div>

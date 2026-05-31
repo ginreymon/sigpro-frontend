@@ -61,6 +61,14 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     return Math.round(this.windowSeconds / 60);
   }
 
+  protected get windowRange(): { start: string; end: string } {
+    const nextHour = new Date(this.hourStart().getTime() + 3600_000);
+    const start = new Date(nextHour.getTime() - this.windowSeconds * 1000);
+    const end = new Date(nextHour.getTime() + this.windowSeconds * 1000);
+    const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return { start: fmt(start), end: fmt(end) };
+  }
+
   ngOnInit(): void {
     this.appConfig.load().subscribe(() => {
       this.settingEnabled = this.appConfig.showShiftHourlyComponent;
