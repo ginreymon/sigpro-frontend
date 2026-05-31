@@ -33,7 +33,7 @@ export class QuantityModal {
   constructor() {
     effect(() => {
       if (!this.visible()) {
-        this.recordForm.reset();
+        this.recordForm.reset({ completed_quantity: null, rejected_quantity: 0, scrap_quantity: 0 });
       }
     });
   }
@@ -41,8 +41,8 @@ export class QuantityModal {
   recordForm: FormGroup = this.fb.group(
     {
       completed_quantity: [null, [Validators.required, Validators.min(0), this.integerValidator]],
-      rejected_quantity: [null, [Validators.required, Validators.min(0), this.integerValidator]],
-      scrap_quantity: [null, [Validators.required, Validators.min(0), this.integerValidator]],
+      rejected_quantity: [0, [Validators.required, Validators.min(0), this.integerValidator]],
+      scrap_quantity: [0, [Validators.required, Validators.min(0), this.integerValidator]],
     },
     { validators: [this.exceedsMaxValidator.bind(this), this.atLeastOnePositiveValidator] }
   );
