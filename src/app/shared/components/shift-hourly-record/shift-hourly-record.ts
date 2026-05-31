@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, signal, SimpleChanges } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, signal, SimpleChanges } from '@angular/core';
 import { BoxLayout } from '../box-layout/box-layout';
 import { TimeProgressCircle } from '../time-progress-circle/time-progress-circle';
 import { UiButton } from '../../elements/ui-button/ui-button';
@@ -67,6 +67,15 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     const end = new Date(nextHour.getTime() + this.windowSeconds * 1000);
     const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     return { start: fmt(start), end: fmt(end) };
+  }
+
+  constructor() {
+    effect(() => {
+      if (this.isOpen() && !this.isPaused()) {
+        this.hourStart.set(this.getHourStart());
+        this.serverNow.set(new Date());
+      }
+    });
   }
 
   ngOnInit(): void {
