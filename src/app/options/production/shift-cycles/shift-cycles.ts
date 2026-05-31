@@ -157,7 +157,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
     const sessionId = this.currentSession()?.id;
     if (!sessionId) return;
     this.loaderService.showLoader();
-    this.workSessionService.updateEmployees(sessionId, ids)
+    this.workSessionService.rotateActivity(sessionId, ids)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({ next: () => this.refreshSession() });
   }
