@@ -173,7 +173,8 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   private isAlreadyRegisteredInCurrentWindow(): boolean {
     const record = this.lastProductionRecord;
     if (!record?.end_time) return false;
-    return new Date(record.end_time) > new Date();
+    const elapsed = Date.now() - new Date(record.end_time).getTime();
+    return elapsed <= this.windowSeconds * 2 * 1000;
   }
 
   private setInWindow(value: boolean): void {
