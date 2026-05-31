@@ -137,12 +137,22 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.stopTimer();
     this.hourStart.set(this.getHourStart());
     this.serverNow.set(new Date());
-    this.wasInWindow = false;
     const alreadyRegistered = this.isAlreadyRegisteredInCurrentWindow();
     this.registeredThisWindow = alreadyRegistered;
-    this.isOpen.set(!alreadyRegistered);
+    const currentlyInWindow = this.computeInWindow();
+    this.wasInWindow = currentlyInWindow;
+    this.isOpen.set(!alreadyRegistered && !currentlyInWindow);
     this.tick();
     this.intervalId = setInterval(() => this.tick(), 1000);
+  }
+
+  private computeInWindow(): boolean {
+    const now = new Date();
+    const currentHourStart = this.getHourStart();
+    const nextHour = new Date(currentHourStart.getTime() + 3600_000);
+    const remainingSeconds = Math.floor((nextHour.getTime() - now.getTime()) / 1000);
+    const elapsedInHour = Math.floor((now.getTime() - currentHourStart.getTime()) / 1000);
+    return (remainingSeconds <= this.windowSeconds && remainingSeconds > 0) || elapsedInHour <= this.windowSeconds;
   }
 
   private isAlreadyRegisteredInCurrentWindow(): boolean {
