@@ -111,6 +111,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   }
 
   protected onPause(record: WorkBreakRecord): void {
+    this.isOpen.set(true);
     this.isPaused.set(true);
     this.currentBreak.set(record);
     this.onActivityPaused.emit(record);

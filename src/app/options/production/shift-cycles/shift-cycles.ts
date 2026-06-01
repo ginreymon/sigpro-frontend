@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal, ViewChild } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { environment } from '../../../../environments/environment.development';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -55,8 +55,6 @@ export class ShiftCycles extends BaseProductionOrderPage {
   private productionRecordService = inject(ProductionRecordService);
   private destroyRef = inject(DestroyRef);
   protected shiftModals = inject(ShiftModalsService);
-
-  @ViewChild(ShiftHourlyRecord) private shiftHourlyRecord?: ShiftHourlyRecord;
 
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
@@ -225,21 +223,10 @@ export class ShiftCycles extends BaseProductionOrderPage {
       `Hay una tarea activa en ${this.activeRecord.op_type} ${this.activeRecord.op_number}`,
       'fail'
     );
-  }
+  }  
 
-  openBalance() {
-    this.shiftModals.openBalance({
-      currentSession: this.currentSession(),
-      shiftEndTime: this.currentSession()?.work_shift?.end_time ?? null,
-      inWindow: this.inWindow(),
-    });
-  }
-
-  openPauses() {
-    this.shiftHourlyRecord?.pause();
-  }
-
-  onPauseSaved(record: WorkBreakRecord) {
+  onPauseSaved(record: WorkBreakRecord) {  
+    this.refreshSession();
     this.dialogService.openToast('Pausa registrada', record.name ?? record.custom_reason ?? '', 'check');
   }
 
