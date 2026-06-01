@@ -77,7 +77,7 @@
 
 <app-shift-time-alert [enabled]="currentSession() !== null"></app-shift-time-alert>
 
-<app-quantity-modal [selectedSKU]="selectedSKU()" [inWindow]="inWindow()" (onSave)="saveSKU($event)"></app-quantity-modal>
+<app-quantity-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" (onSave)="saveSKU($event)"></app-quantity-modal>
 
 @if(productionOrder()){
     <app-shift-hourly-record
