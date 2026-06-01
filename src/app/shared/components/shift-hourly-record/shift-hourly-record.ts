@@ -93,6 +93,16 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     if ('enabled' in changes) {
       this.enabled && this.settingEnabled ? this.startTimer() : this.stopTimer();
     }
+    if ('activeBreak' in changes && !changes['activeBreak'].firstChange) {
+      if (this.activeBreak) {
+        this.isPaused.set(true);
+        this.currentBreak.set(this.activeBreak);
+        this.isOpen.set(true);
+      } else {
+        this.isPaused.set(false);
+        this.currentBreak.set(null);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -151,7 +161,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.registeredThisWindow = alreadyRegistered;
     const currentlyInWindow = this.computeInWindow();
     this.wasInWindow = currentlyInWindow;
-    this.isOpen.set(!alreadyRegistered && !currentlyInWindow);
+    this.isOpen.set(this.isPaused() || (!alreadyRegistered && !currentlyInWindow));
     this.tick();
     this.intervalId = setInterval(() => this.tick(), 1000);
   }
