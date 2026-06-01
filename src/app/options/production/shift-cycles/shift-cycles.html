@@ -4,7 +4,7 @@
     <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
         @if(productionOrder()){
 
-            <app-work-shift-summary [session]="currentSession()" [employeesEditable]="true" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
+            <app-work-shift-summary [session]="currentSession()" [employeesEditable]="!finalizeDay()" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
 
             <app-order-header [productionOrder]="productionOrder()"></app-order-header>
 
