@@ -12,8 +12,10 @@
                 <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
             </div>
 
-            <div class="flex flex-row justify-between mt-4 gap-3">
-                <app-shift-cycles-actions [finalizeDay]="!finalizeDay()" [mode]="'labeled'" [inWindow]="inWindow()" (onFinalize)="refreshSession()"></app-shift-cycles-actions>
+            <div [class]="'flex flex-row mt-4 gap-3 w-full ' + (finalizeDay() ? 'justify-end' : 'justify-between')">
+                @if(!finalizeDay()){
+                <app-shift-cycles-actions [mode]="'labeled'" [inWindow]="inWindow()" (onFinalize)="refreshSession()"></app-shift-cycles-actions>
+                }
                
                 <div class="flex flex-row gap-3">
                     <app-ui-button (onClick)="finalizeDay()? closeSession() :goToSearch()">
