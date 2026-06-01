@@ -5,9 +5,7 @@ import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { WorkSessionActivityService } from '../../../services/production/work-session-activity-service';
-import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LoaderService } from '../../../services/common/loader-service';
-import { DialogService } from '../../../services/common/dialog-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { ProductionRecord } from '../../../models/production/production-record';
@@ -32,15 +30,12 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Input() currentSession: WorkSession | null | undefined;
   @Input() lastProductionRecord?: ProductionRecord | null;
   @Output() onFinalize = new EventEmitter<void>();
-  @Output() onOpenEmployees = new EventEmitter<void>();
   @Output() onActivityPaused = new EventEmitter<WorkBreakRecord>();
   @Output() inWindowChange = new EventEmitter<boolean>();
 
   private appConfig = inject(AppConfigService);
   private activityService = inject(WorkSessionActivityService);
-  private workSessionService = inject(WorkSessionService);
   private loaderService = inject(LoaderService);
-  private dialogService = inject(DialogService);
   private destroyRef = inject(DestroyRef);
   private shiftModals = inject(ShiftModalsService);
   private settingEnabled = false;
@@ -226,36 +221,4 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  openBalanceModule(): void {
-    this.shiftModals.openBalance({
-      currentSession: this.currentSession ?? null,
-      shiftEndTime: this.currentSession?.work_shift?.end_time ?? null,
-      inWindow: this.isInWindow(),
-    });
-  }
-
-  openEmployeesSnapshot(): void {
-    this.onOpenEmployees.emit();
-  }
-
-  lastDelivery(): void {
-    const sessionId = this.currentSession?.id;
-    if (!sessionId) return;
-    this.dialogService.openConfirm(
-      'Última entrega',
-      '¿Confirmar última entrega? Con esta acción finalizará la jornada.',
-      'Confirmar',
-      () => {
-        this.loaderService.showLoader();
-        this.workSessionService.finalizeEditing(sessionId)
-          .pipe(finalize(() => this.loaderService.hideLoader()))
-          .subscribe({
-            next: () => {
-              this.dialogService.closeConfirm();
-              this.onFinalize.emit();
-            },
-          });
-      }
-    );
-  }
 }
