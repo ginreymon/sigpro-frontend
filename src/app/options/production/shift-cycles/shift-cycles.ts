@@ -11,15 +11,11 @@ import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { OrderHeader } from '../../../shared/elements/order-header/order-header';
 import { WorkShiftSummary } from '../../../shared/components/work-shift-summary/work-shift-summary';
 import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
-import { ModuleModal } from '../../../shared/components/module-modal/module-modal';
-import { WorkShiftModal } from '../../../shared/components/work-shift-modal/work-shift-modal';
 import { BalanceBottomSheet } from '../../../shared/components/balance-bottom-sheet/balance-bottom-sheet';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
-import { Module } from '../../../models/production/module';
-import { WorkShift } from '../../../models/production/work-shift';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LastRecordCard } from '../../../shared/components/last-record-card/last-record-card';
@@ -39,7 +35,7 @@ import { ShiftModalsService } from '../../../services/common/shift-modals-servic
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, FinalizeShiftMessage, ShiftCyclesActions],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, BalanceBottomSheet, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, FinalizeShiftMessage, ShiftCyclesActions],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
@@ -64,12 +60,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
   lastRecordTrigger = signal(0);
   selectedSKU = signal<SkuTaskDetail | null>(null);
-  moduleModalVisible = signal(false);
-  shiftModalVisible = signal(false);
-
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
-  contextWorkShifts = computed(() => this.context()?.workShifts ?? []);
-  contextModules = computed(() => this.context()?.modules ?? []);
   contextEmployees = computed(() =>
     (this.context()?.employees ?? []).filter(e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!))
   );
@@ -148,36 +139,11 @@ export class ShiftCycles extends BaseProductionOrderPage {
     });
   }
 
-  openModuleModal(): void {
-    this.moduleModalVisible.set(true);
-  }
-
-  openShiftModal(): void {
-    this.shiftModalVisible.set(true);
-  }
-
-  onModuleSelected(module: Module): void {
-    this.updateSession({ module_id: module.id });
-  }
-
-  onWorkShiftSelected(shift: WorkShift): void {
-    this.updateSession({ work_shift_id: shift.id });
-  }
-
   updateEmployees(ids: number[]) {
     const sessionId = this.currentSession()?.id;
     if (!sessionId) return;
     this.loaderService.showLoader();
     this.workSessionService.rotateActivity(sessionId, ids)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe({ next: () => this.refreshSession() });
-  }
-
-  updateSession(data: Partial<WorkSession>): void {
-    const sessionId = this.currentSession()?.id;
-    if (!sessionId) return;
-    this.loaderService.showLoader();
-    this.workSessionService.patch(sessionId, data)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({ next: () => this.refreshSession() });
   }

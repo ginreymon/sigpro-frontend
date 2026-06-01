@@ -4,7 +4,7 @@
     <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
         @if(productionOrder()){
 
-            <app-work-shift-summary [session]="currentSession()" [employeesEditable]="true" (employeesClick)="openEmployeesSnapshot()" (moduleClick)="openModuleModal()" (shiftClick)="openShiftModal()"></app-work-shift-summary>
+            <app-work-shift-summary [session]="currentSession()" [employeesEditable]="true" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
 
             <app-order-header [productionOrder]="productionOrder()"></app-order-header>
 
@@ -58,9 +58,6 @@
   (onClose)="shiftModals.close()"
 ></app-employees-modal>
 
-<app-module-modal [visible]="moduleModalVisible()" [modules]="contextModules()" [selectedId]="currentSession()?.current_module?.id ?? null" (onSelect)="onModuleSelected($event)" (onClose)="moduleModalVisible.set(false)"></app-module-modal>
-
-<app-work-shift-modal [visible]="shiftModalVisible()" [workShifts]="contextWorkShifts()" [selectedId]="currentSession()?.work_shift?.id ?? null" (onSelect)="onWorkShiftSelected($event)" (onClose)="shiftModalVisible.set(false)"></app-work-shift-modal>
 
 <app-balance-bottom-sheet
   [visible]="shiftModals.activeModal() === 'balance'"

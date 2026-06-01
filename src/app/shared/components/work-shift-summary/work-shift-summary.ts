@@ -18,11 +18,7 @@ import { ProductionContextService } from '../../../services/production/productio
 export class WorkShiftSummary implements OnInit {
 
   @Output() employeesClick = new EventEmitter<void>();
-  @Output() moduleClick = new EventEmitter<void>();
-  @Output() shiftClick = new EventEmitter<void>();
 
-  @Input() moduleEditable = false;
-  @Input() shiftEditable = false;
   @Input() employeesEditable = false;
 
   protected productivityService = inject(ProductivityService);
@@ -58,8 +54,8 @@ export class WorkShiftSummary implements OnInit {
 
   protected buildCards(s: WorkSession): void {
     this.cards.set([
-      { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.number} ${s.current_module?.name}`, action: () =>  this.moduleEditable?this.moduleClick.emit(): null },
-      { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} : ${s.work_shift.start_time.slice(0, 8)} - ${s.work_shift.end_time.slice(0, 8)}`, action: () => this.shiftEditable ? this.shiftClick.emit() : null },
+      { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.number} ${s.current_module?.name}` },
+      { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} : ${s.work_shift.start_time.slice(0, 8)} - ${s.work_shift.end_time.slice(0, 8)}` },
       { title: 'Encomendados', iconName: 'user', data: s.employees_snapshot?.length ?? 0, action: () => this.employeesEditable ? this.employeesClick.emit() : null },
       { title: 'Meta', data: '-', thresholds: { green: 0, red: Infinity } },
       { title: 'Acumuladas', data: '-', thresholds: { green: 0, red: Infinity } },
@@ -96,10 +92,7 @@ export class WorkShiftSummary implements OnInit {
 
   getActionClasses(card: WorkShiftCard): string {
     const base = 'inline-flex flex-row gap-1 items-center mt-0.5 rounded transition-colors';
-    const hoverable =
-      (card.title === 'Módulo' && this.moduleEditable) ||
-      (card.title === 'Turno' && this.shiftEditable) ||
-      (card.title === 'Encomendados' && this.employeesEditable);
+    const hoverable = card.title === 'Encomendados' && this.employeesEditable;
     return hoverable ? `${base} cursor-pointer hover:text-gray-700 hover:bg-gray-100` : base;
   }
 
