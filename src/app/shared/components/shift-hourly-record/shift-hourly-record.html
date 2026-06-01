@@ -1,8 +1,7 @@
 @if (isOpen() && !currentSession?.editing_finalized) {
 <app-box-layout
   [title]="isPaused() ? 'Jornada pausada' : 'Registro hora'"
-  [transparent]="isTransparent()"
-  zClass="z-40"
+  [transparent]="isTransparent()" 
   (onRestoreClick)="isTransparent.set(false)">
 
   <app-ui-tooltip box-header-actions [message]="'Transparente'">
@@ -64,28 +63,7 @@
       }
     } @else {
       @if (activityId) {
-        <div class="flex flex-row gap-3">
-          <app-ui-tooltip [message]="'Última entrega'">
-            <app-ui-button [intent]="'action'" (onClick)="lastDelivery()">
-              <app-ui-icon [iconName]="'truck'" class="w-5 h-5"></app-ui-icon>
-            </app-ui-button>
-          </app-ui-tooltip>
-          <app-ui-tooltip [message]="'Empleados'">
-            <app-ui-button [intent]="'cancel'" (onClick)="openEmployeesSnapshot()">
-              <app-ui-icon [iconName]="'user'" class="w-5 h-5"></app-ui-icon>
-            </app-ui-button>
-          </app-ui-tooltip>
-          <app-ui-tooltip [message]="'Balance'">
-            <app-ui-button [intent]="'cancel'" (onClick)="openBalanceModule()">
-              <app-ui-icon [iconName]="'chartArea'" class="w-5 h-5"></app-ui-icon>
-            </app-ui-button>
-          </app-ui-tooltip>
-          <app-ui-tooltip [message]="'Pausar'">
-            <app-ui-button [intent]="'cancel'" (onClick)="pause()">
-              <app-ui-icon [iconName]="'pause'" class="w-5 h-5"></app-ui-icon>
-            </app-ui-button>
-          </app-ui-tooltip>
-        </div>
+      <app-shift-cycles-actions [inWindow]="isInWindow()" (onFinalize)="onFinalize.emit()"></app-shift-cycles-actions>
       }
       <app-ui-button class="ml-auto" [disabled]="!isInWindow()" (onClick)="register()">
         <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>
@@ -95,9 +73,5 @@
   </div>
 
 </app-box-layout>
-
-<app-pause-modal [visible]="showPauseModal()" [activityIdOverride]="activityId" (onCancel)="cancelPause()" (onPause)="onPause($event)"></app-pause-modal>
-
-<app-balance-bottom-sheet [visible]="showBalanceSheet()" [currentSession]="currentSession ?? null" [shiftEndTime]="currentSession?.work_shift?.end_time ?? null" (onClose)="showBalanceSheet.set(false)"></app-balance-bottom-sheet>
-
 }
+

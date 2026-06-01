@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, ViewChild } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.development';
 import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -20,7 +20,7 @@ import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { Module } from '../../../models/production/module';
 import { WorkShift } from '../../../models/production/work-shift';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LastRecordCard } from '../../../shared/components/last-record-card/last-record-card';
 import { ShiftTimeAlert } from '../../../shared/components/shift-time-alert/shift-time-alert';
@@ -33,15 +33,17 @@ import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { ShiftHourlyRecord } from '../../../shared/components/shift-hourly-record/shift-hourly-record';
 import { ProductionContext } from '../../../models/production/production-context';
 import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
+import { ShiftCyclesActions } from "../../../shared/components/shift-cycles-actions/shift-cycles-actions";
+import { PauseModal } from '../../../shared/components/pause-modal/pause-modal';
+import { ShiftModalsService } from '../../../services/common/shift-modals-service';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, FinalizeShiftMessage],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, ModuleModal, WorkShiftModal, BalanceBottomSheet, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, FinalizeShiftMessage, ShiftCyclesActions],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
 export class ShiftCycles extends BaseProductionOrderPage {
-  balanceVisible = signal(false);
   protected inWindow = signal(true);
 
   private DAY_OPERATION_URL = environment.DAY_OPERATION_URL;
@@ -51,6 +53,8 @@ export class ShiftCycles extends BaseProductionOrderPage {
   private workSessionService = inject(WorkSessionService);
   private qms = inject(QuantityModalService);
   private productionRecordService = inject(ProductionRecordService);
+  private destroyRef = inject(DestroyRef);
+  protected shiftModals = inject(ShiftModalsService);
 
   @ViewChild(ShiftHourlyRecord) private shiftHourlyRecord?: ShiftHourlyRecord;
 
@@ -64,7 +68,6 @@ export class ShiftCycles extends BaseProductionOrderPage {
   selectedSKU = signal<SkuTaskDetail | null>(null);
   moduleModalVisible = signal(false);
   shiftModalVisible = signal(false);
-  employeesModalVisible = signal(false);
 
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
   contextWorkShifts = computed(() => this.context()?.workShifts ?? []);
@@ -84,6 +87,13 @@ export class ShiftCycles extends BaseProductionOrderPage {
   protected preselectedIds = computed(() =>
     this.currentSession()?.employees_snapshot?.map(e => e.id) ?? []
   );
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+    this.shiftModals.employeesSaved$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(ids => this.updateEmployees(ids));
+  }
 
   protected override beforeLoad(): void {
     this.hasCheckedActiveRecord = false;
@@ -134,7 +144,10 @@ export class ShiftCycles extends BaseProductionOrderPage {
   }
 
   openEmployeesSnapshot(): void {
-    this.employeesModalVisible.set(true);
+    this.shiftModals.openEmployees({
+      employees: this.contextEmployees(),
+      preselectedIds: this.preselectedIds(),
+    });
   }
 
   openModuleModal(): void {
@@ -215,7 +228,11 @@ export class ShiftCycles extends BaseProductionOrderPage {
   }
 
   openBalance() {
-    this.balanceVisible.set(true);
+    this.shiftModals.openBalance({
+      currentSession: this.currentSession(),
+      shiftEndTime: this.currentSession()?.work_shift?.end_time ?? null,
+      inWindow: this.inWindow(),
+    });
   }
 
   openPauses() {

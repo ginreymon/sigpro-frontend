@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, signal, SimpleChanges } from '@angular/core';
+import { Component, DestroyRef, effect, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, signal, SimpleChanges } from '@angular/core';
 import { BoxLayout } from '../box-layout/box-layout';
 import { TimeProgressCircle } from '../time-progress-circle/time-progress-circle';
 import { UiButton } from '../../elements/ui-button/ui-button';
@@ -11,17 +11,18 @@ import { DialogService } from '../../../services/common/dialog-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { ProductionRecord } from '../../../models/production/production-record';
-import { PauseModal } from '../pause-modal/pause-modal';
-import { BalanceBottomSheet } from '../balance-bottom-sheet/balance-bottom-sheet';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ShiftModalsService } from '../../../services/common/shift-modals-service';
 import { DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
 import { OrderInfoBar } from '../../elements/order-info-bar/order-info-bar';
 import { UiTooltip } from '../../elements/ui-tooltip/ui-tooltip';
+import { ShiftCyclesActions } from "../shift-cycles-actions/shift-cycles-actions";
 
 @Component({
   selector: 'app-shift-hourly-record',
   standalone: true,
-  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, PauseModal, BalanceBottomSheet, DatePipe, OrderInfoBar, UiTooltip],
+  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, DatePipe, OrderInfoBar, UiTooltip, ShiftCyclesActions],
   templateUrl: './shift-hourly-record.html',
 })
 export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
@@ -40,6 +41,8 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   private workSessionService = inject(WorkSessionService);
   private loaderService = inject(LoaderService);
   private dialogService = inject(DialogService);
+  private destroyRef = inject(DestroyRef);
+  private shiftModals = inject(ShiftModalsService);
   private settingEnabled = false;
 
   protected isOpen = signal(false);
@@ -49,8 +52,6 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   protected serverNow = signal<Date>(new Date());
   protected isPaused = signal(false);
   protected currentBreak = signal<WorkBreakRecord | null>(null);
-  protected showPauseModal = signal(false);
-  protected showBalanceSheet = signal(false);
 
   private intervalId?: ReturnType<typeof setInterval>;
   private wasInWindow = false;
@@ -88,6 +89,9 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
       }
       if (this.enabled && this.settingEnabled) this.startTimer();
     });
+    this.shiftModals.pauseSaved$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(record => this.onPause(record));
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -108,18 +112,13 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
 
   public pause(): void {
     this.isOpen.set(true);
-    this.showPauseModal.set(true);
+    this.shiftModals.openPause({ activityId: this.activityId });
   }
 
   protected onPause(record: WorkBreakRecord): void {
     this.isPaused.set(true);
     this.currentBreak.set(record);
-    this.showPauseModal.set(false);
     this.onActivityPaused.emit(record);
-  }
-
-  protected cancelPause(): void {
-    this.showPauseModal.set(false);
   }
 
   protected resume(): void {
@@ -228,7 +227,11 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   }
 
   openBalanceModule(): void {
-    this.showBalanceSheet.set(true);
+    this.shiftModals.openBalance({
+      currentSession: this.currentSession ?? null,
+      shiftEndTime: this.currentSession?.work_shift?.end_time ?? null,
+      inWindow: this.isInWindow(),
+    });
   }
 
   openEmployeesSnapshot(): void {
