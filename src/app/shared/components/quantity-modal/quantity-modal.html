@@ -51,7 +51,7 @@
             Cancelar
         </app-ui-button>
 
-        <app-ui-button [disabled]="recordForm.invalid || isSubmitting() || !inWindow" (onClick)="save()">
+        <app-ui-button [disabled]="recordForm.invalid || isSubmitting() || enable" (onClick)="save()">
             Guardar
         </app-ui-button>
     </div>

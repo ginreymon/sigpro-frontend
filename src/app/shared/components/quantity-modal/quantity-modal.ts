@@ -20,7 +20,7 @@ import { QuantityDetail } from "../quantity-detail/quantity-detail";
 })
 export class QuantityModal {
   @Input() selectedSKU: SkuTaskDetail | null = null;
-  @Input() inWindow = true;
+  @Input() enable = true;
 
   private qms = inject(QuantityModalService);
   private fb = inject(FormBuilder);
@@ -87,7 +87,7 @@ export class QuantityModal {
   }
 
   save() {
-    if (this.recordForm.invalid || this.isSubmitting() || !this.inWindow) return;
+    if (this.recordForm.invalid || this.isSubmitting() || this.enable) return;
 
     const { completed_quantity, rejected_quantity, scrap_quantity } = this.recordForm.value;
     const sku = this.selectedSKU;
