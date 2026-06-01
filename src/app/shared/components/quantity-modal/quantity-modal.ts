@@ -87,7 +87,7 @@ export class QuantityModal {
   }
 
   save() {
-    if (this.recordForm.invalid || this.isSubmitting() || this.enable) return;
+    if (this.recordForm.invalid || this.isSubmitting() || !this.enable) return;
 
     const { completed_quantity, rejected_quantity, scrap_quantity } = this.recordForm.value;
     const sku = this.selectedSKU;
