@@ -12,8 +12,8 @@
                 <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
             </div>
 
-            <div [class]="'flex flex-row mt-4 gap-3 w-full ' + (finalizeDay() ? 'justify-end' : 'justify-between')">
-                @if(!finalizeDay()){
+            <div [class]="'flex flex-row mt-4 gap-3 w-full ' + ((finalizeDay()||shiftModals.shiftHourlyVisible())? 'justify-end' : 'justify-between')">
+                @if(!finalizeDay() && !shiftModals.shiftHourlyVisible()){
                 <app-shift-cycles-actions [mode]="'labeled'" [inWindow]="inWindow()" (onFinalize)="refreshSession()"></app-shift-cycles-actions>
                 }
                

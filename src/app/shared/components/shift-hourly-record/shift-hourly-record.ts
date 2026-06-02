@@ -39,6 +39,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   private destroyRef = inject(DestroyRef);
   private shiftModals = inject(ShiftModalsService);
   private settingEnabled = false;
+  private keepOpenOnRegister = false;
 
   protected isOpen = signal(false);
   protected isTransparent = signal(false);
@@ -72,12 +73,14 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
         this.serverNow.set(new Date());
       }
     });
+    effect(() => this.shiftModals.setShiftHourlyVisible(this.isOpen()));
   }
 
   ngOnInit(): void {
     this.appConfig.load().subscribe(() => {
       this.settingEnabled = this.appConfig.showShiftHourlyComponent;
       this.windowSeconds = this.appConfig.shiftHourlyWindowSeconds;
+      this.keepOpenOnRegister = this.appConfig.shiftHourlyKeepOpenOnRegister;
       if (this.activeBreak) {
         this.isPaused.set(true);
         this.currentBreak.set(this.activeBreak);
@@ -107,6 +110,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopTimer();
+    this.shiftModals.setShiftHourlyVisible(false);
   }
 
   protected register(): void {
@@ -163,7 +167,10 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     const currentlyInWindow = this.computeInWindow();
     this.registeredThisWindow = alreadyRegistered && currentlyInWindow;
     this.wasInWindow = currentlyInWindow;
-    this.isOpen.set(this.isPaused() || !(currentlyInWindow && alreadyRegistered));
+    const command = this.shiftModals.shiftHourlyOpen$.getValue();
+    this.shiftModals.shiftHourlyOpen$.next(null);
+    const openByCommand = this.keepOpenOnRegister && command === true;
+    this.isOpen.set(openByCommand || this.isPaused() || !(currentlyInWindow && alreadyRegistered));
     this.tick();
     this.intervalId = setInterval(() => this.tick(), 1000);
   }

@@ -60,4 +60,8 @@ export class AppConfigService {
   get shiftHourlyWindowSeconds(): number {
     return this.getNumber(AppSettingKey.SHIFT_HOURLY_WINDOW, 5) * 60;
   }
+
+  get shiftHourlyKeepOpenOnRegister(): boolean {
+    return this.get(AppSettingKey.HOURLY_KEEP_OPEN) === 'true';
+  }
 }

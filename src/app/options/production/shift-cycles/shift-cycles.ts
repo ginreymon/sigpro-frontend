@@ -159,6 +159,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: () => {
+          this.shiftModals.openShiftHourlyRecord();
           this.qms.close();
           this.reloadOrder();
           const parts: string[] = [];

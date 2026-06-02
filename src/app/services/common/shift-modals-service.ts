@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Employee } from '../../models/production/employee';
 import { WorkBreakRecord } from '../../models/production/work-break-record';
 import { WorkSession } from '../../models/production/work-session';
@@ -29,6 +29,12 @@ export class ShiftModalsService {
   readonly employeesSaved$ = new Subject<number[]>();
   readonly pauseSaved$ = new Subject<WorkBreakRecord>();
 
+  /** Command bus: true = open, false = close, null = no override */
+  readonly shiftHourlyOpen$ = new BehaviorSubject<boolean | null>(null);
+
+  /** Global readable state of ShiftHourlyRecord visibility */
+  readonly shiftHourlyVisible = signal(false);
+
   openBalance(data: BalanceModalData): void {
     this.balanceData.set(data);
     this.activeModal.set('balance');
@@ -52,6 +58,14 @@ export class ShiftModalsService {
   onPauseSaved(record: WorkBreakRecord): void {
     this.pauseSaved$.next(record);
     this.close();
+  }
+
+  openShiftHourlyRecord(): void {
+    this.shiftHourlyOpen$.next(true);
+  }
+
+  setShiftHourlyVisible(visible: boolean): void {
+    this.shiftHourlyVisible.set(visible);
   }
 
   close(): void {
