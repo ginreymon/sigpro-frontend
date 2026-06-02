@@ -136,10 +136,12 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
         next: () => {
           this.isPaused.set(false);
           this.currentBreak.set(null);
+          this.isOpen.set(true);
         },
         error: () => {
           this.isPaused.set(false);
           this.currentBreak.set(null);
+          this.isOpen.set(true);
         },
       });
   }
