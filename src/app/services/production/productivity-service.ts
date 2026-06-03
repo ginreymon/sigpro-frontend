@@ -23,7 +23,6 @@ export class ProductivityService {
       .set('client_now', p.clientNow ?? new Date().toISOString());
     if (p.moduleId !== undefined) params = params.set('module_id', p.moduleId);
     if (p.shiftId !== undefined) params = params.set('shift_id', p.shiftId);
-    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
 
     return this.http.get<EfficiencyPeriod>(`${this.path}/efficiency/`, { params });
   }

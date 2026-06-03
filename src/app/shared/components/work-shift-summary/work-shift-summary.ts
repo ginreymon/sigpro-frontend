@@ -67,7 +67,7 @@ export class WorkShiftSummary implements OnInit {
 
   protected loadProductivityCards(s: WorkSession): void {
     const startUtc = shiftTimeToUtcIso(s.work_shift.start_time);
-    const endUtc   = shiftTimeToUtcIso(s.work_shift.end_time, this.appConfig.balanceEndExtraHours);
+    const endUtc   = new Date(new Date(startUtc).getTime() + 24 * 60 * 60 * 1000).toISOString();
 
     const params: ProductivityParams = {
       startDate: startUtc,
@@ -77,13 +77,13 @@ export class WorkShiftSummary implements OnInit {
     };
 
     this.productivityService.getEfficiencyPeriod(params).subscribe({
-      next: (data) => {
-        this.contextService.setEfficiency(data);
+      next: (summary) => {
+        this.contextService.setEfficiency(summary);
         this.cards.update(cards => cards.map((card) => {
-          if (card.title === 'Acumuladas') return { ...card, data: data.total_completed };
-          if (card.title === 'Bajas/Saldos') return { ...card, data: (data.total_rejected + data.total_scrap) };
-          if (card.title === 'Eficiencia') return { ...card, data: Math.round(data.efficiency * 100) / 100 };
-          if (card.title === 'Meta') return { ...card, data: Math.round(data.unit_target) };
+          if (card.title === 'Meta') return { ...card, data: Math.round(summary.unit_target ?? 0) };
+          if (card.title === 'Acumuladas') return { ...card, data: summary.total_completed ?? 0 };
+          if (card.title === 'Bajas/Saldos') return { ...card, data: (summary.total_rejected ?? 0) + (summary.total_scrap ?? 0) };
+          if (card.title === 'Eficiencia') return { ...card, data: Math.round((summary.efficiency ?? 0) * 100) / 100 };
           return card;
         }));
       },
