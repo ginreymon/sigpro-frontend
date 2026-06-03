@@ -1,0 +1,15 @@
+<app-data-table
+  [paginatedResponse]="paginatedResponse()"
+  [columns]="columns"
+  [showPager]="false"
+  (onSearch)="searchHandler($event)">
+
+  <ng-template appTableTemplate="consumoTemplate" let-row>
+    {{ row.consumption  }}
+  </ng-template>
+
+  <ng-template appTableTemplate="totalTemplate" let-row>
+    {{ row.total  }}
+  </ng-template>
+
+</app-data-table>

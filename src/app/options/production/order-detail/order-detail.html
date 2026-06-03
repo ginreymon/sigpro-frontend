@@ -1,7 +1,7 @@
 <app-work-space-layout [headerVisible]="false">
   <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
 
-    <app-ui-tabs [tabs]="tabs()" [activeKey]="activeTab()" (tabChange)="activeTab.set($event)" />
+    <app-ui-tabs [tabs]="tabs()" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
 
     @if (!productionOrder() && !isLoading() && activeTab() !== 'tab3') {
       <div class="flex flex-col items-center justify-center flex-1 gap-3 text-gray-300 py-6">
@@ -22,9 +22,11 @@
     }
 
     @if (productionOrder() && activeTab() === 'tab2') {
-      <div class="flex flex-col items-center justify-center flex-1 gap-3 text-gray-300 py-6">
-        <app-ui-icon [iconName]="'magnifyingGlass'" class="h-24 w-24"></app-ui-icon>
-        <p class="text-sm text-gray-400">Sin materiales</p>
+      <div class="flex-1 min-h-0 overflow-hidden mt-2">
+        <app-materials-table
+          [docType]="productionOrder()!.documentType"
+          [docNumber]="productionOrder()!.documentNumber">
+        </app-materials-table>
       </div>
     }
 

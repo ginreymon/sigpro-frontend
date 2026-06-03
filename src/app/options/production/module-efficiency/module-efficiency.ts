@@ -1,6 +1,7 @@
-import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, signal, computed } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, finalize } from 'rxjs';
+import { DecimalPipe } from '@angular/common';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
@@ -11,6 +12,8 @@ import { WorkShiftOptionCard } from '../../../shared/components/work-shift-optio
 import { UiDatePicker } from '../../../shared/elements/ui-date-picker/ui-date-picker';
 import { EllipsisPipe } from '../../../pipes/ellipsis-pipe';
 import { EmployeePicker } from '../../../shared/components/employee-picker/employee-picker';
+import { DataTable } from '../../../shared/components/data-table/data-table';
+import { TableTemplate } from '../../../directives/table-template';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { ModuleService } from '../../../services/production/module-service';
 import { WorkShiftService } from '../../../services/production/work-shift-service';
@@ -21,6 +24,9 @@ import { localDateToUtcIso } from '../../../common/functions/date-utils';
 import { Employee } from '../../../models/production/employee';
 import { Module } from '../../../models/production/module';
 import { WorkShift } from '../../../models/production/work-shift';
+import { EfficiencyPeriod } from '../../../models/production/efficiency-period';
+import { EfficiencyPeriodRow } from '../../../models/production/efficiency-period-row';
+import { TableColumn } from '../../../common/interfaces/table-column';
 
 @Component({
   selector: 'app-module-efficiency',
@@ -33,8 +39,11 @@ import { WorkShift } from '../../../models/production/work-shift';
     OperationCarousel,
     ModuleOptionCard,
     WorkShiftOptionCard,
-    UiDatePicker,   
+    UiDatePicker,
     EmployeePicker,
+    DataTable,
+    TableTemplate,
+    DecimalPipe,
   ],
   templateUrl: './module-efficiency.html',
   styleUrl: './module-efficiency.css',
@@ -59,9 +68,36 @@ export class ModuleEfficiency implements OnInit {
     empleado_id: [null],
   });
 
-  modules = signal<Module[]>([]);
+  modules    = signal<Module[]>([]);
   workShifts = signal<WorkShift[]>([]);
-  employees = signal<Employee[]>([]);
+  employees  = signal<Employee[]>([]);
+
+  efficiencyRows    = signal<EfficiencyPeriodRow[]>([]);
+  efficiencySummary = signal<EfficiencyPeriod | null>(null);
+
+  pagedRows = computed(() => ({
+    count: this.efficiencyRows().length,
+    next: null as string | null,
+    previous: null as string | null,
+    results: this.efficiencyRows(),
+  }));
+
+  readonly columns: TableColumn<EfficiencyPeriodRow>[] = [
+    { field: 'module_number',   label: 'Módulo'      },
+    { field: 'shift_name',      label: 'Turno'       },
+    { field: 'sku_reference',   label: 'Referencia'  },
+    { field: 'sku_size',        label: 'Talla'       },
+    { field: 'sku_color',       label: 'Color'       },
+    { field: 'op_type',         label: 'Tipo Doc'    },
+    { field: 'op_number',       label: 'OP'          },
+    { field: 'sku_sam',         label: 'SAM',         align: 'right' },
+    { field: 'employee_count',  label: 'Op.',         align: 'right' },
+    { field: 'total_ordered',   label: 'Ordenadas',   align: 'right' },
+    { field: 'total_planned',   label: 'Planeadas',   align: 'right' },
+    { field: 'total_completed', label: 'Completadas', align: 'right' },
+    { field: 'total_scrap',     label: 'Desechos',    align: 'right' },
+    { field: 'total_rejected',  label: 'Rechazos',    align: 'right' },
+  ];
 
   ngOnInit() {
     this.filterForm.get('fecha_inicio')!.valueChanges.subscribe(() => this.validateDateRange(false));
@@ -147,6 +183,24 @@ export class ModuleEfficiency implements OnInit {
   nextModule() { this.moduleCarousel?.next(); }
   prevShift() { this.workshiftCarousel?.prev(); }
   nextShift() { this.workshiftCarousel?.next(); }
+
+  generateReport(): void {
+    const { fecha_inicio, fecha_fin, modulo_id, turno_id } = this.filterForm.value;
+
+    this.loaderService.showLoader();
+    this.productivityService.getEfficiencyPeriod({
+      startDate: localDateToUtcIso(fecha_inicio),
+      endDate:   localDateToUtcIso(fecha_fin, 1),
+      clientNow: new Date().toISOString(),
+      moduleId:  modulo_id  ?? undefined,
+      shiftId:   turno_id   ?? undefined,
+    })
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe((summary) => {
+        this.efficiencyRows.set([]);
+        this.efficiencySummary.set(summary);
+      });
+  }
 
   exportFile(): void {
     const { fecha_inicio, fecha_fin, modulo_id, turno_id, empleado_id } = this.filterForm.value;
