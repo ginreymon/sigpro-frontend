@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal, computed, input, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, input, effect } from '@angular/core';
 import { BottomSheetShell } from '../bottom-sheet-shell/bottom-sheet-shell';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { DataTable } from '../data-table/data-table';
@@ -12,7 +12,7 @@ import { PaginatedResponse } from '../../../common/interfaces/paginated-response
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableTemplate } from '../../../directives/table-template';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { shiftTimeToUtcIso } from '../../../common/functions/date-utils';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { UiLabelButton } from "../../elements/ui-label-button/ui-label-button";
@@ -20,12 +20,12 @@ import { DialogService } from '../../../services/common/dialog-service';
 
 @Component({
   selector: 'app-balance-bottom-sheet',
-  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DatePipe, UiLabelButton],
+  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DatePipe, DecimalPipe, UiLabelButton],
   templateUrl: './balance-bottom-sheet.html',
   styleUrl: './balance-bottom-sheet.css',
 })
-export class BalanceBottomSheet implements OnChanges {
-  @Input() visible: boolean = false;
+export class BalanceBottomSheet {
+  visible = input<boolean>(false);
   @Input() shiftEndTime: string | null = null;
   @Input() inWindow = true;
   @Output() onClose = new EventEmitter<void>();
@@ -43,13 +43,16 @@ export class BalanceBottomSheet implements OnChanges {
     // edit: { enabled: true, iconName: 'pencil', toolTip: 'Editar' },
   };
 
-  readonly detailColumns: TableColumn<ProductionRecordDetail>[] = [   
-    { type: 'template', label: 'Hora Registro',       templateName: 'detailEndTemplate' },
-    { field: 'completed_quantity',           label: 'Comp.' },
-    { field: 'scrap_quantity',               label: 'Bajas' },
-    { field: 'rejected_quantity',            label: 'Saldos' },
-    { field: 'employee_count',               label: 'Operarios' },
-    { type: 'template', label: '',           templateName: 'detailActionTemplate', align: 'right' },
+  readonly detailColumns: TableColumn<ProductionRecordDetail>[] = [
+    { type: 'template', label: 'Hora Registro',  templateName: 'detailEndTemplate' },
+    { field: 'ordered_quantity',                  label: 'Ord.' },
+    { type: 'template', label: 'Comp.',           templateName: 'detailCompTemplate' },
+    { type: 'template', label: 'Saldos',          templateName: 'detailRejectedTemplate' },
+    { type: 'template', label: 'Bajas',           templateName: 'detailScrapTemplate' },
+    { field: 'employee_count',                    label: 'Operarios' },
+    { field: 'sku_sam',                           label: 'SAM' },
+    { type: 'template', label: 'Pausa (min)',     templateName: 'detailBreakTemplate' },
+    { type: 'template', label: '',                templateName: 'detailActionTemplate', align: 'right' },
   ];
 
   readonly columns: TableColumn<ProductivitySummaryRow>[] = [
@@ -70,14 +73,9 @@ export class BalanceBottomSheet implements OnChanges {
   ) {
     effect(() => {
       const session = this.currentSession();
-      if (session && this.visible) this.loadData();
+      const isVisible = this.visible();
+      if (session && isVisible) this.loadData();
     });
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['visible']?.currentValue === true && this.currentSession()) {
-      this.loadData();
-    }
   }
 
   private loadData(): void {

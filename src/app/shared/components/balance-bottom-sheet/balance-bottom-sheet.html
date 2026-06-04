@@ -1,5 +1,5 @@
 <app-bottom-sheet-shell
-  [visible]="visible"
+  [visible]="visible()"
   [title]="'Balance del módulo'"
   [fullscreen]="false"
   (onClose)="close()">
@@ -78,10 +78,28 @@
      
       <ng-template appTableTemplate="detailEndTemplate" let-row>
         @if (row.record_end) {
-          <span class="text-xs">{{ toLocalDate(row.record_end) | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span [class]="'font-medium ' + (isLate(row.record_end) ? 'text-red-600' : 'text-slate-700')">
+            {{ toLocalDate(row.record_end) | date:'dd/MM/yyyy HH:mm' }}
+          </span>
         } @else {
           <span class="text-slate-400 text-xs">—</span>
         }
+      </ng-template>
+
+      <ng-template appTableTemplate="detailCompTemplate" let-row>
+        <span class="font-semibold text-green-600">{{ row.completed_quantity }}</span>
+      </ng-template>
+
+      <ng-template appTableTemplate="detailRejectedTemplate" let-row>
+        <span class="font-semibold text-amber-500">{{ row.rejected_quantity }}</span>
+      </ng-template>
+
+      <ng-template appTableTemplate="detailScrapTemplate" let-row>
+        <span class="font-semibold text-red-500">{{ row.scrap_quantity }}</span>
+      </ng-template>     
+
+      <ng-template appTableTemplate="detailBreakTemplate" let-row>
+        <span class="font-semibold text-slate-600">{{ (row.break_seconds / 60) | number:'1.0-2' }}</span>
       </ng-template>
 
       <ng-template appTableTemplate="detailActionTemplate" let-row>

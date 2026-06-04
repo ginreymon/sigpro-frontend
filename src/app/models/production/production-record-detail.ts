@@ -11,6 +11,7 @@ export interface ProductionRecordDetail {
   employee_count: number;
   break_count: number;
   break_seconds: number;
+  sku_sam: number;
   activity_id: number;
   activity_started: string;
   activity_ended: string | null;
