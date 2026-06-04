@@ -49,6 +49,7 @@ export class ShiftCyclesActions {
       tooltip: 'Última entrega',
       iconIntent: 'action',
       handler: () => this.lastDelivery(),
+      hideWhen: () => this.finalizeDay,
     },
     {
       icon: 'user',
@@ -56,6 +57,7 @@ export class ShiftCyclesActions {
       tooltip: 'Empleados',
       iconIntent: 'cancel',
       handler: () => this.openEmployeesSnapshot(),
+      hideWhen: () => this.finalizeDay,
     },
     {
       icon: 'chartArea',
