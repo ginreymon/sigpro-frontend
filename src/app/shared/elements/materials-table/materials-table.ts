@@ -22,7 +22,7 @@ interface FlatMaterial {
 
 @Component({
   selector: 'app-materials-table',
-  imports: [DataTable, TableTemplate, DecimalPipe],
+  imports: [DataTable, TableTemplate],
   templateUrl: './materials-table.html',
 })
 export class MaterialsTable implements OnInit {

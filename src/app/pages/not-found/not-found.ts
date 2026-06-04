@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth/auth-service';
 
 @Component({
   selector: 'app-not-found',
-  imports: [RouterLink, ErrorPage, UiIcon],
+  imports: [ErrorPage, UiIcon],
   templateUrl: './not-found.html',
   styleUrl: './not-found.css',
 })
