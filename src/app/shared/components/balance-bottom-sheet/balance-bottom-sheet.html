@@ -51,13 +51,48 @@
         }
       </ng-template>
 
-      <ng-template appTableTemplate="createUserTemplate" let-row>           
-          <app-ui-label-button [classNames]="'w-24'" (onClick)="updateRecords(row)" [intent]="'accept'">
-            Modificar
-          </app-ui-label-button>              
-      </ng-template>    
+      <ng-template appTableTemplate="createUserTemplate" let-row>
+        <app-ui-label-button [classNames]="'w-28'" (onClick)="openDetail(row)" [intent]="'accept'">
+          Ver detalle
+        </app-ui-label-button>
+      </ng-template>
 
     </app-data-table>
+  }
+
+</app-bottom-sheet-shell>
+
+<app-bottom-sheet-shell
+  [visible]="!!selectedRow()"
+  [title]="detailTitle()"
+  [fullscreen]="false"
+  (onClose)="closeDetail()">
+
+  @if (selectedRow()?.records_detail?.length) {
+    <app-data-table
+      [paginatedResponse]="{ count: detailResults().length, next: null, previous: null, results: detailResults() }"
+      [columns]="detailColumns"
+      [actions]="{}"
+      [showPager]="false"
+      (onSearch)="onDetailSearch($event)">
+     
+      <ng-template appTableTemplate="detailEndTemplate" let-row>
+        @if (row.record_end) {
+          <span class="text-xs">{{ toLocalDate(row.record_end) | date:'dd/MM/yyyy HH:mm' }}</span>
+        } @else {
+          <span class="text-slate-400 text-xs">—</span>
+        }
+      </ng-template>
+
+      <ng-template appTableTemplate="detailActionTemplate" let-row>
+        <app-ui-label-button [classNames]="'w-28'" (onClick)="updateRecords(row)" [intent]="'accept'">
+          Modificar
+        </app-ui-label-button>
+      </ng-template>
+
+    </app-data-table>
+  } @else {
+    <p class="text-sm text-gray-400 py-6 text-center">Sin registros de detalle</p>
   }
 
 </app-bottom-sheet-shell>

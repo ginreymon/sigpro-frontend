@@ -1,3 +1,5 @@
+import { ProductionRecordDetail } from './production-record-detail';
+
 export interface ProductivitySummaryRow {
   module_number: number;
   module_name: string;
@@ -26,4 +28,5 @@ export interface ProductivitySummaryRow {
   efficiency: number | null;
   first_record_start: string | null;
   last_record_end: string | null;
+  records_detail?: ProductionRecordDetail[];
 }

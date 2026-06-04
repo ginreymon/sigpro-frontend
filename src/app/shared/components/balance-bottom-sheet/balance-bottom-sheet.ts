@@ -7,6 +7,7 @@ import { finalize, switchMap } from 'rxjs';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ProductivityParams } from '../../../models/production/productivity-params';
 import { ProductivitySummaryRow } from '../../../models/production/productivity-summary-row';
+import { ProductionRecordDetail } from '../../../models/production/production-record-detail';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
@@ -32,19 +33,31 @@ export class BalanceBottomSheet implements OnChanges {
 
   isLoading = signal(false);
   paginatedResponse = signal<PaginatedResponse<ProductivitySummaryRow> | null>(null);
+  selectedRow = signal<ProductivitySummaryRow | null>(null);
+  detailResults = signal<ProductionRecordDetail[]>([]);
   private allResults: ProductivitySummaryRow[] = [];
+  private allDetailResults: ProductionRecordDetail[] = [];
   readonly skeletonRows = Array(5).fill(0);
 
   readonly actions: Partial<TableActions> = {
     // edit: { enabled: true, iconName: 'pencil', toolTip: 'Editar' },
   };
 
+  readonly detailColumns: TableColumn<ProductionRecordDetail>[] = [   
+    { type: 'template', label: 'Hora Registro',       templateName: 'detailEndTemplate' },
+    { field: 'completed_quantity',           label: 'Comp.' },
+    { field: 'scrap_quantity',               label: 'Bajas' },
+    { field: 'rejected_quantity',            label: 'Saldos' },
+    { field: 'employee_count',               label: 'Operarios' },
+    { type: 'template', label: '',           templateName: 'detailActionTemplate', align: 'right' },
+  ];
+
   readonly columns: TableColumn<ProductivitySummaryRow>[] = [
     { field: 'sku_color',         label: 'Color' },
     { field: 'sku_size',          label: 'Talla' },
+    { field: 'sku_reference',     label: 'Referencia' },      
     { field: 'op_type',           label: 'Tipo Doc' },
     { field: 'op_number',         label: 'N° OP' },
-    { field: 'sku_reference',     label: 'Referencia' },      
     { type: 'template', label: 'Hora Último Registro',  templateName: 'ultimoRegistroTemplate' },
     { type: 'template', label: 'Cantidades',  templateName: 'cantidadesTemplate' },
     { type: 'template', label: '',            templateName: 'createUserTemplate', align: 'right' },
@@ -134,11 +147,44 @@ export class BalanceBottomSheet implements OnChanges {
     };
   });
 
-  updateRecords(row: ProductivitySummaryRow): void {
+  detailTitle = computed(() => {
+    const r = this.selectedRow();
+    if (!r) return '';
+    return `${r.sku_color} · TALLA ${r.sku_size} — REF ${r.sku_reference} — ${r.op_type} ${r.op_number} `;
+  });
+
+  openDetail(row: ProductivitySummaryRow): void {
+    this.allDetailResults = row.records_detail ?? [];
+    this.detailResults.set(this.allDetailResults);
+    this.selectedRow.set(row);
+  }
+
+  closeDetail(): void {
+    this.selectedRow.set(null);
+    this.detailResults.set([]);
+    this.allDetailResults = [];
+  }
+
+  onDetailSearch(query: string): void {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? this.allDetailResults.filter(r => {
+          const timeStr = r.record_end
+            ? (this.toLocalDate(r.record_end)?.toLocaleString('es-CO') ?? '')
+            : '';
+          return [r.completed_quantity, r.scrap_quantity, r.rejected_quantity, r.employee_count]
+            .some(v => String(v ?? '').includes(q))
+            || timeStr.toLowerCase().includes(q);
+        })
+      : this.allDetailResults;
+    this.detailResults.set(filtered);
+  }
+
+  updateRecords(record: ProductionRecordDetail): void {
     if (!this.inWindow) {
       this.dialogService.openToast('Fuera de ventana', 'Solo puedes modificar registros dentro de la ventana de tiempo.', 'fail');
       return;
     }
-    console.log(row);
+    console.log(record);
   }
 }
