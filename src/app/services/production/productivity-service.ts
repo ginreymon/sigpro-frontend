@@ -41,6 +41,20 @@ export class ProductivityService {
     );
   }
 
+  getShiftSummary(p: ProductivityParams): Observable<PaginatedResponse<ProductivitySummaryRow>> {
+    let params = new HttpParams()
+      .set('start_date', p.startDate)
+      .set('end_date', p.endDate)
+      .set('client_now', p.clientNow ?? new Date().toISOString())
+      .set('shift_id', p.shiftId!)
+      .set('module_id', p.moduleId!);
+    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
+
+    return this.http.get<ProductivitySummaryRow[]>(`${this.path}/shift-summary/`, { params }).pipe(
+      map(results => ({ count: results.length, next: null, previous: null, results }))
+    );
+  }
+
   exportSummaryExcel(p: ProductivityParams): Observable<Blob> {
     let params = new HttpParams()
       .set('start_date', p.startDate)

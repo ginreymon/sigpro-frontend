@@ -71,7 +71,7 @@ export class BalanceBottomSheet implements OnChanges {
     this.isLoading.set(true);
     this.paginatedResponse.set(null);
     this.appConfig.load().pipe(
-      switchMap(() => this.productivityService.getSummary({
+      switchMap(() => this.productivityService.getShiftSummary({
         ...this.balanceParams()!,
         clientNow: new Date().toISOString(),
       })),
@@ -103,7 +103,9 @@ export class BalanceBottomSheet implements OnChanges {
   }
 
   toLocalDate(value: string | null): Date | null {
-    return value ? new Date(value) : null;
+    if (!value) return null;
+    const iso = value.endsWith('Z') || value.includes('+') ? value : value + 'Z';
+    return new Date(iso);
   }
 
   isLate(dateStr: string): boolean {
@@ -111,7 +113,8 @@ export class BalanceBottomSheet implements OnChanges {
     const [h, m, s] = this.shiftEndTime.split(':').map(Number);
     const shiftEnd = new Date();
     shiftEnd.setHours(h, m, s, 0);
-    return new Date(dateStr) > shiftEnd;
+    const iso = dateStr.endsWith('Z') || dateStr.includes('+') ? dateStr : dateStr + 'Z';
+    return new Date(iso) > shiftEnd;
   }
 
   close(): void {
@@ -121,17 +124,15 @@ export class BalanceBottomSheet implements OnChanges {
   balanceParams = computed<ProductivityParams | null>(() => {
     const session = this.currentSession();
     if (!session) return null;
+    const startDate = shiftTimeToUtcIso(session.work_shift.start_time);
+    const endDate = new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000).toISOString();
     return {
-      startDate: this.buildShiftDatetime(session.work_shift.start_time),
-      endDate: this.buildShiftDatetime(session.work_shift.end_time, this.appConfig.balanceEndExtraHours),
-      moduleId: session.module_id,
-      shiftId: session.work_shift_id,
+      startDate,
+      endDate,
+      moduleId: session.current_module?.id,
+      shiftId: session.work_shift?.id,
     };
   });
-
-  private buildShiftDatetime(timeStr: string, extraHours = 0): string {
-    return shiftTimeToUtcIso(timeStr, extraHours);
-  }
 
   updateRecords(row: ProductivitySummaryRow): void {
     if (!this.inWindow) {
