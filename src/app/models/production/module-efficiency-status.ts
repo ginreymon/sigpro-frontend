@@ -1,35 +1,35 @@
 export interface ModuleEfficiencyStatus {
-    module_id: number;
-    number: number;
-    name: string;
-    location: string;
-    
-    work_shift_id: number;
-    start_time: string;
-    work_shift_start_utc: string;
+  module_id: number;
+  number: number;
+  name: string;
+  location: string;
+  module_enabled: boolean;
 
-    period_start: string;
-    period_end: string;
+  work_shift_id: number;
+  work_session_id: number;
+  work_session_activity_id: number;
+  start_time: string;
+  work_shift_start_utc: string;
+  started_at: string;
+  ended_at?: string;
+  operator_count?: number;
 
-    operator_count: number;
+  is_active: number;
+  is_pause: number;
+  status: 'ACTIVE' | 'INACTIVE' | 'PAUSED' | 'DISABLED';
 
-    total_ordered: number;
-    total_planned: number;
-    total_completed: number;
-    total_scrap: number;
-    total_rejected: number;
-    total_produced: number;
+  period_start: string;
+  period_end: string;
+  shift_id: number;
+  efficiency: number;
 
-    unit_target: number;
-    efficiency: number;
+  total_ordered?: number;
+  total_planned?: number;
+  total_completed?: number;
+  total_scrap?: number;
+  total_rejected?: number;
+  total_produced?: number;
+  unit_target?: number;
 
-    status: string;
-    is_active: number;
-    is_pause: number;
-    module_enabled: boolean;
-
-    started_at: string | null;
-
-    work_session_id: number | null;
-    work_session_activity_id: number | null;
+  employees_snapshot?: number;
 }

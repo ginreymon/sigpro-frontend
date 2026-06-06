@@ -7,37 +7,65 @@
   <div class="flex-1 min-h-0 overflow-y-auto">
     <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
 
-      @for (mod of modules(); track mod.number) {
-        <div class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between min-h-45 hover:shadow-md transition-shadow cursor-pointer" (click)="openSheet(mod)">
+      @for (mod of modules(); track mod.module_id) {
+        <div
+          class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between min-h-45 hover:shadow-md transition-shadow cursor-pointer"
+          (click)="openSheet(mod)">
 
           <div class="flex justify-between items-start">
             <div>
               <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-1">
                 MÓDULO {{ padNumber(mod.number) }}
               </span>
-              <h3 class="text-base font-semibold text-gray-800">{{ mod.name }}</h3>
+              <h3 class="text-base font-semibold text-gray-800">{{ mod.name | uppercase }}</h3>
             </div>
-            <span [class]="badgeClass(mod.status)">{{ mod.status }}</span>
+            <app-ui-badge [intent]="badgeIntent(mod.status)" [label]="statusLabel(mod.status)"></app-ui-badge>
           </div>
 
-          <div class="mt-4 flex items-end justify-between">
+          <div class="mt-2 flex flex-col gap-3">
             <div>
-              <span [class]="efficiencyClass(mod.status)">{{ mod.efficiency.toFixed(1) }}%</span>
-              <div class="flex items-center gap-1 mt-1">
-                @if (mod.trend !== 0) {
-                  <app-ui-icon
-                    [iconName]="mod.trend > 0 ? 'angleUp' : 'angleDown'"
-                    [class]="trendIconClass(mod.trend)">
-                  </app-ui-icon>
-                }
-                <span [class]="trendTextClass(mod.trend)">{{ trendLabel(mod.trend) }}</span>
+              <span [class]="efficiencyClass(mod.efficiency, mod.status)">{{ mod.efficiency.toFixed(2) }}%</span>
+              <div class="mt-1 text-xs text-gray-500">
+                <span>{{ mod?.employees_snapshot ?? 0 }} / {{ mod.operator_count }} Encomendados</span>
               </div>
             </div>
 
-            <div class="w-16 h-12 flex items-end gap-1">
-              @for (bar of mod.history; track $index; let last = $last) {
-                <div [class]="barClass(mod.status, last)" [style.height]="bar + '%'"></div>
-              }
+            <div class="space-y-2">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-gray-400">Completadas</span>
+                  <span [class]="statValueClass('completed', mod.status)">{{ mod.total_completed ?? 0 }}</span>
+                </div>
+                <app-progress-bar
+                  [progress]="mod.total_completed ?? 0"
+                  [max]="mod.unit_target ?? 0"
+                  [color]="barColor('completed', mod.status)">
+                </app-progress-bar>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-gray-400">Saldos</span>
+                  <span [class]="statValueClass('rejected', mod.status)">{{ mod.total_rejected ?? 0 }}</span>
+                </div>
+                <app-progress-bar
+                  [progress]="mod.total_rejected ?? 0"
+                  [max]="mod.unit_target ?? 0"
+                  [color]="barColor('rejected', mod.status)">
+                </app-progress-bar>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-gray-400">Bajas</span>
+                  <span [class]="statValueClass('scrap', mod.status)">{{ mod.total_scrap ?? 0 }}</span>
+                </div>
+                <app-progress-bar
+                  [progress]="mod.total_scrap ?? 0"
+                  [max]="mod.unit_target ?? 0"
+                  [color]="barColor('scrap', mod.status)">
+                </app-progress-bar>
+              </div>
             </div>
           </div>
 

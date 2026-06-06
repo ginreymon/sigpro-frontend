@@ -1,14 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { BottomSheetShell } from '../bottom-sheet-shell/bottom-sheet-shell';
-
-export interface ModuleCard {
-  number: number;
-  name: string;
-  status: 'Activo' | 'Inactivo' | 'Pausado';
-  efficiency: number;
-  trend: number;
-  history: number[];
-}
+import { ModuleEfficiencyStatus } from '../../../models/production/module-efficiency-status';
 
 @Component({
   selector: 'app-module-detail-bottom-sheet',
@@ -17,7 +9,7 @@ export interface ModuleCard {
 })
 export class ModuleDetailBottomSheet {
   @Input() visible: boolean = false;
-  @Input() module: ModuleCard | null = null;
+  @Input() module: ModuleEfficiencyStatus | null = null;
   @Output() onClose = new EventEmitter<void>();
 
   close(): void {

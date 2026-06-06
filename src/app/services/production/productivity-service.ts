@@ -7,6 +7,7 @@ import { EfficiencyPeriod } from '../../models/production/efficiency-period';
 import { ProductivityParams } from '../../models/production/productivity-params';
 import { ProductivitySummaryRow } from '../../models/production/productivity-summary-row';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response';
+import { ModuleEfficiencyStatus } from '../../models/production/module-efficiency-status';
 
 @Injectable({
   providedIn: 'root',
@@ -53,6 +54,10 @@ export class ProductivityService {
     return this.http.get<ProductivitySummaryRow[]>(`${this.path}/shift-summary/`, { params }).pipe(
       map(results => ({ count: results.length, next: null, previous: null, results }))
     );
+  }
+
+  getModuleShiftSummary(): Observable<ModuleEfficiencyStatus[]> {
+    return this.http.get<ModuleEfficiencyStatus[]>(`${this.path}/module-shift-summary/`);
   }
 
   exportSummaryExcel(p: ProductivityParams): Observable<Blob> {
