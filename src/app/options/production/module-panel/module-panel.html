@@ -5,6 +5,13 @@
   </div>
 
   <div class="flex-1 min-h-0 overflow-y-auto">
+
+    @if (modules().length === 0) {
+      <div class="flex flex-col items-center justify-center h-full gap-3 text-gray-300">
+        <app-ui-icon iconName="screwdriverWrench" class="h-12 w-12"></app-ui-icon>
+        <p class="text-sm text-gray-400">No hay módulos disponibles</p>
+      </div>
+    } @else {
     <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
 
       @for (mod of modules(); track mod.module_id) {
@@ -73,6 +80,7 @@
       }
 
     </div>
+    }
   </div>
 
 </div>

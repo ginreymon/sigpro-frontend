@@ -5,6 +5,7 @@ import { catchError, startWith, switchMap, take } from 'rxjs/operators';
 import { ModuleDetailBottomSheet } from '../../../shared/components/module-detail-bottom-sheet/module-detail-bottom-sheet';
 import { ProgressBar } from '../../../shared/components/progress-bar/progress-bar';
 import { UiBadge, BadgeIntent } from '../../../shared/elements/ui-badge/ui-badge';
+import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ModuleEfficiencyStatus } from '../../../models/production/module-efficiency-status';
 import { UpperCasePipe } from '@angular/common';
@@ -27,7 +28,7 @@ const STATUS_INTENTS: Record<string, BadgeIntent> = {
 
 @Component({
   selector: 'app-module-panel',
-  imports: [ModuleDetailBottomSheet, ProgressBar, UiBadge, UpperCasePipe],
+  imports: [ModuleDetailBottomSheet, ProgressBar, UiBadge, UiIcon, UpperCasePipe],
   templateUrl: './module-panel.html',
 })
 export class ModulePanel {
