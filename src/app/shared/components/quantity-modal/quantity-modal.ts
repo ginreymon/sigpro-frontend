@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Component, computed, effect, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BoxLayout } from '../box-layout/box-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
@@ -11,11 +11,12 @@ import { SkuQuantitySummary } from '../sku-quantity-summary/sku-quantity-summary
 import { UiErrorMessage } from '../../elements/ui-error-message/ui-error-message';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { QuantityDetail } from "../quantity-detail/quantity-detail";
+import { SkuQuantityCounter } from "../sku-quantity-counter/sku-quantity-counter";
 
 @Component({
   selector: 'app-quantity-modal',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, SkuDetail, SkuQuantitySummary, UiErrorMessage, QuantityDetail],
+  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, SkuDetail, SkuQuantitySummary, UiErrorMessage, QuantityDetail, SkuQuantityCounter],
   templateUrl: './quantity-modal.html',
 })
 export class QuantityModal {
@@ -29,11 +30,21 @@ export class QuantityModal {
 
   protected visible = this.qms.visible;
   protected isSubmitting = signal(false);
-
+  protected editMode = computed(() => !!this.qms.editRecord());
+  
   constructor() {
     effect(() => {
       if (!this.visible()) {
         this.recordForm.reset({ completed_quantity: null, rejected_quantity: 0, scrap_quantity: 0 });
+        return;
+      }
+      const record = this.qms.editRecord();
+      if (record) {
+        this.recordForm.patchValue({
+          completed_quantity: record.completed_quantity,
+          rejected_quantity: record.rejected_quantity,
+          scrap_quantity: record.scrap_quantity,
+        });
       }
     });
   }
@@ -44,8 +55,28 @@ export class QuantityModal {
       rejected_quantity: [0, [Validators.required, Validators.min(0), this.integerValidator]],
       scrap_quantity: [0, [Validators.required, Validators.min(0), this.integerValidator]],
     },
-    { validators: [this.exceedsMaxValidator.bind(this), this.atLeastOnePositiveValidator] }
+    { validators: [this.exceedsMaxValidator.bind(this), this.atLeastOnePositiveValidator.bind(this)] }
   );
+
+  get completedQty(): number { return Number(this.recordForm.get('completed_quantity')?.value) || 0; }
+  get rejectedQty(): number { return Number(this.recordForm.get('rejected_quantity')?.value) || 0; }
+  get scrapQty(): number { return Number(this.recordForm.get('scrap_quantity')?.value) || 0; }
+
+  get displayCompletedQty(): number {
+    const base = Number(this.selectedSKU?.completedQty) || 0;
+    const r = this.qms.editRecord();
+    return r ? base - Number(r.completed_quantity) : base;
+  }
+  get displayRejectedQty(): number {
+    const base = Number(this.selectedSKU?.rejectedQty) || 0;
+    const r = this.qms.editRecord();
+    return r ? base - Number(r.rejected_quantity) : base;
+  }
+  get displayScrapQty(): number {
+    const base = Number(this.selectedSKU?.wasteQty) || 0;
+    const r = this.qms.editRecord();
+    return r ? base - Number(r.scrap_quantity) : base;
+  }
 
   get exceedsMaxError(): { max: number; total: number } | null {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
@@ -58,7 +89,12 @@ export class QuantityModal {
   get maxAvailable(): number {  
     if (!this.selectedSKU) return 0;
     const { orderedQty, completedQty, wasteQty, rejectedQty } = this.selectedSKU;
-    return Number(orderedQty) - (Number(completedQty) + Number(wasteQty) + Number(rejectedQty));
+    const base = Number(orderedQty) - (Number(completedQty) + Number(wasteQty) + Number(rejectedQty));
+    const record = this.qms.editRecord();
+    if (record) {
+      return base + Number(record.completed_quantity) + Number(record.scrap_quantity) + Number(record.rejected_quantity);
+    }
+    return base;
   }
 
   private integerValidator(control: AbstractControl): ValidationErrors | null {
@@ -68,6 +104,7 @@ export class QuantityModal {
   }
 
   private atLeastOnePositiveValidator(group: AbstractControl): ValidationErrors | null {
+    if (this.editMode()) return null;
     const completed = Number(group.get('completed_quantity')?.value) || 0;
     const rejected = Number(group.get('rejected_quantity')?.value) || 0;
     const scrap = Number(group.get('scrap_quantity')?.value) || 0;
@@ -90,17 +127,21 @@ export class QuantityModal {
     if (this.recordForm.invalid || this.isSubmitting() || !this.enable) return;
 
     const { completed_quantity, rejected_quantity, scrap_quantity } = this.recordForm.value;
+    const editRecord = this.qms.editRecord();
     const sku = this.selectedSKU;
 
     const payload: Partial<ProductionRecord> = {
-      ...(sku && {
-        sku_rowid: sku.skuRowId,
-        op_rowid: sku.opRowId,
-        op_number: sku.opNumber,
-        op_type: sku.opType,
-        ordered_quantity: sku.orderedQty,
-        planned_quantity: sku.plannedQty,
-      }),
+      ...(editRecord
+        ? { id: editRecord.record_id }
+        : sku && {
+            sku_rowid: sku.skuRowId,
+            op_rowid: sku.opRowId,
+            op_number: sku.opNumber,
+            op_type: sku.opType,
+            ordered_quantity: sku.orderedQty,
+            planned_quantity: sku.plannedQty,
+          }
+      ),
       completed_quantity: Number(completed_quantity),
       rejected_quantity: Number(rejected_quantity),
       scrap_quantity: Number(scrap_quantity),

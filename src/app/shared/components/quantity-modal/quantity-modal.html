@@ -10,19 +10,19 @@
             <fieldset>
                 <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Completadas'">
                     <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + maxAvailable" [hasAddon]="true">
-                        <span right-addon>{{ selectedSKU?.completedQty }}</span>
+                        <span right-addon>{{ displayCompletedQty }}</span>
                     </app-ui-large-input>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'rejected_quantity'" [label]="'Saldos'">
                     <app-ui-large-input [type]="'number'" formControlName="rejected_quantity" [placeholder]="'0'" [hasAddon]="true">
-                        <span right-addon>{{ selectedSKU?.rejectedQty }}</span>
+                        <span right-addon>{{ displayRejectedQty }}</span>
                     </app-ui-large-input>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'scrap_quantity'" [label]="'Bajas'">
                     <app-ui-large-input [type]="'number'" formControlName="scrap_quantity" [placeholder]="'0'" [hasAddon]="true">
-                        <span right-addon>{{ selectedSKU?.wasteQty }}</span>
+                        <span right-addon>{{ displayScrapQty }}</span>
                     </app-ui-large-input>
                 </app-ui-form-field>
             </fieldset>
@@ -42,8 +42,20 @@
         @else {
         <app-quantity-detail class="w-full border-b border-slate-200" [selectedSKU]="selectedSKU"></app-quantity-detail>
         }
-        
+
+        @if(editMode()){
+        <app-sku-quantity-counter class="w-full" [selectedSKU]="selectedSKU"
+            [displayCompletedQty]="displayCompletedQty"
+            [displayRejectedQty]="displayRejectedQty"
+            [displayScrapQty]="displayScrapQty"
+            [newCompletedQty]="completedQty"
+            [newRejectedQty]="rejectedQty"
+            [newScrapQty]="scrapQty">
+        </app-sku-quantity-counter>
+        }
+        @else{
         <app-sku-quantity-summary class="w-full" [selectedSKU]="selectedSKU"></app-sku-quantity-summary>
+        }
     </div>
 
     <div box-buttons class="flex flex-row gap-3">

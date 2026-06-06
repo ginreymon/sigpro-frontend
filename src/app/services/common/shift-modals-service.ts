@@ -25,6 +25,7 @@ export class ShiftModalsService {
   readonly balanceData = signal<BalanceModalData | null>(null);
   readonly pauseData = signal<PauseModalData | null>(null);
   readonly employeesData = signal<EmployeesModalData | null>(null);
+  readonly reloadBalanceTrigger = signal(0);
 
   readonly employeesSaved$ = new Subject<number[]>();
   readonly pauseSaved$ = new Subject<WorkBreakRecord>();
@@ -34,6 +35,10 @@ export class ShiftModalsService {
 
   /** Global readable state of ShiftHourlyRecord visibility */
   readonly shiftHourlyVisible = signal(false);
+
+  reloadBalance(): void {
+    this.reloadBalanceTrigger.update(n => n + 1);
+  }
 
   openBalance(data: BalanceModalData): void {
     this.balanceData.set(data);

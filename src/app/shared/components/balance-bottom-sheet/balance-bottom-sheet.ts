@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed, input, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, input, effect, inject } from '@angular/core';
 import { BottomSheetShell } from '../bottom-sheet-shell/bottom-sheet-shell';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { DataTable } from '../data-table/data-table';
@@ -7,7 +7,7 @@ import { finalize, switchMap } from 'rxjs';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ProductivityParams } from '../../../models/production/productivity-params';
 import { ProductivitySummaryRow } from '../../../models/production/productivity-summary-row';
-import { ProductionRecordDetail } from '../../../models/production/production-record-detail';
+import { ProductionRecordContext } from '../../../models/production/production-record-context';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
@@ -17,6 +17,9 @@ import { shiftTimeToUtcIso } from '../../../common/functions/date-utils';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { UiLabelButton } from "../../elements/ui-label-button/ui-label-button";
 import { DialogService } from '../../../services/common/dialog-service';
+import { ProductionOrderService } from '../../../services/production/production-order-service';
+import { LoaderService } from '../../../services/common/loader-service';
+import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 
 @Component({
   selector: 'app-balance-bottom-sheet',
@@ -26,24 +29,25 @@ import { DialogService } from '../../../services/common/dialog-service';
 })
 export class BalanceBottomSheet {
   visible = input<boolean>(false);
+  reloadTrigger = input<number>(0);
   @Input() shiftEndTime: string | null = null;
-  @Input() inWindow = true;
+  @Input() enable = true;
   @Output() onClose = new EventEmitter<void>();
+  @Output() onEditRecord = new EventEmitter<{ sku: SkuTaskDetail; record: ProductionRecordContext }>();
   currentSession = input<WorkSession | null>(null);
 
   isLoading = signal(false);
   paginatedResponse = signal<PaginatedResponse<ProductivitySummaryRow> | null>(null);
   selectedRow = signal<ProductivitySummaryRow | null>(null);
-  detailResults = signal<ProductionRecordDetail[]>([]);
+  detailResults = signal<ProductionRecordContext[]>([]);
   private allResults: ProductivitySummaryRow[] = [];
-  private allDetailResults: ProductionRecordDetail[] = [];
+  private allDetailResults: ProductionRecordContext[] = [];
+  private poService = inject(ProductionOrderService);
+  private loaderService = inject(LoaderService);
   readonly skeletonRows = Array(5).fill(0);
+  readonly actions: Partial<TableActions> = {};
 
-  readonly actions: Partial<TableActions> = {
-    // edit: { enabled: true, iconName: 'pencil', toolTip: 'Editar' },
-  };
-
-  readonly detailColumns: TableColumn<ProductionRecordDetail>[] = [
+  readonly detailColumns: TableColumn<ProductionRecordContext>[] = [
     { type: 'template', label: 'Hora Registro',  templateName: 'detailEndTemplate' },
     { field: 'ordered_quantity',                  label: 'Ord.' },
     { type: 'template', label: 'Comp.',           templateName: 'detailCompTemplate' },
@@ -74,6 +78,7 @@ export class BalanceBottomSheet {
     effect(() => {
       const session = this.currentSession();
       const isVisible = this.visible();
+      this.reloadTrigger();
       if (session && isVisible) this.loadData();
     });
   }
@@ -97,6 +102,15 @@ export class BalanceBottomSheet {
           });
           this.allResults = sorted;
           this.paginatedResponse.set({ ...response, results: sorted });
+
+          const current = this.selectedRow();
+          if (current) {
+            const rowKey = (r: ProductivitySummaryRow) =>
+              `${r.op_type}|${r.op_number}|${r.sku_reference}|${r.sku_color}|${r.sku_size}`;
+            const refreshed = sorted.find(r => rowKey(r) === rowKey(current));
+            if (refreshed) this.openDetail(refreshed);
+            else this.closeDetail();
+          }
         },
       });
   }
@@ -178,11 +192,16 @@ export class BalanceBottomSheet {
     this.detailResults.set(filtered);
   }
 
-  updateRecords(record: ProductionRecordDetail): void {
-    if (!this.inWindow) {
-      this.dialogService.openToast('Fuera de ventana', 'Solo puedes modificar registros dentro de la ventana de tiempo.', 'fail');
+  updateRecords(record: ProductionRecordContext): void {
+    if (!this.enable) {
+      this.dialogService.openToast('Fuera de la ventana', 'Solo se pueden modificar los registros dentro de la ventana de tiempo.', 'fail');
       return;
     }
-    console.log(record);
+    this.loaderService.showLoader();
+    this.poService.getSkuDetail(record.op_type, record.op_number, record.sku_rowid)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: (sku) => this.onEditRecord.emit({ sku, record }),
+      });    
   }
 }

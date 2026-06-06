@@ -32,6 +32,7 @@ import { BaseProductionOrderPage } from '../../../common/classes/base-production
 import { ShiftCyclesActions } from "../../../shared/components/shift-cycles-actions/shift-cycles-actions";
 import { PauseModal } from '../../../shared/components/pause-modal/pause-modal';
 import { ShiftModalsService } from '../../../services/common/shift-modals-service';
+import { ProductionRecordContext } from '../../../models/production/production-record-context';
 
 @Component({
   selector: 'app-shift-cycles',
@@ -149,6 +150,11 @@ export class ShiftCycles extends BaseProductionOrderPage {
   }
 
   saveSKU(record: Partial<ProductionRecord>) {
+    if (record.id) {
+      this.updateRecord(record);
+      return;
+    }
+
     const activityId = this.currentSession()?.active_activity?.id;
     if (!activityId) return;
 
@@ -168,7 +174,43 @@ export class ShiftCycles extends BaseProductionOrderPage {
           if (payload.scrap_quantity) parts.push(`Bajas: ${payload.scrap_quantity}`);
           this.dialogService.openToast('Cantidades guardadas', parts.join(' · '), 'check');
         },
+        error: () => {        
+          this.dialogService.openToast('No se pudo guardar', 'Error al guardar el registro.', 'fail');
+        },
       });
+  }
+
+  private updateRecord(record: Partial<ProductionRecord>): void {
+    const id = record.id!;
+    const payload = {
+      completed_quantity: record.completed_quantity,
+      rejected_quantity: record.rejected_quantity,
+      scrap_quantity: record.scrap_quantity,
+    };
+
+    this.loaderService.showLoader();
+    this.productionRecordService.patch(id, payload)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => {         
+          this.reloadOrder();
+          this.shiftModals.reloadBalance();
+          this.qms.close();
+          const parts: string[] = [];
+          parts.push(`Completadas: ${payload.completed_quantity}`);
+          parts.push(`Saldos: ${payload.rejected_quantity}`);
+          parts.push(`Bajas: ${payload.scrap_quantity}`);
+          this.dialogService.openToast('Registro actualizado', parts.join(' · '), 'check');
+        },
+        error: () => {
+          this.dialogService.openToast('No se pudo actualizar', 'Error al guardar el registro.', 'fail');
+        },
+      });
+  }
+
+  handleEditRecord({ sku, record }: { sku: SkuTaskDetail; record: ProductionRecordContext }): void {
+    this.selectedSKU.set(sku);
+    this.qms.openForEdit(record);
   }
 
   refreshSession() {

@@ -11,6 +11,7 @@ import { ModuleEfficiency } from '../options/production/module-efficiency/module
 import { AppSettings } from '../options/configuration/app-settings/app-settings';
 import { ModulePanel } from '../options/production/module-panel/module-panel';
 import { OrderDetail } from '../options/production/order-detail/order-detail';
+import { DataExport } from '../options/production/data-export/data-export';
 
 export const componentMap: Record<string, Type<any>> = {
   'admin/roles': Roles,
@@ -22,6 +23,7 @@ export const componentMap: Record<string, Type<any>> = {
   'production/shift-cycles': ShiftCycles,
   'production/sewing-sam': SewingSAM,
   'production/module-efficiency': ModuleEfficiency,
+  'production/data-export': DataExport,
   'production/module-panel': ModulePanel,
   'production/order-detail': OrderDetail,
   'configuration/app-settings': AppSettings,

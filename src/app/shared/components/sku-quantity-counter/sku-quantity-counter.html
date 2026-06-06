@@ -1,0 +1,27 @@
+
+@if(selectedSKU) {
+<div class="w-full py-3 flex flex-col justify-start mt-2  bg-gray-200 text-gray-700 border border-gray-200 rounded-md px-3">
+    <div class="w-full flex flex-row justify-between">
+        <div class="pr-4">
+            <h3 class="text-gray-700 text-xs">Ord.</h3>
+            <p class="text-m font-semibold mb-1 text-slate-700">{{ selectedSKU.orderedQty }}</p>
+        </div>
+        <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
+            <h3 class="text-gray-700 text-xs">Comp.</h3>
+            <p class="text-m font-semibold mb-1 text-green-600">{{ completedQty }}</p>
+        </div>
+        <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
+            <h3 class="text-gray-700 text-xs">Saldos</h3>
+            <p class="text-m font-semibold mb-1 text-amber-500">{{ rejectedQty }}</p>
+        </div>
+        <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
+            <h3 class="text-gray-700 text-xs">Bajas</h3>
+            <p class="text-m font-semibold mb-1 text-red-500">{{ scrapQty }}</p>
+        </div>
+        <div class="h-full flex flex-col items-end border-l pl-2 border-gray-400">
+            <h3 class="text-gray-700 text-xs">Por hacer</h3>
+            <p class="text-m font-semibold mb-1 text-slate-900">{{ toDo }}</p>
+        </div>
+    </div>
+</div>
+}
