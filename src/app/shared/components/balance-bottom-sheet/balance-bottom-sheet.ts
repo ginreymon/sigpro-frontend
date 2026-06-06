@@ -194,7 +194,7 @@ export class BalanceBottomSheet {
 
   updateRecords(record: ProductionRecordContext): void {
     if (!this.enable) {
-      this.dialogService.openToast('Fuera de la ventana', 'Solo se pueden modificar los registros dentro de la ventana de tiempo.', 'fail');
+      this.dialogService.openToast('Fuera de la ventana', 'Solo se pueden modificar los registros dentro de la ventana de tiempo o durante la última entrega.', 'fail');
       return;
     }
     this.loaderService.showLoader();
