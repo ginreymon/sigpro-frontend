@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
-import { catchError, startWith, switchMap } from 'rxjs/operators';
+import { catchError, startWith, switchMap, take } from 'rxjs/operators';
 import { ModuleDetailBottomSheet } from '../../../shared/components/module-detail-bottom-sheet/module-detail-bottom-sheet';
 import { ProgressBar } from '../../../shared/components/progress-bar/progress-bar';
 import { UiBadge, BadgeIntent } from '../../../shared/elements/ui-badge/ui-badge';
@@ -9,6 +9,7 @@ import { ProductivityService } from '../../../services/production/productivity-s
 import { ModuleEfficiencyStatus } from '../../../models/production/module-efficiency-status';
 import { UpperCasePipe } from '@angular/common';
 import { AppConfigService } from '../../../services/core/app-config-service';
+import { efficiencyTextColor } from '../../../common/functions/efficiency-color';
 
 const STATUS_LABELS: Record<string, string> = {
   ACTIVE:   'Activo',
@@ -39,8 +40,9 @@ export class ModulePanel {
   readonly modules = signal<ModuleEfficiencyStatus[]>([]);
 
   constructor() {
-    interval(30_000).pipe(
-      startWith(0),
+    this.appConfig.load().pipe(
+      take(1),
+      switchMap(() => interval(30_000).pipe(startWith(0))),
       switchMap(() => this.productivityService.getModuleShiftSummary().pipe(
         catchError(() => of([] as ModuleEfficiencyStatus[])),
       )),
@@ -90,9 +92,13 @@ export class ModulePanel {
   }
 
   efficiencyClass(efficiency: number, status: string): string {
-    if (status !== 'ACTIVE') return 'text-4xl font-semibold text-gray-400';
-    if (efficiency >= this.appConfig.highEfficiencyLimit) return 'text-4xl font-semibold text-green-600';
-    if (efficiency <= this.appConfig.lowEfficiencyLimit)  return 'text-4xl font-semibold text-red-600';
-    return 'text-4xl font-semibold text-amber-500';
+    const color = efficiencyTextColor(
+      efficiency,
+      this.appConfig.highEfficiencyLimit,
+      this.appConfig.lowEfficiencyLimit,
+      status === 'ACTIVE',
+    );   
+    
+    return `text-4xl font-semibold ${color}`;
   }
 }
