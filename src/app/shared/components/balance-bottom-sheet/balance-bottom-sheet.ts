@@ -162,7 +162,7 @@ export class BalanceBottomSheet {
   detailTitle = computed(() => {
     const r = this.selectedRow();
     if (!r) return '';
-    return `${r.sku_color} · TALLA ${r.sku_size} — REF ${r.sku_reference} — ${r.op_type} ${r.op_number} `;
+    return `${r.sku_color} · TALLA ${r.sku_size} / REF ${r.sku_reference} / ${r.op_type} ${r.op_number} `;
   });
 
   openDetail(row: ProductivitySummaryRow): void {
