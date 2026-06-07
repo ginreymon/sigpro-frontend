@@ -29,20 +29,6 @@ export class ProductivityService {
     return this.http.get<EfficiencyPeriod>(`${this.path}/efficiency/`, { params });
   }
 
-  getSummary(p: ProductivityParams): Observable<PaginatedResponse<ProductivitySummaryRow>> {
-    let params = new HttpParams()
-      .set('start_date', p.startDate)
-      .set('end_date', p.endDate)
-      .set('client_now', p.clientNow ?? new Date().toISOString());
-    if (p.moduleId !== undefined) params = params.set('module_id', p.moduleId);
-    if (p.shiftId !== undefined) params = params.set('shift_id', p.shiftId);
-    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
-
-    return this.http.get<ProductivitySummaryRow[]>(`${this.path}/summary/`, { params }).pipe(
-      map(results => ({ count: results.length, next: null, previous: null, results }))
-    );
-  }
-
   getShiftSummary(p: ProductivityParams): Observable<PaginatedResponse<ProductivitySummaryRow>> {
     let params = new HttpParams()
       .set('start_date', p.startDate)
@@ -67,18 +53,5 @@ export class ProductivityService {
       .set('end_date', endDate)
       .set('module_id', moduleId);
     return this.http.get<ModuleEfficiencyRow[]>(`${this.path}/module-efficiency/`, { params });
-  }
-
-  exportSummaryExcel(p: ProductivityParams): Observable<Blob> {
-    let params = new HttpParams()
-      .set('start_date', p.startDate)
-      .set('end_date', p.endDate)
-      .set('client_now', p.clientNow ?? new Date().toISOString())
-      .set('utc_offset_minutes', p.utcOffsetMinutes ?? -new Date().getTimezoneOffset());
-    if (p.moduleId !== undefined) params = params.set('module_id', p.moduleId);
-    if (p.shiftId !== undefined) params = params.set('shift_id', p.shiftId);
-    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
-
-    return this.http.get(`${this.path}/summary/export/excel/`, { params, responseType: 'blob' });
   }
 }

@@ -24,6 +24,7 @@ import { Module } from '../../../models/production/module';
 import { WorkShift } from '../../../models/production/work-shift';
 import { EfficiencyPeriod } from '../../../models/production/efficiency-period';
 import { EfficiencyPeriodRow } from '../../../models/production/efficiency-period-row';
+
 import { TableColumn } from '../../../common/interfaces/table-column';
 
 @Component({
@@ -179,30 +180,5 @@ export class DataExport implements OnInit {
       });
   }
 
-  exportFile(): void {
-    const { fecha_inicio, fecha_fin, modulo_id, turno_id, empleado_id } = this.filterForm.value;
-
-    this.loaderService.showLoader();
-    this.productivityService.exportSummaryExcel({
-      startDate: localDateToUtcIso(fecha_inicio),
-      endDate: localDateToUtcIso(fecha_fin, 1),
-      clientNow: new Date().toISOString(),
-      moduleId: modulo_id ?? undefined,
-      shiftId: turno_id ?? undefined,
-      employeeId: empleado_id ?? undefined,
-      utcOffsetMinutes: -new Date().getTimezoneOffset(),
-    })
-      .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe(blob => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const modName = modulo_id
-          ? (this.modules().find(m => m.id === modulo_id)?.name?.replace(/\s+/g, '_') ?? 'modulo')
-          : 'todos';
-        link.download = `${modName}_${fecha_inicio}_${fecha_fin}.xlsx`;
-        link.click();
-        URL.revokeObjectURL(url);
-      });
-  }
 }
+
