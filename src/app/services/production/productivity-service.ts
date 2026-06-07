@@ -8,6 +8,7 @@ import { ProductivityParams } from '../../models/production/productivity-params'
 import { ProductivitySummaryRow } from '../../models/production/productivity-summary-row';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response';
 import { ModuleEfficiencyStatus } from '../../models/production/module-efficiency-status';
+import { ModuleEfficiencyRow } from '../../models/production/module-efficiency-row';
 
 @Injectable({
   providedIn: 'root',
@@ -58,6 +59,14 @@ export class ProductivityService {
 
   getModuleShiftSummary(): Observable<ModuleEfficiencyStatus[]> {
     return this.http.get<ModuleEfficiencyStatus[]>(`${this.path}/module-shift-summary/`);
+  }
+
+  getModuleEfficiency(startDate: string, endDate: string, moduleId: number): Observable<ModuleEfficiencyRow[]> {
+    const params = new HttpParams()
+      .set('start_date', startDate)
+      .set('end_date', endDate)
+      .set('module_id', moduleId);
+    return this.http.get<ModuleEfficiencyRow[]>(`${this.path}/module-efficiency/`, { params });
   }
 
   exportSummaryExcel(p: ProductivityParams): Observable<Blob> {

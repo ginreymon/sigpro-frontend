@@ -54,6 +54,7 @@ export class DataTable<T> {
 
   @Input() footer: T[] = [];
   @Input() showPager: boolean = true;
+  @Input() showSearch: boolean = true;
 
   private _originalColumns: TableColumn<T>[] = [];
   private _rawData: TableRow<T>[] = [];

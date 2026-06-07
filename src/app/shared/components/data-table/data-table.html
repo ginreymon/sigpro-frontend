@@ -1,6 +1,8 @@
 <div class="h-full flex flex-col justify-between">
 
-    <app-table-tools class="shrink-0" (onSearch)="searchHandler($event)" [tableToolsButtons]="_tableToolsButtons" (onClick)="toolsHandler($event)"></app-table-tools>
+    @if (showSearch) {
+      <app-table-tools class="shrink-0" (onSearch)="searchHandler($event)" [tableToolsButtons]="_tableToolsButtons" (onClick)="toolsHandler($event)"></app-table-tools>
+    }
 
     <div class="flex-1 overflow-auto min-h-0">
 
