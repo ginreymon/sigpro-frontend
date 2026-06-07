@@ -45,7 +45,7 @@ export class ModuleDetailBottomSheet implements OnChanges {
   readonly columns: TableColumn<ModuleEfficiencyRow>[] = [
     { type: 'template', label: 'Inicio jornada', templateName: 'shiftStartTemplate' },
     { type: 'template', label: 'Fin jornada',   templateName: 'endedAtTemplate' },
-    { field: 'total_registers', label: 'Registros', align: 'right' },
+    { field: 'total_registers', label: 'Registros', align: 'center' },
     { type: 'template', label: 'Meta', templateName: 'unitTargetTemplate', align: 'right' },
     { type: 'template', label: 'Completadas', templateName: 'completedTemplate', align: 'right' },
     { type: 'template', label: 'Saldos', templateName: 'rejectedTemplate', align: 'right' },
