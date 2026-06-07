@@ -9,7 +9,7 @@ import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { OperationCarousel } from '../../../shared/components/operation-carousel/operation-carousel';
 import { ModuleOptionCard } from '../../../shared/components/module-option-card/module-option-card';
 import { WorkShiftOptionCard } from '../../../shared/components/work-shift-option-card/work-shift-option-card';
-import { UiDatePicker } from '../../../shared/elements/ui-date-picker/ui-date-picker';
+import { DateRangeFields } from '../../../shared/components/date-range-fields/date-range-fields';
 import { EmployeePicker } from '../../../shared/components/employee-picker/employee-picker';
 import { DataTable } from '../../../shared/components/data-table/data-table';
 import { EmployeeService } from '../../../services/production/employee-service';
@@ -37,10 +37,10 @@ import { TableColumn } from '../../../common/interfaces/table-column';
     OperationCarousel,
     ModuleOptionCard,
     WorkShiftOptionCard,
-    UiDatePicker,
+    DateRangeFields,
     EmployeePicker,
     DataTable,
-    DecimalPipe
+    DecimalPipe,
   ],
   templateUrl: './data-export.html',
   styleUrl: './data-export.css',
@@ -97,9 +97,6 @@ export class DataExport implements OnInit {
   ];
 
   ngOnInit() {
-    this.filterForm.get('fecha_inicio')!.valueChanges.subscribe(() => this.validateDateRange(false));
-    this.filterForm.get('fecha_fin')!.valueChanges.subscribe(() => this.validateDateRange(true));
-
     this.wslService.start();
     forkJoin({
       modules: this.moduleService.all(),
@@ -113,23 +110,6 @@ export class DataExport implements OnInit {
         const sorted = this.sortEmployees(employees);
         this.employees.set(sorted);
       });
-  }
-
-  private validateDateRange(markTouched: boolean): void {
-    const inicio = this.filterForm.get('fecha_inicio')?.value;
-    const fin = this.filterForm.get('fecha_fin')?.value;
-    const finControl = this.filterForm.get('fecha_fin')!;
-
-    if (inicio && fin && fin < inicio) {
-      const current = finControl.errors ?? {};
-      finControl.setErrors({ ...current, fechaFinMenor: true });
-      if (markTouched) finControl.markAsTouched();
-    } else {
-      if (finControl.errors?.['fechaFinMenor']) {
-        const { fechaFinMenor, ...rest } = finControl.errors;
-        finControl.setErrors(Object.keys(rest).length ? rest : null);
-      }
-    }
   }
 
   private sortEmployees(list: Employee[]): Employee[] {

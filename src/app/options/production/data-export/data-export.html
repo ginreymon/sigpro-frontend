@@ -15,17 +15,7 @@
             <div class="overflow-y-auto flex flex-col flex-1 min-h-0 text-gray-600 gap-1">
 
                 <!-- Período -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-0 mb-1">
-                    <app-ui-form-field [controlName]="'fecha_inicio'" [label]="'Fecha inicial'">
-                        <app-ui-date-picker formControlName="fecha_inicio"
-                            [placeholder]="'Seleccionar fecha'"></app-ui-date-picker>
-                    </app-ui-form-field>
-
-                    <app-ui-form-field [controlName]="'fecha_fin'" [label]="'Fecha final'">
-                        <app-ui-date-picker formControlName="fecha_fin"
-                            [placeholder]="'Seleccionar fecha'"></app-ui-date-picker>
-                    </app-ui-form-field>
-                </div>
+                <app-date-range-fields></app-date-range-fields>
 
                 <!-- Módulo carousel -->
                 <app-ui-form-field [controlName]="'modulo_id'" [label]="'Módulo'">
