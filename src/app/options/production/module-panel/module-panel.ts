@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
 import { catchError, finalize, startWith, switchMap, take } from 'rxjs/operators';
@@ -41,6 +41,54 @@ export class ModulePanel {
   selectedModule = signal<ModuleEfficiencyStatus | null>(null);
   sheetVisible = signal(false);
   readonly modules = signal<ModuleEfficiencyStatus[]>([]);
+
+  readonly plantaModule = computed<ModuleEfficiencyStatus>(() => {
+    const mods = this.modules();
+    const active  = mods.filter(m => m.status === 'ACTIVE');
+    const paused  = mods.filter(m => m.status === 'PAUSED');
+    const withEff = mods.filter(m => m.efficiency > 0);
+    const ref = active[0] ?? paused[0] ?? mods[0];
+
+    const plantaStatus = active.length  ? 'ACTIVE'
+                       : paused.length  ? 'PAUSED'
+                       : 'INACTIVE';
+
+    return {
+      module_id: 0,
+      number: 0,
+      name: 'PLANTA',
+      location: ref?.location ?? '',
+      module_enabled: true,
+      work_shift_id: 0,
+      work_session_id: 0,
+      work_session_activity_id: 0,
+      start_time: '',
+      work_shift_start_utc: '',
+      started_at: '',
+      is_active: active.length ? 1 : 0,
+      is_pause: 0,
+      status: plantaStatus,
+      period_start: '',
+      period_end: '',
+      shift_id: 0,
+      efficiency: withEff.length
+        ? withEff.reduce((s, m) => s + m.efficiency, 0) / withEff.length
+        : 0,
+      operator_count:     mods.reduce((s, m) => s + (m.operator_count     ?? 0), 0),
+      employees_snapshot: mods.reduce((s, m) => s + (m.employees_snapshot ?? 0), 0),
+      total_completed:    mods.reduce((s, m) => s + (m.total_completed    ?? 0), 0),
+      total_rejected:     mods.reduce((s, m) => s + (m.total_rejected     ?? 0), 0),
+      total_scrap:        mods.reduce((s, m) => s + (m.total_scrap        ?? 0), 0),
+      unit_target:        mods.reduce((s, m) => s + (m.unit_target        ?? 0), 0),
+      total_ordered:      mods.reduce((s, m) => s + (m.total_ordered      ?? 0), 0),
+      total_planned:      mods.reduce((s, m) => s + (m.total_planned      ?? 0), 0),
+      total_produced:     mods.reduce((s, m) => s + (m.total_produced     ?? 0), 0),
+    };
+  });
+
+  readonly allModules = computed<ModuleEfficiencyStatus[]>(() =>
+    this.modules().length ? [this.plantaModule(), ...this.modules()] : [],
+  );
 
   constructor() {
     this.appConfig.load().pipe(

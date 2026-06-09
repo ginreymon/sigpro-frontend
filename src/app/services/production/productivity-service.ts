@@ -56,11 +56,11 @@ export class ProductivityService {
     return this.http.get<ModuleEfficiencyStatus[]>(`${this.path}/module-shift-summary/`);
   }
 
-  getModuleEfficiency(startDate: string, endDate: string, moduleId: number): Observable<ModuleEfficiencyRow[]> {
-    const params = new HttpParams()
+  getModuleEfficiency(startDate: string, endDate: string, moduleId?: number): Observable<ModuleEfficiencyRow[]> {
+    let params = new HttpParams()
       .set('start_date', startDate)
-      .set('end_date', endDate)
-      .set('module_id', moduleId);
+      .set('end_date', endDate);
+    if (moduleId) params = params.set('module_id', moduleId);
     return this.http.get<ModuleEfficiencyRow[]>(`${this.path}/module-efficiency/`, { params });
   }
 

@@ -68,7 +68,10 @@ export class ModuleDetailBottomSheet implements OnChanges {
     const endedDates = data.map(r => r.ended_at).filter((d): d is string => d !== null);
     const maxEnd = endedDates.length ? endedDates.sort().at(-1)! : null;
 
-    const avgEff = data.reduce((acc, r) => acc + r.efficiency, 0) / data.length;
+    const withEff = data.filter(r => r.efficiency > 0);
+    const avgEff = withEff.length
+      ? withEff.reduce((acc, r) => acc + r.efficiency, 0) / withEff.length
+      : 0;
 
     return [{
       module_id: 0,
@@ -100,6 +103,7 @@ export class ModuleDetailBottomSheet implements OnChanges {
   }
 
   title(): string {
+    if (!this.module?.module_id) return 'PLANTA GENERAL';
     return `MÓDULO ${this.module?.number} / ${this.module?.name.toLocaleUpperCase()}`;
   }
 
@@ -109,11 +113,13 @@ export class ModuleDetailBottomSheet implements OnChanges {
     this.hasSearched.set(true);
     this.rows.set([]);
 
+    const moduleId = this.module.module_id || undefined;
+
     this.appConfig.load().pipe(
       switchMap(() => this.productivityService.getModuleEfficiency(
         value.startDate,
         value.endDate,
-        this.module!.module_id,
+        moduleId,
       )),
       finalize(() => this.isLoading.set(false)),
     ).subscribe({ next: (data) => this.rows.set(data) });
