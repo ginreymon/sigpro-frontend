@@ -1,10 +1,27 @@
-<div class="flex flex-col h-full">
+<div class="flex flex-col h-full px-6">
 
-  <div class="pb-4 mb-4 border-b border-gray-200">
-    <h1 class="text-2xl font-semibold text-gray-800">Estado de producción</h1>
+  <div class="pb-4 border-b border-gray-200 flex items-center justify-between">
+    <h1 class="text-3xl font-semibold text-gray-800">Estado de producción</h1>
+    @if (modules().length) {
+      <div class="flex items-stretch border border-gray-200 rounded-lg overflow-hidden text-sm bg-white">
+        <div class="flex flex-col items-center justify-center px-4 py-2 gap-0.5">
+          <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Eficiencia</span>
+          <span [class]="'text-xl font-bold ' + efficiencyColor(plantaModule().efficiency, plantaModule().status)">
+            {{ plantaModule().efficiency.toFixed(2) }}%
+          </span>
+        </div>
+        <div class="w-px bg-gray-200"></div>
+        <div class="flex flex-col items-center justify-center px-4 py-2 gap-0.5">
+          <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Completadas</span>
+          <span [class]="'text-xl font-bold ' + (plantaModule().status === 'ACTIVE' ? 'text-green-600' : 'text-gray-400')">
+            {{ plantaModule().total_completed ?? 0 }}
+          </span>
+        </div>
+      </div>
+    }
   </div>
 
-  <div class="flex-1 min-h-0 overflow-y-auto">
+  <div class="flex-1 min-h-0 overflow-y-auto mt-4">
 
     @if (modules().length === 0) {
       <div class="flex flex-col items-center justify-center h-full gap-3 text-gray-300">

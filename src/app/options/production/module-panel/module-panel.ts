@@ -147,13 +147,15 @@ export class ModulePanel {
   }
 
   efficiencyClass(efficiency: number, status: string): string {
-    const color = efficiencyTextColor(
+    return `text-4xl font-semibold ${this.efficiencyColor(efficiency, status)}`;
+  }
+
+  efficiencyColor(efficiency: number, status: string): string {
+    return efficiencyTextColor(
       efficiency,
       this.appConfig.highEfficiencyLimit,
       this.appConfig.lowEfficiencyLimit,
       status === 'ACTIVE',
-    );   
-    
-    return `text-4xl font-semibold ${color}`;
+    );
   }
 }
