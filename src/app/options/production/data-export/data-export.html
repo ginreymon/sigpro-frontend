@@ -88,13 +88,12 @@
         </fieldset>
 
         <!-- Footer -->
-        <div class="flex justify-between items-center border-t border-gray-300 pt-4 md:pt-5 mt-4">
-            <app-ui-button (onClick)="generateReport()" [disabled]="!allFieldsFilled()" [intent]="'action'"
+        <div class="flex justify-end items-center border-t border-gray-300 pt-4 md:pt-5 mt-4">
+            <app-ui-button (onClick)="downloadReport()" [disabled]="!allFieldsFilled()"
                 [type]="'button'">
-                <app-ui-icon [iconName]="'chartArea'" [class]="'w-4 h-4'"></app-ui-icon>
+                <app-ui-icon [iconName]="'download'" [class]="'w-4 h-4'"></app-ui-icon>
                 Generar reporte
             </app-ui-button>
-
         </div>
 
     </form>
