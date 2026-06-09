@@ -2,7 +2,7 @@ export interface ModuleEfficiencyRow {
   module_id: number;
   work_shift_id: number;
   ended_at: string | null;
-  work_shift_start_utc: string;
+  shift_start_utc: string;
   total_registers: number;
   period_start: string;
   period_end: string;

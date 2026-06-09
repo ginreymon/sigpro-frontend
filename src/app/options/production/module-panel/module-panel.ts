@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
-import { catchError, startWith, switchMap, take } from 'rxjs/operators';
+import { catchError, finalize, startWith, switchMap, take } from 'rxjs/operators';
 import { ModuleDetailBottomSheet } from '../../../shared/components/module-detail-bottom-sheet/module-detail-bottom-sheet';
 import { ProgressBar } from '../../../shared/components/progress-bar/progress-bar';
 import { UiBadge, BadgeIntent } from '../../../shared/elements/ui-badge/ui-badge';
@@ -11,6 +11,7 @@ import { ModuleEfficiencyStatus } from '../../../models/production/module-effici
 import { UpperCasePipe } from '@angular/common';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { efficiencyTextColor } from '../../../common/functions/efficiency-color';
+import { LoaderService } from '../../../services/common/loader-service';
 
 const STATUS_LABELS: Record<string, string> = {
   ACTIVE:   'Activo',
@@ -33,6 +34,7 @@ const STATUS_INTENTS: Record<string, BadgeIntent> = {
 })
 export class ModulePanel {
   private productivityService = inject(ProductivityService);
+  private loaderService = inject(LoaderService);
   private destroyRef = inject(DestroyRef);
   private appConfig = inject(AppConfigService);
 
@@ -44,9 +46,13 @@ export class ModulePanel {
     this.appConfig.load().pipe(
       take(1),
       switchMap(() => interval(30_000).pipe(startWith(0))),
-      switchMap(() => this.productivityService.getModuleShiftSummary().pipe(
-        catchError(() => of([] as ModuleEfficiencyStatus[])),
-      )),
+      switchMap((_, index) => {
+        if (index === 0) this.loaderService.showLoader();
+        return this.productivityService.getModuleShiftSummary().pipe(
+          catchError(() => of([] as ModuleEfficiencyStatus[])),
+          finalize(() => this.loaderService.hideLoader()),
+        );
+      }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(data => this.modules.set(data));
   }

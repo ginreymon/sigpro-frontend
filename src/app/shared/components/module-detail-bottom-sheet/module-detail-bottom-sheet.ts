@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild, inject, signal, computed } from '@angular/core';
 import { finalize, switchMap } from 'rxjs';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import { DecimalPipe, DatePipe, formatDate } from '@angular/common';
 import { BottomSheetShell } from '../bottom-sheet-shell/bottom-sheet-shell';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { DataTable } from '../data-table/data-table';
@@ -43,15 +43,52 @@ export class ModuleDetailBottomSheet implements OnChanges {
   }));
 
   readonly columns: TableColumn<ModuleEfficiencyRow>[] = [
-    { type: 'template', label: 'Inicio jornada', templateName: 'shiftStartTemplate' },
-    { type: 'template', label: 'Fin jornada',   templateName: 'endedAtTemplate' },
+    { type: 'template', label: 'Inicio jornada', templateName: 'shiftStartTemplate', field: 'shift_start_utc' },
+    { type: 'template', label: 'Fin jornada',    templateName: 'endedAtTemplate',    field: 'ended_at' },
     { field: 'total_registers', label: 'Registros', align: 'center' },
-    { type: 'template', label: 'Meta', templateName: 'unitTargetTemplate', align: 'right' },
-    { type: 'template', label: 'Completadas', templateName: 'completedTemplate', align: 'right' },
-    { type: 'template', label: 'Saldos', templateName: 'rejectedTemplate', align: 'right' },
-    { type: 'template', label: 'Bajas', templateName: 'scrapTemplate', align: 'right' },
-    { type: 'template', label: 'Eficiencia', templateName: 'efficiencyTemplate', align: 'right' },
+    { type: 'template', label: 'Meta',        templateName: 'unitTargetTemplate',  field: 'unit_target',     align: 'right', footerFormat: '1.0-0' },
+    { type: 'template', label: 'Completadas', templateName: 'completedTemplate',   field: 'total_completed', align: 'right' },
+    { type: 'template', label: 'Saldos',      templateName: 'rejectedTemplate',    field: 'total_rejected',  align: 'right' },
+    { type: 'template', label: 'Bajas',       templateName: 'scrapTemplate',       field: 'total_scrap',     align: 'right' },
+    { type: 'template', label: 'Eficiencia',  templateName: 'efficiencyTemplate',  field: 'efficiency',      align: 'right', footerSuffix: '%' },
   ];
+
+  readonly tableFooter = computed<ModuleEfficiencyRow[]>(() => {
+    const data = this.rows();
+    if (!data.length) return [];
+
+    const fmt = (iso: string) => formatDate(iso, 'dd/MM/yyyy HH:mm', 'en-US');
+    const numSum = (field: keyof ModuleEfficiencyRow) =>
+      data.reduce((acc, r) => acc + ((r[field] as number) ?? 0), 0);
+
+    const minStart = [...data].sort((a, b) =>
+      a.shift_start_utc.localeCompare(b.shift_start_utc),
+    )[0].shift_start_utc;
+
+    const endedDates = data.map(r => r.ended_at).filter((d): d is string => d !== null);
+    const maxEnd = endedDates.length ? endedDates.sort().at(-1)! : null;
+
+    const avgEff = data.reduce((acc, r) => acc + r.efficiency, 0) / data.length;
+
+    return [{
+      module_id: 0,
+      work_shift_id: 0,
+      shift_id: 0,
+      period_start: '',
+      period_end: '',
+      shift_start_utc: fmt(minStart),
+      ended_at: maxEnd ? fmt(maxEnd) : null,
+      total_registers: numSum('total_registers'),
+      total_ordered: numSum('total_ordered'),
+      total_planned: numSum('total_planned'),
+      total_produced: numSum('total_produced'),
+      unit_target: Math.round(numSum('unit_target') as number),
+      total_completed: numSum('total_completed'),
+      total_rejected: numSum('total_rejected'),
+      total_scrap: numSum('total_scrap'),
+      efficiency: Math.round(avgEff * 100) / 100,
+    }];
+  });
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible'] && !changes['visible'].currentValue) {

@@ -73,53 +73,7 @@
                         </div>
                     </div>
                 </app-ui-form-field>
-
-                <!-- KPI Summary -->
-                @if (efficiencySummary(); as s) {
-                <div class="mt-4 border-t border-gray-200 pt-4">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Resumen del periodo</p>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-
-                        <div class="rounded-lg border border-gray-200 bg-white p-3 flex flex-col gap-0.5">
-                            <span class="text-xs text-gray-500">Eficiencia</span>
-                            <span
-                                [class]="'text-xl font-bold ' + (s.efficiency >= 85 ? 'text-green-600' : s.efficiency >= 65 ? 'text-amber-500' : 'text-red-600')">
-                                {{ s.efficiency | number:'1.1-1' }}%
-                            </span>
-                        </div>
-
-                        <div class="rounded-lg border border-gray-200 bg-white p-3 flex flex-col gap-0.5">
-                            <span class="text-xs text-gray-500">Meta unidades</span>
-                            <span class="text-xl font-bold text-gray-800">{{ s.unit_target | number:'1.0-0' }}</span>
-                        </div>
-
-                        <div class="rounded-lg border border-gray-200 bg-white p-3 flex flex-col gap-0.5">
-                            <span class="text-xs text-gray-500">Total completadas</span>
-                            <span class="text-xl font-bold text-gray-800">{{ s.total_completed | number:'1.0-0'
-                                }}</span>
-                        </div>
-
-                        <div class="rounded-lg border border-gray-200 bg-white p-3 flex flex-col gap-0.5">
-                            <span class="text-xs text-gray-500">Total producción</span>
-                            <span class="text-xl font-bold text-gray-800">{{ s.total_produced | number:'1.0-0' }}</span>
-                        </div>
-
-                        <div class="rounded-lg border border-gray-200 bg-white p-3 flex flex-col gap-0.5">
-                            <span class="text-xs text-gray-500">SAM ponderado</span>
-                            <span class="text-xl font-bold text-gray-800">{{ s.weighted_avg_sam | number:'1.2-2'
-                                }}</span>
-                        </div>
-
-                        <div class="rounded-lg border border-gray-200 bg-white p-3 flex flex-col gap-0.5">
-                            <span class="text-xs text-gray-500">Min. disponibles</span>
-                            <span class="text-xl font-bold text-gray-800">{{ s.total_available_minutes | number:'1.0-0'
-                                }}</span>
-                        </div>
-
-                    </div>
-                </div>
-                }
-
+                
                 <!-- Detail table -->
                 @if (efficiencyRows().length > 0) {
                 <div class="mt-4 border-t border-gray-200 pt-4">

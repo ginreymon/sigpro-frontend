@@ -4,11 +4,20 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { EfficiencyPeriod } from '../../models/production/efficiency-period';
+import { EfficiencyReportRow } from '../../models/production/efficiency-report-row';
 import { ProductivityParams } from '../../models/production/productivity-params';
 import { ProductivitySummaryRow } from '../../models/production/productivity-summary-row';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response';
 import { ModuleEfficiencyStatus } from '../../models/production/module-efficiency-status';
 import { ModuleEfficiencyRow } from '../../models/production/module-efficiency-row';
+
+export interface EfficiencyReportParams {
+  startDate:   string;
+  endDate:     string;
+  moduleId?:   number;
+  shiftId?:    number;
+  employeeId?: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -53,5 +62,25 @@ export class ProductivityService {
       .set('end_date', endDate)
       .set('module_id', moduleId);
     return this.http.get<ModuleEfficiencyRow[]>(`${this.path}/module-efficiency/`, { params });
+  }
+
+  getEfficiencyReport(p: EfficiencyReportParams): Observable<EfficiencyReportRow[]> {
+    let params = new HttpParams()
+      .set('start_date', p.startDate)
+      .set('end_date', p.endDate);
+    if (p.moduleId   !== undefined) params = params.set('module_id',   p.moduleId);
+    if (p.shiftId    !== undefined) params = params.set('shift_id',    p.shiftId);
+    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
+    return this.http.get<EfficiencyReportRow[]>(`${this.path}/efficiency-report/`, { params });
+  }
+
+  downloadEfficiencyReport(p: EfficiencyReportParams): Observable<Blob> {
+    let params = new HttpParams()
+      .set('start_date', p.startDate)
+      .set('end_date', p.endDate);
+    if (p.moduleId   !== undefined) params = params.set('module_id',   p.moduleId);
+    if (p.shiftId    !== undefined) params = params.set('shift_id',    p.shiftId);
+    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
+    return this.http.get(`${this.path}/efficiency-report/export/`, { params, responseType: 'blob' });
   }
 }

@@ -18,12 +18,10 @@ import { WorkShiftService } from '../../../services/production/work-shift-servic
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { ProductivityService } from '../../../services/production/productivity-service';
-import { localDateToUtcIso } from '../../../common/functions/date-utils';
 import { Employee } from '../../../models/production/employee';
 import { Module } from '../../../models/production/module';
 import { WorkShift } from '../../../models/production/work-shift';
-import { EfficiencyPeriod } from '../../../models/production/efficiency-period';
-import { EfficiencyPeriodRow } from '../../../models/production/efficiency-period-row';
+import { EfficiencyReportRow } from '../../../models/production/efficiency-report-row';
 
 import { TableColumn } from '../../../common/interfaces/table-column';
 
@@ -40,8 +38,7 @@ import { TableColumn } from '../../../common/interfaces/table-column';
     WorkShiftOptionCard,
     DateRangeFields,
     EmployeePicker,
-    DataTable,
-    DecimalPipe,
+    DataTable,  
   ],
   templateUrl: './data-export.html',
   styleUrl: './data-export.css',
@@ -66,50 +63,51 @@ export class DataExport implements OnInit {
     empleado_id: [null],
   });
 
-  modules = signal<Module[]>([]);
+  modules    = signal<Module[]>([]);
   workShifts = signal<WorkShift[]>([]);
-  employees = signal<Employee[]>([]);
+  employees  = signal<Employee[]>([]);
 
-  efficiencyRows = signal<EfficiencyPeriodRow[]>([]);
-  efficiencySummary = signal<EfficiencyPeriod | null>(null);
+  efficiencyRows = signal<EfficiencyReportRow[]>([]);
 
   pagedRows = computed(() => ({
-    count: this.efficiencyRows().length,
-    next: null as string | null,
+    count:    this.efficiencyRows().length,
+    next:     null as string | null,
     previous: null as string | null,
-    results: this.efficiencyRows(),
+    results:  this.efficiencyRows(),
   }));
 
-  readonly columns: TableColumn<EfficiencyPeriodRow>[] = [
-    { field: 'module_number', label: 'Módulo' },
-    { field: 'shift_name', label: 'Turno' },
-    { field: 'sku_reference', label: 'Referencia' },
-    { field: 'sku_size', label: 'Talla' },
-    { field: 'sku_color', label: 'Color' },
-    { field: 'op_type', label: 'Tipo Doc' },
-    { field: 'op_number', label: 'OP' },
-    { field: 'sku_sam', label: 'SAM', align: 'right' },
-    { field: 'employee_count', label: 'Op.', align: 'right' },
-    { field: 'total_ordered', label: 'Ordenadas', align: 'right' },
-    { field: 'total_planned', label: 'Planeadas', align: 'right' },
-    { field: 'total_completed', label: 'Completadas', align: 'right' },
-    { field: 'total_scrap', label: 'Desechos', align: 'right' },
-    { field: 'total_rejected', label: 'Rechazos', align: 'right' },
+  readonly columns: TableColumn<EfficiencyReportRow>[] = [
+    { field: 'shift_start_utc',    label: 'Jornada' },
+    { field: 'module_number',      label: 'Módulo' },
+    { field: 'module_name',        label: 'Nombre Módulo' },
+    { field: 'shift_name',         label: 'Turno' },
+    { field: 'shift_start_time',   label: 'Inicio Turno' },
+    { field: 'shift_end_time',     label: 'Fin Turno' },
+    { field: 'total_employees',    label: 'Operarios',    align: 'right' },
+    { field: 'total_ordered',      label: 'Ordenadas',    align: 'right' },
+    { field: 'total_planned',      label: 'Planeadas',    align: 'right' },
+    { field: 'total_completed',    label: 'Completadas',  align: 'right' },
+    { field: 'total_scrap',        label: 'Desechos',     align: 'right' },
+    { field: 'total_rejected',     label: 'Rechazos',     align: 'right' },
+    { field: 'total_produced',     label: 'Producción',   align: 'right' },
+    { field: 'unit_target',        label: 'Meta',         align: 'right' },
+    { field: 'efficiency',         label: 'Eficiencia %', align: 'right' },
+    { field: 'total_break_minutes',label: 'Min. Pausa',   align: 'right' },
+    { field: 'pause_count',        label: 'N° Pausas',    align: 'right' },
   ];
 
   ngOnInit() {
     this.wslService.start();
     forkJoin({
-      modules: this.moduleService.all(),
+      modules:    this.moduleService.all(),
       workShifts: this.workShiftService.all(),
-      employees: this.employeeService.all(),
+      employees:  this.employeeService.all(),
     })
       .pipe(finalize(() => this.wslService.end()))
       .subscribe(({ modules, workShifts, employees }) => {
         this.modules.set(modules);
         this.workShifts.set(workShifts);
-        const sorted = this.sortEmployees(employees);
-        this.employees.set(sorted);
+        this.employees.set(this.sortEmployees(employees));
       });
   }
 
@@ -117,68 +115,62 @@ export class DataExport implements OnInit {
     return [...list].sort((a, b) => a.first_name.localeCompare(b.first_name));
   }
 
-  get moduloId() { return this.filterForm.get('modulo_id'); }
-  get turnoId() { return this.filterForm.get('turno_id'); }
+  get moduloId()   { return this.filterForm.get('modulo_id'); }
+  get turnoId()    { return this.filterForm.get('turno_id'); }
   get empleadoId() { return this.filterForm.get('empleado_id'); }
 
-  isAllModulesSelected(): boolean {
-    return this.moduloId?.value === null;
-  }
+  isAllModulesSelected(): boolean { return this.moduloId?.value === null; }
+  selectAllModules(): void { this.moduloId?.setValue(null); }
+  isSelectedModule(mod: Module): boolean { return this.moduloId?.value === mod.id; }
+  selectModule(id: number) { this.moduloId?.setValue(this.moduloId?.value === id ? null : id); }
 
-  selectAllModules(): void {
-    this.moduloId?.setValue(null);
-  }
+  isSelectedShift(shift: WorkShift): boolean { return this.turnoId?.value === shift.id; }
+  selectShift(id: number) { this.turnoId?.setValue(this.turnoId?.value === id ? null : id); }
 
-  isSelectedModule(mod: Module): boolean {
-    return this.moduloId?.value === mod.id;
-  }
+  isSelectedEmployee(emp: Employee): boolean { return this.empleadoId?.value === emp.id; }
+  selectEmployee(id: number) { this.empleadoId?.setValue(this.empleadoId?.value === id ? null : id); }
 
-  selectModule(id: number) {
-    this.moduloId?.setValue(this.moduloId?.value === id ? null : id);
-  }
-
-  isSelectedShift(shift: WorkShift): boolean {
-    return this.turnoId?.value === shift.id;
-  }
-
-  selectShift(id: number) {
-    this.turnoId?.setValue(this.turnoId?.value === id ? null : id);
-  }
-
-  isSelectedEmployee(emp: Employee): boolean {
-    return this.empleadoId?.value === emp.id;
-  }
-
-  selectEmployee(id: number) {
-    this.empleadoId?.setValue(this.empleadoId?.value === id ? null : id);
-  }
-
-  allFieldsFilled(): boolean {
-    return this.filterForm.valid;
-  }
+  allFieldsFilled(): boolean { return this.filterForm.valid; }
 
   prevModule() { this.moduleCarousel?.prev(); }
   nextModule() { this.moduleCarousel?.next(); }
-  prevShift() { this.workshiftCarousel?.prev(); }
-  nextShift() { this.workshiftCarousel?.next(); }
+  prevShift()  { this.workshiftCarousel?.prev(); }
+  nextShift()  { this.workshiftCarousel?.next(); }
 
   generateReport(): void {
-    const { fecha_inicio, fecha_fin, modulo_id, turno_id } = this.filterForm.value;
+    const { fecha_inicio, fecha_fin, modulo_id, turno_id, empleado_id } = this.filterForm.value;
 
     this.loaderService.showLoader();
-    this.productivityService.getEfficiencyPeriod({
-      startDate: localDateToUtcIso(fecha_inicio),
-      endDate: localDateToUtcIso(fecha_fin, 1),
-      clientNow: new Date().toISOString(),
-      moduleId: modulo_id ?? undefined,
-      shiftId: turno_id ?? undefined,
+    this.productivityService.getEfficiencyReport({
+      startDate:  fecha_inicio,
+      endDate:    fecha_fin,
+      moduleId:   modulo_id   ?? undefined,
+      shiftId:    turno_id    ?? undefined,
+      employeeId: empleado_id ?? undefined,
     })
       .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe((summary) => {
-        this.efficiencyRows.set([]);
-        this.efficiencySummary.set(summary);
-      });
+      .subscribe(rows => this.efficiencyRows.set(rows));
   }
 
-}
+  downloadReport(): void {
+    const { fecha_inicio, fecha_fin, modulo_id, turno_id, empleado_id } = this.filterForm.value;
 
+    this.loaderService.showLoader();
+    this.productivityService.downloadEfficiencyReport({
+      startDate:  fecha_inicio,
+      endDate:    fecha_fin,
+      moduleId:   modulo_id   ?? undefined,
+      shiftId:    turno_id    ?? undefined,
+      employeeId: empleado_id ?? undefined,
+    })
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe(blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href     = url;
+        a.download = `eficiencia_${fecha_inicio}_${fecha_fin}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+  }
+}

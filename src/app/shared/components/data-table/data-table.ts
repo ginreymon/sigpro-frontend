@@ -8,24 +8,24 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { UiTooltip } from '../../elements/ui-tooltip/ui-tooltip';
 import { TableRow } from '../../../common/interfaces/table-row';
 import { TableActions, TableActionType } from '../../../common/interfaces/table-actions';
-import { NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet, DecimalPipe } from '@angular/common';
 import { UiCheckbox } from '../../elements/ui-checkbox/ui-checkbox';
 import { FormsModule } from '@angular/forms';
-import { TableTemplate } from '../../../directives/table-template';
+import { TableTemplate, TableTemplateContext } from '../../../directives/table-template';
 import { TableToolsButtons, TableToolsButtonType } from '../../../common/interfaces/table-tools-buttons';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { UiIconStateDirective } from "../../../directives/ui-icon-state-directive";
 
 @Component({
   selector: 'app-data-table',
-  imports: [TablePager, TableTools, UiIcon, UiTooltip, NgTemplateOutlet, UiCheckbox, FormsModule, UiIconStateDirective],
+  imports: [TablePager, TableTools, UiIcon, UiTooltip, NgTemplateOutlet, UiCheckbox, FormsModule, UiIconStateDirective, DecimalPipe],
   templateUrl: './data-table.html',
   styleUrl: './data-table.css',
 })
 export class DataTable<T> {
-  @ContentChildren(TableTemplate) templates!: QueryList<TableTemplate>;
+  @ContentChildren(TableTemplate) templates!: QueryList<TableTemplate<T>>;
 
-  protected templateMap = new Map<string, TemplateRef<any>>();
+  protected templateMap = new Map<string, TemplateRef<TableTemplateContext<T>>>();
 
   ngAfterContentInit() {
     this.templates.forEach((t) => {

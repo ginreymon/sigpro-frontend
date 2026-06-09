@@ -7,4 +7,6 @@ export interface TableColumn<T> {
   order?: number;
   classes?: string;
   templateName?: string;
+  footerSuffix?: string;
+  footerFormat?: string;
 }

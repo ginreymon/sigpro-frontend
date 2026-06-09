@@ -66,11 +66,13 @@
 
             <tfoot class="border-t border-gray-300 divide-y divide-gray-200">
                 @for (row of footer; track row) {
-                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <tr class="bg-gray-50 font-semibold text-gray-700">
                     @for (col of _columns; track col) {
-                        @if(col.field && !col.hidden){
+                        @if(!col.hidden){
                         <td [class]="`px-6 py-3 ${getAlignment(col.align)} ${col.classes}`">
-                            {{ row[col.field] }}
+                            @if(col.type == 'index'){ TOTALES }
+                            @else if(col.field && col.footerFormat){ {{ $any(row[col.field]) | number:col.footerFormat }}{{ col.footerSuffix ?? '' }} }
+                            @else if(col.field){ {{ row[col.field] }}{{ col.footerSuffix ?? '' }} }
                         </td>
                         }
                     }
