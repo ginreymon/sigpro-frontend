@@ -72,7 +72,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
       this.modelForm.statusChanges.pipe(map(s => s === 'VALID')),
       { initialValue: this.modelForm.valid },
     );
-    this.displayError = computed(() => formValid() ? null : this.errorMessage());
+    this.displayError = computed(() => this.errorMessage());
     this.initialize();
   }
 
@@ -221,11 +221,11 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     super.submit(
       undefined,
       () => this.router.navigateByUrl(this.OPERATION_ORDER_URL), 
-      (err) => {       
+      (err) => {
         const messages: string[] = Array.isArray(err?.error)
           ? err.error.map((m: string) => m.replace('is already assigned to module', 'ya está asignado al módulo'))
           : ['Error al crear la sesión.'];
-        this.dialogService.openToast('No se pudo crear la sesión', messages.join(' · '), 'fail');
+        this.errorMessage.set(messages.join(' · '));
       },
     );
   }
