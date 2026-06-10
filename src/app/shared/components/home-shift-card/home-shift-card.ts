@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { WorkShiftSummary } from '../work-shift-summary/work-shift-summary';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
-import { UiTableButton } from '../../elements/ui-table-button/ui-table-button';
 import { UpperCasePipe } from '@angular/common';
 
 @Component({
