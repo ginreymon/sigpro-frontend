@@ -149,8 +149,15 @@ export class ShiftCycles extends BaseProductionOrderPage {
       .subscribe({
         next: () => this.refreshSession(),
         error: (err) => {
+          const translate = (m: string): string => {
+            const modMatch = m.match(/Module '(.+)' is already active in another session/);
+            if (modMatch) return `El módulo '${modMatch[1]}' ya está activo en otra sesión.`;
+            const empMatch = m.match(/(.+) is already assigned to module '(.+)'/);
+            if (empMatch) return `${empMatch[1]} ya está asignado al módulo '${empMatch[2]}'.`;
+            return m;
+          };
           const messages: string[] = Array.isArray(err?.error)
-            ? err.error.map((m: string) => m.replace('is already assigned to module', 'ya está asignado al módulo'))
+            ? err.error.map(translate)
             : ['Error al actualizar empleados.'];
           this.dialogService.openToast('No se pudo actualizar', messages.join(' · '), 'fail');
         },
