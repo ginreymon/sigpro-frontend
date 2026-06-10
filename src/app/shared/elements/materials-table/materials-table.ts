@@ -1,6 +1,4 @@
-import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
-import { finalize } from 'rxjs';
-import { DecimalPipe } from '@angular/common';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { DataTable } from '../../components/data-table/data-table';
@@ -8,8 +6,9 @@ import { TableTemplate } from '../../../directives/table-template';
 import { ProductionOrderService } from '../../../services/production/production-order-service';
 import { OrderMaterialsResponse } from '../../../models/production/order-materials';
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
+import { finalize } from 'rxjs';
 
-interface FlatMaterial { 
+interface FlatMaterial {
   color:          string;
   size:           string;
   materialNumber: number;
@@ -34,8 +33,6 @@ export class MaterialsTable implements OnInit {
 
   paginatedResponse = signal<PaginatedResponse<FlatMaterial> | null>(null);
 
-  private allRows: FlatMaterial[] = [];
-
   readonly columns: TableColumn<FlatMaterial>[] = [
     { field: 'color',          label: 'Color' },
     { field: 'size',           label: 'Talla' },
@@ -51,33 +48,12 @@ export class MaterialsTable implements OnInit {
     this.load();
   }
 
-  searchHandler(value: string): void {
-    const term    = value.toLowerCase().trim();
-    const results = term
-      ? this.allRows.filter(r =>
-          r.color.toLowerCase().includes(term)       ||
-          r.size.toLowerCase().includes(term)        ||
-          r.fabricCode.toLowerCase().includes(term)  ||
-          r.fabricColor.toLowerCase().includes(term) ||
-          r.description.toLowerCase().includes(term) ||
-          r.materialNumber.toString().includes(term) ||
-          r.consumption.toString().includes(term)    ||
-          r.total.toString().includes(term)
-        )
-      : this.allRows;
-    this.paginatedResponse.set({ count: results.length, next: null, previous: null, results });
-  }
-
   private load(): void {
     this.wslService.start();
     this.productionOrderService.getMaterials(this.docType, this.docNumber)
       .pipe(finalize(() => this.wslService.end()))
       .subscribe({
-        next: data => {
-          const flat = this.flatten(data);
-          this.allRows = flat.results;
-          this.paginatedResponse.set(flat);
-        },
+        next: data => this.paginatedResponse.set(this.flatten(data)),
       });
   }
 
@@ -87,7 +63,7 @@ export class MaterialsTable implements OnInit {
       for (const col of ref.colors ?? []) {
         for (const size of col.sizes ?? []) {
           for (const mat of size.materials ?? []) {
-            rows.push({            
+            rows.push({
               color:          col.color,
               size:           size.size,
               materialNumber: mat.materialNumber,

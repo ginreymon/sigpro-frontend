@@ -2,7 +2,7 @@
   [paginatedResponse]="paginatedResponse()"
   [columns]="columns"
   [showPager]="false"
-  (onSearch)="searchHandler($event)">
+  [clientFilter]="true">
 
   <ng-template appTableTemplate="consumoTemplate" let-row>
     {{ row.consumption  }}

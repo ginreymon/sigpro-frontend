@@ -3,7 +3,7 @@
     <div class="w-full flex items-center justify-between">
 
         <div class="text-sm text-gray-600">
-            <app-searcher (onSearch)="searchHandler($event)"></app-searcher>
+            <app-searcher [live]="live" (onSearch)="searchHandler($event)"></app-searcher>
         </div>
 
         <div class="flex items-center gap-1">

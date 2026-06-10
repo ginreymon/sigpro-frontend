@@ -13,6 +13,7 @@ import { TableToolsButtons, TableToolsButtonType } from '../../../common/interfa
 export class TableTools {
   @Output() onSearch = new EventEmitter<string>();
   @Output() onClick = new EventEmitter<TableToolsButtonType>();
+  @Input() live: boolean = false;
   @Input() tableToolsButtons: TableToolsButtons = {
     filter: { enabled: false },
     columns: { enabled: false },

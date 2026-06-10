@@ -52,6 +52,14 @@ export class DataTable<T> {
     addItem: { enabled: false },
   };
 
+  // Client-side filtering
+  @Input() clientFilter: boolean = false;
+  protected activeFilters = new Map<string, Set<any>>();
+  protected openFilterField: string | null = null;
+  protected filterDropdownPosition = { top: 0, left: 0 };
+  protected filterUniqueValues: any[] = [];
+  private currentSearchTerm: string = '';
+
   @Input() footer: T[] = [];
   @Input() showPager: boolean = true;
   @Input() showSearch: boolean = true;
@@ -61,7 +69,7 @@ export class DataTable<T> {
 
   @Input() set data(dt: TableRow<T>[]) {
     this._rawData = dt ?? [];
-    this._data = [...this._rawData];
+    this.applyClientFilters();
   }
 
   @Input() set columns(cols: TableColumn<T>[]) {
@@ -79,7 +87,7 @@ export class DataTable<T> {
 
     this.buildColumns();
   }
-  
+
   @Input() set tableToolsButtons(btns: Partial<TableToolsButtons>) {
     this._tableToolsButtons = {
       ...this._tableToolsButtons,
@@ -98,7 +106,7 @@ export class DataTable<T> {
       this._rawData = this._paginatedResponse?.results.map((r) => {
         return { selected: false, obj: { ...r } };
       });
-      this._data = [...this._rawData];
+      this.applyClientFilters();
     }
   }
 
@@ -145,6 +153,103 @@ export class DataTable<T> {
     }));
   }
 
+  private applyClientFilters(): void {
+    if (!this.clientFilter) {
+      this._data = [...this._rawData];
+      return;
+    }
+
+    let filtered = this._rawData;
+
+    const term = this.currentSearchTerm.toLowerCase().trim();
+    if (term) {
+      filtered = filtered.filter(row =>
+        Object.values(row.obj as object).some(v =>
+          String(v ?? '').toLowerCase().includes(term)
+        )
+      );
+    }
+
+    for (const [field, values] of this.activeFilters) {
+      if (values.size > 0) {
+        filtered = filtered.filter(row => values.has((row.obj as any)[field]));
+      }
+    }
+
+    this._data = filtered;
+  }
+
+  protected isColumnFilterable(col: TableColumn<T>): boolean {
+    return this.clientFilter && !!col.field && col.type !== 'tableActionType' && col.type !== 'index';
+  }
+
+  protected getFieldString(col: TableColumn<T>): string {
+    return col.field as string;
+  }
+
+  protected getUniqueValues(field: string): any[] {
+    const seen = new Set<any>();
+    const result: any[] = [];
+    for (const row of this._rawData) {
+      const val = (row.obj as any)[field];
+      if (!seen.has(val)) {
+        seen.add(val);
+        result.push(val);
+      }
+    }
+    return result.sort((a, b) => {
+      if (a == null) return 1;
+      if (b == null) return -1;
+      return String(a).localeCompare(String(b), undefined, { numeric: true });
+    });
+  }
+
+  protected isFilterActive(field: string): boolean {
+    return (this.activeFilters.get(field)?.size ?? 0) > 0;
+  }
+
+  protected isValueChecked(field: string, value: any): boolean {
+    return this.activeFilters.get(field)?.has(value) ?? false;
+  }
+
+  protected toggleFilterValue(field: string, value: any): void {
+    if (!this.activeFilters.has(field)) {
+      this.activeFilters.set(field, new Set());
+    }
+    const vals = this.activeFilters.get(field)!;
+    if (vals.has(value)) vals.delete(value);
+    else vals.add(value);
+    if (vals.size === 0) this.activeFilters.delete(field);
+    this.applyClientFilters();
+  }
+
+  protected clearColumnFilter(field: string): void {
+    this.activeFilters.delete(field);
+    this.openFilterField = null;
+    this.applyClientFilters();
+  }
+
+  protected toggleFilterDropdown(field: string, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.openFilterField === field) {
+      this.openFilterField = null;
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const dropdownWidth = 200;
+    let left = rect.left;
+    if (left + dropdownWidth > window.innerWidth - 8) {
+      left = window.innerWidth - dropdownWidth - 8;
+    }
+    this.filterDropdownPosition = { top: rect.bottom + 4, left: Math.max(8, left) };
+    this.filterUniqueValues = this.getUniqueValues(field);
+    this.openFilterField = field;
+  }
+
+  protected closeFilterDropdown(): void {
+    this.openFilterField = null;
+  }
+
   getAlignment(align?: string) {
     if (align == 'right') return 'text-right';
     if (align == 'center') return 'text-center';
@@ -156,10 +261,15 @@ export class DataTable<T> {
   }
 
   searchHandler(value: string) {
-    this.onSearch.emit(value);
+    if (this.clientFilter) {
+      this.currentSearchTerm = value;
+      this.applyClientFilters();
+    } else {
+      this.onSearch.emit(value);
+    }
   }
 
-  actionHandler(obj: T, type: TableActionType) { 
+  actionHandler(obj: T, type: TableActionType) {
     this.onAction.emit({ obj, type, action: this._actions[type] });
   }
 

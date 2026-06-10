@@ -1,7 +1,7 @@
 <div class="h-full flex flex-col justify-between">
 
     @if (showSearch) {
-      <app-table-tools class="shrink-0" (onSearch)="searchHandler($event)" [tableToolsButtons]="_tableToolsButtons" (onClick)="toolsHandler($event)"></app-table-tools>
+      <app-table-tools class="shrink-0" [live]="clientFilter" (onSearch)="searchHandler($event)" [tableToolsButtons]="_tableToolsButtons" (onClick)="toolsHandler($event)"></app-table-tools>
     }
 
     <div class="flex-1 overflow-auto min-h-0">
@@ -13,7 +13,20 @@
                     @for (col of _columns; track col) {
                         @if(!col.hidden){
                         <th [class]="`px-6 py-3 title-font tracking-wider font-medium ${getAlignment(col.align)} ${col.classes}`">
+                            @if (isColumnFilterable(col)) {
+                            <div class="inline-flex items-center gap-1"
+                                 [class.flex-row-reverse]="col.align === 'right'">
+                                <span>{{ col.label }}</span>
+                                <button
+                                    type="button"
+                                    (click)="toggleFilterDropdown(getFieldString(col), $event)"
+                                    [class]="'p-0.5 rounded transition-colors flex-shrink-0 ' + (isFilterActive(getFieldString(col)) ? 'text-brand-600 hover:text-brand-800' : 'text-gray-400 hover:text-gray-600')">
+                                    <app-ui-icon [iconName]="'filter'" [class]="'w-3.5 h-3.5'"></app-ui-icon>
+                                </button>
+                            </div>
+                            } @else {
                             {{ col.label }}
+                            }
                         </th>
                         }
                     }
@@ -29,12 +42,12 @@
                         @if(!col.hidden){
                         <td [class]="`px-6 py-3 ${getAlignment(col.align)} ${col.classes}`">
 
-                            @if(col.field && col.type != 'tableActionType' && col.type != 'template' && col.type != 'index'){                                
+                            @if(col.field && col.type != 'tableActionType' && col.type != 'template' && col.type != 'index'){
                                 @if(col.type == 'boolean'){
                                     <app-ui-checkbox [(ngModel)]="row.obj[col.field]" [ngModelOptions]="{standalone: true}" [disabled]="true"></app-ui-checkbox>
                                 }@else{
                                     {{ row.obj[col.field] }}
-                                }                            
+                                }
                             }
 
                             @if(col.type == 'tableActionType'){
@@ -48,7 +61,7 @@
                                     }
                                 }
                             }
-                         
+
                             @if(col.type == 'template'){
                             <ng-container *ngTemplateOutlet="templateMap.get(col.templateName!); context: { $implicit: row.obj }"></ng-container>
                             }
@@ -87,6 +100,41 @@
     @if (showPager) {
     <app-table-pager class="shrink-0" [totalItems]="totalItems" [pageSize]="pageSize" [currentPage]="currentPage"
         (onChange)="pagerHandler($event)"></app-table-pager>
+    }
+
+    @if (openFilterField) {
+    <div class="fixed inset-0 z-40" (click)="closeFilterDropdown()"></div>
+    <div class="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-xl"
+         style="min-width: 200px;"
+         [style.top.px]="filterDropdownPosition.top"
+         [style.left.px]="filterDropdownPosition.left">
+        <div class="px-3 py-2 border-b border-gray-100 flex items-center justify-between gap-4">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Filtrar</span>
+            @if (isFilterActive(openFilterField!)) {
+            <button
+                type="button"
+                (click)="clearColumnFilter(openFilterField!)"
+                class="text-xs text-red-600 hover:text-red-800 font-medium cursor-pointer">
+                Limpiar
+            </button>
+            }
+        </div>
+        <div class="overflow-y-auto py-1" style="max-height: 220px;">
+            @for (val of filterUniqueValues; track val) {
+            <label class="flex items-center gap-2.5 px-3 py-1.5 hover:bg-gray-50 cursor-pointer select-none">
+                <input
+                    type="checkbox"
+                    [checked]="isValueChecked(openFilterField!, val)"
+                    (change)="toggleFilterValue(openFilterField!, val)"
+                    class="rounded border-gray-300 w-3.5 h-3.5 cursor-pointer">
+                <span class="text-sm text-gray-700 truncate">{{ val }}</span>
+            </label>
+            }
+            @if (filterUniqueValues.length === 0) {
+            <p class="px-3 py-2 text-sm text-gray-400 italic">Sin valores</p>
+            }
+        </div>
+    </div>
     }
 
 </div>
