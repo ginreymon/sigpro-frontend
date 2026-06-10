@@ -56,7 +56,7 @@ export class WorkShiftSummary implements OnInit {
     this.cards.set([
       { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.number} ${s.current_module?.name}` },
       { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} : ${s.work_shift.start_time.slice(0, 8)} - ${s.work_shift.end_time.slice(0, 8)}` },
-      { title: 'Encomendados', iconName: 'user', data: s.employees_snapshot?.length ?? 0, action: () => this.employeesEditable ? this.employeesClick.emit() : null },
+      { title: 'Encomendados', iconName: 'user', data: this.formatHeadcount(s), action: () => this.employeesEditable ? this.employeesClick.emit() : null },
       { title: 'Meta', data: '-', thresholds: { green: 0, red: Infinity } },
       { title: 'Acumuladas', data: '-', thresholds: { green: 0, red: Infinity } },
       { title: 'Bajas/Saldos', data: '-', thresholds: { green: Infinity, red: Infinity } },
@@ -88,6 +88,12 @@ export class WorkShiftSummary implements OnInit {
         }));
       },
     });
+  }
+
+  private formatHeadcount(s: WorkSession): string {
+    const head = s.employees_snapshot?.length ?? 0;
+    const weighted = s.employees_snapshot?.reduce((sum, e) => sum + (e.is_apprentice ? 0.5 : 1), 0) ?? 0;
+    return weighted !== head ? `${head} (${weighted})` : `${head}`;
   }
 
   getActionClasses(card: WorkShiftCard): string {

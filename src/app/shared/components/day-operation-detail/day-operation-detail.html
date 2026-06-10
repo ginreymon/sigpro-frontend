@@ -9,7 +9,7 @@
 
         <p> <strong> Nombre :</strong> {{ workSession.current_module?.name | titlecase }} </p>
 
-        <p> <strong> Número de encomendados :</strong>  {{ workSession.employees_snapshot?.length }} / {{ workSession.current_module?.operator_count }} </p>
+        <p> <strong> Número de encomendados :</strong>  {{ headcount }} / {{ workSession.current_module?.operator_count }} </p>
     
         <p> <strong> Centro de trabajo :</strong> {{ workSession.current_module?.work_center?.short_description | titlecase }} </p>
     

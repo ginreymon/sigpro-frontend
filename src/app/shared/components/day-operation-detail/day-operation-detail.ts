@@ -12,4 +12,11 @@ import { DatePipe } from '@angular/common';
 })
 export class DayOperationDetail {
   @Input() workSession: WorkSession | undefined | null;
+
+  get headcount(): string {
+    const snap = this.workSession?.employees_snapshot;
+    const head = snap?.length ?? 0;
+    const weighted = snap?.reduce((sum, e) => sum + (e.is_apprentice ? 0.5 : 1), 0) ?? 0;
+    return weighted !== head ? `${head} (${weighted})` : `${head}`;
+  }
 }
