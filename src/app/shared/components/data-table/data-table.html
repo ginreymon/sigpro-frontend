@@ -14,13 +14,12 @@
                         @if(!col.hidden){
                         <th [class]="`px-6 py-3 title-font tracking-wider font-medium ${getAlignment(col.align)} ${col.classes}`">
                             @if (isColumnFilterable(col)) {
-                            <div class="inline-flex items-center gap-1"
-                                 [class.flex-row-reverse]="col.align === 'right'">
+                            <div class="inline-flex items-center gap-1">
                                 <span>{{ col.label }}</span>
                                 <button
                                     type="button"
                                     (click)="toggleFilterDropdown(getFieldString(col), $event)"
-                                    [class]="'p-0.5 rounded transition-colors flex-shrink-0 ' + (isFilterActive(getFieldString(col)) ? 'text-brand-600 hover:text-brand-800' : 'text-gray-400 hover:text-gray-600')">
+                                    [class]="'p-0.5 rounded transition-colors flex-shrink-0 cursor-pointer ' + (isFilterActive(getFieldString(col)) ? 'text-brand-600 hover:text-brand-800' : 'text-gray-400 hover:text-gray-600')">
                                     <app-ui-icon [iconName]="'filter'" [class]="'w-3.5 h-3.5'"></app-ui-icon>
                                 </button>
                             </div>

@@ -36,7 +36,7 @@ export class MaterialsTable implements OnInit {
   readonly columns: TableColumn<FlatMaterial>[] = [
     { field: 'color',          label: 'Color' },
     { field: 'size',           label: 'Talla' },
-    { field: 'materialNumber', label: 'N°',          align: 'right' },
+    { field: 'materialNumber', label: 'N°',          align: 'left' },
     { field: 'fabricCode',     label: 'Código Tela' },
     { field: 'fabricColor',    label: 'Color Tela' },
     { field: 'description',    label: 'Descripción' },
