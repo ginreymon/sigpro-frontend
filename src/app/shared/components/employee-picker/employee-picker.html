@@ -27,11 +27,29 @@
             @if (emp.last_name2) { {{ emp.last_name2 | titlecase }} }
           </p>
         </div>
-        @if (deletable()) {
-          <app-ui-tooltip [message]="'Sacar de la lista'" [tooltip]="'left'">
-            <app-ui-close-button (onClose)="remove(emp.id)"></app-ui-close-button>
-          </app-ui-tooltip>
-        }
+        <div class="flex items-center justify-center gap-3">
+          @if (enableApprentice()) {
+            <app-ui-tooltip [message]="apprenticeEditable() ? 'Afecta las métricas de producción' : ''" [tooltip]="'left'">
+              <button
+                type="button"
+                (click)="toggleApprentice($event, emp.id)"
+                [disabled]="!apprenticeEditable()"
+                class="text-xs px-1.5 py-0.5 rounded border transition-all duration-200 font-medium"
+                [class]="isApprentice(emp.id)
+                  ? 'bg-red-100 border-red-400 text-red-700'
+                  : 'bg-gray-100 border-gray-300 text-gray-400'"
+                [class.cursor-pointer]="apprenticeEditable()"
+                [class.opacity-60]="!apprenticeEditable()">
+                Aprendiz
+              </button>
+            </app-ui-tooltip>
+          }
+          @if (deletable()) {
+            <app-ui-tooltip [message]="'Sacar de la lista'" [tooltip]="'left'">
+              <app-ui-close-button (onClose)="remove(emp.id)"></app-ui-close-button>
+            </app-ui-tooltip>
+          }
+        </div>
       </div>
     </app-ui-option-card>
   }

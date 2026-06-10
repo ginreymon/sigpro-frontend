@@ -17,4 +17,5 @@ export interface Employee extends AuditEntity {
   cost_center_description: string | null;
   cost_group_id: string | null;
   cost_group_description: string | null;
+  is_apprentice?: boolean;
 }

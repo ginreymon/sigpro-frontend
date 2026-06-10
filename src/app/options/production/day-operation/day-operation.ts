@@ -4,6 +4,7 @@ import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-l
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { WorkSession } from '../../../models/production/work-session';
+import { EmployeeSnapshot } from '../../../models/production/work-session';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { OperationCarousel } from '../../../shared/components/operation-carousel/operation-carousel';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
@@ -97,6 +98,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
       module_id: [null, [Validators.required]],
       work_shift_id: [null, [Validators.required]],
       employee_ids: this.fb.control<number[]>([], [minArrayLength(1)]),
+      apprentice_ids: this.fb.control<number[]>([]),
     });
   }
 
@@ -114,6 +116,10 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     return this.modelForm?.get('employee_ids');
   }
 
+  get apprenticeIdsControl() {
+    return this.modelForm?.get('apprentice_ids');
+  }
+
   get selectedModule() {
     return this.modules().find((m) => {
       return m.id == this.moduleId?.value;
@@ -128,10 +134,16 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   deleteEmployee(_id: number) {
-    const filtered = this.employeeIds?.value.filter((id: number) => {
-      return id != _id;
-    });
+    const filtered = this.employeeIds?.value.filter((id: number) => id !== _id);
     this.employeeIds?.setValue(filtered);
+    const filteredApprentices = this.apprenticeIdsControl?.value.filter((id: number) => id !== _id);
+    this.apprenticeIdsControl?.setValue(filteredApprentices);
+  }
+
+  toggleApprentice(id: number): void {
+    const current: number[] = this.apprenticeIdsControl?.value ?? [];
+    const updated = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
+    this.apprenticeIdsControl?.setValue(updated);
   }
 
   openModal() {
@@ -144,6 +156,8 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   onEmployeesSaved(ids: number[]): void {
     this.employeeIds?.setValue(ids);
+    const currentApprentices: number[] = this.apprenticeIdsControl?.value ?? [];
+    this.apprenticeIdsControl?.setValue(currentApprentices.filter((id) => ids.includes(id)));
     this.dialogService.closeModal();
   }
 
@@ -151,13 +165,13 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     if (id == this.moduleId?.value) {
       this.moduleId.setValue(null);
       this.employeeIds?.setValue([]);
+      this.apprenticeIdsControl?.setValue([]);
       return;
     }
     this.moduleId?.setValue(id);
-    const ids = this.selectedModule?.employees?.map((e) => {
-      return e.id;
-    });
+    const ids = this.selectedModule?.employees?.map((e) => e.id);
     this.employeeIds?.setValue(ids ?? []);
+    this.apprenticeIdsControl?.setValue([]);
   }
 
   isSelectedModule(mod: Module) {
@@ -236,9 +250,10 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     this.modelForm.patchValue({
       module_id: session.current_module?.id,
       work_shift_id: session.work_shift?.id,
-      employee_ids: session.employees_snapshot?.map((emp) => {
-        return emp.id;
-      }),
+      employee_ids: session.employees_snapshot?.map((emp) => emp.id) ?? [],
+      apprentice_ids: session.employees_snapshot
+        ?.filter((emp: EmployeeSnapshot) => emp.is_apprentice)
+        .map((emp: EmployeeSnapshot) => emp.id) ?? [],
     });
   }
 

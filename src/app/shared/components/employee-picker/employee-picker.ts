@@ -25,9 +25,14 @@ export class EmployeePicker {
   showSelectionBar = input(false);
   emptyMessage     = input('Sin empleados disponibles');
 
-  onSelect = output<number>();
-  onToggle = output<number>();
-  onDelete = output<number>();
+  apprenticeIds       = input<number[]>([]);
+  enableApprentice    = input(false);
+  apprenticeEditable  = input(false);
+
+  onSelect            = output<number>();
+  onToggle            = output<number>();
+  onDelete            = output<number>();
+  onToggleApprentice  = output<number>();
 
   @ViewChild(Searcher) private searcher!: Searcher;
 
@@ -79,6 +84,15 @@ export class EmployeePicker {
     } else {
       this.onSelect.emit(id);
     }
+  }
+
+  isApprentice(id: number): boolean {
+    return this.apprenticeIds().includes(id);
+  }
+
+  toggleApprentice(event: Event, id: number): void {   
+    event.stopPropagation();
+    this.onToggleApprentice.emit(id);
   }
 
   remove(id: number): void {

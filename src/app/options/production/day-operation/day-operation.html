@@ -147,8 +147,12 @@
             <app-employee-picker
                 [employees]="assignedEmployees"
                 [deletable]="!currentSession()"
+                [enableApprentice]="true"
+                [apprenticeEditable]="!currentSession()"
+                [apprenticeIds]="apprenticeIdsControl?.value ?? []"
                 emptyMessage="Sin encomendados agregados"
-                (onDelete)="deleteEmployee($event)">
+                (onDelete)="deleteEmployee($event)"
+                (onToggleApprentice)="toggleApprentice($event)">
             </app-employee-picker>
 
         </div>
