@@ -71,7 +71,7 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
     this.initializeModelForm();
   }
 
-  protected submit(model?: Partial<T>, callback?: () => void) {
+  protected submit(model?: Partial<T>, callback?: () => void, errorCallback?: (err: any) => void) {
     if (!this.validateModelForm()) return;
     this.loaderService.showLoader();
     const payload: Partial<T> = model ? model : this.modelForm.value;
@@ -89,7 +89,12 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
         this.dialogService.openToast('Éxito', `El registro fue ${actionText} correctamente.`, 'check');
       },
       error: (err) => {
-        this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
+        this.loaderService.hideLoader();
+        if (errorCallback) {
+          errorCallback(err);
+        } else {
+          this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
+        }
       },
     });
   }

@@ -146,7 +146,15 @@ export class ShiftCycles extends BaseProductionOrderPage {
     this.loaderService.showLoader();
     this.workSessionService.rotateActivity(sessionId, ids)
       .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe({ next: () => this.refreshSession() });
+      .subscribe({
+        next: () => this.refreshSession(),
+        error: (err) => {
+          const messages: string[] = Array.isArray(err?.error)
+            ? err.error.map((m: string) => m.replace('is already assigned to module', 'ya está asignado al módulo'))
+            : ['Error al actualizar empleados.'];
+          this.dialogService.openToast('No se pudo actualizar', messages.join(' · '), 'fail');
+        },
+      });
   }
 
   saveSKU(record: Partial<ProductionRecord>) {

@@ -218,10 +218,16 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     this.actionType = this.sessionCopy() ? 'edit' : 'create';
     this.rowObject.id = this.sessionCopy()?.id;
 
-    super.submit(undefined, () => {
-      this.router.navigateByUrl(this.OPERATION_ORDER_URL);
-      this.loaderService.hideLoader();
-    });
+    super.submit(
+      undefined,
+      () => this.router.navigateByUrl(this.OPERATION_ORDER_URL), 
+      (err) => {       
+        const messages: string[] = Array.isArray(err?.error)
+          ? err.error.map((m: string) => m.replace('is already assigned to module', 'ya está asignado al módulo'))
+          : ['Error al crear la sesión.'];
+        this.dialogService.openToast('No se pudo crear la sesión', messages.join(' · '), 'fail');
+      },
+    );
   }
 
   setModelFormValues(session: WorkSession) {
