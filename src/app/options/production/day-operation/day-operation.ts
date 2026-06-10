@@ -1,5 +1,4 @@
 import { Component, computed, inject, Signal, signal, ViewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { environment } from '../../../../environments/environment.development';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
@@ -68,10 +67,6 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   constructor(private workSessionService: WorkSessionService) {
     super(workSessionService);
-    const formValid = toSignal(
-      this.modelForm.statusChanges.pipe(map(s => s === 'VALID')),
-      { initialValue: this.modelForm.valid },
-    );
     this.displayError = computed(() => this.errorMessage());
     this.initialize();
   }
