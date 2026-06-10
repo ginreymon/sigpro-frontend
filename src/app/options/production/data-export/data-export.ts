@@ -83,7 +83,7 @@ export class DataExport implements OnInit {
     { field: 'shift_name',         label: 'Turno' },
     { field: 'shift_start_time',   label: 'Inicio Turno' },
     { field: 'shift_end_time',     label: 'Fin Turno' },
-    { field: 'total_employees',    label: 'Operarios',    align: 'right' },
+    { field: 'total_employees',    label: 'Operarios (ef.)',    align: 'right' },
     { field: 'total_ordered',      label: 'Ordenadas',    align: 'right' },
     { field: 'total_planned',      label: 'Planeadas',    align: 'right' },
     { field: 'total_completed',    label: 'Completadas',  align: 'right' },
