@@ -68,7 +68,7 @@ export class Modules extends BaseCrudPage<Module> {
 
   protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
-      name: [null, [Validators.required, Validators.minLength(4)]],
+      name: [null, [Validators.required, Validators.minLength(3)]],
       number: [null, [Validators.required, Validators.min(1)]],
       operator_count: [null, [Validators.required, Validators.min(1)]],
       location: [null, [Validators.required, Validators.minLength(4)]],
