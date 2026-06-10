@@ -5,7 +5,7 @@
             <h3 class="text-slate-500 text-xs"> {{ card.title }} </h3>
         }
         <p [class]="i == 0 ? 'text-3xl font-semibold text-slate-900 mb-1' : 'text-m font-semibold text-slate-900 mb-1'">
-            {{ card.data?.toString() ?? '' | uppercase }}
+            {{ card.data.toString() | uppercase }}
         </p>
     </div>
     }

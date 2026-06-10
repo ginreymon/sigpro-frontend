@@ -27,11 +27,11 @@
 
     <div class="space-y-2 text-sm">
 
-        <p> <strong>Nombre :</strong> {{ workSession.work_shift?.name | titlecase }} </p>                        
+        <p> <strong>Nombre :</strong> {{ workSession.work_shift.name | titlecase }} </p>                        
         
-        <p> <strong>Desde :</strong> {{ workSession.work_shift?.start_time }} </p>  
+        <p> <strong>Desde :</strong> {{ workSession.work_shift.start_time }} </p>  
         
-        <p> <strong>Hasta :</strong> {{ workSession.work_shift?.end_time }} </p>  
+        <p> <strong>Hasta :</strong> {{ workSession.work_shift.end_time }} </p>  
 
         <p> <strong>Fecha y hora de inicio :</strong> {{ workSession.started_at | date:'dd/MM/yyyy HH:mm' }} </p>                        
 

@@ -8,7 +8,7 @@
     + (displayLabel() ? 'text-gray-900 ' : 'text-gray-400 ')"
   [disabled]="disabled">
   <app-ui-icon [iconName]="'calendar'" [class]="'w-4 h-4 shrink-0 text-gray-400'"></app-ui-icon>
-  <span class="truncate">{{ displayLabel() ?? placeholder ?? 'Seleccionar fecha' }}</span>
+  <span class="truncate">{{ displayLabel() || placeholder || 'Seleccionar fecha' }}</span>
 </button>
 
 <!-- Calendar modal -->

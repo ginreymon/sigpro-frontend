@@ -3,11 +3,9 @@ import { ModalBase } from '../../../common/classes/modal-base';
 import { UiCloseButton } from '../../elements/ui-close-button/ui-close-button';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TitleCasePipe } from '@angular/common';
-
 @Component({
   selector: 'app-toast',
-  imports: [UiCloseButton, UiIcon, TitleCasePipe],
+  imports: [UiCloseButton, UiIcon],
   templateUrl: './toast.html',
   styleUrl: './toast.css',
 })

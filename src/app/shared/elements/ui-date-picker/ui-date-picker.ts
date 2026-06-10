@@ -38,7 +38,7 @@ export class UiDatePicker extends BaseControlValueAccessor<string | null> {
 
   displayLabel = computed(() => {
     const d = this.selectedDate();
-    if (!d) return null;
+    if (!d) return '';
     return `${d.date} de ${MONTHS_ES[d.month].toLowerCase()} de ${d.year}`;
   });
 
