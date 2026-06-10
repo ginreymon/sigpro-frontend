@@ -174,7 +174,7 @@ export class Users extends BaseCrudPage<Employee> {
       next: () => {
         this.closeModelForm();
         const actionText = this.actionType === 'create' ? 'creada' : 'actualizada';
-        this.dialogService.openToast('Éxito', `La cuenta fue ${actionText} correctamente.`, 'check');
+        this.dialogService.openToast('Proceso exitoso', `La cuenta fue ${actionText} correctamente.`, 'check');
       },
       error: (err) => {
         this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
@@ -202,7 +202,7 @@ export class Users extends BaseCrudPage<Employee> {
           next: () => {
             this.dialogService.closeConfirm();
             const actionText = obj.is_account_active ? 'desactivada' : 'activada';
-            this.dialogService.openToast('Éxito', `La cuenta "${obj.username}" fue ${actionText} correctamente.`, 'check');
+            this.dialogService.openToast('Proceso exitoso', `La cuenta "${obj.username}" fue ${actionText} correctamente.`, 'check');
           },
           error: () => this.dialogService.closeConfirm(),
         });

@@ -123,7 +123,7 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
       .subscribe({
         next: () => {
           this.closeModelForm();
-          this.dialogService.openToast('Éxito', 'El registro fue actualizado correctamente.', 'check');
+          this.dialogService.openToast('Proceso exitoso', 'El registro fue actualizado correctamente.', 'check');
         },
         error: () => {
           this.errorMessage.set('Ocurrió un error. Intente nuevamente.');

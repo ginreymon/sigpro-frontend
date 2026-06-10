@@ -103,7 +103,7 @@ export class SewingSAM extends BaseCrudPage<SkuItemReference> {
     request$.pipe(finalize(() => this.reload(() => this.loaderService.hideLoader()))).subscribe({
       next: () => {
         this.closeModelForm();
-        this.dialogService.openToast('Éxito', `SAM ${isUpdate ? 'actualizado' : 'asignado'} correctamente.`, 'check');
+        this.dialogService.openToast('Proceso exitoso', `SAM ${isUpdate ? 'actualizado' : 'asignado'} correctamente.`, 'check');
       },
       error: () => {
         this.errorMessage.set('Ocurrió un error. Intente nuevamente.');

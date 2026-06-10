@@ -86,7 +86,7 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
         callback?.();
         this.closeModelForm();
         const actionText = this.actionType === 'create' ? 'creado' : 'actualizado';
-        this.dialogService.openToast('Éxito', `El registro fue ${actionText} correctamente.`, 'check');
+        this.dialogService.openToast('Proceso exitoso', `El registro fue ${actionText} correctamente.`, 'check');
       },
       error: (err) => {
         this.loaderService.hideLoader();
