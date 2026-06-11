@@ -8,11 +8,14 @@ import { SkuItemReferenceService } from '../../../services/production/sku-item-r
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
 import { DataTable } from '../../components/data-table/data-table';
 import { TableTemplate } from '../../../directives/table-template';
+import { SamTargetCalculator } from '../sam-target-calculator/sam-target-calculator';
+import { SamCalculatorStateService } from '../sam-target-calculator/sam-calculator-state';
 import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-sewing-sam-table',
-  imports: [DataTable, TableTemplate],
+  imports: [DataTable, TableTemplate, SamTargetCalculator],
+  providers: [SamCalculatorStateService],
   templateUrl: './sewing-sam-table.html',
 })
 export class SewingSamTable implements OnInit {

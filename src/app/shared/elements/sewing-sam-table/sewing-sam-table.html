@@ -5,11 +5,7 @@
   (onSearch)="searchHandler($event)">
 
   <ng-template appTableTemplate="samTemplate" let-row>
-    @if (row.sam_value) {
-      <span class="font-semibold text-green-600">{{ row.sam_value }}</span>
-    } @else {
-      <span class="text-slate-400 text-xs">Sin SAM</span>
-    }
+    <app-sam-target-calculator [samValue]="row.sam_value" [calcId]="row.rowid_item" />
   </ng-template>
 
 </app-data-table>
