@@ -19,7 +19,7 @@
                                 <button
                                     type="button"
                                     (click)="toggleFilterDropdown(getFieldString(col), $event)"
-                                    [class]="'p-0.5 rounded transition-colors flex-shrink-0 cursor-pointer ' + (isFilterActive(getFieldString(col)) ? 'text-brand-600 hover:text-brand-800' : 'text-gray-400 hover:text-gray-600')">
+                                    [class]="'p-0.5 rounded transition-colors shrink-0 cursor-pointer ' + (isFilterActive(getFieldString(col)) ? 'text-brand-600 hover:text-brand-800' : 'text-gray-400 hover:text-gray-600')">
                                     <app-ui-icon [iconName]="'filter'" [class]="'w-3.5 h-3.5'"></app-ui-icon>
                                 </button>
                             </div>

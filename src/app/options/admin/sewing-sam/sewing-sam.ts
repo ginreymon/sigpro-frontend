@@ -38,7 +38,7 @@ export class SewingSAM extends BaseCrudPage<SkuItemReference> {
   protected override get actions(): TableActions {
     return {
       view: { enabled: true, title: 'Ver Referencia', iconName: 'eye', toolTip: 'Ver' },
-      edit: { enabled: true, title: 'SAM', iconName: 'pencil', toolTip: 'Asignar SAM' },
+      edit: { enabled: true, title: 'SAM', iconName: 'pencil', toolTip: 'SAM' },
       delete: { enabled: false },
       create: { enabled: false },
     };
