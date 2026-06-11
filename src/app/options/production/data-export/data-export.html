@@ -29,9 +29,11 @@
                     </div>
                     <div class="relative bg-gray-100 rounded-lg border border-gray-200">
                         <app-operation-carousel #moduleCarousel>
+                            @if(modules().length){
                             <app-module-option-card [mod]="null" (onToggle)="selectAllModules()"
                                 [selected]="isAllModulesSelected()">
                             </app-module-option-card>
+                            }
                             @for(mod of modules(); track mod.id) {
                             <app-module-option-card [mod]="mod" (onToggle)="selectModule(mod.id)"
                                 [selected]="isSelectedModule(mod)">
