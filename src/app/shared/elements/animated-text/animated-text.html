@@ -1,0 +1,5 @@
+<span class="inline-flex">
+  @for (letter of letters(); track $index) {
+    <span [style.animation]="letter.animation">{{ letter.char }}</span>
+  }
+</span>

@@ -2,6 +2,13 @@
 
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Klik';
+  src: url('/fonts/Fenotype - Klik Light 2.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
 .skeleton {
   background: #cbd5e1;
   background-image: linear-gradient(90deg, #cbd5e1 0%, #e2e8f0 50%, #cbd5e1 100%);
@@ -16,6 +23,24 @@
   animation: shimmer 3.2s infinite;
 }
 
+@keyframes scale-breathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.12); }
+}
+
+@keyframes letter-appear {
+  0%   { opacity: 0; transform: translateY(8px); }
+  10%  { opacity: 1; transform: translateY(0); }
+  65%  { opacity: 1; transform: translateY(0); }
+  80%  { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 0; }
+}
+
+@keyframes tracking-breathe {
+  0%, 100% { letter-spacing: 0.1em; }
+  50%       { letter-spacing: 0.35em; }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -23,6 +48,7 @@
 
 @theme {
   --font-display: 'Hanken Grotesk', sans-serif;
+  --font-klik: 'Klik', sans-serif;
   --color-brand: #180393;  
   --color-brand-hover: #1e05b8;
   --color-brand-soft: #2a1bb3;
