@@ -23,6 +23,17 @@
   animation: shimmer 3.2s infinite;
 }
 
+.watermark-main {
+  background-image:
+    linear-gradient(rgba(243, 244, 246, 0.94), rgba(243, 244, 246, 0.94)),
+    url('/images/reymon_logo.png');
+  background-repeat: no-repeat;
+  background-position: center 65%;
+  background-size: auto, 24rem;
+  background-attachment: fixed;
+  background-blend-mode: normal, luminosity;
+}
+
 @keyframes scale-breathe {
   0%, 100% { transform: scale(1); }
   50%       { transform: scale(1.12); }
