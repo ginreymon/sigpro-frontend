@@ -12,6 +12,7 @@ import { UpperCasePipe } from '@angular/common';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { efficiencyTextColor } from '../../../common/functions/efficiency-color';
 import { LoaderService } from '../../../services/common/loader-service';
+import { EfficiencySummaryBar } from '../../../shared/elements/efficiency-summary-bar/efficiency-summary-bar';
 
 const STATUS_LABELS: Record<string, string> = {
   ACTIVE:   'Activo',
@@ -29,7 +30,7 @@ const STATUS_INTENTS: Record<string, BadgeIntent> = {
 
 @Component({
   selector: 'app-module-panel',
-  imports: [ModuleDetailBottomSheet, ProgressBar, UiBadge, UiIcon, UpperCasePipe],
+  imports: [ModuleDetailBottomSheet, ProgressBar, UiBadge, UiIcon, UpperCasePipe, EfficiencySummaryBar],
   templateUrl: './module-panel.html',
 })
 export class ModulePanel {
@@ -85,6 +86,10 @@ export class ModulePanel {
       total_produced:     mods.reduce((s, m) => s + (m.total_produced     ?? 0), 0),
     };
   });
+
+  readonly activeModuleCount = computed(() =>
+    this.modules().filter((m) => m.status === 'ACTIVE').length,
+  );
 
   readonly allModules = computed<ModuleEfficiencyStatus[]>(() =>
     this.modules().length ? [this.plantaModule(), ...this.modules()] : [],

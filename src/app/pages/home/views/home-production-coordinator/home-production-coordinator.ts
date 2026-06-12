@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
+import { EfficiencySummaryBar } from '../../../../shared/elements/efficiency-summary-bar/efficiency-summary-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
 import { catchError, startWith, switchMap, take } from 'rxjs/operators';
@@ -9,7 +10,7 @@ import { efficiencyTextColor } from '../../../../common/functions/efficiency-col
 
 @Component({
   selector: 'app-home-production-coordinator',
-  imports: [],
+  imports: [EfficiencySummaryBar],
   templateUrl: './home-production-coordinator.html',
 })
 export class HomeProductionCoordinator {

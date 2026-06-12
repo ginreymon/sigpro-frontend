@@ -1,0 +1,24 @@
+<div class="flex items-stretch border border-gray-200 rounded-lg overflow-hidden text-sm bg-white">
+  <div class="flex-1 flex flex-col items-center justify-center px-4 py-2 gap-0.5">
+    <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Eficiencia</span>
+    <span [class]="'text-xl font-bold ' + efficiencyColor()">
+      {{ efficiency.toFixed(2) }}%
+    </span>
+  </div>
+  <div class="w-px bg-gray-200"></div>
+  <div class="flex-1 flex flex-col items-center justify-center px-4 py-2 gap-0.5">
+    <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Completadas</span>
+    <span [class]="'text-xl font-bold ' + completedColor()">
+      {{ completed }}
+    </span>
+  </div>
+  @if (activeModules !== undefined) {
+    <div class="w-px bg-gray-200"></div>
+    <div class="flex-1 flex flex-col items-center justify-center px-4 py-2 gap-0.5">
+      <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Módulos</span>
+      <span [class]="'text-xl font-bold ' + modulesColor()">
+        {{ activeModules }}
+      </span>
+    </div>
+  }
+</div>
