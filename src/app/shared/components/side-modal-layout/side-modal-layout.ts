@@ -1,4 +1,4 @@
-import { Component, Signal } from '@angular/core';
+import { Component, Signal, signal, AfterViewInit } from '@angular/core';
 import { ModalBase } from '../../../common/classes/modal-base';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiCloseButton } from '../../elements/ui-close-button/ui-close-button';
@@ -11,6 +11,11 @@ import { TitleCasePipe } from '@angular/common';
   templateUrl: './side-modal-layout.html',
   styleUrl: './side-modal-layout.css',
 })
-export class SideModalLayout extends ModalBase {
+export class SideModalLayout extends ModalBase implements AfterViewInit {
   protected override serviceVisible?: Signal<boolean> = toSignal(this.dialogService.sideModalVisible$, { initialValue: false });
+  readonly initialized = signal(false);
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.initialized.set(true));
+  }
 }

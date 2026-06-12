@@ -1,4 +1,4 @@
-<div [class]="'fixed inset-0 z-50 flex transform transition-transform duration-300 ' + (openModal() ? 'translate-x-0' : 'translate-x-full')">
+<div [class]="'fixed inset-0 z-50 flex transform ' + (initialized() ? 'transition-transform duration-300 ' : '') + (openModal() ? 'translate-x-0' : 'translate-x-full')">
   
   <div [class]="'fixed inset-0 bg-black/40 '+(openModal() ? 'transition-opacity opacity-100 delay-300' : 'opacity-0')" (click)="close()"></div>
 
