@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, computed, HostListener, signal } from '@angular/core';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
@@ -28,11 +28,64 @@ import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 export class SewingSAM extends BaseCrudPage<SkuItemReference> {
   protected override entityName: string = 'SAM';
 
+  openSam = signal<{ id: number; value: string; style: Record<string, string> } | null>(null);
+  samIntervalo = signal<number>(60);
+  samOperarios = signal<number>(1);
+
+  samTargetUnits = computed(() => {
+    const sam = Number(this.openSam()?.value);
+    if (!sam || sam <= 0) return null;
+    if (this.samIntervalo() <= 0) return '0';
+    return ((this.samIntervalo() * this.samOperarios()) / sam).toFixed(1);
+  });
+
+  private readonly samScrollHandler = (): void => {
+    this.openSam.set(null);
+    document.removeEventListener('scroll', this.samScrollHandler, true);
+  };
+
   constructor(
     skuItemReferenceService: SkuItemReferenceService,
     private referenceSamService: ReferenceSamService,
   ) {
     super(skuItemReferenceService);
+  }
+
+  @HostListener('document:click')
+  closeSamDropdown(): void {
+    if (this.openSam()) {
+      this.openSam.set(null);
+      document.removeEventListener('scroll', this.samScrollHandler, true);
+    }
+  }
+
+  toggleSamDropdown(event: MouseEvent, row: SkuItemReference): void {
+    event.stopPropagation();
+    if (this.openSam()?.id === row.rowid_item) {
+      this.openSam.set(null);
+      document.removeEventListener('scroll', this.samScrollHandler, true);
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const DROPDOWN_HEIGHT = 160;
+    const OFFSET = 4;
+    const style: Record<string, string> = {
+      position: 'fixed',
+      zIndex: '9999',
+      width: '192px',
+      left: `${rect.left}px`,
+    };
+    if (rect.bottom + OFFSET + DROPDOWN_HEIGHT <= window.innerHeight) {
+      style['top'] = `${rect.bottom + OFFSET}px`;
+    } else {
+      style['bottom'] = `${window.innerHeight - rect.top + OFFSET}px`;
+    }
+    document.addEventListener('scroll', this.samScrollHandler, true);
+    this.openSam.set({ id: row.rowid_item, value: row.sam_value!, style });
+  }
+
+  stopSamProp(event: MouseEvent): void {
+    event.stopPropagation();
   }
 
   protected override get actions(): TableActions {
@@ -53,7 +106,7 @@ export class SewingSAM extends BaseCrudPage<SkuItemReference> {
 
   protected override get columns(): TableColumn<SkuItemReference>[] {
     return [
-      { field: 'reference', label: 'Referencia' },    
+      { field: 'reference', label: 'Referencia' },
       { field: 'line', label: 'Línea' },
       { field: 'sewing', label: 'Centro de costo' },
       { field: 'sku_status', label: 'Estado' },
@@ -95,7 +148,7 @@ export class SewingSAM extends BaseCrudPage<SkuItemReference> {
     this.loaderService.showLoader();
 
     const isUpdate = !!this.rowObject.sam_id;
-    
+
     const request$ = isUpdate
       ? this.referenceSamService.patch(this.rowObject.sam_id!, { sam: this.modelForm.value.sam })
       : this.referenceSamService.create({ rowid_item: this.rowObject.rowid_item!, sam: this.modelForm.value.sam });

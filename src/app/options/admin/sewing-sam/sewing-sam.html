@@ -6,15 +6,42 @@
 
       <ng-template appTableTemplate="samTemplate" let-row>
         @if (row.sam_value) {
-        <span class="font-semibold text-green-600">{{ row.sam_value }}</span>
+          <span class="font-semibold text-green-600 cursor-pointer select-none" (click)="toggleSamDropdown($event, row)">{{ row.sam_value }}</span>
         } @else {
-        <span class="text-slate-400 text-xs">Sin SAM</span>
+          <span class="text-slate-400 text-xs">Sin SAM</span>
         }
       </ng-template>
 
     </app-data-table>
   </div>
 </app-work-space-layout>
+
+@if (openSam()) {
+  <div [style]="openSam()!.style" class="bg-white rounded-lg shadow-lg border border-slate-200 p-3 space-y-2" (click)="stopSamProp($event)">
+    <p class="text-xs font-semibold text-slate-600">Calcular meta <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">{{ openSam()!.value }}</span></p>
+    <div class="flex items-center gap-2">
+      <label class="text-xs text-slate-500 w-20 shrink-0">Intervalo (min)</label>
+      <input type="number" min="0"
+        class="w-full text-xs border border-slate-300 rounded px-2 py-1 text-right focus:outline-none focus:ring-1 focus:ring-green-400"
+        [value]="samIntervalo()"
+        (input)="samIntervalo.set(+$any($event.target).value)">
+    </div>
+    <div class="flex items-center gap-2">
+      <label class="text-xs text-slate-500 w-20 shrink-0">Operarios</label>
+      <input type="number" min="0.1" step="any"
+        class="w-full text-xs border border-slate-300 rounded px-2 py-1 text-right focus:outline-none focus:ring-1 focus:ring-green-400"
+        [value]="samOperarios()"
+        (input)="samOperarios.set(+$any($event.target).value)">
+    </div>
+    <div class="border-t border-slate-100 pt-2 flex justify-between items-center">
+      <span class="text-xs text-slate-500">Meta</span>
+      <span class="text-sm font-semibold text-green-600">
+        {{ samTargetUnits() ?? '—' }}
+        <span class="text-xs font-normal text-slate-400">uds</span>
+      </span>
+    </div>
+  </div>
+}
 
 
 <app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">

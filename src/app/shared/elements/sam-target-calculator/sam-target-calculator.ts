@@ -4,6 +4,7 @@ import { SamCalculatorStateService } from './sam-calculator-state';
 @Component({
   selector: 'app-sam-target-calculator',
   templateUrl: './sam-target-calculator.html',
+  host: { style: 'display: contents' },
 })
 export class SamTargetCalculator {
   @Input({ required: true }) samValue!: string | null;
@@ -12,7 +13,14 @@ export class SamTargetCalculator {
   private stateService = inject(SamCalculatorStateService, { optional: true });
   private _localOpen = signal(false);
   private triggerEl: HTMLElement | null = null;
-  private readonly scrollHandler = (): void => this.updatePosition();
+  private readonly scrollHandler = (): void => {
+    if (this.calcId !== null && this.stateService) {
+      this.stateService.close();
+    } else {
+      this._localOpen.set(false);
+    }
+    document.removeEventListener('scroll', this.scrollHandler, true);
+  };
 
   intervalo = signal<number>(60);
   operarios = signal<number>(1);
@@ -34,9 +42,7 @@ export class SamTargetCalculator {
 
   constructor() {
     effect(() => {
-      if (!this.isOpen()) {
-        document.removeEventListener('scroll', this.scrollHandler, true);
-      }
+      if (!this.isOpen()) document.removeEventListener('scroll', this.scrollHandler, true);
     });
   }
 
@@ -54,7 +60,7 @@ export class SamTargetCalculator {
     event.stopPropagation();
     if (!this.isOpen()) {
       this.triggerEl = event.currentTarget as HTMLElement;
-      this.updatePosition();
+      this.dropdownStyle = this.calcDropdownStyle(this.triggerEl);
       document.addEventListener('scroll', this.scrollHandler, true);
     }
     if (this.calcId !== null && this.stateService) {
@@ -68,25 +74,21 @@ export class SamTargetCalculator {
     event.stopPropagation();
   }
 
-  private updatePosition(): void {
-    if (!this.triggerEl) return;
-    const rect = this.triggerEl.getBoundingClientRect();
+  private calcDropdownStyle(triggerEl: HTMLElement): Record<string, string> {
+    const rect = triggerEl.getBoundingClientRect();
     const DROPDOWN_HEIGHT = 160;
     const OFFSET = 4;
-
     const style: Record<string, string> = {
       position: 'fixed',
       zIndex: '9999',
       width: '192px',
       left: `${rect.left}px`,
     };
-
     if (rect.bottom + OFFSET + DROPDOWN_HEIGHT <= window.innerHeight) {
       style['top'] = `${rect.bottom + OFFSET}px`;
     } else {
       style['bottom'] = `${window.innerHeight - rect.top + OFFSET}px`;
     }
-
-    this.dropdownStyle = style;
+    return style;
   }
 }
