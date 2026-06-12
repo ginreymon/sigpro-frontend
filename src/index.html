@@ -12,6 +12,41 @@
   <script src="https://kit.fontawesome.com/5d418fc590.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <style>
+      #app-boot-loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: #f3f4f6;
+        gap: 16px;
+      }
+      #app-boot-loader .spinner {
+        width: 80px;
+        height: 80px;
+        border: 6px solid #e5e7eb;
+        border-top-color: #180393;
+        border-radius: 50%;
+        animation: boot-spin 0.75s linear infinite;
+      }
+      #app-boot-loader .label {
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        color: #9ca3af;
+        text-transform: uppercase;
+      }
+      @keyframes boot-spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+    <div id="app-boot-loader">
+      <div class="spinner"></div>
+      <span class="label">SIGPRO</span>
+    </div>
+  </app-root>
 </body>
 </html>
