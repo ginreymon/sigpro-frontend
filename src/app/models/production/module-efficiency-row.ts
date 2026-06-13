@@ -1,5 +1,12 @@
 export interface ModuleEfficiencyRow {
   module_id: number;
+  module_name: string;
+  module_number: number;
+  module_operator_count: number;
+  module_location: string;
+  work_center_id: number;
+  work_center_code: string;
+  work_center_name: string;
   work_shift_id: number;
   ended_at: string | null;
   shift_start_utc: string;

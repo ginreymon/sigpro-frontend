@@ -43,14 +43,15 @@ export class ModuleDetailBottomSheet implements OnChanges {
   }));
 
   readonly columns: TableColumn<ModuleEfficiencyRow>[] = [
+    { field: 'module_name', label: 'Módulo' },
     { type: 'template', label: 'Inicio jornada', templateName: 'shiftStartTemplate', field: 'shift_start_utc' },
     { type: 'template', label: 'Fin jornada',    templateName: 'endedAtTemplate',    field: 'ended_at' },
     { field: 'total_registers', label: 'Registros', align: 'center' },
     { type: 'template', label: 'Meta',        templateName: 'unitTargetTemplate',  field: 'unit_target',     align: 'right', footerFormat: '1.0-0' },
-    { type: 'template', label: 'Completadas', templateName: 'completedTemplate',   field: 'total_completed', align: 'right' },
-    { type: 'template', label: 'Saldos',      templateName: 'rejectedTemplate',    field: 'total_rejected',  align: 'right' },
-    { type: 'template', label: 'Bajas',       templateName: 'scrapTemplate',       field: 'total_scrap',     align: 'right' },
-    { type: 'template', label: 'Eficiencia',  templateName: 'efficiencyTemplate',  field: 'efficiency',      align: 'right', footerSuffix: '%' },
+    { type: 'template', label: 'Completadas', templateName: 'completedTemplate',   field: 'total_completed', align: 'right', footerFormat: '1.0-0' },
+    { type: 'template', label: 'Saldos',      templateName: 'rejectedTemplate',    field: 'total_rejected',  align: 'right', footerFormat: '1.0-0' },
+    { type: 'template', label: 'Bajas',       templateName: 'scrapTemplate',       field: 'total_scrap',     align: 'right', footerFormat: '1.0-0' },
+    { type: 'template', label: 'Eficiencia',  templateName: 'efficiencyTemplate',  field: 'efficiency',      align: 'right', footerFormat: '1.2-2', footerSuffix: '%' },
   ];
 
   readonly tableFooter = computed<ModuleEfficiencyRow[]>(() => {
@@ -75,6 +76,13 @@ export class ModuleDetailBottomSheet implements OnChanges {
 
     return [{
       module_id: 0,
+      module_name: '',
+      module_number: 0,
+      module_operator_count: 0,
+      module_location: '',
+      work_center_id: 0,
+      work_center_code: '',
+      work_center_name: '',
       work_shift_id: 0,
       shift_id: 0,
       period_start: '',
