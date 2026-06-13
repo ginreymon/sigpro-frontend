@@ -39,6 +39,10 @@ export class Menu extends LocationOption implements OnInit {
     });
   }
 
+  closeMenu(): void {
+    this.menuService.showMenu = false;
+  }
+
   navigate(module: Module, option: Option) {
     if (!module || !option) return;
     const url = option.url?.includes('/') ? option.url : `${module.url}/${option.url}`;

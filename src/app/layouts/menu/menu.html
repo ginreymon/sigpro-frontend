@@ -1,3 +1,7 @@
+@if (showMenu) {
+  <div class="fixed inset-0 z-40" (click)="closeMenu()"></div>
+}
+
 <aside [class]="'h-screen w-64 bg-gray-900 text-gray-100 flex flex-col fixed left-0 transform z-50 -translate-x-full '+ (menuReady?'transition-transform duration-500 ease-out ':'')+ (showMenu ? 'translate-x-0' : '')">
     <nav class="flex-1 px-4 py-4 space-y-2">
         @for(mod of modules; track mod){
@@ -5,17 +9,17 @@
             <a [class]="'flex items-center justify-between px-4 py-2 rounded-lg hover:bg-gray-800 transition cursor-pointer '+ (mod.state?'bg-gray-800':'')" (click)="toggleModule(mod)">
                 <span>{{ mod.name | titlecase }}</span>
                 <span class="transition-transform group-hover:rotate-90 duration-300">></span>
-            </a>           
-            <div [class]="'ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ' +(mod.state?'max-h-96 opacity-100':'max-h-0 opacity-0')">  
+            </a>
+            <div [class]="'ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ' +(mod.state?'max-h-96 opacity-100':'max-h-0 opacity-0')">
             @for(op of mod.options; track op){
                 @if(op.visible){
                 <a class="block px-4 py-2 pl-6 text-sm text-gray-300 rounded-md transition-all duration-200 hover:bg-gray-800 hover:text-white cursor-pointer" (click)="navigate(mod,op)">
                     {{ op.name | titlecase }}
                 </a>
-                }            
+                }
             }
             </div>
         </div>
-        }        
+        }
     </nav>
 </aside>
