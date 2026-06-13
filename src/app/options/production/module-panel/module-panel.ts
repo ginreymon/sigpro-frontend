@@ -47,7 +47,8 @@ export class ModulePanel {
     const mods = this.modules();
     const active  = mods.filter(m => m.status === 'ACTIVE');
     const paused  = mods.filter(m => m.status === 'PAUSED');
-    const withEff = mods.filter(m => m.efficiency > 0);
+    const relevant = [...active, ...paused];
+    const withEff = relevant.filter(m => m.efficiency > 0);
     const ref = active[0] ?? paused[0] ?? mods[0];
 
     const plantaStatus = active.length  ? 'ACTIVE'
@@ -75,15 +76,15 @@ export class ModulePanel {
       efficiency: withEff.length
         ? withEff.reduce((s, m) => s + m.efficiency, 0) / withEff.length
         : 0,
-      operator_count:     mods.reduce((s, m) => s + (m.operator_count     ?? 0), 0),
-      employees_snapshot: mods.reduce((s, m) => s + (m.employees_snapshot ?? 0), 0),
-      total_completed:    mods.reduce((s, m) => s + (m.total_completed    ?? 0), 0),
-      total_rejected:     mods.reduce((s, m) => s + (m.total_rejected     ?? 0), 0),
-      total_scrap:        mods.reduce((s, m) => s + (m.total_scrap        ?? 0), 0),
-      unit_target:        mods.reduce((s, m) => s + (m.unit_target        ?? 0), 0),
-      total_ordered:      mods.reduce((s, m) => s + (m.total_ordered      ?? 0), 0),
-      total_planned:      mods.reduce((s, m) => s + (m.total_planned      ?? 0), 0),
-      total_produced:     mods.reduce((s, m) => s + (m.total_produced     ?? 0), 0),
+      operator_count:     relevant.reduce((s, m) => s + (m.operator_count     ?? 0), 0),
+      employees_snapshot: relevant.reduce((s, m) => s + (m.employees_snapshot ?? 0), 0),
+      total_completed:    relevant.reduce((s, m) => s + (m.total_completed    ?? 0), 0),
+      total_rejected:     relevant.reduce((s, m) => s + (m.total_rejected     ?? 0), 0),
+      total_scrap:        relevant.reduce((s, m) => s + (m.total_scrap        ?? 0), 0),
+      unit_target:        relevant.reduce((s, m) => s + (m.unit_target        ?? 0), 0),
+      total_ordered:      relevant.reduce((s, m) => s + (m.total_ordered      ?? 0), 0),
+      total_planned:      relevant.reduce((s, m) => s + (m.total_planned      ?? 0), 0),
+      total_produced:     relevant.reduce((s, m) => s + (m.total_produced     ?? 0), 0),
     };
   });
 

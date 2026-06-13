@@ -8,6 +8,8 @@ import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { UpperCasePipe } from '@angular/common';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { ProductionContextService } from '../../../services/production/production-context-service';
+import { ProductionOrder } from '../../../models/production/production-order';
+import { DialogService } from '../../../services/common/dialog-service';
 
 @Component({
   selector: 'app-work-shift-summary',
@@ -20,10 +22,12 @@ export class WorkShiftSummary implements OnInit {
   @Output() employeesClick = new EventEmitter<void>();
 
   @Input() employeesEditable = false;
+  @Input() ordenProduction: ProductionOrder | null = null;
 
   protected productivityService = inject(ProductivityService);
   protected appConfig = inject(AppConfigService);
   private contextService = inject(ProductionContextService);
+  private dialogService = inject(DialogService);
 
   cards = signal<WorkShiftCard[]>([]);
   protected pendingSession: WorkSession | null = null;
@@ -79,8 +83,13 @@ export class WorkShiftSummary implements OnInit {
     this.productivityService.getEfficiencyPeriod(params).subscribe({
       next: (summary) => {
         this.contextService.setEfficiency(summary);
+        const noBackendData = !summary.unit_target && !summary.efficiency;
+        if (noBackendData && this.ordenProduction && !this.ordenProduction.sam) {
+          this.showSamAlert(this.ordenProduction);
+        }
+        const samTarget = noBackendData ? this.calculateSamTarget(s, startUtc) : null;
         this.cards.update(cards => cards.map((card) => {
-          if (card.title === 'Meta') return { ...card, data: Math.round(summary.unit_target ?? 0) };
+          if (card.title === 'Meta') return { ...card, data: samTarget !== null ? samTarget : Math.round(summary.unit_target ?? 0) };
           if (card.title === 'Acumuladas') return { ...card, data: summary.total_completed ?? 0 };
           if (card.title === 'Bajas/Saldos') return { ...card, data: (summary.total_rejected ?? 0) + (summary.total_scrap ?? 0) };
           if (card.title === 'Eficiencia') return { ...card, data: Math.round((summary.efficiency ?? 0) * 100) / 100 };
@@ -88,6 +97,23 @@ export class WorkShiftSummary implements OnInit {
         }));
       },
     });
+  }
+
+  private calculateSamTarget(s: WorkSession, startUtc: string): number {
+    const sam = this.ordenProduction?.sam;
+    if (!sam) return 0;
+    const weighted = s.employees_snapshot?.reduce((sum, e) => sum + (e.is_apprentice ? 0.5 : 1), 0) ?? 0;
+    const elapsedMinutes = (Date.now() - new Date(startUtc).getTime()) / 60000;
+    return Math.round((elapsedMinutes * weighted) / sam);
+  }
+
+  private showSamAlert(po: ProductionOrder) {
+    this.dialogService.openToast(
+      'Configuración incompleta',
+      `No se puede calcular la meta porque la referencia "${po.reference}" no tiene un valor SAM registrado.`,
+      'fail',
+      10000
+    );
   }
 
   private formatHeadcount(s: WorkSession): string {
