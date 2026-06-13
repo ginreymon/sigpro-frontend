@@ -32,6 +32,7 @@ export class ModuleDetailBottomSheet implements OnChanges {
   isLoading = signal(false);
   hasSearched = signal(false);
   rows = signal<ModuleEfficiencyRow[]>([]);
+  private moduleId = signal<number | null>(null);
 
   readonly skeletonRows = Array(4).fill(0);
 
@@ -42,17 +43,20 @@ export class ModuleDetailBottomSheet implements OnChanges {
     results: this.rows(),
   }));
 
-  readonly columns: TableColumn<ModuleEfficiencyRow>[] = [
-    { field: 'module_name', label: 'Módulo' },
-    { type: 'template', label: 'Inicio jornada', templateName: 'shiftStartTemplate', field: 'shift_start_utc' },
-    { type: 'template', label: 'Fin jornada',    templateName: 'endedAtTemplate',    field: 'ended_at' },
-    { field: 'total_registers', label: 'Registros', align: 'center' },
-    { type: 'template', label: 'Meta',        templateName: 'unitTargetTemplate',  field: 'unit_target',     align: 'right', footerFormat: '1.0-0' },
-    { type: 'template', label: 'Completadas', templateName: 'completedTemplate',   field: 'total_completed', align: 'right', footerFormat: '1.0-0' },
-    { type: 'template', label: 'Saldos',      templateName: 'rejectedTemplate',    field: 'total_rejected',  align: 'right', footerFormat: '1.0-0' },
-    { type: 'template', label: 'Bajas',       templateName: 'scrapTemplate',       field: 'total_scrap',     align: 'right', footerFormat: '1.0-0' },
-    { type: 'template', label: 'Eficiencia',  templateName: 'efficiencyTemplate',  field: 'efficiency',      align: 'right', footerFormat: '1.2-2', footerSuffix: '%' },
-  ];
+  readonly columns = computed<TableColumn<ModuleEfficiencyRow>[]>(() => {
+    const isGeneral = !this.moduleId();
+    return [
+      ...(isGeneral ? [{ field: 'module_name' as const, label: 'Módulo' }] : []),
+      { type: 'template' as const, label: 'Inicio jornada', templateName: 'shiftStartTemplate', field: 'shift_start_utc' as const },
+      { type: 'template' as const, label: 'Fin jornada',    templateName: 'endedAtTemplate',    field: 'ended_at' as const },
+      { field: 'total_registers' as const, label: 'Registros', align: 'center' as const },
+      { type: 'template' as const, label: 'Meta',        templateName: 'unitTargetTemplate',  field: 'unit_target' as const,     align: 'right' as const, footerFormat: '1.0-0' },
+      { type: 'template' as const, label: 'Completadas', templateName: 'completedTemplate',   field: 'total_completed' as const, align: 'right' as const, footerFormat: '1.0-0' },
+      { type: 'template' as const, label: 'Saldos',      templateName: 'rejectedTemplate',    field: 'total_rejected' as const,  align: 'right' as const, footerFormat: '1.0-0' },
+      { type: 'template' as const, label: 'Bajas',       templateName: 'scrapTemplate',       field: 'total_scrap' as const,     align: 'right' as const, footerFormat: '1.0-0' },
+      { type: 'template' as const, label: 'Eficiencia',  templateName: 'efficiencyTemplate',  field: 'efficiency' as const,      align: 'right' as const, footerFormat: '1.2-2', footerSuffix: '%' },
+    ];
+  });
 
   readonly tableFooter = computed<ModuleEfficiencyRow[]>(() => {
     const data = this.rows();
@@ -102,6 +106,9 @@ export class ModuleDetailBottomSheet implements OnChanges {
   });
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['module']) {
+      this.moduleId.set(this.module?.module_id ?? null);
+    }
     if (changes['visible'] && !changes['visible'].currentValue) {
       this.rows.set([]);
       this.hasSearched.set(false);

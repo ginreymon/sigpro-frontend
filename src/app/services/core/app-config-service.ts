@@ -50,7 +50,7 @@ export class AppConfigService {
   }
 
   get balanceEndExtraHours(): number {
-    return this.getNumber(AppSettingKey.BAL_HOURS, 8);
+    return this.getNumber(AppSettingKey.GRACE_HOURS, 8);
   }
 
   get showShiftHourlyComponent(): boolean {

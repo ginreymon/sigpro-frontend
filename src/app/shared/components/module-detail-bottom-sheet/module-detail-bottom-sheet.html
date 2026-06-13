@@ -36,7 +36,7 @@
         } @else if (rows().length > 0) {
           <app-data-table
             [paginatedResponse]="pagedRows()"
-            [columns]="columns"
+            [columns]="columns()"
             [footer]="tableFooter()"
             [actions]="{}"
             [showPager]="false"
@@ -76,7 +76,7 @@
 
             <ng-template appTableTemplate="efficiencyTemplate" let-row>
               <span [class]="'font-semibold ' + efficiencyClass(row)">
-                {{ row.efficiency | number:'1.1-2' }}%
+                {{ row.efficiency | number:'1.2-2' }}%
               </span>
             </ng-template>
 
