@@ -11,6 +11,7 @@ import { ModuleEfficiencyStatus } from '../../../models/production/module-effici
 import { UpperCasePipe } from '@angular/common';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { efficiencyTextColor } from '../../../common/functions/efficiency-color';
+import { computePlantaStats } from '../../../common/functions/planta-summary';
 import { LoaderService } from '../../../services/common/loader-service';
 import { EfficiencySummaryBar } from '../../../shared/elements/efficiency-summary-bar/efficiency-summary-bar';
 
@@ -45,15 +46,8 @@ export class ModulePanel {
 
   readonly plantaModule = computed<ModuleEfficiencyStatus>(() => {
     const mods = this.modules();
-    const active  = mods.filter(m => m.status === 'ACTIVE');
-    const paused  = mods.filter(m => m.status === 'PAUSED');
-    const relevant = [...active, ...paused];
-    const withEff = relevant.filter(m => m.efficiency > 0);
+    const { active, paused, relevant, status, efficiency } = computePlantaStats(mods);
     const ref = active[0] ?? paused[0] ?? mods[0];
-
-    const plantaStatus = active.length  ? 'ACTIVE'
-                       : paused.length  ? 'PAUSED'
-                       : 'INACTIVE';
 
     return {
       module_id: 0,
@@ -69,13 +63,11 @@ export class ModulePanel {
       started_at: '',
       is_active: active.length ? 1 : 0,
       is_pause: 0,
-      status: plantaStatus,
+      status,
       period_start: '',
       period_end: '',
       shift_id: 0,
-      efficiency: withEff.length
-        ? withEff.reduce((s, m) => s + m.efficiency, 0) / withEff.length
-        : 0,
+      efficiency,
       operator_count:     relevant.reduce((s, m) => s + (m.operator_count     ?? 0), 0),
       employees_snapshot: relevant.reduce((s, m) => s + (m.employees_snapshot ?? 0), 0),
       total_completed:    relevant.reduce((s, m) => s + (m.total_completed    ?? 0), 0),

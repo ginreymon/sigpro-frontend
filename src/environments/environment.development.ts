@@ -7,4 +7,5 @@ export const environment = {
   DAY_OPERATION_URL: 'production/day-operation',
   SHIFT_CYCLES_URL: 'production/shift-cycles',
   ORDER_DETAIL: 'production/order-detail',
+  MODULE_PANEL_URL: 'production/module-panel',
 };
