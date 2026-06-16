@@ -11,6 +11,7 @@ import { WorkSession } from '../../../models/production/work-session';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ShiftModalsService } from '../../../services/common/shift-modals-service';
+import { DialogService } from '../../../services/common/dialog-service';
 import { DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
 import { OrderInfoBar } from '../../elements/order-info-bar/order-info-bar';
@@ -38,6 +39,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   private loaderService = inject(LoaderService);
   private destroyRef = inject(DestroyRef);
   private shiftModals = inject(ShiftModalsService);
+  private dialogService = inject(DialogService);
   private settingEnabled = false;
   private keepOpenOnRegister = false;
 
@@ -146,6 +148,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
           this.isPaused.set(false);
           this.currentBreak.set(null);
           this.isOpen.set(true);
+          this.dialogService.openToast('No se pudo reanudar', 'Hubo un problema al intentar reanudar la actividad.', 'fail');
         },
       });
   }

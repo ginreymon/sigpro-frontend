@@ -9,6 +9,7 @@ import { finalize, map } from 'rxjs';
 import { WorkSessionActivityService } from '../../../services/production/work-session-activity-service';
 import { PausePayload, WorkBreakRecord } from '../../../models/production/work-break-record';
 import { LoaderService } from '../../../services/common/loader-service';
+import { DialogService } from '../../../services/common/dialog-service';
 import { UiIcon } from "../../elements/ui-icon/ui-icon";
 import { PauseModalService } from '../../../services/common/pause-modal-service';
 
@@ -22,6 +23,7 @@ export class PauseModal implements OnInit {
   private workBreakService = inject(WorkBreakService);
   private activityService = inject(WorkSessionActivityService);
   private loaderService = inject(LoaderService);
+  private dialogService = inject(DialogService);
   private pms = inject(PauseModalService);
 
   visible = input(false);
@@ -83,12 +85,15 @@ export class PauseModal implements OnInit {
     this.activityService.pause(activityId, payload)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
-        next: (pause) => {        
+        next: (pause) => {
           this.onPause.emit(pause);
           this.selectedBreak.set(null);
           this.isCustomSelected.set(false);
           this.customReason.set('');
           this.touched.set(false);
+        },
+        error: () => {
+          this.dialogService.openToast('No se pudo pausar', 'Hubo un problema al intentar pausar la actividad.', 'fail');
         },
       });
   }
