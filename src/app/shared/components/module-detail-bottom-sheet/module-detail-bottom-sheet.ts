@@ -11,11 +11,21 @@ import { ModuleEfficiencyRow } from '../../../models/production/module-efficienc
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { TableColumn } from '../../../common/interfaces/table-column';
+import { TableActions } from '../../../common/interfaces/table-actions';
+import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { efficiencyTextColor } from '../../../common/functions/efficiency-color';
+import { BalanceSummaryBottomSheet } from '../balance-summary-bottom-sheet/balance-summary-bottom-sheet';
+
+interface BalanceContext {
+  startDate: string;
+  endDate: string;
+  moduleId: number | undefined;
+  title: string;
+}
 
 @Component({
   selector: 'app-module-detail-bottom-sheet',
-  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe],
+  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe, BalanceSummaryBottomSheet],
   templateUrl: './module-detail-bottom-sheet.html',
 })
 export class ModuleDetailBottomSheet implements OnChanges {
@@ -32,9 +42,15 @@ export class ModuleDetailBottomSheet implements OnChanges {
   isLoading = signal(false);
   hasSearched = signal(false);
   rows = signal<ModuleEfficiencyRow[]>([]);
+  balanceContext = signal<BalanceContext | null>(null);
+  readonly balanceVisible = computed(() => !!this.balanceContext());
   private moduleId = signal<number | null>(null);
 
   readonly skeletonRows = Array(4).fill(0);
+
+  readonly tableActions: Partial<TableActions> = {
+    view: { enabled: true, title: 'Ver balance', iconName: 'eye', toolTip: 'Ver balance' },
+  };
 
   readonly pagedRows = computed(() => ({
     count: this.rows().length,
@@ -113,13 +129,14 @@ export class ModuleDetailBottomSheet implements OnChanges {
       this.rows.set([]);
       this.hasSearched.set(false);
       this.isLoading.set(false);
+      this.balanceContext.set(null);
       this.dateRangeForm?.form.reset();
     }
   }
 
   title(): string {
-    if (!this.module?.module_id) return 'PLANTA GENERAL';
-    return `MÓDULO ${this.module?.number} / ${this.module?.name.toLocaleUpperCase()}`;
+    if (!this.module?.module_id) return 'RESUMEN · PLANTA GENERAL';
+    return `RESUMEN · MÓDULO ${this.module?.number} / ${this.module?.name?.toUpperCase()}`;
   }
 
   onSearch(value: DateRangeValue): void {
@@ -138,6 +155,25 @@ export class ModuleDetailBottomSheet implements OnChanges {
       )),
       finalize(() => this.isLoading.set(false)),
     ).subscribe({ next: (data) => this.rows.set(data) });
+  }
+
+  handleAction(event: TableActionEvent<ModuleEfficiencyRow>): void {
+    if (event.type === 'view') this.openDetail(event.obj);
+  }
+
+  openDetail(row: ModuleEfficiencyRow): void {
+    this.balanceContext.set({
+      startDate: row.shift_start_utc,
+      endDate: row.ended_at ?? new Date().toISOString(),
+      moduleId: row.module_id || undefined,
+      title: row.module_id
+        ? `RESUMEN · MÓDULO ${row.module_number} / ${row.module_name?.toUpperCase()}`
+        : 'RESUMEN · PLANTA GENERAL',
+    });
+  }
+
+  closeBalance(): void {
+    this.balanceContext.set(null);
   }
 
   efficiencyClass(row: ModuleEfficiencyRow): string {

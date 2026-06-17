@@ -52,6 +52,18 @@ export class ProductivityService {
     );
   }
 
+  getBalanceSummary(p: ProductivityParams): Observable<PaginatedResponse<ProductivitySummaryRow>> {
+    let params = new HttpParams()
+      .set('start_date', p.startDate)
+      .set('end_date', p.endDate)
+      .set('client_now', p.clientNow ?? new Date().toISOString());
+    if (p.moduleId !== undefined) params = params.set('module_id', p.moduleId);
+
+    return this.http.get<ProductivitySummaryRow[]>(`${this.path}/balance-summary/`, { params }).pipe(
+      map(results => ({ count: results.length, next: null, previous: null, results }))
+    );
+  }
+
   getModuleShiftSummary(): Observable<ModuleEfficiencyStatus[]> {
     return this.http.get<ModuleEfficiencyStatus[]>(`${this.path}/module-shift-summary/`);
   }

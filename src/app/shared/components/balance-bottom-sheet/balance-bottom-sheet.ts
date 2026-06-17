@@ -65,7 +65,7 @@ export class BalanceBottomSheet {
     { field: 'sku_reference',     label: 'Referencia' },      
     { field: 'op_type',           label: 'Tipo Doc' },
     { field: 'op_number',         label: 'N° OP' },
-    { type: 'template', label: 'Hora Último Registro',  templateName: 'ultimoRegistroTemplate' },
+    { type: 'template', label: 'Último Registro',  templateName: 'ultimoRegistroTemplate' },
     { type: 'template', label: 'Cantidades',  templateName: 'cantidadesTemplate' },
     { type: 'template', label: '',            templateName: 'createUserTemplate', align: 'right' },
   ];
@@ -157,6 +157,12 @@ export class BalanceBottomSheet {
       moduleId: session.current_module?.id,
       shiftId: session.work_shift?.id,
     };
+  });
+
+  moduleTitle = computed(() => {
+    const mod = this.currentSession()?.current_module;
+    if (!mod) return 'BALANCE';
+    return `BALANCE · MÓDULO ${mod.number} / ${mod.name.toUpperCase()}`;
   });
 
   detailTitle = computed(() => {

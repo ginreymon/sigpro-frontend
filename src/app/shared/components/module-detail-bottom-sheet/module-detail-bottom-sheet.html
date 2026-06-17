@@ -1,9 +1,5 @@
 @if (module) {
-  <app-bottom-sheet-shell
-    [visible]="visible"
-    [title]="title()"
-    [fullscreen]="false"
-    (onClose)="close()">
+  <app-bottom-sheet-shell [visible]="visible" [title]="title()" [fullscreen]="false" (onClose)="close()">
 
     <div class="h-full flex flex-col overflow-hidden">
 
@@ -19,7 +15,7 @@
           <div class="space-y-3">
             <div class="h-7 skeleton rounded w-3/3 mb-2"></div>
             @for (row of skeletonRows; track $index) {
-              <div class="flex gap-3">               
+              <div class="flex gap-3">
                 <div class="h-4 skeleton rounded w-2/5"></div>
                 <div class="h-4 skeleton rounded w-1/6"></div>
                 <div class="h-4 skeleton rounded w-1/6"></div>
@@ -38,7 +34,8 @@
             [paginatedResponse]="pagedRows()"
             [columns]="columns()"
             [footer]="tableFooter()"
-            [actions]="{}"
+            [actions]="tableActions"
+            (onAction)="handleAction($event)"
             [showPager]="false"
             [showSearch]="false">
 
@@ -97,4 +94,13 @@
     </div>
 
   </app-bottom-sheet-shell>
+
+  <app-balance-summary-bottom-sheet
+    [visible]="balanceVisible()"
+    [title]="balanceContext()?.title ?? ''"
+    [startDate]="balanceContext()?.startDate ?? null"
+    [endDate]="balanceContext()?.endDate ?? null"
+    [moduleId]="balanceContext()?.moduleId"
+    (onClose)="closeBalance()">
+  </app-balance-summary-bottom-sheet>
 }
