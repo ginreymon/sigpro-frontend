@@ -17,8 +17,8 @@ export class WorkSessionService extends BaseCrudService<WorkSession> {
     return this.http.post(`${this.endpoint}${id}/close/`, {});
   }
 
-  rotateActivity(id: number, employeeIds: number[]): Observable<any> {
-    return this.http.post(`${this.endpoint}${id}/rotate/`, { employee_ids: employeeIds });
+  rotateActivity(id: number, employeeIds: number[], apprenticeIds: number[] = []): Observable<any> {
+    return this.http.post(`${this.endpoint}${id}/rotate/`, { employee_ids: employeeIds, apprentice_ids: apprenticeIds });
   }
 
   finalizeEditing(id: number): Observable<any> {

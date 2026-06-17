@@ -30,6 +30,7 @@ import { ShiftHourlyRecord } from '../../../shared/components/shift-hourly-recor
 import { ProductionContext } from '../../../models/production/production-context';
 import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
 import { parseSessionErrors } from '../../../common/functions/session-errors';
+import { EmployeesSavedData } from '../../../services/common/shift-modals-service';
 import { ShiftCyclesActions } from "../../../shared/components/shift-cycles-actions/shift-cycles-actions";
 import { PauseModal } from '../../../shared/components/pause-modal/pause-modal';
 import { ShiftModalsService } from '../../../services/common/shift-modals-service';
@@ -83,7 +84,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
     super.ngOnInit();
     this.shiftModals.employeesSaved$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(ids => this.updateEmployees(ids));
+      .subscribe(data => this.updateEmployees(data));
   }
 
   protected override beforeLoad(): void {
@@ -135,20 +136,32 @@ export class ShiftCycles extends BaseProductionOrderPage {
   }
 
   openEmployeesSnapshot(): void {
+    const snapshot = this.currentSession()?.employees_snapshot ?? [];
     this.shiftModals.openEmployees({
       employees: this.contextEmployees(),
-      preselectedIds: this.preselectedIds(),
+      preselectedIds: snapshot.map(e => e.id),
+      apprenticeIds: snapshot.filter(e => e.is_apprentice).map(e => e.id),
+      apprenticeEditable: true,
     });
   }
 
-  updateEmployees(ids: number[]) {
+  updateEmployees(data: EmployeesSavedData) {
     const sessionId = this.currentSession()?.id;
     if (!sessionId) return;
+    const headcount = data.ids.length;
+    const weighted = headcount - data.apprenticeIds.length * 0.5;
     this.loaderService.showLoader();
-    this.workSessionService.rotateActivity(sessionId, ids)
+    this.workSessionService.rotateActivity(sessionId, data.ids, data.apprenticeIds)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
-        next: () => this.refreshSession(),
+        next: () => {
+          this.refreshSession();
+          this.dialogService.openToast(
+            'Empleados actualizados',
+            `Encomendados: ${headcount} · Ponderado: ${weighted}`,
+            'check',
+          );
+        },
         error: (err) => {
           const messages = parseSessionErrors(err, 'Error al actualizar empleados.');
           this.dialogService.openToast('No se pudo actualizar', messages.join(' · '), 'fail');

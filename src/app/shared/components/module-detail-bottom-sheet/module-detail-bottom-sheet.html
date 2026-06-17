@@ -42,6 +42,10 @@
             [showPager]="false"
             [showSearch]="false">
 
+            <ng-template appTableTemplate="moduleNameTemplate" let-row>
+              <span class="font-medium text-slate-700">{{ row.module_name | uppercase }}</span>
+            </ng-template>
+
             <ng-template appTableTemplate="shiftStartTemplate" let-row>
               <span class="font-medium text-slate-700">
                 {{ row.shift_start_utc | date:'dd/MM/yyyy HH:mm' }}

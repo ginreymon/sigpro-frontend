@@ -160,5 +160,11 @@
 
 </app-work-space-layout>
 
-<app-employees-modal [employees]="employees()" [preselectedIds]="employeeIds?.value ?? []"  (onSave)="onEmployeesSaved($event)"></app-employees-modal>
+<app-employees-modal
+  [employees]="employees()"
+  [preselectedIds]="employeeIds?.value ?? []"
+  [apprenticeIds]="apprenticeIdsControl?.value ?? []"
+  [enableApprentice]="true"
+  (onSave)="onEmployeesSaved($event)">
+</app-employees-modal>
 }

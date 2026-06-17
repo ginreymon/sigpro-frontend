@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild, inject, signal, computed } from '@angular/core';
 import { finalize, switchMap } from 'rxjs';
-import { DecimalPipe, DatePipe, formatDate } from '@angular/common';
+import { DecimalPipe, DatePipe, formatDate, UpperCasePipe } from '@angular/common';
 import { BottomSheetShell } from '../bottom-sheet-shell/bottom-sheet-shell';
 import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { DataTable } from '../data-table/data-table';
@@ -15,7 +15,7 @@ import { efficiencyTextColor } from '../../../common/functions/efficiency-color'
 
 @Component({
   selector: 'app-module-detail-bottom-sheet',
-  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe],
+  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe],
   templateUrl: './module-detail-bottom-sheet.html',
 })
 export class ModuleDetailBottomSheet implements OnChanges {
@@ -46,7 +46,7 @@ export class ModuleDetailBottomSheet implements OnChanges {
   readonly columns = computed<TableColumn<ModuleEfficiencyRow>[]>(() => {
     const isGeneral = !this.moduleId();
     return [
-      ...(isGeneral ? [{ field: 'module_name' as const, label: 'Módulo' }] : []),
+      ...(isGeneral ? [{ type: 'template' as const, field: 'module_name' as const, label: 'Módulo', templateName: 'moduleNameTemplate' }] : []),
       { type: 'template' as const, label: 'Inicio jornada', templateName: 'shiftStartTemplate', field: 'shift_start_utc' as const },
       { type: 'template' as const, label: 'Fin jornada',    templateName: 'endedAtTemplate',    field: 'ended_at' as const },
       { field: 'total_registers' as const, label: 'Registros', align: 'center' as const },

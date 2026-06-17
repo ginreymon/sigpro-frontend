@@ -9,6 +9,7 @@ import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { SewingSamTable } from '../../../shared/elements/sewing-sam-table/sewing-sam-table';
 import { MaterialsTable } from '../../../shared/elements/materials-table/materials-table';
 import { environment } from '../../../../environments/environment';
+import { UnplannedShiftMessage } from "../../../layouts/messages/unplanned-shift-message/unplanned-shift-message";
 
 const ALL_TABS: TabItem[] = [
   { key: 'tab1', label: 'Orden OP' },
@@ -19,7 +20,7 @@ const SAM_TABS: TabItem[] = [{ key: 'tab3', label: 'SAM Confección' }];
 
 @Component({
   selector: 'app-order-detail',
-  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, ProductionOrdersTable, UiButton, SewingSamTable, MaterialsTable],
+  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, ProductionOrdersTable, UiButton, SewingSamTable, MaterialsTable, UnplannedShiftMessage],
   templateUrl: './order-detail.html',
   styleUrl: './order-detail.css',
 })
@@ -56,7 +57,11 @@ export class OrderDetail extends BaseProductionOrderPage {
         queryParams: { docType, docNumber },
       });
     } else {
-      this.router.navigate(['/', ...environment.DAY_OPERATION_URL.split('/')]);
+      this.goToDayOperation();
     }
+  }
+
+  goToDayOperation() {
+    this.router.navigate(['/', ...environment.DAY_OPERATION_URL.split('/')]);
   }
 }

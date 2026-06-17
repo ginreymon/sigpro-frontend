@@ -8,7 +8,11 @@
         [multiSelect]="true"
         [selectable]="!readOnly"
         [showSelectionBar]="true"
-        (onToggle)="toggle($event)">
+        [apprenticeIds]="currentApprenticeIds()"
+        [enableApprentice]="enableApprentice || apprenticeEditable"
+        [apprenticeEditable]="apprenticeEditable"
+        (onToggle)="toggle($event)"
+        (onToggleApprentice)="toggleApprentice($event)">
       </app-employee-picker>
     </div>
   </app-ui-form-field>

@@ -54,6 +54,8 @@
   [visible]="shiftModals.activeModal() === 'employees'"
   [employees]="shiftModals.employeesData()?.employees ?? []"
   [preselectedIds]="shiftModals.employeesData()?.preselectedIds ?? []"
+  [apprenticeIds]="shiftModals.employeesData()?.apprenticeIds ?? []"
+  [apprenticeEditable]="shiftModals.employeesData()?.apprenticeEditable ?? false"
   (onSave)="shiftModals.onEmployeesSaved($event)"
   (onClose)="shiftModals.close()"
 ></app-employees-modal>

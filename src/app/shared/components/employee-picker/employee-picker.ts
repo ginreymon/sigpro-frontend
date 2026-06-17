@@ -78,7 +78,10 @@ export class EmployeePicker {
   }
 
   toggle(id: number): void {
-    if (!this.selectable()) return;
+    if (!this.selectable()) {
+      if (this.apprenticeEditable()) this.onToggleApprentice.emit(id);
+      return;
+    }
     if (this.multiSelect()) {
       this.onToggle.emit(id);
     } else {
@@ -90,7 +93,8 @@ export class EmployeePicker {
     return this.apprenticeIds().includes(id);
   }
 
-  toggleApprentice(event: Event, id: number): void {   
+  toggleApprentice(event: Event, id: number): void {
+    if (!this.isSelected(id)) return;
     event.stopPropagation();
     this.onToggleApprentice.emit(id);
   }

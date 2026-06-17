@@ -17,6 +17,13 @@ export interface PauseModalData {
 export interface EmployeesModalData {
   employees: Employee[];
   preselectedIds: number[];
+  apprenticeIds?: number[];
+  apprenticeEditable?: boolean;
+}
+
+export interface EmployeesSavedData {
+  ids: number[];
+  apprenticeIds: number[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -27,7 +34,7 @@ export class ShiftModalsService {
   readonly employeesData = signal<EmployeesModalData | null>(null);
   readonly reloadBalanceTrigger = signal(0);
 
-  readonly employeesSaved$ = new Subject<number[]>();
+  readonly employeesSaved$ = new Subject<EmployeesSavedData>();
   readonly pauseSaved$ = new Subject<WorkBreakRecord>();
 
   /** Command bus: true = open, false = close, null = no override */
@@ -55,8 +62,8 @@ export class ShiftModalsService {
     this.activeModal.set('pause');
   }
 
-  onEmployeesSaved(ids: number[]): void {
-    this.employeesSaved$.next(ids);
+  onEmployeesSaved(data: EmployeesSavedData): void {
+    this.employeesSaved$.next(data);
     this.close();
   }
 

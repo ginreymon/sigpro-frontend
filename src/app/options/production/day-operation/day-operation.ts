@@ -17,7 +17,7 @@ import { WorkShiftService } from '../../../services/production/work-shift-servic
 import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { Employee } from '../../../models/production/employee';
-import { EmployeesModal } from '../../../shared/components/employees-modal/employees-modal';
+import { EmployeesModal, EmployeesSavePayload } from '../../../shared/components/employees-modal/employees-modal';
 import { EmployeePicker } from '../../../shared/components/employee-picker/employee-picker';
 import { ReactiveFormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
@@ -154,10 +154,9 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     this.dialogService.openModal('Empleados', 'Agregar');
   }
 
-  onEmployeesSaved(ids: number[]): void {
+  onEmployeesSaved({ ids, apprenticeIds }: EmployeesSavePayload): void {
     this.employeeIds?.setValue(ids);
-    const currentApprentices: number[] = this.apprenticeIdsControl?.value ?? [];
-    this.apprenticeIdsControl?.setValue(currentApprentices.filter((id) => ids.includes(id)));
+    this.apprenticeIdsControl?.setValue(apprenticeIds.filter((id) => ids.includes(id)));
     this.dialogService.closeModal();
   }
 

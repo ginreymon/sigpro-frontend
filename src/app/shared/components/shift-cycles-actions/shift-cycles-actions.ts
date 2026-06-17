@@ -93,11 +93,13 @@ export class ShiftCyclesActions {
 
   openEmployeesSnapshot(): void {
     const context = this.context();
+    const snapshot = context?.session?.employees_snapshot ?? [];
     const employees = (context?.employees ?? []).filter(
       e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!)
     );
-    const preselectedIds = context?.session?.employees_snapshot?.map(e => e.id) ?? [];
-    this.shiftModals.openEmployees({ employees, preselectedIds });
+    const preselectedIds = snapshot.map(e => e.id);
+    const apprenticeIds = snapshot.filter(e => e.is_apprentice).map(e => e.id);
+    this.shiftModals.openEmployees({ employees, preselectedIds, apprenticeIds, apprenticeEditable: true });
   }
 
   lastDelivery(): void {

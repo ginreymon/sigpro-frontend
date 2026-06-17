@@ -8,6 +8,11 @@ import { LoaderService } from '../../../services/common/loader-service';
 import { EmployeePicker } from '../employee-picker/employee-picker';
 import { finalize } from 'rxjs';
 
+export interface EmployeesSavePayload {
+  ids: number[];
+  apprenticeIds: number[];
+}
+
 @Component({
   selector: 'app-employees-modal',
   imports: [ModalLayout, UiErrorMessage, UiFormField, EmployeePicker],
@@ -19,7 +24,9 @@ export class EmployeesModal implements OnInit {
   @Input() readOnly: boolean = false;
   @Input() fetch: Boolean = false;
   @Input() allowedCostCenters: number[] | null = null;
-  @Output() onSave = new EventEmitter<number[]>();
+  @Input() enableApprentice: boolean = false;
+  @Input() apprenticeEditable: boolean = false;
+  @Output() onSave = new EventEmitter<EmployeesSavePayload>();
   @Output() onClose = new EventEmitter<void>();
 
   @ViewChild(EmployeePicker) private picker!: EmployeePicker;
@@ -35,12 +42,20 @@ export class EmployeesModal implements OnInit {
     this._employees.set(emps);
   }
 
+  @Input()
+  set apprenticeIds(ids: number[]) {
+    this._preselectedApprenticeIds = ids;
+    this.currentApprenticeIds.set(ids);
+  }
+
   private _employees   = signal<Employee[]>([]);
   private _preselectedIds: number[] = [];
+  private _preselectedApprenticeIds: number[] = [];
   private employeeService = inject(EmployeeService);
   private loaderService   = inject(LoaderService);
 
   protected selectedIds = signal<number[]>([]);
+  protected currentApprenticeIds = signal<number[]>([]);
   protected attempted   = signal(false);
 
   protected sortedEmployees = computed(() =>
@@ -73,6 +88,15 @@ export class EmployeesModal implements OnInit {
     this.selectedIds.update((ids) =>
       ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
     );
+    if (!this.selectedIds().includes(id)) {
+      this.currentApprenticeIds.update((ids) => ids.filter((x) => x !== id));
+    }
+  }
+
+  toggleApprentice(id: number): void {
+    this.currentApprenticeIds.update((ids) =>
+      ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
+    );
   }
 
   save(): void {
@@ -80,13 +104,14 @@ export class EmployeesModal implements OnInit {
       this.attempted.set(true);
       return;
     }
-    this.onSave.emit(this.selectedIds());
+    this.onSave.emit({ ids: this.selectedIds(), apprenticeIds: this.currentApprenticeIds() });
     this.onClose.emit();
     this.reset();
   }
 
   cancel(): void {
     this.selectedIds.set([...this._preselectedIds]);
+    this.currentApprenticeIds.set([...this._preselectedApprenticeIds]);
     this.onClose.emit();
     this.reset();
   }
