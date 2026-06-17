@@ -26,7 +26,7 @@ export class EmployeePicker {
   emptyMessage     = input('Sin empleados disponibles');
 
   apprenticeIds       = input<number[]>([]);
-  enableApprentice    = input(false);
+  showApprenticeStatus = input(false);
   apprenticeEditable  = input(false);
 
   onSelect            = output<number>();

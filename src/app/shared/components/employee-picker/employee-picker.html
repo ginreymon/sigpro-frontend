@@ -28,21 +28,24 @@
           </p>
         </div>
         <div class="flex items-center justify-center gap-3">
-          @if (enableApprentice()) {
-            <app-ui-tooltip [message]="apprenticeEditable() ? 'Afecta las métricas de producción' : ''" [tooltip]="'left'">
+          @if (apprenticeEditable()) {
+            <app-ui-tooltip [message]="isSelected(emp.id) ? `Peso: ${isApprentice(emp.id)?'0.5':'1'}` : ''" [tooltip]="'left'">
               <button
                 type="button"
                 (click)="toggleApprentice($event, emp.id)"
-                [disabled]="!apprenticeEditable()"
+                [disabled]="!isSelected(emp.id)"
                 class="text-xs px-1.5 py-0.5 rounded border transition-all duration-200 font-medium"
                 [class]="isApprentice(emp.id)
                   ? 'bg-red-100 border-red-400 text-red-700'
                   : 'bg-gray-100 border-gray-300 text-gray-400'"
                 [class.cursor-pointer]="apprenticeEditable()"
-                [class.opacity-60]="!apprenticeEditable()">
+                >
                 Aprendiz
               </button>
             </app-ui-tooltip>
+          }
+          @if(!apprenticeEditable() && showApprenticeStatus() && isApprentice(emp.id)){
+            <span class="text-xs px-1.5 py-0.5 rounded border font-medium bg-red-100 border-red-400 text-red-700">Aprendiz</span>
           }
           @if (deletable()) {
             <app-ui-tooltip [message]="'Sacar de la lista'" [tooltip]="'left'">

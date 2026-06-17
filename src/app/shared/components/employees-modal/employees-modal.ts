@@ -24,7 +24,7 @@ export class EmployeesModal implements OnInit {
   @Input() readOnly: boolean = false;
   @Input() fetch: Boolean = false;
   @Input() allowedCostCenters: number[] | null = null;
-  @Input() enableApprentice: boolean = false;
+  @Input() showApprenticeStatus: boolean = false;
   @Input() apprenticeEditable: boolean = false;
   @Output() onSave = new EventEmitter<EmployeesSavePayload>();
   @Output() onClose = new EventEmitter<void>();

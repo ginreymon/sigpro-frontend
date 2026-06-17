@@ -147,8 +147,8 @@
             <app-employee-picker
                 [employees]="assignedEmployees"
                 [deletable]="!currentSession()"
-                [enableApprentice]="true"
-                [apprenticeEditable]="!currentSession()"
+                [showApprenticeStatus]="true"
+                [apprenticeEditable]="false"
                 [apprenticeIds]="apprenticeIdsControl?.value ?? []"
                 emptyMessage="Sin encomendados agregados"
                 (onDelete)="deleteEmployee($event)"
@@ -164,7 +164,7 @@
   [employees]="employees()"
   [preselectedIds]="employeeIds?.value ?? []"
   [apprenticeIds]="apprenticeIdsControl?.value ?? []"
-  [enableApprentice]="true"
+  [apprenticeEditable]="true"
   (onSave)="onEmployeesSaved($event)">
 </app-employees-modal>
 }

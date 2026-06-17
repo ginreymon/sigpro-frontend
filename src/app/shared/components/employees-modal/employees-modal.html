@@ -9,7 +9,7 @@
         [selectable]="!readOnly"
         [showSelectionBar]="true"
         [apprenticeIds]="currentApprenticeIds()"
-        [enableApprentice]="enableApprentice || apprenticeEditable"
+        [showApprenticeStatus]="showApprenticeStatus || apprenticeEditable"
         [apprenticeEditable]="apprenticeEditable"
         (onToggle)="toggle($event)"
         (onToggleApprentice)="toggleApprentice($event)">
