@@ -38,7 +38,7 @@ import { ProductionRecordContext } from '../../../models/production/production-r
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, BalanceBottomSheet, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, FinalizeShiftMessage, ShiftCyclesActions],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, BalanceBottomSheet, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, QuantityModal, UnplannedShiftMessage, ShiftCyclesActions],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
