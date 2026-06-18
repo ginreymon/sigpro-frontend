@@ -1,6 +1,8 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 import { UiTooltip } from "../../elements/ui-tooltip/ui-tooltip";
 import { UiButton } from "../../elements/ui-button/ui-button";
 import { UiIcon } from "../../elements/ui-icon/ui-icon";
@@ -32,12 +34,15 @@ export class ShiftCyclesActions {
   @Input() mode: ShiftCyclesActionsMode = 'icon';
   @Input() inWindow: boolean = false;
   @Output() onFinalize = new EventEmitter<void>();
+  @Input() hideMaterials: boolean = true;
+  @Input() hideOp: boolean = true;
 
   private shiftModals = inject(ShiftModalsService);
   private contextService = inject(ProductionContextService);
   private workSessionService = inject(WorkSessionService);
   private loaderService = inject(LoaderService);
   private dialogService = inject(DialogService);
+  private router = inject(Router);
 
   private readonly ALLOWED_COST_CENTERS = [110, 103];
   private context = toSignal(this.contextService.context$, { initialValue: null });
@@ -74,7 +79,35 @@ export class ShiftCyclesActions {
       handler: () => this.openPauses(),
       hideWhen: () => this.finalizeDay,
     },
+    {
+      icon: 'file',
+      label: '',
+      tooltip: 'Materiales / SAM',
+      iconIntent: 'action',
+      handler: () => this.showMaterials(),
+      hideWhen: () => this.hideMaterials
+    },
+    {
+      icon: 'magnifyingGlass',
+      label: '',
+      tooltip: 'Cambiar OP',
+      iconIntent: 'action',
+      handler: () => this.goToSearch(),
+      hideWhen: () => this.hideOp,
+    },
   ];
+
+  private goToSearch(): void {
+    this.router.navigate([], { queryParams: {} });
+  }
+
+  private showMaterials(): void {
+    const order = this.context()?.order;
+    if (!order) return;
+    this.router.navigate(['/', ...environment.ORDER_DETAIL.split('/')], {
+      queryParams: { docType: order.documentType, docNumber: order.documentNumber },
+    });
+  }
 
   openBalance(): void {
     const session = this.context()?.session ?? null;
