@@ -26,6 +26,7 @@ export class BalanceSummaryBottomSheet implements OnChanges {
   @Output() onClose = new EventEmitter<void>();
 
   isLoading = signal(false);
+  hasSearched = signal(false);
   paginatedResponse = signal<PaginatedResponse<ProductivitySummaryRow> | null>(null);
   private allResults: ProductivitySummaryRow[] = [];
 
@@ -53,6 +54,7 @@ export class BalanceSummaryBottomSheet implements OnChanges {
       if (!changes['visible'].currentValue) {
         this.paginatedResponse.set(null);
         this.allResults = [];
+        this.hasSearched.set(false);
       }
     }
   }
@@ -60,6 +62,7 @@ export class BalanceSummaryBottomSheet implements OnChanges {
   private loadData(): void {
     if (!this.startDate || !this.endDate) return;
     this.isLoading.set(true);
+    this.hasSearched.set(false);
     this.paginatedResponse.set(null);
     this.appConfig.load().pipe(
       switchMap(() => this.productivityService.getBalanceSummary({
@@ -84,6 +87,7 @@ export class BalanceSummaryBottomSheet implements OnChanges {
 
   onSearch(query: string): void {
     const q = query.trim().toLowerCase();
+    this.hasSearched.set(q.length > 0);
     const filtered = q
       ? this.allResults.filter(r =>
           [r.module_name, r.op_type, r.op_number, r.sku_reference, r.sku_color, r.sku_size]

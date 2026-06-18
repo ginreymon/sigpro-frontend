@@ -37,6 +37,7 @@ export class BalanceBottomSheet {
   currentSession = input<WorkSession | null>(null);
 
   isLoading = signal(false);
+  hasSearched = signal(false);
   paginatedResponse = signal<PaginatedResponse<ProductivitySummaryRow> | null>(null);
   selectedRow = signal<ProductivitySummaryRow | null>(null);
   detailResults = signal<ProductionRecordContext[]>([]);
@@ -85,6 +86,7 @@ export class BalanceBottomSheet {
 
   private loadData(): void {
     this.isLoading.set(true);
+    this.hasSearched.set(false);
     this.paginatedResponse.set(null);
     this.appConfig.load().pipe(
       switchMap(() => this.productivityService.getShiftSummary({
@@ -117,6 +119,7 @@ export class BalanceBottomSheet {
 
   onSearch(query: string): void {
     const q = query.trim().toLowerCase();
+    this.hasSearched.set(q.length > 0);
     const filtered = q
       ? this.allResults.filter(r =>
           [r.op_type, r.op_number, r.sku_reference, r.sku_color, r.sku_size]

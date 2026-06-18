@@ -11,7 +11,7 @@
         </div>
       }
     </div>
-  } @else if (!paginatedResponse()?.results?.length) {
+  } @else if (!paginatedResponse()?.results?.length && !hasSearched()) {
     <div class="flex flex-col items-center justify-center h-full gap-3 text-gray-300 py-6">
       <app-ui-icon [iconName]="'chartArea'" class="h-12 w-12"></app-ui-icon>
       <p class="text-sm text-gray-400">Sin registros para el período</p>
