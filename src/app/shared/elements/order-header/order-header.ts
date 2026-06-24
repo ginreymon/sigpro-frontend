@@ -15,11 +15,11 @@ export class OrderHeader {
     if (!doc) return [];
     return [
       { title: 'OP', data: `${doc.documentType} ${doc.documentNumber}` },
-      { title: 'Referencia', data: doc.reference },
-      { title: 'Tipo de Confección', data: doc.classification.manufacture },
-      { title: 'Tipo de Estampación', data: doc.classification.print },
-      { title: 'Marca/Línea', data: `${doc.classification.brand}/${doc.classification.line}` },
-      { title: 'Clasifi. Comercial', data: doc.classification.commercial },
+      { title: 'Referencia', data: doc.reference ?? '' },
+      { title: 'Tipo de Confección', data: doc.classification?.manufacture ?? '' },
+      { title: 'Tipo de Estampación', data: doc.classification?.print ?? '' },
+      { title: 'Marca/Línea', data: `${doc.classification?.brand ?? ''}/${doc.classification?.line ?? ''}` },
+      { title: 'Clasifi. Comercial', data: doc.classification?.commercial ?? '' },
     ];
   });
 }
