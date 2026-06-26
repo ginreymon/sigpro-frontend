@@ -1,5 +1,12 @@
 <div class="my-4 border-t border-slate-200 pt-4">
 
+    @if (loading) {
+      <div class="flex items-center gap-2 text-sm text-slate-400">
+        <div class="h-4 w-4 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin"></div>
+        Cargando información de auditoría...
+      </div>
+    } @else {
+
     <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información de auditoría </h4>
 
     <div class="space-y-2 text-sm text-slate-600">
@@ -7,7 +14,7 @@
         <p> <strong>ID:</strong> {{ rowObject?.id }} </p>
 
         @if(rowObject?.rowid){
-        <p> <strong>ID Siesa:</strong> {{ rowObject?.rowid }} </p>
+        <p> <strong>{{`ID ${external?'fuente':'Siesa'}:`}}</strong> {{ rowObject?.rowid }} </p>
         }
 
         <p> <strong>Creado:</strong> {{ rowObject?.created_at | date:'dd/MM/yyyy HH:mm' }} </p>
@@ -23,7 +30,7 @@
         }
 
         @if(rowObject?.rowid){
-        <p> <strong>Eliminado Siesa:</strong> {{ rowObject?.is_deleted ? 'Sí' : 'No' }} </p>
+        <p> <strong>{{`Eliminado ${external?'fuente':'Siesa'}:`}}</strong> {{ rowObject?.is_deleted ? 'Sí' : 'No' }} </p>
         }
 
         @if(rowObject?.rowid && rowObject?.deleted_at){
@@ -31,4 +38,5 @@
         }
 
     </div>
+    }
 </div>

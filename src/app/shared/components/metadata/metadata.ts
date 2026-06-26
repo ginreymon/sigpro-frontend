@@ -11,4 +11,6 @@ import { DatePipe } from '@angular/common';
 export class Metadata {
   @Input() rowObject: Partial<AuditEntity> | undefined = undefined;
   @Input() showIsActive: boolean = false;
+  @Input() external: boolean = false;
+  @Input() loading: boolean = false;
 }

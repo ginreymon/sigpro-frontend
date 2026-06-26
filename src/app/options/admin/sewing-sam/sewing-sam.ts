@@ -7,6 +7,7 @@ import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableToolsButtons } from '../../../common/interfaces/table-tools-buttons';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
+import { ReferenceSam } from '../../../models/production/reference-sam';
 import { SkuItemReference } from '../../../models/production/sku-item-reference';
 import { ReferenceSamService } from '../../../services/production/reference-sam-service';
 import { SkuItemReferenceService } from '../../../services/production/sku-item-reference-service';
@@ -18,16 +19,19 @@ import { TableTemplate } from '../../../directives/table-template';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
+import { Metadata } from "../../../shared/components/metadata/metadata";
 
 @Component({
   selector: 'app-sewing-sam',
-  imports: [ WorkSpaceLayout, DataTable, ModalLayout, SideModalLayout, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, TableTemplate, CharSquare, ],
+  imports: [WorkSpaceLayout, DataTable, ModalLayout, SideModalLayout, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, TableTemplate, CharSquare, Metadata],
   templateUrl: './sewing-sam.html',
   styleUrl: './sewing-sam.css',
 })
 export class SewingSAM extends BaseCrudPage<SkuItemReference> {
   protected override entityName: string = 'SAM';
 
+  samRecord = signal<Partial<ReferenceSam>>({});
+  samRecordLoading = signal<boolean>(false);
   openSam = signal<{ id: number; value: string; style: Record<string, string> } | null>(null);
   samIntervalo = signal<number>(60);
   samOperarios = signal<number>(1);
@@ -130,6 +134,13 @@ export class SewingSAM extends BaseCrudPage<SkuItemReference> {
 
     if (event.type === 'view') {
       this.actionType = event.type;
+      this.samRecord.set({});
+      if (event.obj.sam_id) {
+        this.samRecordLoading.set(true);
+        this.referenceSamService.getById(event.obj.sam_id).pipe(finalize(() => this.samRecordLoading.set(false))).subscribe({
+          next: (data) => this.samRecord.set(data),
+        });
+      }
       this.dialogService.openSideModal('Ver Referencia', 'Cerrar');
     }
 

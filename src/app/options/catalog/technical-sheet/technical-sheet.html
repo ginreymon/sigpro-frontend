@@ -1,0 +1,84 @@
+<app-work-space-layout>
+  <div main-content class="h-full">
+    <app-data-table
+      [paginatedResponse]="paginatedResponse()"
+      [columns]="columns"
+      (onPagerChange)="pagerHandler($event)"
+      (onSearch)="searchHandler($event)"
+      [actions]="actions"
+      (onAction)="actionHandler($event)"
+      [tableToolsButtons]="tableToolsButtons">
+
+      <ng-template appTableTemplate="createdAtTemplate" let-row>
+        {{ row.created_at | date:'dd/MM/yyyy' }}
+      </ng-template>
+
+      <ng-template appTableTemplate="statusTemplate" let-row>
+        <app-ui-badge
+          [active]="!!(row.status_name?.toLowerCase().includes('elaboracion') || row.status_name?.toLowerCase().includes('elaboración'))"
+          [activeText]="(row.status_name ?? '') | titlecase"
+          [inactiveText]="(row.status_name ?? '—') | titlecase">
+        </app-ui-badge>
+      </ng-template>
+
+    </app-data-table>
+  </div>
+</app-work-space-layout>
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+
+  <div class="mb-4 flex items-center gap-4">
+    <app-ui-tooltip [message]="'Referencia'" [tooltip]="'right'" class="cursor-default">
+      <app-char-square>
+        {{ sheet.reference?.[0] }}
+      </app-char-square>
+    </app-ui-tooltip>
+
+    <div>
+      <h3 class="text-2xl font-semibold text-slate-900">
+        {{ sheet.reference }}
+      </h3>
+      <p class="text-sm text-slate-500 mb-0.5">{{ sheet.sku_info?.line }}</p>
+      <p class="text-sm text-slate-500">{{ sheet.description }}</p>
+    </div>
+  </div>
+
+  <div class="border-t border-slate-200 pt-4 space-y-2 text-sm">
+
+    <p><strong>Marca:</strong> {{ sheet.brand || '—' }}</p>
+
+    <p><strong>Línea:</strong> {{ sheet.sku_info?.line || '—' }}</p>
+
+    <p><strong>Colección:</strong> {{ sheet.collection || '—' }} / {{ sheet.collection_local_name || '—' }}</p>
+
+    <p><strong>Grupo:</strong> {{ sheet.sku_info?.group || '—' }}</p>
+
+    <p><strong>Subgrupo:</strong> {{ sheet.sku_info?.subgroup || '—' }}</p>
+
+    <p><strong>Clasificación:</strong> {{ sheet.sku_info?.classification || '—' }}</p>
+
+    <p><strong>Confección:</strong> {{ sheet.sku_info?.sewing || '—' }}</p>
+
+    <p><strong>Estampado:</strong> {{ sheet.sku_info?.print_design || '—' }}</p>
+
+    <p><strong>Mundo:</strong> {{ sheet.sku_info?.world || '—' }}</p>
+
+    <p><strong>Bodega tela:</strong> {{ sheet.fabric_warehouse || '—' }}</p>
+
+    <p><strong>Bodega principal:</strong> {{ sheet.warehouse || '—' }}</p>
+
+    <p><strong>Versión:</strong> {{ sheet.sheet_version || '—' }}</p>
+
+    <p><strong>Posición arancelaria:</strong> {{ sheet.tariff_code || '—' }}</p>
+
+    <p><strong>Tallas:</strong> {{ sheet.sizes?.join(', ') || '—' }}</p>
+
+    <p><strong>Colores:</strong> {{ sheet.colors || '—' }}</p>
+
+    <p><strong>Estado:</strong> {{ (sheet.status_name ?? '') | titlecase }}</p>
+
+    <app-metadata [rowObject]="rowObject" [external]="true"></app-metadata>
+
+  </div>
+ 
+</app-side-modal-layout>

@@ -11,6 +11,7 @@ import { AppSettings } from '../options/configuration/app-settings/app-settings'
 import { ModulePanel } from '../options/production/module-panel/module-panel';
 import { OrderDetail } from '../options/production/order-detail/order-detail';
 import { DataExport } from '../options/production/data-export/data-export';
+import { TechnicalSheetPage } from '../options/catalog/technical-sheet/technical-sheet';
 
 export const componentMap: Record<string, Type<any>> = {
   'admin/roles': Roles,
@@ -25,4 +26,5 @@ export const componentMap: Record<string, Type<any>> = {
   'production/module-panel': ModulePanel,
   'production/order-detail': OrderDetail,
   'configuration/app-settings': AppSettings,
+  'catalog/technical-sheet': TechnicalSheetPage,
 };
