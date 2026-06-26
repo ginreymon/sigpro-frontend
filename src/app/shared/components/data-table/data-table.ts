@@ -118,6 +118,10 @@ export class DataTable<T> {
 
   readonly actionKeys: TableActionType[] = ['view', 'edit', 'delete'];
 
+  get visibleColumnCount(): number {
+    return this._columns.filter(c => !c.hidden).length;
+  }
+
   get totalItems(): number {
     return this._paginatedResponse?.count ?? 0;
   }

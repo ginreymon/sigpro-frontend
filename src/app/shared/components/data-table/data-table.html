@@ -73,6 +73,15 @@
                         }
                     }
                 </tr>
+                } @empty {
+                <tr>
+                    <td [attr.colspan]="visibleColumnCount">
+                        <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
+                            <app-ui-icon [iconName]="'magnifyingGlass'" class="h-12 w-12"></app-ui-icon>
+                            <p class="text-sm text-gray-400 font-normal">No hay registros para mostrar</p>
+                        </div>
+                    </td>
+                </tr>
                 }
             </tbody>
 
