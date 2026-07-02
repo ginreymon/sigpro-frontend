@@ -1,0 +1,32 @@
+export interface SkuReferenceInfo {
+  rowid_item: number;
+  reference: string;
+  description: string;
+  sizes: string | null;
+  colors: string | null;
+  inv_type: string;
+  inventory_unit: string;
+  order_unit: string;
+  packing_unit: string;
+  replenishment_time: number;
+  lot_size: number;
+  safety_stock: number;
+  status: string;
+  sku_status: string;
+  cost: number;
+  suggested_price: number;
+  brand: string;
+  line: string;
+  group: string;
+  subgroup: string;
+  classification: string;
+  sewing: string;
+  print_design: string;
+  license: string;
+  collection: string;
+  world: string;
+  channel: string;
+  promotion: string;
+  priority: number;
+  pieces_per_set: number;
+}

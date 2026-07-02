@@ -12,6 +12,7 @@ export interface TechnicalSheet extends AuditEntity {
   operational_route: string | null;
   warehouse: string | null;
   fabric_warehouse: string | null;
+  collection_rowid: number | null;
   sku_info: SkuInfo | null;
   sizes: string[] | null;
   // flattened from sku_info for table display

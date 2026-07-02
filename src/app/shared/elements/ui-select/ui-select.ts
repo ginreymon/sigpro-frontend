@@ -31,10 +31,11 @@ export class UiSelect extends BaseControlValueAccessor<any> {
   @Output() onSelect = new EventEmitter<{ index: number; value: any }>();
 
   get items() {
+    if (this.keyValue && this.key) {
+      return this._items.map((item) => item[this.keyValue!]);
+    }
     if (this.key) {
-      return this._items.map((item) => {
-        return item[this.key!];
-      });
+      return this._items.map((item) => item[this.key!]);
     }
     return this._items;
   }
