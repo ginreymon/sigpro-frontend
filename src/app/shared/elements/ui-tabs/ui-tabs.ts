@@ -3,6 +3,7 @@ import { Component, Input, Output, EventEmitter, signal, OnChanges, SimpleChange
 export interface TabItem {
   key: string;
   label: string;
+  disabled?: boolean;
 }
 
 @Component({
@@ -27,6 +28,7 @@ export class UiTabs implements OnChanges {
   }
 
   setTab(key: string) {
+    if (this.tabs.find((tab) => tab.key === key)?.disabled) return;
     this.activeTab.set(key);
     this.tabChange.emit(key);
   }

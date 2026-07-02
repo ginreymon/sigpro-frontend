@@ -7,20 +7,16 @@
     </app-ui-form-field>
 
     @if (referenceInfo(); as info) {
-      <div class="text-sm grid grid-cols-1 gap-4 mb-4">
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <app-ui-form-field [controlName]="'collectionId'" [label]="'Colección'">
+          <app-ui-select [className]="'w-full'" formControlName="collectionId" [id]="'collectionId'" [control]="collection" [items]="collections()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+        </app-ui-form-field>
 
-        <div class="grid grid-cols-2 gap-4">
-          <app-ui-form-field [controlName]="'collectionId'" [label]="'Colección'">
-            <app-ui-select [className]="'w-full'" formControlName="collectionId" [id]="'collectionId'" [control]="collection" [items]="collections()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-          </app-ui-form-field>
-
-          <app-ui-form-field [controlName]="'statusId'" [label]="'Estado'">
-            <app-ui-select [className]="'min-w-full'" formControlName="statusId" [id]="'statusId'" [control]="status" [items]="statuses()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-          </app-ui-form-field>
-        </div>       
-
-      </div> 
-      
+        <app-ui-form-field [controlName]="'statusId'" [label]="'Estado'">
+          <app-ui-select [className]="'min-w-full'" formControlName="statusId" [id]="'statusId'" [control]="status" [items]="statuses()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+        </app-ui-form-field>
+      </div>     
+     
       <div class="border-t border-slate-300 pt-4 space-y-2 text-sm">
         <p><strong>Marca:</strong> {{ info.brand || '—' }}</p>
         <p><strong>Línea:</strong> {{ info?.line || '—' }}</p>  

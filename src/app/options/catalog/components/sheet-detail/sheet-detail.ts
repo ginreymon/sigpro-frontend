@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { ControlContainer, FormControl, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, finalize } from 'rxjs';
 import { SheetMeasurement } from '../../../../models/catalog/sheet-measurement';
@@ -36,8 +36,22 @@ export class SheetDetail implements OnInit {
   @Input() measurements: SheetMeasurement[] = [];
   @Input() elasticCuts: SheetElasticCut[]   = [];
 
-  tabs = signal<TabItem[]>(TABS);
   activeTab = signal('general');
+
+  tabs = computed<TabItem[]>(() => {
+    const hasReference = !!this.referenceInfo();
+    const measurementTabsDisabled = !this.referenceInfo()?.sizes?.trim();
+
+    return TABS.map((tab) => {
+      if (tab.key === 'measurements' || tab.key === 'elasticCuts') {
+        return { ...tab, disabled: measurementTabsDisabled };
+      }
+      if (tab.key === 'pieces' || tab.key === 'images') {
+        return { ...tab, disabled: !hasReference };
+      }
+      return tab;
+    });
+  });
 
   references = signal<Reference[]>([]);
   collections = signal<Collection[]>([]);
