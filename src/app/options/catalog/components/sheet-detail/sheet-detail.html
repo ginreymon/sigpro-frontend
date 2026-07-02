@@ -1,28 +1,84 @@
-<app-ui-form-field [controlName]="'referenceId'" [label]="'Referencia'">
-  <app-ui-select [className]="'w-full'" formControlName="referenceId" [id]="'referenceId'" [control]="reference" [items]="references()" [key]="'reference'" [keyValue]="'id'" [showDefaultOption]="true" (onSelect)="onReferenceSelect($event)"></app-ui-select>
-</app-ui-form-field>
+<app-ui-tabs [tabs]="tabs()" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
 
-@if (referenceInfo(); as info) {
-  <div class="grid grid-cols-2 gap-4">
-    <app-ui-form-field [controlName]="''" [label]="'Descripción'">
-      <input type="text" [value]="info.description || '—'" readonly
-        class="w-full h-8 px-4 text-sm rounded border border-gray-300 bg-gray-50 outline-none" />
+@if (activeTab() === 'general') {
+  <div class="mt-4">
+    <app-ui-form-field [controlName]="'referenceId'" [label]="'Referencia'">
+      <app-ui-select [className]="'w-full'" formControlName="referenceId" [id]="'referenceId'" [control]="reference" [items]="references()" [key]="'reference'" [keyValue]="'id'" [showDefaultOption]="true" (onSelect)="onReferenceSelect($event)"></app-ui-select>
     </app-ui-form-field>
 
-    <app-ui-form-field [controlName]="''" [label]="'Tallas'">
-      <input type="text" [value]="info.sizes || '—'" readonly
-        class="w-full h-8 px-4 text-sm rounded border border-gray-300 bg-gray-50 outline-none" />
-    </app-ui-form-field>
+    @if (referenceInfo(); as info) {
+      <div class="text-sm grid grid-cols-1 gap-4 mb-4">
+
+        <div class="grid grid-cols-2 gap-4">
+          <app-ui-form-field [controlName]="'collectionId'" [label]="'Colección'">
+            <app-ui-select [className]="'w-full'" formControlName="collectionId" [id]="'collectionId'" [control]="collection" [items]="collections()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+          </app-ui-form-field>
+
+          <app-ui-form-field [controlName]="'statusId'" [label]="'Estado'">
+            <app-ui-select [className]="'min-w-full'" formControlName="statusId" [id]="'statusId'" [control]="status" [items]="statuses()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+          </app-ui-form-field>
+        </div>       
+
+      </div> 
+      
+      <div class="border-t border-slate-300 pt-4 space-y-2 text-sm">
+        <p><strong>Marca:</strong> {{ info.brand || '—' }}</p>
+        <p><strong>Línea:</strong> {{ info?.line || '—' }}</p>  
+        <p><strong>Colección:</strong> {{ info.collection || '—' }} {{ selectedCollectionName()? `/ ${selectedCollectionName()}`:'' }} </p>
+        <p><strong>Grupo:</strong> {{ info?.group || '—' }}</p>
+        <p><strong>Subgrupo:</strong> {{ info?.subgroup || '—' }}</p>
+        <p><strong>Clasificación:</strong> {{ info?.classification || '—' }}</p>
+        <p><strong>Confección:</strong> {{ info?.sewing || '—' }}</p>
+        <p><strong>Estampado:</strong> {{ info?.print_design || '—' }}</p>
+        <p><strong>Mundo:</strong> {{ info?.world || '—' }}</p>
+        <p><strong>Tallas:</strong> {{ info.sizes || '—' }}</p>
+        <p><strong>Estado SKU:</strong> {{ info.sku_status || '—' }}</p>
+        <p><strong>Prioridad:</strong> {{ info.priority || '' }}</p>
+        <p><strong>Descripción:</strong> {{ info.description || '—' }}</p>
+        <p><strong>Colores:</strong> {{ info.colors || '—' }}</p>
+      </div>
+    }   
   </div>
 }
 
-<div class="grid grid-cols-2 gap-4">
-  <app-ui-form-field [controlName]="'collectionId'" [label]="'Colección'">
-    <app-ui-select [className]="'w-full'" formControlName="collectionId" [id]="'collectionId'" [control]="collection" [items]="collections()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-  </app-ui-form-field>
+@if (activeTab() === 'measurements'){
+  <div class="flex flex-col items-start justify-start gap-3 text-gray-300 py-4"> 
+    <div class="w-full">
+      <app-ui-button [intent]="'action'" (onClick)="openMeasures()">
+        <app-ui-icon [iconName]="'circlePlus'" class="h-5 w-5"></app-ui-icon>
+        Agregar Medida
+      </app-ui-button>  
+    </div>
+    <div class="w-full">
 
-  <app-ui-form-field [controlName]="'statusId'" [label]="'Estado'">
-    <app-ui-select [className]="'min-w-full'" formControlName="statusId" [id]="'statusId'" [control]="status" [items]="statuses()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-  </app-ui-form-field>
-</div>
+    </div>    
+  </div>
+}
 
+@if (activeTab() === 'elasticCuts'){
+  <div class="flex flex-col items-start justify-start gap-3 text-gray-300 py-4"> 
+    <div class="w-full">
+      <app-ui-button [intent]="'action'" (onClick)="openElasticMeasures()">
+        <app-ui-icon [iconName]="'circlePlus'" class="h-5 w-5"></app-ui-icon>
+        Agregar Corte
+      </app-ui-button>  
+    </div>
+    <div class="w-full">
+
+    </div>    
+  </div>
+}
+
+@if (activeTab() === 'pieces') {
+  <div class="flex flex-col items-center justify-center gap-3 text-gray-300 py-10">
+    <app-ui-icon [iconName]="'file'" class="h-16 w-16"></app-ui-icon>
+    <p class="text-sm text-gray-400">Despiece no disponible todavía.</p>
+  </div>
+}
+
+@if (activeTab() === 'images') {
+  <div class="flex flex-col items-center justify-center gap-3 text-gray-300 py-10">
+    <app-ui-icon [iconName]="'file'" class="h-16 w-16"></app-ui-icon>
+    <p class="text-sm text-gray-400">Imágenes del producto no disponibles todavía.</p>
+  </div>
+}
