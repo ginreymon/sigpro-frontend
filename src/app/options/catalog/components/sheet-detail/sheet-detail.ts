@@ -17,6 +17,7 @@ import { UiSelect } from "../../../../shared/elements/ui-select/ui-select";
 import { UiTabs, TabItem } from '../../../../shared/elements/ui-tabs/ui-tabs';
 import { UiIcon } from '../../../../shared/elements/ui-icon/ui-icon';
 import { UiButton } from "../../../../shared/elements/ui-button/ui-button";
+import { MeasureTable } from "../measure-table/measure-table";
 
 const TABS: TabItem[] = [
   { key: 'general', label: 'General' },
@@ -28,7 +29,7 @@ const TABS: TabItem[] = [
 
 @Component({
   selector: 'app-sheet-detail',
-  imports: [UiFormField, UiSelect, ReactiveFormsModule, UiTabs, UiIcon, UiButton],
+  imports: [UiFormField, UiSelect, ReactiveFormsModule, UiTabs, UiIcon, UiButton, MeasureTable],
   templateUrl: 'sheet-detail.html',
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
@@ -95,6 +96,10 @@ export class SheetDetail implements OnInit {
   selectedCollectionName(): string | null {
     const id = this.collection?.value;
     return this.collections().find((c) => c.id == id)?.name ?? null;
+  }
+
+  get sizes(): string[] {
+    return this.referenceInfo()?.sizes?.split(',').map((size) => size.trim()).filter(Boolean) ?? [];
   }
 
   onTabChange(key: string): void {

@@ -29,7 +29,7 @@
   <app-sheet-side-info [sheet]="sheet"></app-sheet-side-info>
 </app-side-modal-layout>
 
-<app-modal-layout [hideAccept]="true" (onCancel)="closeModelForm()">
+<app-modal-layout [classNames]="'max-w-2xl'" [hideAccept]="true" (onCancel)="closeModelForm()">
   <form id="techForm" [formGroup]="modelForm" (ngSubmit)="submit()">  
     <fieldset [disabled]="showLoader()"> 
       <app-sheet-detail [measurements]="measurements()" [elasticCuts]="elasticCuts()"></app-sheet-detail>

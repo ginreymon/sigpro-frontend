@@ -38,30 +38,26 @@
 }
 
 @if (activeTab() === 'measurements'){
-  <div class="flex flex-col items-start justify-start gap-3 text-gray-300 py-4"> 
+  <div class="flex flex-col items-start justify-start gap-3 text-gray-300 pt-4"> 
     <div class="w-full">
       <app-ui-button [intent]="'action'" (onClick)="openMeasures()">
         <app-ui-icon [iconName]="'circlePlus'" class="h-5 w-5"></app-ui-icon>
         Agregar Medida
       </app-ui-button>  
     </div>
-    <div class="w-full">
-
-    </div>    
+    <app-measure-table style="max-width: 38rem;" [measurements]="measurements" [sizes]="sizes"></app-measure-table>   
   </div>
 }
 
 @if (activeTab() === 'elasticCuts'){
-  <div class="flex flex-col items-start justify-start gap-3 text-gray-300 py-4"> 
+  <div class="flex flex-col items-start justify-start gap-3 text-gray-300 pt-4"> 
     <div class="w-full">
       <app-ui-button [intent]="'action'" (onClick)="openElasticMeasures()">
         <app-ui-icon [iconName]="'circlePlus'" class="h-5 w-5"></app-ui-icon>
         Agregar Corte
       </app-ui-button>  
     </div>
-    <div class="w-full">
-
-    </div>    
+    <app-measure-table style="max-width: 38rem;" [elasticCuts]="elasticCuts" [sizes]="sizes"></app-measure-table>      
   </div>
 }
 
