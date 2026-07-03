@@ -1,4 +1,4 @@
-import { Component, Signal } from '@angular/core';
+import { Component, Input, Signal } from '@angular/core';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { UiCloseButton } from '../../elements/ui-close-button/ui-close-button';
 import { ModalBase } from '../../../common/classes/modal-base';
@@ -12,5 +12,6 @@ import { TitleCasePipe } from '@angular/common';
   styleUrl: './modal-layout.css',
 })
 export class ModalLayout extends ModalBase{
+  @Input() classNames: string | null = null;  
   protected override serviceVisible?: Signal<boolean> = toSignal(this.dialogService.modalVisible$, { initialValue: false });
 }
