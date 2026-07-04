@@ -119,12 +119,4 @@ export class SheetDetail implements OnInit {
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe((info) => this.referenceInfo.set(info));
   }
-
-  openMeasures() {
-    throw new Error('Method not implemented.');
-  }
-
-  openElasticMeasures() {
-    throw new Error('Method not implemented.');
-  }
 }

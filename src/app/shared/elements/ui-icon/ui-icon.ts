@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { iconMap } from '../../../common/const/icon-map';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
@@ -8,14 +8,15 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   templateUrl: './ui-icon.html',
   styleUrl: './ui-icon.css',
 })
-export class UiIcon implements OnInit {
+export class UiIcon implements OnChanges {
   @Input() iconName: string = '';
   @Input() class: string = '';
 
   svg!: SafeHtml;
 
   constructor(private sanitizer: DomSanitizer) {}
-  ngOnInit(): void {
+
+  ngOnChanges(): void {
     let raw = iconMap[this.iconName] || '';
     raw = raw.replace('<svg', `<svg class="${this.class}"`);
 

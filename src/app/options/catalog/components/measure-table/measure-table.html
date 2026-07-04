@@ -1,1 +1,96 @@
-<app-data-table [showSearch]="false" [showPager]="false" [columns]="columns" [data]="rows"></app-data-table>
+<div [class]="(rows().length ? 'max-h-72 overflow-y-auto ' : '') + 'overflow-x-auto'">
+  <table class="w-full text-sm border-collapse">
+
+    <thead class="bg-gray-200 text-gray-700 sticky top-0 z-20">
+      <tr>
+        <th class="px-2 py-2 title-font tracking-wider font-medium text-left">Medida</th>
+        @for (size of sizes; track size) {
+        <th class="px-1 py-2 title-font tracking-wider font-medium text-center">{{ size }}</th>
+        }
+        @if (showTolerance) {
+        <th class="px-1 py-2 title-font tracking-wider font-medium text-left">Tolerancia</th>
+        }
+        <th class="px-1 py-2 title-font tracking-wider font-medium text-right"></th>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-gray-200 text-gray-600 font-medium">
+      @for (row of rows(); track $index; let i = $index) {
+      <tr class="hover:bg-gray-50 transition-colors duration-150">
+
+        <td class="px-1 py-2 text-left">
+          <div class="w-full min-w-32">
+            @if (row.editing) {
+            <app-measure-cell-input
+              [value]="row.measurement"
+              (valueChange)="updateValue(i, 'measurement', $event)" />
+            } @else {
+            <app-ui-tooltip-fixed [message]="displayValue(row.measurement)">
+              {{ displayValue(row.measurement) | ellipsis:14 }}
+            </app-ui-tooltip-fixed>
+            }
+          </div>
+        </td>
+
+        @for (size of sizes; track size) {
+        <td class="px-1 py-2 text-center">
+          <div class="w-14 mx-auto">
+            @if (row.editing) {
+            <app-measure-cell-input
+              [value]="row.values[size]"
+              [align]="'center'"
+              [type]="'number'"
+              (valueChange)="updateSizeValue(i, size, $event)" />
+            } @else {
+            <app-ui-tooltip-fixed [message]="displayValue(row.values[size])">
+              {{ displayValue(row.values[size]) | ellipsis:6 }}
+            </app-ui-tooltip-fixed>
+            }
+          </div>
+        </td>
+        }
+
+        @if (showTolerance) {
+        <td class="px-1 py-2 text-left">
+          <div class="w-full min-w-24">
+            @if (row.editing) {
+            <app-measure-cell-input
+              [value]="row.tolerance"
+              (valueChange)="updateValue(i, 'tolerance', $event)" />
+            } @else {
+            <app-ui-tooltip-fixed [message]="displayValue(row.tolerance)">
+              {{ displayValue(row.tolerance) | ellipsis:10 }}
+            </app-ui-tooltip-fixed>
+            }
+          </div>
+        </td>
+        }
+
+        <td class="px-1 py-2 text-right whitespace-nowrap">
+          <app-ui-tooltip-fixed [message]="row.editing ? 'Guardar' : 'Editar'">
+            <button type="button" class="cursor-pointer" (click)="toggleEdit(i)">
+              <app-ui-icon [iconName]="row.editing ? 'floppyDisk' : 'pencil'" class="h-4 w-4"></app-ui-icon>
+            </button>
+          </app-ui-tooltip-fixed>
+          <app-ui-tooltip-fixed [message]="'Eliminar'">
+            <button type="button" class="cursor-pointer ml-3" (click)="deleteRow(i)">
+              <app-ui-icon [iconName]="'trash'" class="h-4 w-4"></app-ui-icon>
+            </button>
+          </app-ui-tooltip-fixed>
+        </td>
+
+      </tr>
+      } @empty {
+      <tr>
+        <td [attr.colspan]="2 + sizes.length + (showTolerance ? 1 : 0)">
+          <div class="flex flex-col items-center justify-center min-h-28 gap-2 text-gray-300">
+            <app-ui-icon [iconName]="'magnifyingGlass'" class="h-10 w-10"></app-ui-icon>
+            <p class="text-sm text-gray-400 font-normal">No hay registros para mostrar</p>
+          </div>
+        </td>
+      </tr>
+      }
+    </tbody>
+
+  </table>
+</div>

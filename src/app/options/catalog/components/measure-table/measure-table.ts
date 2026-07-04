@@ -1,47 +1,97 @@
-import { Component, Input } from '@angular/core';
-import { DataTable } from '../../../../shared/components/data-table/data-table';
-import { TableColumn } from '../../../../common/interfaces/table-column';
-import { TableRow } from '../../../../common/interfaces/table-row';
+import { Component, Input, OnChanges, signal } from '@angular/core';
+import { UiIcon } from '../../../../shared/elements/ui-icon/ui-icon';
+import { MeasureCellInput } from '../measure-cell-input/measure-cell-input';
 import { SheetMeasurement } from '../../../../models/catalog/sheet-measurement';
 import { SheetElasticCut } from '../../../../models/catalog/sheet-elastic-cut';
+import { UiTooltipFixed } from '../../../../shared/elements/ui-tooltip-fixed/ui-tooltip-fixed';
+import { EllipsisPipe } from '../../../../pipes/ellipsis-pipe';
 
-type MeasureRow = Record<string, string | number | null>;
+export interface MeasureTableRow {
+  measurement: string;
+  tolerance: string;
+  values: Record<string, string>;
+  editing: boolean;
+}
 
 @Component({
   selector: 'app-measure-table',
-  imports: [DataTable],
+  imports: [UiIcon, UiTooltipFixed, MeasureCellInput, EllipsisPipe],
   templateUrl: './measure-table.html',
   styleUrl: './measure-table.css',
   host: { class: 'block min-w-full max-w-full' },
 })
-export class MeasureTable {
+export class MeasureTable implements OnChanges {
   @Input() measurements: SheetMeasurement[] | null = null;
   @Input() elasticCuts: SheetElasticCut[] | null = null;
   @Input() sizes: string[] = [];
 
-  get columns(): TableColumn<MeasureRow>[] {
-    const columns: TableColumn<MeasureRow>[] = [
-      { field: 'measurement', label: 'Medida' },
-      ...this.sizes.map((size) => ({ field: size, label: size })),
-    ];
+  rows = signal<MeasureTableRow[]>([]);
 
-    if (this.measurements) {
-      columns.push({ field: 'tolerance', label: 'Tolerancia' });
-    }
+  private lastSignature = '';
 
-    return columns;
+  get showTolerance(): boolean {
+    return !!this.measurements;
   }
 
-  get rows(): TableRow<MeasureRow>[] {
+  ngOnChanges(): void {
     const source: (SheetMeasurement | SheetElasticCut)[] = this.measurements ?? this.elasticCuts ?? [];
+    const signature = JSON.stringify({
+      mode: this.measurements ? 'measurements' : 'elasticCuts',
+      rows: source.map((item) => [item.measurement, (item as SheetMeasurement).tolerance ?? null]),
+      sizes: this.sizes,
+    });
 
-    return source.map((item) => ({
-      selected: false,
-      obj: {
-        measurement: item.measurement,
-        ...Object.fromEntries(this.sizes.map((size) => [size, null])),
-        ...(this.measurements ? { tolerance: (item as SheetMeasurement).tolerance } : {}),
+    if (signature === this.lastSignature) {
+      return;
+    }
+    this.lastSignature = signature;
+
+    this.rows.set(
+      source.map((item) => ({
+        measurement: item.measurement ?? '',
+        tolerance: this.measurements ? ((item as SheetMeasurement).tolerance ?? '') : '',
+        values: Object.fromEntries(this.sizes.map((size) => [size, ''])),
+        editing: false,
+      })),
+    );
+  }
+
+  toggleEdit(index: number): void {
+    this.rows.update((rows) =>
+      rows.map((row, i) => {
+        if (i === index) return { ...row, editing: !row.editing };
+        return row.editing ? { ...row, editing: false } : row;
+      }),
+    );
+  }
+
+  updateValue(index: number, field: 'measurement' | 'tolerance', value: string): void {
+    this.rows.update((rows) => rows.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
+  }
+
+  updateSizeValue(index: number, size: string, value: string): void {
+    this.rows.update((rows) =>
+      rows.map((row, i) => (i === index ? { ...row, values: { ...row.values, [size]: value } } : row)),
+    );
+  }
+
+  deleteRow(index: number): void {
+    this.rows.update((rows) => rows.filter((_, i) => i !== index));
+  }
+
+  addRow(): void {
+    this.rows.update((rows) => [
+      ...rows.map((row) => (row.editing ? { ...row, editing: false } : row)),
+      {
+        measurement: '',
+        tolerance: '',
+        values: Object.fromEntries(this.sizes.map((size) => [size, ''])),
+        editing: true,
       },
-    }));
+    ]);
+  }
+
+  displayValue(value: string): string {
+    return value?.trim() ? value : '0';
   }
 }
