@@ -3,9 +3,15 @@
 
     <thead class="bg-gray-200 text-gray-700 sticky top-0 z-20">
       <tr>
-        <th class="px-2 py-2 title-font tracking-wider font-medium text-left">Medida</th>
+        <th class="px-2 py-2 title-font tracking-wider font-medium text-left">
+          <app-ui-tooltip-fixed [message]="'Medidas en centímetros'">
+            Medida (cm)
+          </app-ui-tooltip-fixed>         
+        </th>
         @for (size of sizes; track size) {
-        <th class="px-1 py-2 title-font tracking-wider font-medium text-center">{{ size }}</th>
+        <th class="px-1 py-2 title-font tracking-wider font-medium text-center">
+          <app-ui-tooltip-fixed [message]="`Talla ${size}`">{{ size }}</app-ui-tooltip-fixed>           
+        </th>
         }
         @if (showTolerance) {
         <th class="px-1 py-2 title-font tracking-wider font-medium text-left">Tolerancia</th>
@@ -26,7 +32,7 @@
               (valueChange)="updateValue(i, 'measurement', $event)" />
             } @else {
             <app-ui-tooltip-fixed [message]="displayValue(row.measurement)">
-              {{ displayValue(row.measurement) | ellipsis:14 }}
+              {{ displayValue(row.measurement) | ellipsis:24 }}
             </app-ui-tooltip-fixed>
             }
           </div>
