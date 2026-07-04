@@ -26,7 +26,7 @@
 </app-work-space-layout>
 
 <app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
-  <app-sheet-side-info [sheet]="sheet"></app-sheet-side-info>
+  <app-sheet-side-info [sheet]="sheet" [measurements]="measurements()" [elasticCuts]="elasticCuts()"></app-sheet-side-info>
 </app-side-modal-layout>
 
 <app-modal-layout [classNames]="'max-w-3xl'" [hideAccept]="true" (onCancel)="closeModelForm()">

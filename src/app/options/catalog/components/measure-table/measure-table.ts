@@ -23,7 +23,20 @@ export interface MeasureTableRow {
 export class MeasureTable implements OnChanges {
   @Input() measurements: SheetMeasurement[] | null = null;
   @Input() elasticCuts: SheetElasticCut[] | null = null;
-  @Input() sizes: string[] = [];
+  @Input() hideActions: boolean = false;
+
+  @Input()
+  set sizes(value: string[]) {
+    this._inputSizes = (value ?? []).map(s => s.trim());
+    this.updateSizes();
+  }
+
+  private _inputSizes: string[] = [];
+  private _sizes = signal<string[]>([]);
+
+  get sizes(): string[] {
+    return this._sizes();
+  }
 
   rows = signal<MeasureTableRow[]>([]);
 
@@ -34,7 +47,18 @@ export class MeasureTable implements OnChanges {
   }
 
   ngOnChanges(): void {
-    const source: (SheetMeasurement | SheetElasticCut)[] = this.measurements ?? this.elasticCuts ?? [];
+    this.updateSizes();  
+      
+    const source: (SheetMeasurement | SheetElasticCut)[] = [
+      ...(this.measurements ?? this.elasticCuts ?? [])
+    ].sort((a, b) =>
+      (a.measurement ?? '').localeCompare(
+        b.measurement ?? '',
+        undefined,
+        { sensitivity: 'base' }
+      )
+    );
+
     const signature = JSON.stringify({
       mode: this.measurements ? 'measurements' : 'elasticCuts',
       rows: source.map((item) => [item.measurement, (item as SheetMeasurement).tolerance ?? null]),
@@ -50,10 +74,37 @@ export class MeasureTable implements OnChanges {
       source.map((item) => ({
         measurement: item.measurement ?? '',
         tolerance: this.measurements ? ((item as SheetMeasurement).tolerance ?? '') : '',
-        values: Object.fromEntries(this.sizes.map((size) => [size, ''])),
+        values: {
+          ...Object.fromEntries(
+            this.sizes.map(size => [size, ''])
+          ),
+          ...Object.fromEntries(
+            (item.details ?? []).map(detail => [
+              detail.size?.trim() ?? '',
+              detail.value ?? '',
+            ])
+          ),
+        },
         editing: false,
       })),
     );
+  }
+
+  private updateSizes(): void {
+    const source: (SheetMeasurement | SheetElasticCut)[] = this.measurements ?? this.elasticCuts ?? [];
+
+    const detailSizes = source.flatMap(measure =>
+      (measure.details ?? [])
+        .map(detail => detail.size?.trim())
+        .filter((size): size is string => !!size)
+    );
+
+    this._sizes.set([
+      ...new Set([
+        ...this._inputSizes,
+        ...detailSizes,
+      ]),
+    ]);
   }
 
   toggleEdit(index: number): void {

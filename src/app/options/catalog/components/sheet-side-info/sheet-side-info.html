@@ -32,6 +32,16 @@
     <p><strong>Colores:</strong> {{ sheet.colors || '—' }}</p>
     <p><strong>Estado:</strong> {{ (sheet.status_name ?? '') | titlecase }}</p>
 
+    <div class="border-t border-slate-200 pt-4 mt-4">
+      <h4 class="text-xl font-semibold text-gray-700 mb-2"> Medidas en prendas terminadas </h4>
+      <app-measure-table [measurements]="measurements" [hideActions]="true"></app-measure-table>
+    </div>
+
+    <div class="border-t border-slate-200 pt-4 mt-4">
+      <h4 class="text-xl font-semibold text-gray-700 mb-2"> Corte de elástico </h4>
+      <app-measure-table [elasticCuts]="elasticCuts" [hideActions]="true"></app-measure-table>
+    </div>
+
     <app-metadata [rowObject]="sheet" [external]="true"></app-metadata>
 
   </div>

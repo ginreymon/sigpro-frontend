@@ -1,7 +1,7 @@
 ﻿import { Component, signal } from '@angular/core';
 import { TitleCasePipe, DatePipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { forkJoin, finalize } from 'rxjs';
+import { finalize } from 'rxjs';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
@@ -10,13 +10,11 @@ import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { DataTable } from '../../../shared/components/data-table/data-table';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
-import { CharSquare } from '../../../shared/components/char-square/char-square';
 import { TechnicalSheet } from '../../../models/catalog/technical-sheet';
 import { SheetMeasurement } from '../../../models/catalog/sheet-measurement';
 import { SheetElasticCut } from '../../../models/catalog/sheet-elastic-cut';
 import { TechnicalSheetService } from '../../../services/catalog/technical-sheet-service';
-import { SheetMeasurementService } from '../../../services/catalog/sheet-measurement-service';
-import { SheetElasticCutService } from '../../../services/catalog/sheet-elastic-cut-service';
+import { TechnicalSheetDataService } from '../../../services/catalog/technical-sheet-data-service';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../common/interfaces/table-tools-buttons';
@@ -42,8 +40,7 @@ export class TechnicalSheetPage extends BaseCrudPage<TechnicalSheet> {
 
   constructor(
     private technicalSheetService: TechnicalSheetService,
-    private sheetMeasurementService: SheetMeasurementService,
-    private sheetElasticCutService: SheetElasticCutService,
+    private technicalSheetDataService: TechnicalSheetDataService,
   ) {
     super(technicalSheetService);
   }
@@ -94,17 +91,16 @@ export class TechnicalSheetPage extends BaseCrudPage<TechnicalSheet> {
     this.measurements.set([]);
     this.elasticCuts.set([]);
 
-    if (event.type === 'edit') {
+    if (event.type === 'edit' || event.type === 'view') {
       this.loaderService.showLoader();
-      forkJoin({
-        measurements: this.sheetMeasurementService.getAll({ filters: { sheet_id: event.obj.rowid }, limit: 500 }),
-        elasticCuts:  this.sheetElasticCutService.getAll({ filters: { sheet_id: event.obj.rowid }, limit: 500 }),
-      }).pipe(finalize(() => this.loaderService.hideLoader())).subscribe({
-        next: ({ measurements, elasticCuts }) => {
-          this.measurements.set(measurements.results);
-          this.elasticCuts.set(elasticCuts.results);
-        },
-      });
+      this.technicalSheetDataService.getBySheetId(event.obj.rowid)
+        .pipe(finalize(() => this.loaderService.hideLoader()))
+        .subscribe({
+          next: (data) => {
+            this.measurements.set(data.measurements ?? []);
+            this.elasticCuts.set(data.elasticCutMeasures ?? []);
+          },
+        });
     }
   }
 

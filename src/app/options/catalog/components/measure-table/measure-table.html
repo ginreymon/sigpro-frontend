@@ -16,7 +16,9 @@
         @if (showTolerance) {
         <th class="px-1 py-2 title-font tracking-wider font-medium text-left">Tolerancia</th>
         }
+        @if(!hideActions){
         <th class="px-1 py-2 title-font tracking-wider font-medium text-right"></th>
+        }
       </tr>
     </thead>
 
@@ -72,6 +74,7 @@
         </td>
         }
 
+        @if(!hideActions){
         <td class="px-1 py-2 text-right whitespace-nowrap">
           <app-ui-tooltip-fixed [message]="row.editing ? 'Guardar' : 'Editar'">
             <button type="button" class="cursor-pointer" (click)="toggleEdit(i)">
@@ -84,6 +87,7 @@
             </button>
           </app-ui-tooltip-fixed>
         </td>
+        }
 
       </tr>
       } @empty {
