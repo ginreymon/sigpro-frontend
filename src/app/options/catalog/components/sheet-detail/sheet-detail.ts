@@ -75,6 +75,11 @@ export class SheetDetail {
     this.activeTab.set(key);
   }
 
+  reset(): void {
+    this.activeTab.set('general');
+    this.referenceInfo.set(null);
+  }
+
   onReferenceSelect(event: { index: number; value: Reference }): void {
     this.referenceInfo.set(null);
 

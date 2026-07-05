@@ -1,5 +1,6 @@
 ﻿import { Component, signal } from '@angular/core';
 import { TitleCasePipe, DatePipe } from '@angular/common';
+import { ViewChild } from '@angular/core';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { TableTemplate } from '../../../directives/table-template';
@@ -45,6 +46,8 @@ import { UiSelect } from "../../../shared/elements/ui-select/ui-select";
 })
 export class TechnicalSheetPage extends BaseCrudPage<TechnicalSheet> {
   protected override entityName = 'ficha técnica';
+
+  @ViewChild(SheetDetail) private sheetDetail?: SheetDetail;
 
   measurements = signal<SheetMeasurement[]>([]);
   elasticCuts  = signal<SheetElasticCut[]>([]);
@@ -129,10 +132,16 @@ export class TechnicalSheetPage extends BaseCrudPage<TechnicalSheet> {
   }
 
   protected override actionHandler(event: TableActionEvent<TechnicalSheet>): void {
-    super.actionHandler(event);
-
     this.measurements.set([]);
-    this.elasticCuts.set([]);     
+    this.elasticCuts.set([]);
+
+    if (event.type === 'create') {
+      this.sheetDetail?.reset();
+      super.actionHandler({ ...event, obj: {} as TechnicalSheet });
+      return;
+    }
+
+    super.actionHandler(event);
 
     if (event.type === 'edit' || event.type === 'view') {
       this.loaderService.showLoader();
