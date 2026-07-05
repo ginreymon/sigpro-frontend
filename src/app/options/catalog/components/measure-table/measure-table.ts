@@ -46,6 +46,10 @@ export class MeasureTable implements OnChanges {
     return !!this.measurements;
   }
 
+  get hasRows(){
+    return this.lastSignature.length ?? this.measurements?.length ?? 0 ;
+  }
+
   ngOnChanges(): void {
     this.updateSizes();  
       

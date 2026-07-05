@@ -26,7 +26,8 @@
 </div>
 
 <div [class.hidden]="activeTab() !== 'measurements'" class="flex flex-col items-start justify-start gap-3 text-gray-300 pt-4">
-  <div class="w-full">
+  <div class="w-full flex flex-row justify-between">
+    <h4 class="text-xl font-semibold text-gray-700 mb-3"> Medidas en prendas terminadas </h4>
     <app-ui-button [intent]="'action'" (onClick)="measurementsTable.addRow()">
       <app-ui-icon [iconName]="'circlePlus'" class="h-5 w-5"></app-ui-icon>
       Agregar Medida
@@ -36,7 +37,8 @@
 </div>
 
 <div [class.hidden]="activeTab() !== 'elasticCuts'" class="flex flex-col items-start justify-start gap-3 text-gray-300 pt-4">
-  <div class="w-full">
+  <div class="w-full flex flex-row justify-between">
+    <h4 class="text-xl font-semibold text-gray-700 mb-3"> Corte de elástico </h4>
     <app-ui-button [intent]="'action'" (onClick)="elasticCutsTable.addRow()">
       <app-ui-icon [iconName]="'circlePlus'" class="h-5 w-5"></app-ui-icon>
       Agregar Corte
@@ -47,12 +49,20 @@
 
 <div [class.hidden]="activeTab() !== 'pieces'" class="flex flex-col items-center justify-center gap-3 text-gray-300 py-10">
   <app-ui-icon [iconName]="'file'" class="h-16 w-16"></app-ui-icon>
-  <p class="text-sm text-gray-400">Despiece no disponible todavía.</p>
+  <p class="text-sm text-gray-400 text-center">
+    Despiece no disponible todavía.
+    <br>
+    Haz clic aquí o arrastra una imágen para agregarla.
+  </p>
 </div>
 
 <div [class.hidden]="activeTab() !== 'images'" class="flex flex-col items-center justify-center gap-3 text-gray-300 py-10">
   <app-ui-icon [iconName]="'file'" class="h-16 w-16"></app-ui-icon>
-  <p class="text-sm text-gray-400">Imágenes del producto no disponibles todavía.</p>
+  <p class="text-sm text-gray-400 text-center">
+    Imágenes del producto no disponibles todavía.
+    <br>
+    Haz clic aquí o arrastra una imágen para agregarla.
+  </p>
 </div>
 
 <ng-content select="[form-error]"></ng-content>

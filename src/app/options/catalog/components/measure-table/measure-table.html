@@ -1,9 +1,29 @@
 <div [class]="(rows().length ? 'max-h-72 overflow-y-auto ' : '') + 'overflow-x-auto'">
-  <table class="w-full text-sm border-collapse">
+  <table class="w-full table-fixed text-sm border-collapse">
+
+    <colgroup>
+      <!-- Medida -->
+      <col class="w-32">
+
+      <!-- Tallas -->
+      @for (size of sizes; track size) {
+        <col>
+      }
+
+      <!-- Tolerancia -->
+      @if (showTolerance) {
+        <col class="w-20">
+      }
+
+      <!-- Acciones -->
+      @if (!hideActions) {
+        <col class="w-24">
+      }
+    </colgroup>    
 
     <thead class="bg-gray-200 text-gray-700 sticky top-0 z-20">
       <tr>
-        <th class="px-2 py-2 title-font tracking-wider font-medium text-left">
+        <th class="px-1 py-2 title-font tracking-wider font-medium text-left">
           <app-ui-tooltip-fixed [message]="'Medidas en centímetros'">
             Medida (cm)
           </app-ui-tooltip-fixed>         
