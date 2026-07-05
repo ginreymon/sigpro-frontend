@@ -131,6 +131,24 @@ export class TechnicalSheetPage extends BaseCrudPage<TechnicalSheet> {
     this.loadList(this.technicalSheetStatusService, this.statuses);
   }
 
+  private patchFormForEdit(sheet: TechnicalSheet): void {
+    const reference = this.references().find((item) => item.rowid_item === sheet.rowid_item);
+    const collection = this.collections().find((item) => item.rowid === sheet.collection_rowid);
+
+    this.modelForm.patchValue({
+      referenceId: reference?.id ?? null,
+      collectionId: collection?.id ?? null,
+      statusId: sheet.status ?? null,
+    });
+
+    if (reference) {
+      const index = this.references().findIndex((item) => item.id === reference.id);
+      this.sheetDetail?.onReferenceSelect({ index, value: reference });
+    } else {
+      this.sheetDetail?.reset();
+    }
+  }
+
   protected override actionHandler(event: TableActionEvent<TechnicalSheet>): void {
     this.measurements.set([]);
     this.elasticCuts.set([]);
@@ -142,6 +160,10 @@ export class TechnicalSheetPage extends BaseCrudPage<TechnicalSheet> {
     }
 
     super.actionHandler(event);
+
+    if (event.type === 'edit') {
+      this.patchFormForEdit(event.obj);
+    }
 
     if (event.type === 'edit' || event.type === 'view') {
       this.loaderService.showLoader();
