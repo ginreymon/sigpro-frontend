@@ -6,13 +6,17 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class WorkSpaceLoaderService {
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
+  private activeRequests = 0;
+
   isLoading$ = this.isLoadingSubject.asObservable();
 
   start() {
+    this.activeRequests++;
     this.isLoadingSubject.next(true);
   }
 
   end() {
-    this.isLoadingSubject.next(false);
+    this.activeRequests = Math.max(0, this.activeRequests - 1);
+    this.isLoadingSubject.next(this.activeRequests > 0);
   }
 }

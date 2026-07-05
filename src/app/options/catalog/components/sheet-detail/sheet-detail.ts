@@ -1,19 +1,14 @@
-import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
-import { ControlContainer, FormControl, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
-import { forkJoin, finalize } from 'rxjs';
+import { Component, Input, computed, inject, signal } from '@angular/core';
+import { ControlContainer, FormControl, FormGroupDirective } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { SheetMeasurement } from '../../../../models/catalog/sheet-measurement';
 import { SheetElasticCut } from '../../../../models/catalog/sheet-elastic-cut';
 import { Reference } from '../../../../models/catalog/reference';
 import { Collection } from '../../../../models/catalog/collection';
 import { TechnicalSheetStatus } from '../../../../models/catalog/technical-sheet-status';
 import { SkuReferenceInfo } from '../../../../models/catalog/sku-reference-info';
-import { ReferencesService } from '../../../../services/catalog/references-service';
-import { CollectionService } from '../../../../services/catalog/collection-service';
-import { TechnicalSheetStatusService } from '../../../../services/catalog/technical-sheet-status-service';
 import { SkuReferenceInfoService } from '../../../../services/catalog/sku-reference-info-service';
 import { LoaderService } from '../../../../services/common/loader-service';
-import { UiFormField } from "../../../../shared/elements/ui-form-field/ui-form-field";
-import { UiSelect } from "../../../../shared/elements/ui-select/ui-select";
 import { UiTabs, TabItem } from '../../../../shared/elements/ui-tabs/ui-tabs';
 import { UiIcon } from '../../../../shared/elements/ui-icon/ui-icon';
 import { UiButton } from "../../../../shared/elements/ui-button/ui-button";
@@ -29,11 +24,14 @@ const TABS: TabItem[] = [
 
 @Component({
   selector: 'app-sheet-detail',
-  imports: [UiFormField, UiSelect, ReactiveFormsModule, UiTabs, UiIcon, UiButton, MeasureTable],
+  imports: [UiTabs, UiIcon, UiButton, MeasureTable],
   templateUrl: 'sheet-detail.html',
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
-export class SheetDetail implements OnInit {
+export class SheetDetail {
+  @Input() references: Reference[] = [];
+  @Input() collections: Collection[] = [];
+  @Input() statuses: TechnicalSheetStatus[] = [];
   @Input() measurements: SheetMeasurement[] = [];
   @Input() elasticCuts: SheetElasticCut[]   = [];
 
@@ -54,48 +52,19 @@ export class SheetDetail implements OnInit {
     });
   });
 
-  references = signal<Reference[]>([]);
-  collections = signal<Collection[]>([]);
-  statuses = signal<TechnicalSheetStatus[]>([]);
   referenceInfo = signal<SkuReferenceInfo | null>(null);
 
   private controlContainer = inject(ControlContainer);
-  private referencesService = inject(ReferencesService);
-  private collectionService = inject(CollectionService);
-  private technicalSheetStatusService = inject(TechnicalSheetStatusService);
   private skuReferenceInfoService = inject(SkuReferenceInfoService);
   private loaderService = inject(LoaderService);
-
-  ngOnInit(): void {
-    this.loaderService.showLoader();
-    forkJoin({
-      references: this.referencesService.getAll(),
-      collections: this.collectionService.all(),
-      statuses: this.technicalSheetStatusService.all(),
-    })
-      .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe(({ references, collections, statuses }) => {
-        this.references.set(references);
-        this.collections.set(collections);
-        this.statuses.set(statuses);
-      });
-  }
-
-  get reference() {
-    return this.controlContainer.control?.get('referenceId') as FormControl;
-  }
 
   get collection() {
     return this.controlContainer.control?.get('collectionId') as FormControl;
   }
 
-  get status() {
-    return this.controlContainer.control?.get('statusId') as FormControl;
-  }
-
   selectedCollectionName(): string | null {
     const id = this.collection?.value;
-    return this.collections().find((c) => c.id == id)?.name ?? null;
+    return this.collections.find((collection) => collection.id == id)?.name ?? null;
   }
 
   get sizes(): string[] {

@@ -1,10 +1,9 @@
 ﻿import { Component, signal } from '@angular/core';
 import { TitleCasePipe, DatePipe } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
-import { UiTooltip } from '../../../shared/elements/ui-tooltip/ui-tooltip';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { DataTable } from '../../../shared/components/data-table/data-table';
@@ -13,14 +12,23 @@ import { ModalLayout } from '../../../shared/components/modal-layout/modal-layou
 import { TechnicalSheet } from '../../../models/catalog/technical-sheet';
 import { SheetMeasurement } from '../../../models/catalog/sheet-measurement';
 import { SheetElasticCut } from '../../../models/catalog/sheet-elastic-cut';
+import { Reference } from '../../../models/catalog/reference';
+import { Collection } from '../../../models/catalog/collection';
+import { TechnicalSheetStatus } from '../../../models/catalog/technical-sheet-status';
 import { TechnicalSheetService } from '../../../services/catalog/technical-sheet-service';
 import { TechnicalSheetDataService } from '../../../services/catalog/technical-sheet-data-service';
+import { ReferencesService } from '../../../services/catalog/references-service';
+import { CollectionService } from '../../../services/catalog/collection-service';
+import { TechnicalSheetStatusService } from '../../../services/catalog/technical-sheet-status-service';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../common/interfaces/table-tools-buttons';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { SheetSideInfo } from '../components/sheet-side-info/sheet-side-info';
 import { SheetDetail } from '../components/sheet-detail/sheet-detail';
+import { UiFormField } from "../../../shared/elements/ui-form-field/ui-form-field";
+import { UiErrorMessage } from "../../../shared/elements/ui-error-message/ui-error-message";
+import { UiSelect } from "../../../shared/elements/ui-select/ui-select";
 
 @Component({
   selector: 'app-technical-sheet',
@@ -28,7 +36,10 @@ import { SheetDetail } from '../components/sheet-detail/sheet-detail';
     WorkSpaceLayout, DataTable, SideModalLayout, ModalLayout,
     UiBadge, ReactiveFormsModule, TitleCasePipe, DatePipe, TableTemplate,
     SheetSideInfo, SheetDetail,
-  ],
+    UiFormField,
+    UiErrorMessage,
+    UiSelect
+],
   templateUrl: './technical-sheet.html',
   styleUrl: './technical-sheet.css',
 })
@@ -37,12 +48,22 @@ export class TechnicalSheetPage extends BaseCrudPage<TechnicalSheet> {
 
   measurements = signal<SheetMeasurement[]>([]);
   elasticCuts  = signal<SheetElasticCut[]>([]);
+  references = signal<Reference[]>([]);
+  collections = signal<Collection[]>([]);
+  statuses = signal<TechnicalSheetStatus[]>([]);
 
   constructor(
-    private technicalSheetService: TechnicalSheetService,
+    technicalSheetService: TechnicalSheetService,
     private technicalSheetDataService: TechnicalSheetDataService,
+    private referencesService: ReferencesService,
+    private collectionService: CollectionService,
+    private technicalSheetStatusService: TechnicalSheetStatusService,
   ) {
     super(technicalSheetService);
+  }
+
+  ngOnInit(): void {
+    this.loadCatalogs();
   }
 
   get sheet(): TechnicalSheet {
@@ -53,7 +74,7 @@ export class TechnicalSheetPage extends BaseCrudPage<TechnicalSheet> {
     return {
       view:   { enabled: true,  title: 'Ver ficha técnica',    iconName: 'eye',    toolTip: 'Ver' },
       edit:   { enabled: true,  title: 'Editar ficha técnica', iconName: 'pencil', toolTip: 'Editar' },
-      delete: { enabled: false, title: '',                      iconName: 'trash',  toolTip: '' },
+      delete: { enabled: false, title: '', iconName: 'trash',  toolTip: '' },
       create: { enabled: true,  title: 'Nueva ficha técnica' },
     };
   }
@@ -79,17 +100,39 @@ export class TechnicalSheetPage extends BaseCrudPage<TechnicalSheet> {
 
   protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
-      referenceId: [null],
-      collectionId: [null],
-      statusId: [null],
+      referenceId: [null, [Validators.required]],
+      collectionId: [null, [Validators.required]],
+      statusId: [null, [Validators.required]],
     });
+  }
+
+  get referenceId() {
+    return this.modelForm.get('referenceId');
+  }
+
+  get collectionId() {
+    return this.modelForm.get('collectionId');
+  }
+
+  get statusId() {
+    return this.modelForm.get('statusId');
+  }
+
+  private loadCatalogs(): void {
+    this.wslService.start();
+    this.referencesService.getAll()
+      .pipe(finalize(() => this.wslService.end()))
+      .subscribe((references) => this.references.set(references));
+
+    this.loadList(this.collectionService, this.collections);
+    this.loadList(this.technicalSheetStatusService, this.statuses);
   }
 
   protected override actionHandler(event: TableActionEvent<TechnicalSheet>): void {
     super.actionHandler(event);
 
     this.measurements.set([]);
-    this.elasticCuts.set([]);
+    this.elasticCuts.set([]);     
 
     if (event.type === 'edit' || event.type === 'view') {
       this.loaderService.showLoader();

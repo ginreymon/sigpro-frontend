@@ -2,20 +2,10 @@
 
 @if (activeTab() === 'general') {
   <div class="mt-4">
-    <app-ui-form-field [controlName]="'referenceId'" [label]="'Referencia'">
-      <app-ui-select [className]="'w-full'" formControlName="referenceId" [id]="'referenceId'" [control]="reference" [items]="references()" [key]="'reference'" [keyValue]="'id'" [showDefaultOption]="true" (onSelect)="onReferenceSelect($event)"></app-ui-select>
-    </app-ui-form-field>
+    <ng-content select="[form-reference]"></ng-content>
 
     @if (referenceInfo(); as info) {
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <app-ui-form-field [controlName]="'collectionId'" [label]="'Colección'">
-          <app-ui-select [className]="'w-full'" formControlName="collectionId" [id]="'collectionId'" [control]="collection" [items]="collections()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-        </app-ui-form-field>
-
-        <app-ui-form-field [controlName]="'statusId'" [label]="'Estado'">
-          <app-ui-select [className]="'min-w-full'" formControlName="statusId" [id]="'statusId'" [control]="status" [items]="statuses()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-        </app-ui-form-field>
-      </div>     
+      <ng-content select="[form-options]"></ng-content>         
      
       <div class="border-t border-slate-300 pt-4 space-y-2 text-sm">
         <p><strong>Marca:</strong> {{ info.brand || '—' }}</p>
@@ -74,3 +64,5 @@
     <p class="text-sm text-gray-400">Imágenes del producto no disponibles todavía.</p>
   </div>
 }
+
+<ng-content select="[form-error]"></ng-content>
