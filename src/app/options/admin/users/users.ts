@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../shared/components/data-table/data-table';
-import { EmployeeService } from '../../../services/production/employee-service';
+import { EmployeeDirectoryService } from '../../../services/user/employee-directory-service';
 import { Employee } from '../../../models/production/employee';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
@@ -60,12 +60,12 @@ export class Users extends BaseCrudPage<Employee> {
   showPassword = signal<boolean>(false);
 
   constructor(
-    private employeeService: EmployeeService,
+    private employeeDirectoryService: EmployeeDirectoryService,
     private roleService: RoleService,
     private authService: AuthService,
     private userService: UserService,
   ) {
-    super(employeeService);  
+    super(employeeDirectoryService);
     this.loadList(this.roleService, this.roles, false);
   }
 
