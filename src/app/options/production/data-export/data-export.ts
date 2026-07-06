@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, inject, signal, computed } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, finalize } from 'rxjs';
-import { DecimalPipe } from '@angular/common';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
@@ -18,6 +17,7 @@ import { WorkShiftService } from '../../../services/production/work-shift-servic
 import { WorkSpaceLoaderService } from '../../../services/common/work-space-loader-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { ProductivityService } from '../../../services/production/productivity-service';
+import { RouteContextService } from '../../../services/core/route-context-service';
 import { Employee } from '../../../models/production/employee';
 import { Module } from '../../../models/production/module';
 import { WorkShift } from '../../../models/production/work-shift';
@@ -54,6 +54,7 @@ export class DataExport implements OnInit {
   private wslService = inject(WorkSpaceLoaderService);
   private loaderService = inject(LoaderService);
   private productivityService = inject(ProductivityService);
+  private routeContextService = inject(RouteContextService);
 
   filterForm: FormGroup = this.fb.group({
     fecha_inicio: [null, Validators.required],
@@ -105,8 +106,10 @@ export class DataExport implements OnInit {
     })
       .pipe(finalize(() => this.wslService.end()))
       .subscribe(({ modules, workShifts, employees }) => {
+        const currentModuleUrl = this.routeContextService.currentModule?.url;
+        const scopedShifts = workShifts.filter((w) => w.app_module_detail?.url === currentModuleUrl);
         this.modules.set(modules);
-        this.workShifts.set(workShifts);
+        this.workShifts.set(scopedShifts.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
         this.employees.set(this.sortEmployees(employees));
       });
   }

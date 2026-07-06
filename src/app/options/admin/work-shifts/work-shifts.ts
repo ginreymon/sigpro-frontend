@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { WorkShift } from '../../../models/production/work-shift';
 import { WorkShiftService } from '../../../services/production/work-shift-service';
+import { Module } from '../../../models/core/module';
+import { MenuModuleService } from '../../../services/core/menu-module-service';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../shared/components/data-table/data-table';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
@@ -10,6 +12,7 @@ import { AbstractControl, ReactiveFormsModule, ValidationErrors, Validators } fr
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
+import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { UiHourInput } from '../../../shared/elements/ui-hour-input/ui-hour-input';
 import { FormFieldConfig } from '../../../common/interfaces/form-field-config';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
@@ -33,6 +36,7 @@ import { TitleCasePipe } from '@angular/common';
     UiErrorMessage,    
     UiFormField,
     UiInput,
+    UiSelect,
     UiHourInput,
     UiBadge,
     TableTemplate,
@@ -46,8 +50,14 @@ import { TitleCasePipe } from '@angular/common';
 })
 export class WorkShifts extends BaseCrudPage<WorkShift> {
   protected override entityName: string = 'Turno';
-  constructor(private workShiftService: WorkShiftService) {
+  menuModules = signal<Module[]>([]);
+
+  constructor(
+    private workShiftService: WorkShiftService,
+    private menuModuleService: MenuModuleService,
+  ) {
     super(workShiftService);
+    this.getMenuModules();
   }
 
   protected override get columns(): TableColumn<WorkShift>[] {
@@ -56,6 +66,7 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
       { field: 'start_time', label: 'Hora inicio' },
       { field: 'end_time', label: 'Hora finalización' },
       { type: 'template', label: 'Tiempo total', templateName: 'totalTimeTemplate' },
+      { type: 'template', label: 'Módulo', templateName: 'moduleTemplate' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
   }
@@ -69,8 +80,19 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
       endHour: [0, hourValidators],
       startMinutes: [0, minutesValidators],
       endMinutes: [0, minutesValidators],
+      app_module: [null, [Validators.required]],
       is_active: [true],
     }, { validators: WorkShifts.timeOrderValidator });
+  }
+
+  get appModule() {
+    return this.modelForm.get('app_module');
+  }
+
+  getMenuModules() {
+    this.loadList(this.menuModuleService, this.menuModules, false,
+      items => items.filter(m => m.has_shifts).sort((a, b) => a.name.localeCompare(b.name))
+    );
   }
 
   private static timeOrderValidator(group: AbstractControl): ValidationErrors | null {

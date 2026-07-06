@@ -16,6 +16,7 @@ import { parseSessionErrors } from '../../../common/functions/session-errors';
 import { WorkShiftService } from '../../../services/production/work-shift-service';
 import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
+import { RouteContextService } from '../../../services/core/route-context-service';
 import { Employee } from '../../../models/production/employee';
 import { EmployeesModal, EmployeesSavePayload } from '../../../shared/components/employees-modal/employees-modal';
 import { EmployeePicker } from '../../../shared/components/employee-picker/employee-picker';
@@ -57,6 +58,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   private workShiftService = inject(WorkShiftService);
   private moduleService = inject(ModuleService);
   private employeeService = inject(EmployeeService);
+  private routeContextService = inject(RouteContextService);
   private router = inject(Router);
 
   protected modules = signal<Module[]>([]);
@@ -85,7 +87,9 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
         next: ({ session, workShifts, modules, employees }) => {
           this.currentSession.set(session as WorkSession);
           if (session) this.setModelFormValues(session);
-          this.workShifts.set(workShifts.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
+          const currentModuleUrl = this.routeContextService.currentModule?.url;
+          const scopedShifts = workShifts.filter((w) => w.app_module_detail?.url === currentModuleUrl);
+          this.workShifts.set(scopedShifts.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
           this.modules.set(modules.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
           this.employees.set(employees);
         },

@@ -16,6 +16,10 @@ export class RouteContextService {
 
   private menu: Module[] = [];
 
+  get currentModule(): Module | null {
+    return this.moduleSubject.value;
+  }
+
   constructor(private router: Router) {
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.detectRoute();
