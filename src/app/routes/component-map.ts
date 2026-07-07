@@ -12,6 +12,9 @@ import { ModulePanel } from '../options/production/module-panel/module-panel';
 import { OrderDetail } from '../options/production/order-detail/order-detail';
 import { DataExport } from '../options/production/data-export/data-export';
 import { TechnicalSheetPage } from '../options/catalog/technical-sheet/technical-sheet';
+import { Processes } from '../options/stamping/processes/processes';
+import { ReferenceSams } from '../options/stamping/reference-sams/reference-sams';
+import { AdditionalTimes } from '../options/stamping/additional-times/additional-times';
 
 export const componentMap: Record<string, Type<any>> = {
   'admin/roles': Roles,
@@ -27,4 +30,7 @@ export const componentMap: Record<string, Type<any>> = {
   'production/order-detail': OrderDetail,
   'configuration/app-settings': AppSettings,
   'catalog/technical-sheet': TechnicalSheetPage,
+  'stamping/processes': Processes,
+  'stamping/reference-sams': ReferenceSams,
+  'stamping/additional-times': AdditionalTimes,
 };

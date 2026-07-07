@@ -1,0 +1,195 @@
+<app-work-space-layout>
+    <div main-content class="h-full">
+        <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
+            (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+
+            <ng-template appTableTemplate="statusTemplate" let-row>
+                <app-ui-badge [active]="row.is_active"></app-ui-badge>
+            </ng-template>
+
+        </app-data-table>
+    </div>
+</app-work-space-layout>
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+
+    <div class="mb-4 flex items-center gap-4">
+        <app-char-square>
+            {{ rowObject.reference_name?.toUpperCase()?.charAt(0) }}
+        </app-char-square>
+        <div>
+            <h3 class="text-2xl font-semibold text-slate-900 mb-1"> {{ rowObject.reference_name }} </h3>
+            <p class="text-sm text-slate-500"> {{ rowObject.machine }} — {{ rowObject.process }} </p>
+        </div>
+    </div>
+
+    <div class="mb-4 border-t border-slate-200 pt-4">
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Producción </h4>
+        <div class="space-y-2 text-sm">
+            <p><strong>Pieza(s):</strong> {{ rowObject.piece }}</p>
+            <p><strong># Personas:</strong> {{ rowObject.people_count }}</p>
+            <p><strong>Piezas estampadas:</strong> {{ rowObject.stamped_pieces }}</p>
+            <p><strong>Piezas por mesa:</strong> {{ rowObject.pieces_per_table }}</p>
+            <p><strong>Tareas por hora:</strong> {{ rowObject.tasks_per_hour }}</p>
+            <p><strong>Ubicación:</strong> {{ rowObject.location }}</p>
+        </div>
+    </div>
+
+    <div class="mb-4 border-t border-slate-200 pt-4">
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Clasificación </h4>
+        <div class="space-y-2 text-sm">
+            <p><strong>Marca:</strong> {{ rowObject.brand }}</p>
+            <p><strong>Línea:</strong> {{ rowObject.line }}</p>
+            <p><strong>Colección:</strong> {{ rowObject.collection }}</p>
+            <p><strong>Tipo de prenda:</strong> {{ rowObject.garment_type }}</p>
+            <p><strong>Tipo de tela:</strong> {{ rowObject.fabric_type }}</p>
+        </div>
+    </div>
+
+    <div class="mb-4 border-t border-slate-200 pt-4">
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Proceso técnico </h4>
+        <div class="space-y-2 text-sm">
+            <p><strong>Descripción tipo estampado:</strong> {{ rowObject.stamp_type_description }}</p>
+            <p><strong>Técnica:</strong> {{ rowObject.technique }}</p>
+            <p><strong>Marcos:</strong> {{ rowObject.frames }}</p>
+            <p><strong>Tintas:</strong> {{ rowObject.inks }}</p>
+            <p><strong>Impresiones:</strong> {{ rowObject.prints }}</p>
+            <p><strong>Forma de trazo:</strong> {{ rowObject.layout_form }}</p>
+            <p><strong>Presecado:</strong> {{ rowObject.pre_dried }}</p>
+        </div>
+    </div>
+
+    <div class="mb-4 border-t border-slate-200 pt-4">
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> SAM </h4>
+        <div class="space-y-2 text-sm">
+            <p><strong>SAM por persona:</strong> {{ rowObject.sam_single_person }}</p>
+            <p><strong>Estado activo:</strong> {{ rowObject.is_active ? 'Si' : 'No' }}</p>
+        </div>
+    </div>
+
+    <app-metadata [rowObject]="rowObject"></app-metadata>
+
+</app-side-modal-layout>
+
+<app-modal-layout [formId]="'stampingReferenceSamForm'" (onCancel)="closeModelForm()">
+
+    <form id="stampingReferenceSamForm" [formGroup]="modelForm" (ngSubmit)="submit()">
+        <fieldset [disabled]="showLoader()">
+
+            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-2 mb-2"> Identificación </h4>
+
+            <app-ui-form-field [controlName]="'rowid_item'" [label]="'ID SKU (rowid_item)'">
+                <app-ui-input [type]="'number'" formControlName="rowid_item" [id]="'rowid_item'" [placeholder]="'ID del SKU'" [control]="rowidItem"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'reference_name'" [label]="'Referencia'">
+                <app-ui-input formControlName="reference_name" [id]="'reference_name'" [placeholder]="'Referencia'" [control]="referenceName"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
+                <app-ui-input formControlName="machine" [id]="'machine'" [placeholder]="'Máquina'" [control]="machine"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'location'" [label]="'Ubicación'">
+                <app-ui-input formControlName="location" [id]="'location'" [placeholder]="'Ubicación'" [control]="location"></app-ui-input>
+            </app-ui-form-field>
+
+            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-4 mb-2"> Producción </h4>
+
+            <app-ui-form-field [controlName]="'piece'" [label]="'Pieza(s)'">
+                <app-ui-input formControlName="piece" [id]="'piece'" [placeholder]="'Pieza(s)'" [control]="piece"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'people_count'" [label]="'# Personas'">
+                <app-ui-input [type]="'number'" formControlName="people_count" [id]="'people_count'" [placeholder]="'# Personas'" [control]="peopleCount"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'stamped_pieces'" [label]="'Piezas que se estampan'">
+                <app-ui-input [type]="'number'" formControlName="stamped_pieces" [id]="'stamped_pieces'" [placeholder]="'Piezas que se estampan'" [control]="stampedPieces"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'pieces_per_table'" [label]="'Piezas por mesa'">
+                <app-ui-input [type]="'number'" formControlName="pieces_per_table" [id]="'pieces_per_table'" [placeholder]="'Piezas por mesa'" [control]="piecesPerTable"></app-ui-input>
+            </app-ui-form-field>
+
+            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-4 mb-2"> Clasificación </h4>
+
+            <app-ui-form-field [controlName]="'brand'" [label]="'Marca'">
+                <app-ui-input formControlName="brand" [id]="'brand'" [placeholder]="'Marca'" [control]="brand"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'line'" [label]="'Línea'">
+                <app-ui-input formControlName="line" [id]="'line'" [placeholder]="'Línea'" [control]="line"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'collection'" [label]="'Colección'">
+                <app-ui-input formControlName="collection" [id]="'collection'" [placeholder]="'Colección'" [control]="collection"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'garment_type'" [label]="'Tipo de prenda'">
+                <app-ui-input formControlName="garment_type" [id]="'garment_type'" [placeholder]="'Tipo de prenda'" [control]="garmentType"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'fabric_type'" [label]="'Tipo de tela'">
+                <app-ui-input formControlName="fabric_type" [id]="'fabric_type'" [placeholder]="'Tipo de tela'" [control]="fabricType"></app-ui-input>
+            </app-ui-form-field>
+
+            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-4 mb-2"> Proceso técnico </h4>
+
+            <app-ui-form-field [controlName]="'process'" [label]="'Proceso'">
+                <app-ui-input formControlName="process" [id]="'process'" [placeholder]="'Proceso'" [control]="process"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'stamp_type_description'" [label]="'Descripción tipo estampado'">
+                <app-ui-input formControlName="stamp_type_description" [id]="'stamp_type_description'" [placeholder]="'Descripción tipo estampado'" [control]="stampTypeDescription"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'technique'" [label]="'Técnica'">
+                <app-ui-input formControlName="technique" [id]="'technique'" [placeholder]="'Técnica'" [control]="technique"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'frames'" [label]="'Marcos'">
+                <app-ui-input [type]="'number'" formControlName="frames" [id]="'frames'" [placeholder]="'Marcos'" [control]="frames"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'inks'" [label]="'Tintas'">
+                <app-ui-input [type]="'number'" formControlName="inks" [id]="'inks'" [placeholder]="'Tintas'" [control]="inks"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'prints'" [label]="'Impresiones'">
+                <app-ui-input [type]="'number'" formControlName="prints" [id]="'prints'" [placeholder]="'Impresiones'" [control]="prints"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'layout_form'" [label]="'Forma de trazo'">
+                <app-ui-input formControlName="layout_form" [id]="'layout_form'" [placeholder]="'Forma de trazo'" [control]="layoutForm"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'pre_dried'" [label]="'Presecado'">
+                <app-ui-input [type]="'number'" formControlName="pre_dried" [id]="'pre_dried'" [placeholder]="'Presecado'" [control]="preDried"></app-ui-input>
+            </app-ui-form-field>
+
+            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-4 mb-2"> SAM </h4>
+
+            <app-ui-form-field [controlName]="'sam_single_person'" [label]="'SAM por persona'">
+                <app-ui-input [type]="'number'" [isFloat]="true" formControlName="sam_single_person" [id]="'sam_single_person'" [placeholder]="'Ej: 4.1260'" [control]="samSinglePerson"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'tasks_per_hour'" [label]="'Tareas por hora'">
+                <app-ui-input [type]="'number'" formControlName="tasks_per_hour" [id]="'tasks_per_hour'" [placeholder]="'Tareas por hora'" [control]="tasksPerHour"></app-ui-input>
+            </app-ui-form-field>
+
+            @if(actionType == 'edit'){
+            <app-ui-form-field [controlName]="'is_active'" [label]="'Registro activo'" [layout]="'horizontal'">
+                <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
+            </app-ui-form-field>
+            }
+
+            @if(errorMessage()){
+            <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+            }
+
+        </fieldset>
+    </form>
+
+</app-modal-layout>

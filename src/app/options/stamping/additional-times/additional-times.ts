@@ -1,0 +1,101 @@
+import { Component } from '@angular/core';
+import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
+import { DataTable } from '../../../shared/components/data-table/data-table';
+import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
+import { Metadata } from '../../../shared/components/metadata/metadata';
+import { BaseCrudPage } from '../../../common/classes/base-crud-page';
+import { AdditionalStampingTime } from '../../../models/stamping/additional-stamping-time';
+import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
+import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { AdditionalStampingTimeService } from '../../../services/stamping/additional-stamping-time-service';
+import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiInput } from '../../../shared/elements/ui-input/ui-input';
+import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
+import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
+import { TableTemplate } from '../../../directives/table-template';
+import { CharSquare } from '../../../shared/components/char-square/char-square';
+import { TableActionEvent } from '../../../common/interfaces/table-action-event';
+import { TableColumn } from '../../../common/interfaces/table-column';
+
+@Component({
+  selector: 'app-additional-times',
+  imports: [
+    WorkSpaceLayout,
+    DataTable,
+    UiErrorMessage,
+    Metadata,
+    ModalLayout,
+    SideModalLayout,
+    ReactiveFormsModule,
+    UiFormField,
+    UiInput,
+    UiCheckbox,
+    UiBadge,
+    TableTemplate,
+    CharSquare,
+  ],
+  templateUrl: './additional-times.html',
+  styleUrl: './additional-times.css',
+})
+export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
+  protected override entityName: string = 'tiempo adicional de estampación';
+
+  constructor(private additionalStampingTimeService: AdditionalStampingTimeService) {
+    super(additionalStampingTimeService);
+  }
+
+  protected override get columns(): TableColumn<AdditionalStampingTime>[] {
+    return [
+      { field: 'code_number', label: 'Código' },
+      { field: 'engineering_code', label: 'Código ingeniería' },
+      { field: 'machine', label: 'Máquina' },
+      { field: 'process', label: 'Proceso' },
+      { field: 'standard_time', label: 'Tiempo estándar' },
+      { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
+    ];
+  }
+
+  protected override initializeModelForm(): void {
+    this.modelForm = this.fb.group({
+      code_number: [null, [Validators.required]],
+      engineering_code: [null, [Validators.required]],
+      machine: [null, [Validators.required]],
+      process: [null, [Validators.required]],
+      process_description_text: [null],
+      standard_time: [null],
+      is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
+    });
+  }
+
+  get codeNumber() { return this.modelForm.get('code_number'); }
+  get engineeringCode() { return this.modelForm.get('engineering_code'); }
+  get machine() { return this.modelForm.get('machine'); }
+  get process() { return this.modelForm.get('process'); }
+  get processDescriptionText() { return this.modelForm.get('process_description_text'); }
+  get standardTime() { return this.modelForm.get('standard_time'); }
+  get isActive() { return this.modelForm.get('is_active'); }
+
+  protected override actionHandler(event: TableActionEvent<AdditionalStampingTime>): void {
+    super.actionHandler(event);
+    if (event.type == 'edit') {
+      this.modelForm.patchValue({
+        ...event.obj,
+        process_description_text: (event.obj.process_description ?? []).join('\n'),
+      });
+    }
+  }
+
+  protected override submit(): void {
+    const { process_description_text, ...rest } = this.modelForm.value;
+    const additionalStampingTime: Partial<AdditionalStampingTime> = {
+      ...rest,
+      process_description: (process_description_text ?? '')
+        .split('\n')
+        .map((step: string) => step.trim())
+        .filter((step: string) => step.length > 0),
+      is_active: this.isActive?.value ?? true,
+    };
+    super.submit(additionalStampingTime);
+  }
+}

@@ -1,0 +1,96 @@
+<app-work-space-layout>
+    <div main-content class="h-full">
+        <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
+            (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+
+            <ng-template appTableTemplate="statusTemplate" let-row>
+                <app-ui-badge [active]="row.is_active"></app-ui-badge>
+            </ng-template>
+
+        </app-data-table>
+    </div>
+</app-work-space-layout>
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+
+    <div class="mb-4 flex items-center gap-4">
+        <app-char-square>
+            {{ rowObject.code_number?.toUpperCase()?.charAt(0) }}
+        </app-char-square>
+        <div>
+            <h3 class="text-2xl font-semibold text-slate-900 mb-1"> {{ rowObject.code_number }} </h3>
+            <p class="text-sm text-slate-500"> {{ rowObject.machine }} — {{ rowObject.process }} </p>
+        </div>
+    </div>
+
+    <div class="mb-4 border-t border-slate-200 pt-4">
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información </h4>
+        <div class="space-y-2 text-sm">
+            <p><strong>Código ingeniería:</strong> {{ rowObject.engineering_code }}</p>
+            <p><strong>Tiempo estándar:</strong> {{ rowObject.standard_time }}</p>
+            <p><strong>Estado activo:</strong> {{ rowObject.is_active ? 'Si' : 'No' }}</p>
+        </div>
+    </div>
+
+    <div class="mb-4 border-t border-slate-200 pt-4">
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Pasos del proceso </h4>
+        @if (rowObject.process_description?.length) {
+        <ol class="list-decimal list-inside space-y-1 text-sm">
+            @for (step of rowObject.process_description; track $index) {
+            <li>{{ step }}</li>
+            }
+        </ol>
+        } @else {
+        <p class="text-slate-400 italic text-sm">Sin pasos registrados</p>
+        }
+    </div>
+
+    <app-metadata [rowObject]="rowObject"></app-metadata>
+
+</app-side-modal-layout>
+
+<app-modal-layout [formId]="'additionalStampingTimeForm'" (onCancel)="closeModelForm()">
+
+    <form id="additionalStampingTimeForm" [formGroup]="modelForm" (ngSubmit)="submit()">
+        <fieldset [disabled]="showLoader()">
+
+            <app-ui-form-field [controlName]="'code_number'" [label]="'Código'">
+                <app-ui-input formControlName="code_number" [id]="'code_number'" [placeholder]="'Código'" [control]="codeNumber"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'engineering_code'" [label]="'Código ingeniería'">
+                <app-ui-input formControlName="engineering_code" [id]="'engineering_code'" [placeholder]="'Código ingeniería'" [control]="engineeringCode"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
+                <app-ui-input formControlName="machine" [id]="'machine'" [placeholder]="'Máquina'" [control]="machine"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'process'" [label]="'Proceso'">
+                <app-ui-input formControlName="process" [id]="'process'" [placeholder]="'Proceso'" [control]="process"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'standard_time'" [label]="'Tiempo estándar'">
+                <app-ui-input [type]="'number'" [isFloat]="true" formControlName="standard_time" [id]="'standard_time'" [placeholder]="'Ej: 0.1500'" [control]="standardTime"></app-ui-input>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'process_description_text'" [label]="'Pasos del proceso (uno por línea)'">
+                <textarea formControlName="process_description_text" id="process_description_text" rows="5" placeholder="1. ...&#10;2. ..."
+                    class="w-full px-4 py-2 border text-sm rounded outline-none transition-all duration-200 focus:ring-2 border-gray-300 focus:border-brand-500 focus:ring-brand-200"></textarea>
+            </app-ui-form-field>
+
+            @if(actionType == 'edit'){
+            <app-ui-form-field [controlName]="'is_active'" [label]="'Registro activo'" [layout]="'horizontal'">
+                <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
+            </app-ui-form-field>
+            }
+
+            @if(errorMessage()){
+            <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+            }
+
+        </fieldset>
+    </form>
+
+</app-modal-layout>
