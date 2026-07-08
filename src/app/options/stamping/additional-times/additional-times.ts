@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../shared/components/data-table/data-table';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
@@ -17,6 +17,9 @@ import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { TableColumn } from '../../../common/interfaces/table-column';
+import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
+import { StampingMachine } from '../../../models/stamping/stamping-machine';
+import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
 
 @Component({
   selector: 'app-additional-times',
@@ -34,6 +37,7 @@ import { TableColumn } from '../../../common/interfaces/table-column';
     UiBadge,
     TableTemplate,
     CharSquare,
+    UiSelect,
   ],
   templateUrl: './additional-times.html',
   styleUrl: './additional-times.css',
@@ -41,15 +45,24 @@ import { TableColumn } from '../../../common/interfaces/table-column';
 export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
   protected override entityName: string = 'tiempo adicional de estampación';
 
-  constructor(private additionalStampingTimeService: AdditionalStampingTimeService) {
+  machines = signal<StampingMachine[]>([]);
+
+  constructor(
+    private additionalStampingTimeService: AdditionalStampingTimeService,
+    private stampingMachineService: StampingMachineService,
+  ) {
     super(additionalStampingTimeService);
+  }
+
+  ngOnInit(): void {
+    this.loadList(this.stampingMachineService, this.machines);
   }
 
   protected override get columns(): TableColumn<AdditionalStampingTime>[] {
     return [
-      { field: 'code_number', label: 'Código' },
       { field: 'engineering_code', label: 'Código ingeniería' },
-      { field: 'machine', label: 'Máquina' },
+      { field: 'code_number', label: 'Código' },
+      { field: 'machine_name', label: 'Máquina' },
       { field: 'process', label: 'Proceso' },
       { field: 'standard_time', label: 'Tiempo estándar' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },

@@ -14,13 +14,14 @@ import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-fiel
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
-import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
 import { Reference } from '../../../models/catalog/reference';
 import { ReferencesService } from '../../../services/catalog/references-service';
+import { StampingMachine } from '../../../models/stamping/stamping-machine';
+import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
 
 const TABS: TabItem[] = [
   { key: 'identification', label: 'Identificación' },
@@ -43,7 +44,6 @@ const TABS: TabItem[] = [
     UiFormField,
     UiInput,
     UiCheckbox,
-    UiBadge,
     TableTemplate,
     CharSquare,
     UiTabs,
@@ -58,6 +58,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
   tabs = TABS;
   activeTab = signal('identification');
   references = signal<Reference[]>([]);
+  machines = signal<StampingMachine[]>([]);
 
   onTabChange(key: string): void {
     this.activeTab.set(key);
@@ -75,6 +76,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
   constructor(
     stampingReferenceSamService: StampingReferenceSamService,
     private referencesService: ReferencesService,
+    private stampingMachineService: StampingMachineService,
   ) {
     super(stampingReferenceSamService);
   }
@@ -84,6 +86,8 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
     this.referencesService.getAll()
       .pipe(finalize(() => this.wslService.end()))
       .subscribe((references) => this.references.set(references));
+
+    this.loadList(this.stampingMachineService, this.machines);
   }
 
   onReferenceSelect(event: { index: number; value: Reference }): void {
@@ -107,7 +111,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
     return [
       { field: 'identification', label: 'Identificación' },
       { type: 'template', label: 'Referencia', templateName: 'referenceTemplate' },
-      { field: 'machine', label: 'Máquina' },
+      { field: 'machine_name', label: 'Máquina' },
       { field: 'process', label: 'Proceso' },
       { field: 'tasks_per_hour', label: 'Tarea/hora', align: 'center' },
       { field: 'sam_single_person', label: 'SAM', align: 'center' },
