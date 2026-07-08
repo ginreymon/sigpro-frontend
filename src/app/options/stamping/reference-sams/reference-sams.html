@@ -122,6 +122,10 @@
             </div>
 
             <div [class.hidden]="activeTab() !== 'classification'" class="mt-4">
+                <app-ui-form-field [controlName]="'fabric_type'" [label]="'Tipo de tela'">
+                    <app-ui-select [className]="'w-full'" formControlName="fabric_type" [id]="'fabric_type'" [control]="fabricType" [items]="fabricTypes()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+                </app-ui-form-field>
+                
                 <app-ui-form-field [controlName]="'brand'" [label]="'Marca'">
                     <app-ui-input formControlName="brand" [id]="'brand'" [placeholder]="'Marca'" [control]="brand"></app-ui-input>
                 </app-ui-form-field>
@@ -136,26 +140,22 @@
 
                 <app-ui-form-field [controlName]="'garment_type'" [label]="'Tipo de prenda'">
                     <app-ui-input formControlName="garment_type" [id]="'garment_type'" [placeholder]="'Tipo de prenda'" [control]="garmentType"></app-ui-input>
-                </app-ui-form-field>
-
-                <app-ui-form-field [controlName]="'fabric_type'" [label]="'Tipo de tela'">
-                    <app-ui-select [className]="'w-full'" formControlName="fabric_type" [id]="'fabric_type'" [control]="fabricType" [items]="fabricTypes()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-                </app-ui-form-field>
+                </app-ui-form-field>                
             </div>
 
             <div [class.hidden]="activeTab() !== 'process'" class="mt-4">
-                <app-ui-form-field [controlName]="'process'" [label]="'Proceso'">
-                    <app-ui-input formControlName="process" [id]="'process'" [placeholder]="'Proceso'" [control]="process"></app-ui-input>
-                </app-ui-form-field>
-
                 <app-ui-form-field [controlName]="'stamp_type_description'" [label]="'Descripción tipo estampado'">
                     <app-ui-select [className]="'w-full'" formControlName="stamp_type_description" [id]="'stamp_type_description'" [control]="stampTypeDescription" [items]="stampTypeDescriptions()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
-
+                
                 <app-ui-form-field [controlName]="'technique'" [label]="'Técnica'">
                     <app-ui-select [className]="'w-full'" formControlName="technique" [id]="'technique'" [control]="technique" [items]="techniques()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
-
+                
+                <app-ui-form-field [controlName]="'process'" [label]="'Proceso'">
+                    <app-ui-input formControlName="process" [id]="'process'" [placeholder]="'Proceso'" [control]="process"></app-ui-input>
+                </app-ui-form-field>
+                
                 <app-ui-form-field [controlName]="'frames'" [label]="'Marcos'">
                     <app-ui-input [type]="'number'" formControlName="frames" [id]="'frames'" [placeholder]="'Marcos'" [control]="frames"></app-ui-input>
                 </app-ui-form-field>
