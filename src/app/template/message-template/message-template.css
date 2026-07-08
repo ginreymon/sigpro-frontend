@@ -1,0 +1,22 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+@keyframes message-template-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes message-template-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.message-template-spin {
+  animation: message-template-spin 20s linear infinite;
+}
+
+.message-template-float {
+  animation: message-template-float 6s ease-in-out infinite;
+}
