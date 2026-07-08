@@ -22,6 +22,16 @@ import { Reference } from '../../../models/catalog/reference';
 import { ReferencesService } from '../../../services/catalog/references-service';
 import { StampingMachine } from '../../../models/stamping/stamping-machine';
 import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
+import { StampingPiece } from '../../../models/stamping/stamping-piece';
+import { StampingPieceService } from '../../../services/stamping/stamping-piece-service';
+import { StampingLocation } from '../../../models/stamping/stamping-location';
+import { StampingLocationService } from '../../../services/stamping/stamping-location-service';
+import { StampingStampTypeDescription } from '../../../models/stamping/stamping-stamp-type-description';
+import { StampingStampTypeDescriptionService } from '../../../services/stamping/stamping-stamp-type-description-service';
+import { StampingFabricType } from '../../../models/stamping/stamping-fabric-type';
+import { StampingFabricTypeService } from '../../../services/stamping/stamping-fabric-type-service';
+import { StampingTechnique } from '../../../models/stamping/stamping-technique';
+import { StampingTechniqueService } from '../../../services/stamping/stamping-technique-service';
 
 const TABS: TabItem[] = [
   { key: 'identification', label: 'Identificación' },
@@ -59,6 +69,11 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
   activeTab = signal('identification');
   references = signal<Reference[]>([]);
   machines = signal<StampingMachine[]>([]);
+  pieces = signal<StampingPiece[]>([]);
+  locations = signal<StampingLocation[]>([]);
+  stampTypeDescriptions = signal<StampingStampTypeDescription[]>([]);
+  fabricTypes = signal<StampingFabricType[]>([]);
+  techniques = signal<StampingTechnique[]>([]);
 
   onTabChange(key: string): void {
     this.activeTab.set(key);
@@ -77,6 +92,11 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
     stampingReferenceSamService: StampingReferenceSamService,
     private referencesService: ReferencesService,
     private stampingMachineService: StampingMachineService,
+    private stampingPieceService: StampingPieceService,
+    private stampingLocationService: StampingLocationService,
+    private stampingStampTypeDescriptionService: StampingStampTypeDescriptionService,
+    private stampingFabricTypeService: StampingFabricTypeService,
+    private stampingTechniqueService: StampingTechniqueService,
   ) {
     super(stampingReferenceSamService);
   }
@@ -88,6 +108,11 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
       .subscribe((references) => this.references.set(references));
 
     this.loadList(this.stampingMachineService, this.machines);
+    this.loadList(this.stampingPieceService, this.pieces);
+    this.loadList(this.stampingLocationService, this.locations);
+    this.loadList(this.stampingStampTypeDescriptionService, this.stampTypeDescriptions);
+    this.loadList(this.stampingFabricTypeService, this.fabricTypes);
+    this.loadList(this.stampingTechniqueService, this.techniques);
   }
 
   onReferenceSelect(event: { index: number; value: Reference }): void {

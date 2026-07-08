@@ -28,12 +28,12 @@
     <div class="mb-4 border-t border-slate-200 pt-4">
         <h4 class="text-xl font-semibold text-gray-700 mb-2"> Producción </h4>
         <div class="space-y-2 text-sm">
-            <p><strong>Pieza(s):</strong> {{ rowObject.piece }}</p>
+            <p><strong>Pieza(s):</strong> {{ rowObject.piece_name }}</p>
             <p><strong>Número personas:</strong> {{ rowObject.people_count }}</p>
             <p><strong>Piezas estampadas:</strong> {{ rowObject.stamped_pieces }}</p>
             <p><strong>Piezas por tablero:</strong> {{ rowObject.pieces_per_board }}</p>
             <p><strong>Tareas por hora:</strong> {{ rowObject.tasks_per_hour }}</p>
-            <p><strong>Ubicación:</strong> {{ rowObject.location }}</p>
+            <p><strong>Ubicación:</strong> {{ rowObject.location_name }}</p>
         </div>
     </div>
 
@@ -44,15 +44,15 @@
             <p><strong>Línea:</strong> {{ rowObject.line }}</p>
             <p><strong>Colección:</strong> {{ rowObject.collection }}</p>
             <p><strong>Tipo de prenda:</strong> {{ rowObject.garment_type }}</p>
-            <p><strong>Tipo de tela:</strong> {{ rowObject.fabric_type }}</p>
+            <p><strong>Tipo de tela:</strong> {{ rowObject.fabric_type_name }}</p>
         </div>
     </div>
 
     <div class="mb-4 border-t border-slate-200 pt-4">
         <h4 class="text-xl font-semibold text-gray-700 mb-2"> Proceso técnico </h4>
         <div class="space-y-2 text-sm">
-            <p><strong>Descripción tipo estampado:</strong> {{ rowObject.stamp_type_description }}</p>
-            <p><strong>Técnica:</strong> {{ rowObject.technique }}</p>
+            <p><strong>Descripción tipo estampado:</strong> {{ rowObject.stamp_type_description_name }}</p>
+            <p><strong>Técnica:</strong> {{ rowObject.technique_name }}</p>
             <p><strong>Marcos:</strong> {{ rowObject.frames }}</p>
             <p><strong>Tintas:</strong> {{ rowObject.inks }}</p>
             <p><strong>Impresiones:</strong> {{ rowObject.prints }}</p>
@@ -101,11 +101,11 @@
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'location'" [label]="'Ubicación'">
-                    <app-ui-input formControlName="location" [id]="'location'" [placeholder]="'Ubicación'" [control]="location"></app-ui-input>
+                    <app-ui-select [className]="'w-full'" formControlName="location" [id]="'location'" [control]="location" [items]="locations()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'piece'" [label]="'Pieza(s)'">
-                    <app-ui-input formControlName="piece" [id]="'piece'" [placeholder]="'Pieza(s)'" [control]="piece"></app-ui-input>
+                    <app-ui-select [className]="'w-full'" formControlName="piece" [id]="'piece'" [control]="piece" [items]="pieces()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'people_count'" [label]="'Número personas'">
@@ -139,7 +139,7 @@
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'fabric_type'" [label]="'Tipo de tela'">
-                    <app-ui-input formControlName="fabric_type" [id]="'fabric_type'" [placeholder]="'Tipo de tela'" [control]="fabricType"></app-ui-input>
+                    <app-ui-select [className]="'w-full'" formControlName="fabric_type" [id]="'fabric_type'" [control]="fabricType" [items]="fabricTypes()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
             </div>
 
@@ -149,11 +149,11 @@
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'stamp_type_description'" [label]="'Descripción tipo estampado'">
-                    <app-ui-input formControlName="stamp_type_description" [id]="'stamp_type_description'" [placeholder]="'Descripción tipo estampado'" [control]="stampTypeDescription"></app-ui-input>
+                    <app-ui-select [className]="'w-full'" formControlName="stamp_type_description" [id]="'stamp_type_description'" [control]="stampTypeDescription" [items]="stampTypeDescriptions()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'technique'" [label]="'Técnica'">
-                    <app-ui-input formControlName="technique" [id]="'technique'" [placeholder]="'Técnica'" [control]="technique"></app-ui-input>
+                    <app-ui-select [className]="'w-full'" formControlName="technique" [id]="'technique'" [control]="technique" [items]="techniques()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'frames'" [label]="'Marcos'">
