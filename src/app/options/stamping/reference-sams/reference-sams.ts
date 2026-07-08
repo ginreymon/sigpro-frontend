@@ -48,7 +48,7 @@ const TABS: TabItem[] = [
   styleUrl: './reference-sams.css',
 })
 export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
-  protected override entityName: string = 'referencia SAM de estampación';
+  protected override entityName: string = 'SAM';
 
   tabs = TABS;
   activeTab = signal('identification');
