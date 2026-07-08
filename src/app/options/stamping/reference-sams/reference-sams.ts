@@ -68,7 +68,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
 
   protected override get columns(): TableColumn<StampingReferenceSam>[] {
     return [
-      { field: 'reference_name', label: 'Referencia' },
+      { field: 'identification', label: 'Identificación' },
       { field: 'machine', label: 'Máquina' },
       { field: 'process', label: 'Proceso' },
       { field: 'sam_single_person', label: 'SAM' },
@@ -80,7 +80,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
   protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
       rowid_item: [null, [Validators.required]],
-      reference_name: [null, [Validators.required, Validators.minLength(2)]],
+      identification: [null, [Validators.required, Validators.minLength(2)]],
       machine: [null, [Validators.required]],
       people_count: [null, [Validators.required, Validators.min(1)]],
       piece: [null, [Validators.required]],
@@ -97,7 +97,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
       frames: [null],
       inks: [null],
       prints: [null],
-      pieces_per_table: [null],
+      pieces_per_board: [null],
       layout_form: [null],
       pre_dried: [null],
       sam_single_person: [null, [Validators.required, Validators.min(0.0001)]],
@@ -107,7 +107,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
   }
 
   get rowidItem() { return this.modelForm.get('rowid_item'); }
-  get referenceName() { return this.modelForm.get('reference_name'); }
+  get identification() { return this.modelForm.get('identification'); }
   get machine() { return this.modelForm.get('machine'); }
   get peopleCount() { return this.modelForm.get('people_count'); }
   get piece() { return this.modelForm.get('piece'); }
@@ -124,7 +124,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
   get frames() { return this.modelForm.get('frames'); }
   get inks() { return this.modelForm.get('inks'); }
   get prints() { return this.modelForm.get('prints'); }
-  get piecesPerTable() { return this.modelForm.get('pieces_per_table'); }
+  get piecesPerBoard() { return this.modelForm.get('pieces_per_board'); }
   get layoutForm() { return this.modelForm.get('layout_form'); }
   get preDried() { return this.modelForm.get('pre_dried'); }
   get samSinglePerson() { return this.modelForm.get('sam_single_person'); }

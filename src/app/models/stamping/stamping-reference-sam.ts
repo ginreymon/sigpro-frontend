@@ -5,8 +5,8 @@ import { SkuItemFields } from '../production/sku-item-fields';
 
 export interface StampingReferenceSam extends TimeAuditEntity, UserAuditEntity, ActiveEntity {
   rowid_item: number;
-  reference_name: string;
-  reference_detail?: SkuItemFields | null;
+  identification: string;
+  reference?: SkuItemFields | null;
   machine: string;
   people_count: number;
   piece: string;
@@ -23,7 +23,7 @@ export interface StampingReferenceSam extends TimeAuditEntity, UserAuditEntity, 
   frames?: number | null;
   inks?: number | null;
   prints?: number | null;
-  pieces_per_table?: number | null;
+  pieces_per_board?: number | null;
   layout_form?: string | null;
   pre_dried?: number | null;
   sam_single_person: string;

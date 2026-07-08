@@ -16,10 +16,10 @@
 
     <div class="mb-4 flex items-center gap-4">
         <app-char-square>
-            {{ rowObject.reference_name?.toUpperCase()?.charAt(0) }}
+            {{ rowObject.identification?.toUpperCase()?.charAt(0) }}
         </app-char-square>
         <div>
-            <h3 class="text-2xl font-semibold text-slate-900 mb-1"> {{ rowObject.reference_name }} </h3>
+            <h3 class="text-2xl font-semibold text-slate-900 mb-1"> {{ rowObject.identification }} </h3>
             <p class="text-sm text-slate-500"> {{ rowObject.machine }} — {{ rowObject.process }} </p>
         </div>
     </div>
@@ -30,7 +30,7 @@
             <p><strong>Pieza(s):</strong> {{ rowObject.piece }}</p>
             <p><strong># Personas:</strong> {{ rowObject.people_count }}</p>
             <p><strong>Piezas estampadas:</strong> {{ rowObject.stamped_pieces }}</p>
-            <p><strong>Piezas por mesa:</strong> {{ rowObject.pieces_per_table }}</p>
+            <p><strong>Piezas por tablero:</strong> {{ rowObject.pieces_per_board }}</p>
             <p><strong>Tareas por hora:</strong> {{ rowObject.tasks_per_hour }}</p>
             <p><strong>Ubicación:</strong> {{ rowObject.location }}</p>
         </div>
@@ -84,8 +84,8 @@
                     <app-ui-input [type]="'number'" formControlName="rowid_item" [id]="'rowid_item'" [placeholder]="'ID del SKU'" [control]="rowidItem"></app-ui-input>
                 </app-ui-form-field>
 
-                <app-ui-form-field [controlName]="'reference_name'" [label]="'Referencia'">
-                    <app-ui-input formControlName="reference_name" [id]="'reference_name'" [placeholder]="'Referencia'" [control]="referenceName"></app-ui-input>
+                <app-ui-form-field [controlName]="'identification'" [label]="'Identificación'">
+                    <app-ui-input formControlName="identification" [id]="'identification'" [placeholder]="'Identificación'" [control]="identification"></app-ui-input>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
@@ -110,8 +110,8 @@
                     <app-ui-input [type]="'number'" formControlName="stamped_pieces" [id]="'stamped_pieces'" [placeholder]="'Piezas que se estampan'" [control]="stampedPieces"></app-ui-input>
                 </app-ui-form-field>
 
-                <app-ui-form-field [controlName]="'pieces_per_table'" [label]="'Piezas por mesa'">
-                    <app-ui-input [type]="'number'" formControlName="pieces_per_table" [id]="'pieces_per_table'" [placeholder]="'Piezas por mesa'" [control]="piecesPerTable"></app-ui-input>
+                <app-ui-form-field [controlName]="'pieces_per_board'" [label]="'Piezas por tablero'">
+                    <app-ui-input [type]="'number'" formControlName="pieces_per_board" [id]="'pieces_per_board'" [placeholder]="'Piezas por tablero'" [control]="piecesPerBoard"></app-ui-input>
                 </app-ui-form-field>
             </div>
 
