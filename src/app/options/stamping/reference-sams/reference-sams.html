@@ -87,7 +87,7 @@
 
                 @if (noReference?.value) {
                 <app-ui-form-field [controlName]="'rowid_item'" [label]="'Referencia (Siesa)'">
-                    <app-ui-select [className]="'w-full'" formControlName="rowid_item" [id]="'rowid_item'" [control]="rowidItem" [items]="references()" [key]="'reference'" [keyValue]="'rowid_item'" [showDefaultOption]="true" (onSelect)="onReferenceSelect($event)"></app-ui-select>
+                    <app-ui-combobox [className]="'w-full'" formControlName="rowid_item" [id]="'rowid_item'" [control]="rowidItem" [items]="references()" [key]="'reference'" [keyValue]="'rowid_item'" [placeholder]="'Buscar referencia...'" (onSelect)="onReferenceSelect($event)"></app-ui-combobox>
                 </app-ui-form-field>
                 }
                 <app-ui-form-field [controlName]="'identification'" [label]="'Identificación (Estampación)'">

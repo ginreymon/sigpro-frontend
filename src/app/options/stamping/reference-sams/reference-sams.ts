@@ -13,6 +13,7 @@ import { StampingReferenceSamService } from '../../../services/stamping/stamping
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
+import { UiCombobox } from '../../../shared/elements/ui-combobox/ui-combobox';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
@@ -58,6 +59,7 @@ const TABS: TabItem[] = [
     CharSquare,
     UiTabs,
     UiSelect,
+    UiCombobox,
   ],
   templateUrl: './reference-sams.html',
   styleUrl: './reference-sams.css',
