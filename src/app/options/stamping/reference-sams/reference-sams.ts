@@ -38,7 +38,7 @@ const TABS: TabItem[] = [
   { key: 'identification', label: 'Identificación' },
   { key: 'production', label: 'Producción' },
   { key: 'classification', label: 'Clasificación' },
-  { key: 'process', label: 'Proceso técnico' },
+  { key: 'process', label: 'Proceso' },
   { key: 'sam', label: 'SAM' },
 ];
 

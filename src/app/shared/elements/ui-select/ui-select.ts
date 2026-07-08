@@ -44,6 +44,7 @@ export class UiSelect extends BaseControlValueAccessor<any> {
     this.value = value;
     const index = this.items.findIndex((i) => i == value);
     this.onChange(value);
+    this.onTouched();
     this.onSelect.emit({ index, value: this._items[index] });
   }
 }

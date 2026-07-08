@@ -175,8 +175,22 @@ export class UiCombobox extends BaseControlValueAccessor<any> implements AfterVi
   private close(): void {
     this.isOpen.set(false);
     document.removeEventListener('scroll', this.scrollHandler, true);
+
+    if (!this.searchText().trim()) {
+      this.clear();
+      this.onTouched();
+      return;
+    }
+
     const item = this._items.find((i) => this.itemValue(i) == this.value);
     this.searchText.set(item ? this.label(item) : '');
     this.onTouched();
+  }
+
+  private clear(): void {
+    if (this.value == null) return;
+    this.value = null;
+    this.onChange(null);
+    this.onSelect.emit({ index: -1, value: null });
   }
 }

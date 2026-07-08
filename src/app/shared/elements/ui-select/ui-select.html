@@ -9,14 +9,15 @@
     transition-all
     duration-200
     focus:ring-2
+    ${!value ? 'text-gray-400' : 'text-gray-900'}
     ${invalid
       ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
       : 'border-gray-300 focus:border-brand-500 focus:ring-brand-200'}
     ${className}
   `" [ngModel]="value" (ngModelChange)="changeHandle($event)" (blur)="onTouched()" [disabled]="disabled">
-  
-  @if(showDefaultOption && !value){
-  <option [value]="null">Seleccione...</option>
+
+  @if(showDefaultOption){
+  <option class="text-gray-400" [value]="null">{{ placeholder || 'Seleccione...' }}</option>
   }
 
   @for (item of (keyValue && key ? _items : items); track item) {
