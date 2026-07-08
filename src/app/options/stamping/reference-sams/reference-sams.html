@@ -96,12 +96,12 @@
             </div>
 
             <div [class.hidden]="activeTab() !== 'production'" class="mt-4">
-                 <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
-                    <app-ui-select [className]="'w-full'" formControlName="machine" [id]="'machine'" [control]="machine" [items]="machines()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-                </app-ui-form-field>
-
                 <app-ui-form-field [controlName]="'location'" [label]="'Ubicación'">
                     <app-ui-select [className]="'w-full'" formControlName="location" [id]="'location'" [control]="location" [items]="locations()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+                </app-ui-form-field>
+
+                <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
+                    <app-ui-select [className]="'w-full'" formControlName="machine" [id]="'machine'" [control]="machine" [items]="machines()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'piece'" [label]="'Pieza(s)'">

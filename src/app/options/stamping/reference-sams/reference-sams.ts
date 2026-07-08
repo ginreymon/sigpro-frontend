@@ -201,8 +201,11 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
 
   protected override submit(): void {
     const { no_reference, ...formValue } = this.modelForm.value;
+    const normalized = Object.fromEntries(
+      Object.entries(formValue).map(([key, value]) => [key, value === '' ? null : value]),
+    );
     const reference: Partial<StampingReferenceSam> = {
-      ...formValue,
+      ...normalized,
       is_active: this.isActive?.value ?? true,
     };
     super.submit(reference);
