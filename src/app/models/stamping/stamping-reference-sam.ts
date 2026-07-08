@@ -1,10 +1,12 @@
 import { TimeAuditEntity } from '../../common/interfaces/time-audit-entity';
 import { UserAuditEntity } from '../../common/interfaces/user-audit-entity';
 import { ActiveEntity } from '../../common/interfaces/active-entity';
+import { SkuItemFields } from '../production/sku-item-fields';
 
 export interface StampingReferenceSam extends TimeAuditEntity, UserAuditEntity, ActiveEntity {
   rowid_item: number;
   reference_name: string;
+  reference_detail?: SkuItemFields | null;
   machine: string;
   people_count: number;
   piece: string;
