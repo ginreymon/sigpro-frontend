@@ -8,15 +8,19 @@ import { StampingReferenceSam } from '../../../models/stamping/stamping-referenc
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { StampingReferenceSamService } from '../../../services/stamping/stamping-reference-sam-service';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
+import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
+import { Reference } from '../../../models/catalog/reference';
+import { ReferencesService } from '../../../services/catalog/references-service';
 
 const TABS: TabItem[] = [
   { key: 'identification', label: 'Identificación' },
@@ -43,6 +47,7 @@ const TABS: TabItem[] = [
     TableTemplate,
     CharSquare,
     UiTabs,
+    UiSelect,
   ],
   templateUrl: './reference-sams.html',
   styleUrl: './reference-sams.css',
@@ -52,9 +57,14 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
 
   tabs = TABS;
   activeTab = signal('identification');
+  references = signal<Reference[]>([]);
 
   onTabChange(key: string): void {
     this.activeTab.set(key);
+  }
+
+  onToggleNoReference(): void {
+    this.modelForm.patchValue({ rowid_item: null, identification: null });
   }
 
   protected override closeModelForm(): void {
@@ -62,8 +72,26 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
     super.closeModelForm();
   }
 
-  constructor(private stampingReferenceSamService: StampingReferenceSamService) {
+  constructor(
+    stampingReferenceSamService: StampingReferenceSamService,
+    private referencesService: ReferencesService,
+  ) {
     super(stampingReferenceSamService);
+  }
+
+  ngOnInit(): void {
+    this.wslService.start();
+    this.referencesService.getAll()
+      .pipe(finalize(() => this.wslService.end()))
+      .subscribe((references) => this.references.set(references));
+  }
+
+  onReferenceSelect(event: { index: number; value: Reference }): void {
+    if (!event.value) return;
+    this.modelForm.patchValue({
+      rowid_item: event.value.rowid_item,
+      identification: event.value.reference,
+    });
   }
 
   protected override get columns(): TableColumn<StampingReferenceSam>[] {
@@ -79,6 +107,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
 
   protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
+      no_reference: [true],
       rowid_item: [null, [Validators.required]],
       identification: [null, [Validators.required, Validators.minLength(2)]],
       machine: [null, [Validators.required]],
@@ -106,6 +135,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
     });
   }
 
+  get noReference() { return this.modelForm.get('no_reference'); }
   get rowidItem() { return this.modelForm.get('rowid_item'); }
   get identification() { return this.modelForm.get('identification'); }
   get machine() { return this.modelForm.get('machine'); }
@@ -132,8 +162,9 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
   get isActive() { return this.modelForm.get('is_active'); }
 
   protected override submit(): void {
+    const { no_reference, ...formValue } = this.modelForm.value;
     const reference: Partial<StampingReferenceSam> = {
-      ...this.modelForm.value,
+      ...formValue,
       is_active: this.isActive?.value ?? true,
     };
     super.submit(reference);

@@ -80,30 +80,35 @@
             <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
 
             <div [class.hidden]="activeTab() !== 'identification'" class="mt-4">
-                <app-ui-form-field [controlName]="'rowid_item'" [label]="'ID SKU (rowid_item)'">
-                    <app-ui-input [type]="'number'" formControlName="rowid_item" [id]="'rowid_item'" [placeholder]="'ID del SKU'" [control]="rowidItem"></app-ui-input>
+                <app-ui-form-field [controlName]="'no_reference'" [label]="`${!noReference?.value?'No asociar':'Asociar'} referencia Siesa`" [layout]="'horizontal'">
+                    <app-ui-checkbox formControlName="no_reference" [control]="noReference" [id]="'no_reference'" (click)="onToggleNoReference()"></app-ui-checkbox>
                 </app-ui-form-field>
 
-                <app-ui-form-field [controlName]="'identification'" [label]="'Identificación'">
+                @if (noReference?.value) {
+                <app-ui-form-field [controlName]="'rowid_item'" [label]="'Referencia (Siesa)'">
+                    <app-ui-select [className]="'w-full'" formControlName="rowid_item" [id]="'rowid_item'" [control]="rowidItem" [items]="references()" [key]="'reference'" [keyValue]="'rowid_item'" [showDefaultOption]="true" (onSelect)="onReferenceSelect($event)"></app-ui-select>
+                </app-ui-form-field>
+                }
+                <app-ui-form-field [controlName]="'identification'" [label]="'Identificación (Estampación)'">
                     <app-ui-input formControlName="identification" [id]="'identification'" [placeholder]="'Identificación'" [control]="identification"></app-ui-input>
-                </app-ui-form-field>
+                </app-ui-form-field>               
+            </div>
 
-                <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
+            <div [class.hidden]="activeTab() !== 'production'" class="mt-4">
+                 <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
                     <app-ui-input formControlName="machine" [id]="'machine'" [placeholder]="'Máquina'" [control]="machine"></app-ui-input>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'location'" [label]="'Ubicación'">
                     <app-ui-input formControlName="location" [id]="'location'" [placeholder]="'Ubicación'" [control]="location"></app-ui-input>
                 </app-ui-form-field>
-            </div>
 
-            <div [class.hidden]="activeTab() !== 'production'" class="mt-4">
                 <app-ui-form-field [controlName]="'piece'" [label]="'Pieza(s)'">
                     <app-ui-input formControlName="piece" [id]="'piece'" [placeholder]="'Pieza(s)'" [control]="piece"></app-ui-input>
                 </app-ui-form-field>
 
-                <app-ui-form-field [controlName]="'people_count'" [label]="'# Personas'">
-                    <app-ui-input [type]="'number'" formControlName="people_count" [id]="'people_count'" [placeholder]="'# Personas'" [control]="peopleCount"></app-ui-input>
+                <app-ui-form-field [controlName]="'people_count'" [label]="'Número personas'">
+                    <app-ui-input [type]="'number'" formControlName="people_count" [id]="'people_count'" [placeholder]="'Número personas'" [control]="peopleCount"></app-ui-input>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'stamped_pieces'" [label]="'Piezas que se estampan'">
