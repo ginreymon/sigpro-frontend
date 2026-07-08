@@ -72,118 +72,120 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'stampingReferenceSamForm'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'stampingReferenceSamForm'" [classNames]="'max-w-3xl'" (onCancel)="closeModelForm()">
 
     <form id="stampingReferenceSamForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()">
 
-            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-2 mb-2"> Identificación </h4>
+            <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
 
-            <app-ui-form-field [controlName]="'rowid_item'" [label]="'ID SKU (rowid_item)'">
-                <app-ui-input [type]="'number'" formControlName="rowid_item" [id]="'rowid_item'" [placeholder]="'ID del SKU'" [control]="rowidItem"></app-ui-input>
-            </app-ui-form-field>
+            <div [class.hidden]="activeTab() !== 'identification'" class="mt-4">
+                <app-ui-form-field [controlName]="'rowid_item'" [label]="'ID SKU (rowid_item)'">
+                    <app-ui-input [type]="'number'" formControlName="rowid_item" [id]="'rowid_item'" [placeholder]="'ID del SKU'" [control]="rowidItem"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'reference_name'" [label]="'Referencia'">
-                <app-ui-input formControlName="reference_name" [id]="'reference_name'" [placeholder]="'Referencia'" [control]="referenceName"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'reference_name'" [label]="'Referencia'">
+                    <app-ui-input formControlName="reference_name" [id]="'reference_name'" [placeholder]="'Referencia'" [control]="referenceName"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
-                <app-ui-input formControlName="machine" [id]="'machine'" [placeholder]="'Máquina'" [control]="machine"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
+                    <app-ui-input formControlName="machine" [id]="'machine'" [placeholder]="'Máquina'" [control]="machine"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'location'" [label]="'Ubicación'">
-                <app-ui-input formControlName="location" [id]="'location'" [placeholder]="'Ubicación'" [control]="location"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'location'" [label]="'Ubicación'">
+                    <app-ui-input formControlName="location" [id]="'location'" [placeholder]="'Ubicación'" [control]="location"></app-ui-input>
+                </app-ui-form-field>
+            </div>
 
-            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-4 mb-2"> Producción </h4>
+            <div [class.hidden]="activeTab() !== 'production'" class="mt-4">
+                <app-ui-form-field [controlName]="'piece'" [label]="'Pieza(s)'">
+                    <app-ui-input formControlName="piece" [id]="'piece'" [placeholder]="'Pieza(s)'" [control]="piece"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'piece'" [label]="'Pieza(s)'">
-                <app-ui-input formControlName="piece" [id]="'piece'" [placeholder]="'Pieza(s)'" [control]="piece"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'people_count'" [label]="'# Personas'">
+                    <app-ui-input [type]="'number'" formControlName="people_count" [id]="'people_count'" [placeholder]="'# Personas'" [control]="peopleCount"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'people_count'" [label]="'# Personas'">
-                <app-ui-input [type]="'number'" formControlName="people_count" [id]="'people_count'" [placeholder]="'# Personas'" [control]="peopleCount"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'stamped_pieces'" [label]="'Piezas que se estampan'">
+                    <app-ui-input [type]="'number'" formControlName="stamped_pieces" [id]="'stamped_pieces'" [placeholder]="'Piezas que se estampan'" [control]="stampedPieces"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'stamped_pieces'" [label]="'Piezas que se estampan'">
-                <app-ui-input [type]="'number'" formControlName="stamped_pieces" [id]="'stamped_pieces'" [placeholder]="'Piezas que se estampan'" [control]="stampedPieces"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'pieces_per_table'" [label]="'Piezas por mesa'">
+                    <app-ui-input [type]="'number'" formControlName="pieces_per_table" [id]="'pieces_per_table'" [placeholder]="'Piezas por mesa'" [control]="piecesPerTable"></app-ui-input>
+                </app-ui-form-field>
+            </div>
 
-            <app-ui-form-field [controlName]="'pieces_per_table'" [label]="'Piezas por mesa'">
-                <app-ui-input [type]="'number'" formControlName="pieces_per_table" [id]="'pieces_per_table'" [placeholder]="'Piezas por mesa'" [control]="piecesPerTable"></app-ui-input>
-            </app-ui-form-field>
+            <div [class.hidden]="activeTab() !== 'classification'" class="mt-4">
+                <app-ui-form-field [controlName]="'brand'" [label]="'Marca'">
+                    <app-ui-input formControlName="brand" [id]="'brand'" [placeholder]="'Marca'" [control]="brand"></app-ui-input>
+                </app-ui-form-field>
 
-            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-4 mb-2"> Clasificación </h4>
+                <app-ui-form-field [controlName]="'line'" [label]="'Línea'">
+                    <app-ui-input formControlName="line" [id]="'line'" [placeholder]="'Línea'" [control]="line"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'brand'" [label]="'Marca'">
-                <app-ui-input formControlName="brand" [id]="'brand'" [placeholder]="'Marca'" [control]="brand"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'collection'" [label]="'Colección'">
+                    <app-ui-input formControlName="collection" [id]="'collection'" [placeholder]="'Colección'" [control]="collection"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'line'" [label]="'Línea'">
-                <app-ui-input formControlName="line" [id]="'line'" [placeholder]="'Línea'" [control]="line"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'garment_type'" [label]="'Tipo de prenda'">
+                    <app-ui-input formControlName="garment_type" [id]="'garment_type'" [placeholder]="'Tipo de prenda'" [control]="garmentType"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'collection'" [label]="'Colección'">
-                <app-ui-input formControlName="collection" [id]="'collection'" [placeholder]="'Colección'" [control]="collection"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'fabric_type'" [label]="'Tipo de tela'">
+                    <app-ui-input formControlName="fabric_type" [id]="'fabric_type'" [placeholder]="'Tipo de tela'" [control]="fabricType"></app-ui-input>
+                </app-ui-form-field>
+            </div>
 
-            <app-ui-form-field [controlName]="'garment_type'" [label]="'Tipo de prenda'">
-                <app-ui-input formControlName="garment_type" [id]="'garment_type'" [placeholder]="'Tipo de prenda'" [control]="garmentType"></app-ui-input>
-            </app-ui-form-field>
+            <div [class.hidden]="activeTab() !== 'process'" class="mt-4">
+                <app-ui-form-field [controlName]="'process'" [label]="'Proceso'">
+                    <app-ui-input formControlName="process" [id]="'process'" [placeholder]="'Proceso'" [control]="process"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'fabric_type'" [label]="'Tipo de tela'">
-                <app-ui-input formControlName="fabric_type" [id]="'fabric_type'" [placeholder]="'Tipo de tela'" [control]="fabricType"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'stamp_type_description'" [label]="'Descripción tipo estampado'">
+                    <app-ui-input formControlName="stamp_type_description" [id]="'stamp_type_description'" [placeholder]="'Descripción tipo estampado'" [control]="stampTypeDescription"></app-ui-input>
+                </app-ui-form-field>
 
-            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-4 mb-2"> Proceso técnico </h4>
+                <app-ui-form-field [controlName]="'technique'" [label]="'Técnica'">
+                    <app-ui-input formControlName="technique" [id]="'technique'" [placeholder]="'Técnica'" [control]="technique"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'process'" [label]="'Proceso'">
-                <app-ui-input formControlName="process" [id]="'process'" [placeholder]="'Proceso'" [control]="process"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'frames'" [label]="'Marcos'">
+                    <app-ui-input [type]="'number'" formControlName="frames" [id]="'frames'" [placeholder]="'Marcos'" [control]="frames"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'stamp_type_description'" [label]="'Descripción tipo estampado'">
-                <app-ui-input formControlName="stamp_type_description" [id]="'stamp_type_description'" [placeholder]="'Descripción tipo estampado'" [control]="stampTypeDescription"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'inks'" [label]="'Tintas'">
+                    <app-ui-input [type]="'number'" formControlName="inks" [id]="'inks'" [placeholder]="'Tintas'" [control]="inks"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'technique'" [label]="'Técnica'">
-                <app-ui-input formControlName="technique" [id]="'technique'" [placeholder]="'Técnica'" [control]="technique"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'prints'" [label]="'Impresiones'">
+                    <app-ui-input [type]="'number'" formControlName="prints" [id]="'prints'" [placeholder]="'Impresiones'" [control]="prints"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'frames'" [label]="'Marcos'">
-                <app-ui-input [type]="'number'" formControlName="frames" [id]="'frames'" [placeholder]="'Marcos'" [control]="frames"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'layout_form'" [label]="'Forma de trazo'">
+                    <app-ui-input formControlName="layout_form" [id]="'layout_form'" [placeholder]="'Forma de trazo'" [control]="layoutForm"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'inks'" [label]="'Tintas'">
-                <app-ui-input [type]="'number'" formControlName="inks" [id]="'inks'" [placeholder]="'Tintas'" [control]="inks"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'pre_dried'" [label]="'Presecado'">
+                    <app-ui-input [type]="'number'" formControlName="pre_dried" [id]="'pre_dried'" [placeholder]="'Presecado'" [control]="preDried"></app-ui-input>
+                </app-ui-form-field>
+            </div>
 
-            <app-ui-form-field [controlName]="'prints'" [label]="'Impresiones'">
-                <app-ui-input [type]="'number'" formControlName="prints" [id]="'prints'" [placeholder]="'Impresiones'" [control]="prints"></app-ui-input>
-            </app-ui-form-field>
+            <div [class.hidden]="activeTab() !== 'sam'" class="mt-4">
+                <app-ui-form-field [controlName]="'sam_single_person'" [label]="'SAM por persona'">
+                    <app-ui-input [type]="'number'" [isFloat]="true" formControlName="sam_single_person" [id]="'sam_single_person'" [placeholder]="'Ej: 4.1260'" [control]="samSinglePerson"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'layout_form'" [label]="'Forma de trazo'">
-                <app-ui-input formControlName="layout_form" [id]="'layout_form'" [placeholder]="'Forma de trazo'" [control]="layoutForm"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'tasks_per_hour'" [label]="'Tareas por hora'">
+                    <app-ui-input [type]="'number'" formControlName="tasks_per_hour" [id]="'tasks_per_hour'" [placeholder]="'Tareas por hora'" [control]="tasksPerHour"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'pre_dried'" [label]="'Presecado'">
-                <app-ui-input [type]="'number'" formControlName="pre_dried" [id]="'pre_dried'" [placeholder]="'Presecado'" [control]="preDried"></app-ui-input>
-            </app-ui-form-field>
-
-            <h4 class="text-sm font-semibold text-gray-500 uppercase mt-4 mb-2"> SAM </h4>
-
-            <app-ui-form-field [controlName]="'sam_single_person'" [label]="'SAM por persona'">
-                <app-ui-input [type]="'number'" [isFloat]="true" formControlName="sam_single_person" [id]="'sam_single_person'" [placeholder]="'Ej: 4.1260'" [control]="samSinglePerson"></app-ui-input>
-            </app-ui-form-field>
-
-            <app-ui-form-field [controlName]="'tasks_per_hour'" [label]="'Tareas por hora'">
-                <app-ui-input [type]="'number'" formControlName="tasks_per_hour" [id]="'tasks_per_hour'" [placeholder]="'Tareas por hora'" [control]="tasksPerHour"></app-ui-input>
-            </app-ui-form-field>
-
-            @if(actionType == 'edit'){
-            <app-ui-form-field [controlName]="'is_active'" [label]="'Registro activo'" [layout]="'horizontal'">
-                <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
-            </app-ui-form-field>
-            }
+                @if(actionType == 'edit'){
+                <app-ui-form-field [controlName]="'is_active'" [label]="'Registro activo'" [layout]="'horizontal'">
+                    <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
+                </app-ui-form-field>
+                }
+            </div>
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>

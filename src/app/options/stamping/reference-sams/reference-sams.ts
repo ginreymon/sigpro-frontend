@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../shared/components/data-table/data-table';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
@@ -16,6 +16,15 @@ import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
 import { TableColumn } from '../../../common/interfaces/table-column';
+import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
+
+const TABS: TabItem[] = [
+  { key: 'identification', label: 'Identificación' },
+  { key: 'production', label: 'Producción' },
+  { key: 'classification', label: 'Clasificación' },
+  { key: 'process', label: 'Proceso técnico' },
+  { key: 'sam', label: 'SAM' },
+];
 
 @Component({
   selector: 'app-reference-sams',
@@ -33,12 +42,25 @@ import { TableColumn } from '../../../common/interfaces/table-column';
     UiBadge,
     TableTemplate,
     CharSquare,
+    UiTabs,
   ],
   templateUrl: './reference-sams.html',
   styleUrl: './reference-sams.css',
 })
 export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
   protected override entityName: string = 'referencia SAM de estampación';
+
+  tabs = TABS;
+  activeTab = signal('identification');
+
+  onTabChange(key: string): void {
+    this.activeTab.set(key);
+  }
+
+  protected override closeModelForm(): void {
+    this.activeTab.set('identification');
+    super.closeModelForm();
+  }
 
   constructor(private stampingReferenceSamService: StampingReferenceSamService) {
     super(stampingReferenceSamService);
