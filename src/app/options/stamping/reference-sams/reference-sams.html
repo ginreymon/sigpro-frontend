@@ -4,10 +4,10 @@
             (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
             (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
 
-            <ng-template appTableTemplate="statusTemplate" let-row>
-                <app-ui-badge [active]="row.is_active"></app-ui-badge>
+            <ng-template appTableTemplate="referenceTemplate" let-row>
+                {{ row.reference?.reference ?? '—' }}
             </ng-template>
-
+           
         </app-data-table>
     </div>
 </app-work-space-layout>

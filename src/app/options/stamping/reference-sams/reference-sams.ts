@@ -92,16 +92,25 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
       rowid_item: event.value.rowid_item,
       identification: event.value.reference,
     });
+
+    if (this.actionType === 'create') {
+      this.modelForm.patchValue({
+        brand: event.value.brand,
+        line: event.value.line,
+        collection: event.value.collection,
+        garment_type: event.value.group,
+      });
+    }
   }
 
   protected override get columns(): TableColumn<StampingReferenceSam>[] {
     return [
       { field: 'identification', label: 'Identificación' },
+      { type: 'template', label: 'Referencia', templateName: 'referenceTemplate' },
       { field: 'machine', label: 'Máquina' },
       { field: 'process', label: 'Proceso' },
-      { field: 'sam_single_person', label: 'SAM' },
-      { field: 'tasks_per_hour', label: 'Tareas/hora' },
-      { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
+      { field: 'tasks_per_hour', label: 'Tarea/hora', align: 'center' },
+      { field: 'sam_single_person', label: 'SAM', align: 'center' },
     ];
   }
 
