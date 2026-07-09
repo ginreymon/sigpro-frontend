@@ -19,6 +19,7 @@ import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
+import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { Reference } from '../../../models/catalog/reference';
 import { ReferencesService } from '../../../services/catalog/references-service';
 import { StampingMachine } from '../../../models/stamping/stamping-machine';
@@ -115,6 +116,16 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
     this.loadList(this.stampingStampTypeDescriptionService, this.stampTypeDescriptions);
     this.loadList(this.stampingFabricTypeService, this.fabricTypes);
     this.loadList(this.stampingTechniqueService, this.techniques);
+  }
+
+  protected override actionHandler(event: TableActionEvent<StampingReferenceSam>): void {
+    super.actionHandler(event);
+    if (event.type === 'edit') {
+      this.modelForm.patchValue({
+        ...event.obj,
+        no_reference: !!event.obj.rowid_item,
+      });
+    }
   }
 
   onReferenceSelect(event: { index: number; value: Reference }): void {

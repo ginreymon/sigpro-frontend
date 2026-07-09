@@ -42,6 +42,7 @@ export class UiCombobox extends BaseControlValueAccessor<any> implements AfterVi
 
   @Input() set items(arr: any[]) {
     this._items = arr ?? [];
+    this.syncDisplay();
   }
 
   @Input() key: string | null = null;
@@ -74,7 +75,12 @@ export class UiCombobox extends BaseControlValueAccessor<any> implements AfterVi
 
   override writeValue(value: any): void {
     this.value = value;
-    const item = this._items.find((i) => this.itemValue(i) == value);
+    this.syncDisplay();
+  }
+
+  private syncDisplay(): void {
+    if (this.isOpen()) return;
+    const item = this._items.find((i) => this.itemValue(i) == this.value);
     this.searchText.set(item ? this.label(item) : '');
   }
 
