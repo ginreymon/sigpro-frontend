@@ -60,6 +60,10 @@
     La fecha final no puede ser menor a la fecha inicial
     }
 
+    @if (control?.errors?.['serverError']) {
+    {{ control?.errors?.['serverError'] }}
+    }
+
   </app-ui-error-message>
   }
 

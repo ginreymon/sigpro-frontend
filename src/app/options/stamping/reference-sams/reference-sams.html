@@ -78,7 +78,7 @@
     <form id="stampingReferenceSamForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()">
 
-            <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
+            <app-ui-tabs [tabs]="tabsView" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
 
             <div [class.hidden]="activeTab() !== 'identification'" class="mt-4">
                 <app-ui-form-field [controlName]="'no_reference'" [label]="`${!noReference?.value?'No asociar':'Asociar'} referencia Siesa`" [layout]="'horizontal'">

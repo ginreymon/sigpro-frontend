@@ -92,11 +92,31 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
         this.loaderService.hideLoader();
         if (errorCallback) {
           errorCallback(err);
-        } else {
-          this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
+          return;
         }
+        const hasDuplicateFields = this.markDuplicateFieldErrors(err);
+        this.errorMessage.set(
+          hasDuplicateFields
+            ? 'Uno o varios campos están duplicados. Revisa los campos marcados.'
+            : 'Ocurrió un error. Intente nuevamente.',
+        );
       },
     });
+  }
+
+  private markDuplicateFieldErrors(err: any): boolean {
+    const body = err?.error;
+    if (err?.status !== 400 || !body || typeof body !== 'object') return false;
+
+    let matched = false;
+    Object.keys(body).forEach((key) => {
+      const control = this.modelForm?.get(key);
+      if (!control) return;
+      control.setErrors({ serverError: 'Este valor ya está en uso.' });
+      control.markAsTouched();
+      matched = true;
+    });
+    return matched;
   }
 
   protected loadList<E extends Partial<AuditEntity>>(service: BaseCrudService<E>, entitiesSignal: WritableSignal<E[]>, filter = false, transform?: (items: E[]) => E[]) {

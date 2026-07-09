@@ -4,6 +4,7 @@ export interface TabItem {
   key: string;
   label: string;
   disabled?: boolean;
+  hasError?: boolean;
 }
 
 @Component({

@@ -4,7 +4,7 @@ import { ActiveEntity } from '../../common/interfaces/active-entity';
 import { SkuItemFields } from '../production/sku-item-fields';
 
 export interface StampingReferenceSam extends TimeAuditEntity, UserAuditEntity, ActiveEntity {
-  rowid_item: number;
+  rowid_item: number | null;
   identification: string;
   reference?: SkuItemFields | null;
   machine: number;

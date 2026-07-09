@@ -43,6 +43,14 @@ const TABS: TabItem[] = [
   { key: 'sam', label: 'SAM' },
 ];
 
+const TAB_FIELDS: Record<string, string[]> = {
+  identification: ['no_reference', 'rowid_item', 'identification'],
+  production: ['location', 'machine', 'piece', 'people_count', 'stamped_pieces', 'pieces_per_board'],
+  classification: ['fabric_type', 'brand', 'line', 'collection', 'garment_type'],
+  process: ['stamp_type_description', 'technique', 'process', 'frames', 'inks', 'prints', 'layout_form', 'pre_dried'],
+  sam: ['sam_single_person', 'tasks_per_hour', 'is_active'],
+};
+
 @Component({
   selector: 'app-reference-sams',
   imports: [
@@ -82,8 +90,26 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
     this.activeTab.set(key);
   }
 
+  get tabsView(): TabItem[] {
+    return this.tabs.map((tab) => ({ ...tab, hasError: this.tabHasError(tab.key) }));
+  }
+
+  private tabHasError(key: string): boolean {
+    return (TAB_FIELDS[key] ?? []).some((name) => {
+      const control = this.modelForm.get(name);
+      return !!control && control.invalid && control.touched;
+    });
+  }
+
   onToggleNoReference(): void {
     this.modelForm.patchValue({ rowid_item: null, identification: null });
+    this.syncRowidItemValidator();
+  }
+
+  private syncRowidItemValidator(): void {
+    const required = !!this.noReference?.value;
+    this.rowidItem?.setValidators(required ? [Validators.required] : []);
+    this.rowidItem?.updateValueAndValidity({ emitEvent: false });
   }
 
   protected override closeModelForm(): void {
@@ -125,6 +151,8 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
         ...event.obj,
         no_reference: !!event.obj.rowid_item,
       });
+      this.syncRowidItemValidator();
+      this.noReference?.disable({ emitEvent: false });
     }
   }
 
