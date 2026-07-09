@@ -38,9 +38,9 @@ import { StampingTechniqueService } from '../../../services/stamping/stamping-te
 const TABS: TabItem[] = [
   { key: 'identification', label: 'Identificación' },
   { key: 'production', label: 'Producción' },
+  { key: 'sam', label: 'SAM' },
   { key: 'classification', label: 'Clasificación' },
   { key: 'process', label: 'Proceso' },
-  { key: 'sam', label: 'SAM' },
 ];
 
 const TAB_FIELDS: Record<string, string[]> = {
@@ -193,6 +193,9 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
       people_count: [null, [Validators.required, Validators.min(1)]],
       piece: [null, [Validators.required]],
       stamped_pieces: [null, [Validators.required, Validators.min(1)]],
+      sam_single_person: [null, [Validators.required, Validators.min(0.0001)]],
+      tasks_per_hour: [null, [Validators.required, Validators.min(1)]],
+      is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
       location: [null],
       stamp_type_description: [null],
       technique: [null],
@@ -208,9 +211,6 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
       pieces_per_board: [null],
       layout_form: [null],
       pre_dried: [null],
-      sam_single_person: [null, [Validators.required, Validators.min(0.0001)]],
-      tasks_per_hour: [null, [Validators.required, Validators.min(1)]],
-      is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
     });
   }
 
