@@ -76,10 +76,10 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
     this.loaderService.showLoader();
     const payload: Partial<T> = model ? model : this.modelForm.value;
 
-    const request$ =
-      this.actionType == 'create'
-        ? this.crudService.create(payload)
-        : this.crudService.update(this.rowObject.id!, payload);
+    const isEdit = this.actionType === 'edit' && this.rowObject.id != null;
+    const request$ = isEdit
+      ? this.crudService.update(this.rowObject.id!, payload)
+      : this.crudService.create(payload);
 
     request$.pipe(finalize(() => this.reload(() => this.loaderService.hideLoader()))).subscribe({
       next: () => {
