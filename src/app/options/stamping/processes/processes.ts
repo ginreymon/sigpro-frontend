@@ -17,6 +17,7 @@ import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/char-square/char-square';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
+import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 
 @Component({
   selector: 'app-processes',
@@ -66,6 +67,13 @@ export class Processes extends BaseCrudPage<StampingProcess> {
 
   get isActive() {
     return this.modelForm.get('is_active');
+  }
+
+  protected override actionHandler(event: TableActionEvent<StampingProcess>): void {
+    super.actionHandler(event);
+    if (event.type == 'edit') {
+      this.modelForm.patchValue(event.obj);
+    }
   }
 
   protected override submit(): void {
