@@ -104,7 +104,7 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
     });
   }
 
-  private markServerFieldErrors(err: any): boolean {
+  protected markServerFieldErrors(err: any): boolean {
     const body = err?.error;
     if (err?.status !== 400 || !body || typeof body !== 'object') return false;
 

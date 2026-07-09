@@ -177,7 +177,12 @@ export class Users extends BaseCrudPage<Employee> {
         this.dialogService.openToast('Proceso exitoso', `La cuenta fue ${actionText} correctamente.`, 'check');
       },
       error: (err) => {
-        this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
+        const hasFieldErrors = this.markServerFieldErrors(err);
+        this.errorMessage.set(
+          hasFieldErrors
+            ? 'Uno o varios campos tienen errores. Revisa los campos marcados.'
+            : 'Ocurrió un error. Intente nuevamente.',
+        )
       },
     });
   }
