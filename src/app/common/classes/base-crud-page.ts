@@ -94,17 +94,17 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
           errorCallback(err);
           return;
         }
-        const hasDuplicateFields = this.markDuplicateFieldErrors(err);
+        const hasFieldErrors = this.markServerFieldErrors(err);
         this.errorMessage.set(
-          hasDuplicateFields
-            ? 'Uno o varios campos están duplicados. Revisa los campos marcados.'
+          hasFieldErrors
+            ? 'Uno o varios campos tienen errores. Revisa los campos marcados.'
             : 'Ocurrió un error. Intente nuevamente.',
         );
       },
     });
   }
 
-  private markDuplicateFieldErrors(err: any): boolean {
+  private markServerFieldErrors(err: any): boolean {
     const body = err?.error;
     if (err?.status !== 400 || !body || typeof body !== 'object') return false;
 
@@ -112,7 +112,9 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
     Object.keys(body).forEach((key) => {
       const control = this.modelForm?.get(key);
       if (!control) return;
-      control.setErrors({ serverError: 'Este valor ya está en uso.' });
+      const fieldError = body[key];
+      const message = Array.isArray(fieldError) ? fieldError.join(' ') : String(fieldError);
+      control.setErrors({ serverError: message });
       control.markAsTouched();
       matched = true;
     });
