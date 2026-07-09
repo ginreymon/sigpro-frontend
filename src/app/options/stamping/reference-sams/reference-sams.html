@@ -82,7 +82,7 @@
 
             <div [class.hidden]="activeTab() !== 'identification'" class="mt-4">
                 <app-ui-form-field [controlName]="'no_reference'" [label]="`${!noReference?.value?'No asociar':'Asociar'} referencia Siesa`" [layout]="'horizontal'">
-                    <app-ui-checkbox formControlName="no_reference" [control]="noReference" [id]="'no_reference'" (click)="onToggleNoReference()"></app-ui-checkbox>
+                    <app-ui-checkbox formControlName="no_reference" [control]="noReference" [id]="'no_reference'"></app-ui-checkbox>
                 </app-ui-form-field>
 
                 @if (noReference?.value) {

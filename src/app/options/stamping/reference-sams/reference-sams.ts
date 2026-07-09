@@ -8,7 +8,7 @@ import { StampingReferenceSam } from '../../../models/stamping/stamping-referenc
 import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { StampingReferenceSamService } from '../../../services/stamping/stamping-reference-sam-service';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
@@ -101,14 +101,19 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
     });
   }
 
-  onToggleNoReference(): void {
-    this.modelForm.patchValue({ rowid_item: null, identification: null });
-    this.syncRowidItemValidator();
+  private noReferenceSub?: Subscription;
+
+  private wireNoReferenceDependency(): void {
+    this.noReferenceSub?.unsubscribe();
+    this.noReferenceSub = this.noReference!.valueChanges.subscribe((requiresReference) => {
+      this.rowidItem?.setValue(null);
+      this.identification?.setValue(null);
+      this.syncRowidItemValidator(requiresReference);
+    });
   }
 
-  private syncRowidItemValidator(): void {
-    const required = !!this.noReference?.value;
-    this.rowidItem?.setValidators(required ? [Validators.required] : []);
+  private syncRowidItemValidator(requiresReference = !!this.noReference?.value): void {
+    this.rowidItem?.setValidators(requiresReference ? [Validators.required] : []);
     this.rowidItem?.updateValueAndValidity({ emitEvent: false });
   }
 
@@ -147,10 +152,13 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
   protected override actionHandler(event: TableActionEvent<StampingReferenceSam>): void {
     super.actionHandler(event);
     if (event.type === 'edit') {
-      this.modelForm.patchValue({
-        ...event.obj,
-        no_reference: !!event.obj.rowid_item,
-      });
+      this.modelForm.patchValue(
+        {
+          ...event.obj,
+          no_reference: !!event.obj.rowid_item,
+        },
+        { emitEvent: false },
+      );
       this.syncRowidItemValidator();
       this.noReference?.disable({ emitEvent: false });
     }
@@ -212,6 +220,7 @@ export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
       layout_form: [null],
       pre_dried: [null],
     });
+    this.wireNoReferenceDependency();
   }
 
   get noReference() { return this.modelForm.get('no_reference'); }
