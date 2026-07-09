@@ -17,6 +17,9 @@ import { MachineTypes } from '../options/stamping/machine-types/machine-types';
 import { Machines } from '../options/stamping/machines/machines';
 import { ReferenceSams } from '../options/stamping/reference-sams/reference-sams';
 import { AdditionalTimes } from '../options/stamping/additional-times/additional-times';
+import { StampingDayOperation } from '../options/stamping/day-operation/day-operation';
+import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
+import { StampingAuditory } from '../options/stamping/auditory/auditory';
 
 export const componentMap: Record<string, Type<any>> = {
   'admin/roles': Roles,
@@ -37,4 +40,7 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/machines': Machines,
   'stamping/reference-sams': ReferenceSams,
   'stamping/additional-times': AdditionalTimes,
+  'stamping/day-operation': StampingDayOperation,
+  'stamping/machine-panel': MachinePanel,
+  'stamping/auditory': StampingAuditory,
 };
