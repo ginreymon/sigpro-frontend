@@ -47,24 +47,30 @@ export abstract class ModalBase implements IDialogService {
 
   constructor(protected dialogService: DialogService) { }
 
+  // Components like SideModalLayout stay mounted (CSS-only slide transition)
+  // even while closed, so they must not keep reading dialogService's shared
+  // state — otherwise an unrelated modal/confirm/toast opened elsewhere
+  // leaks its title/label into this instance. Only read it while this
+  // instance is actually the one open.
+
   get title() {
-    return this._title ?? this.dialogService.title;
+    return this._title ?? (this.openModal() ? this.dialogService.title : null);
   }
 
   get message() {
-    return this._message ?? this.dialogService.message;
+    return this._message ?? (this.openModal() ? this.dialogService.message : null);
   }
 
   get iconName() {
-    return this._iconName ?? this.dialogService.iconName;
+    return this._iconName ?? (this.openModal() ? this.dialogService.iconName : null);
   }
 
   get acceptLabel() {
-    return this._acceptLabel ?? this.dialogService.acceptLabel;
+    return this._acceptLabel ?? (this.openModal() ? this.dialogService.acceptLabel : null);
   }
 
   get confirmCallback(): () => void {
-    return this.dialogService.confirmCallback ?? (() => { });
+    return (this.openModal() ? this.dialogService.confirmCallback : null) ?? (() => { });
   }
 
   get submit(): boolean {
