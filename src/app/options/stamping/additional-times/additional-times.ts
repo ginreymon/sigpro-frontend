@@ -20,6 +20,7 @@ import { TableColumn } from '../../../common/interfaces/table-column';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { StampingMachine } from '../../../models/stamping/stamping-machine';
 import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
+import { UiStringListInput } from '../../../shared/elements/ui-string-list-input/ui-string-list-input';
 
 @Component({
   selector: 'app-additional-times',
@@ -38,12 +39,13 @@ import { StampingMachineService } from '../../../services/stamping/stamping-mach
     TableTemplate,
     CharSquare,
     UiSelect,
+    UiStringListInput,
   ],
   templateUrl: './additional-times.html',
   styleUrl: './additional-times.css',
 })
 export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
-  protected override entityName: string = 'tiempo adicional de estampación';
+  protected override entityName: string = 'tiempo adicional';
 
   machines = signal<StampingMachine[]>([]);
 
@@ -75,7 +77,7 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
       engineering_code: [null, [Validators.required]],
       machine: [null, [Validators.required]],
       process: [null, [Validators.required]],
-      process_description_text: [null],
+      process_description: [[]],
       standard_time: [null],
       is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
     });
@@ -85,7 +87,7 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
   get engineeringCode() { return this.modelForm.get('engineering_code'); }
   get machine() { return this.modelForm.get('machine'); }
   get process() { return this.modelForm.get('process'); }
-  get processDescriptionText() { return this.modelForm.get('process_description_text'); }
+  get processDescription() { return this.modelForm.get('process_description'); }
   get standardTime() { return this.modelForm.get('standard_time'); }
   get isActive() { return this.modelForm.get('is_active'); }
 
@@ -94,19 +96,17 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
     if (event.type == 'edit') {
       this.modelForm.patchValue({
         ...event.obj,
-        process_description_text: (event.obj.process_description ?? []).join('\n'),
+        process_description: event.obj.process_description ?? [],
       });
     }
   }
 
   protected override submit(): void {
-    const { process_description_text, ...rest } = this.modelForm.value;
     const additionalStampingTime: Partial<AdditionalStampingTime> = {
-      ...rest,
-      process_description: (process_description_text ?? '')
-        .split('\n')
-        .map((step: string) => step.trim())
-        .filter((step: string) => step.length > 0),
+      ...this.modelForm.value,
+      process_description: (this.modelForm.value.process_description ?? []).filter(
+        (step: string) => step.trim().length > 0,
+      ),
       is_active: this.isActive?.value ?? true,
     };
     super.submit(additionalStampingTime);

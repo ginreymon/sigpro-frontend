@@ -76,9 +76,10 @@
                 <app-ui-input [type]="'number'" [isFloat]="true" formControlName="standard_time" [id]="'standard_time'" [placeholder]="'Ej: 0.1500'" [control]="standardTime"></app-ui-input>
             </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'process_description_text'" [label]="'Pasos del proceso (uno por línea)'">
-                <textarea formControlName="process_description_text" id="process_description_text" rows="5" placeholder="1. ...&#10;2. ..."
-                    class="w-full px-4 py-2 border text-sm rounded outline-none transition-all duration-200 focus:ring-2 border-gray-300 focus:border-brand-500 focus:ring-brand-200"></textarea>
+            <app-ui-form-field [controlName]="'process_description'" [label]="'Pasos del proceso'">
+                <app-ui-string-list-input formControlName="process_description" [id]="'process_description'"
+                    [control]="processDescription" [itemPlaceholder]="'Describe el paso'"
+                    [addLabel]="'Agregar paso'"></app-ui-string-list-input>
             </app-ui-form-field>
 
             @if(actionType == 'edit'){
