@@ -82,7 +82,7 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
   }
 
   protected ensureDisplayField(obj: T) {
-    const candidates = ['name', 'first_name', 'title', 'label', 'description'];
+    const candidates = ['name', 'first_name', 'title', 'label', 'description', 'identification', 'engineering_code'];
     for (const key of candidates) {
       if (key in obj) {
         this.displayFields = [key as keyof T];
