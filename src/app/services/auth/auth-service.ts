@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, tap, Observable } from 'rxjs';
+import { BehaviorSubject, tap, Observable, shareReplay, finalize } from 'rxjs';
 import { LoginRequest } from '../../models/auth/login-request';
 import { ResetPwRequest } from '../../models/auth/reset-pw-request';
 import { ConfirmPwRequest } from '../../models/auth/confirm-pw-request';
@@ -18,6 +18,7 @@ export class AuthService {
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  private refreshInFlight$: Observable<any> | null = null;
 
   constructor(
     private http: HttpClient,
@@ -55,9 +56,21 @@ export class AuthService {
   }
 
   refreshToken(): Observable<any> {
-    return this.http.post(`${this.path}/token/refresh/`, {
-      refresh: this.getRefreshToken(),
-    });
+    if (!this.refreshInFlight$) {
+      this.refreshInFlight$ = this.http
+        .post(`${this.path}/token/refresh/`, {
+          refresh: this.getRefreshToken(),
+        })
+        .pipe(
+          tap((res: any) => {
+            this.setAccessToken(res.access);
+            if (res.refresh) this.setRefreshToken(res.refresh);
+          }),
+          shareReplay(1),
+          finalize(() => (this.refreshInFlight$ = null)),
+        );
+    }
+    return this.refreshInFlight$;
   }
 
   hasAccess(optionId: number): Observable<any> {
