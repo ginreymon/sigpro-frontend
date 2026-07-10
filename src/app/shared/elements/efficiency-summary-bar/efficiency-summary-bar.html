@@ -1,22 +1,22 @@
 <div class="flex items-stretch border border-gray-200 rounded-lg overflow-hidden text-sm bg-white">
-  <div class="flex-1 flex flex-col items-center justify-center px-4 py-2 gap-0.5">
-    <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Eficiencia</span>
-    <span [class]="'text-xl font-bold ' + efficiencyColor()">
+  <div class="flex-1 flex flex-col items-center justify-center px-1.5 py-1 gap-0 sm:px-4 sm:py-2 sm:gap-0.5">
+    <span class="text-[9px] font-semibold tracking-tight text-gray-400 uppercase sm:text-xs sm:tracking-widest">Eficiencia</span>
+    <span [class]="'text-sm font-bold sm:text-xl ' + efficiencyColor()">
       {{ efficiency.toFixed(2) }}%
     </span>
   </div>
   <div class="w-px bg-gray-200"></div>
-  <div class="flex-1 flex flex-col items-center justify-center px-4 py-2 gap-0.5">
-    <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Completadas</span>
-    <span [class]="'text-xl font-bold ' + completedColor()">
+  <div class="flex-1 flex flex-col items-center justify-center px-1.5 py-1 gap-0 sm:px-4 sm:py-2 sm:gap-0.5">
+    <span class="text-[9px] font-semibold tracking-tight text-gray-400 uppercase sm:text-xs sm:tracking-widest">Completadas</span>
+    <span [class]="'text-sm font-bold sm:text-xl ' + completedColor()">
       {{ completed }}
     </span>
   </div>
   @if (activeModules !== undefined) {
     <div class="w-px bg-gray-200"></div>
-    <div class="flex-1 flex flex-col items-center justify-center px-4 py-2 gap-0.5">
-      <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase">Módulos</span>
-      <span [class]="'text-xl font-bold ' + modulesColor()">
+    <div class="flex-1 flex flex-col items-center justify-center px-1.5 py-1 gap-0 sm:px-4 sm:py-2 sm:gap-0.5">
+      <span class="text-[9px] font-semibold tracking-tight text-gray-400 uppercase sm:text-xs sm:tracking-widest">Módulos</span>
+      <span [class]="'text-sm font-bold sm:text-xl ' + modulesColor()">
         {{ activeModules }}
       </span>
     </div>
