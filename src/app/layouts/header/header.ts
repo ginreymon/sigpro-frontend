@@ -53,4 +53,8 @@ export class Header extends LocationOption implements OnInit {
   getAppLocation() {
     return !this.module || !this.option ? '' : ` > ${this.module.name} > ${this.option.name}`;
   }
+
+  getOptionName() {
+    return !this.option ? '' : `${this.option.name}`;
+  }
 }

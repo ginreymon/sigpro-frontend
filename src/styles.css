@@ -34,6 +34,13 @@
   background-blend-mode: normal, luminosity;
 }
 
+@media (max-width: 639px) {
+  .watermark-main {
+    background-image: none;
+    background-color: #fff;
+  }
+}
+
 @keyframes scale-breathe {
   0%, 100% { transform: scale(1); }
   50%       { transform: scale(1.12); }

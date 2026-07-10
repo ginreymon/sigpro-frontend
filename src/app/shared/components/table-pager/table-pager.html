@@ -1,6 +1,6 @@
-<div class="w-full flex items-center justify-between mt-4">
+<div class="w-full flex flex-col items-center sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mt-4">
 
-    <div class="flex items-center gap-2 text-sm text-gray-600 w-full">
+    <div class="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-start gap-2 text-sm text-gray-600 w-full">
     
         <span class="font-medium">{{ startItem }}</span>
         –
@@ -12,8 +12,8 @@
         <app-ui-select [items]="rowsPerPage" [(ngModel)]="pageSize" (onSelect)="changePageSize($event)"></app-ui-select>        
     
     </div>
-
-    <div class="flex items-center gap-1">
+      
+    <div class="flex items-center justify-center sm:justify-start gap-1 overflow-x-auto sm:overflow-visible max-w-full [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
         <app-ui-button [intent]="'hover'" (click)="goToPage(1)" [disabled]="currentPage == 1">
             <app-ui-icon [iconName]="'chevronLeftToLine'" [class]="'w-5 h-5'"></app-ui-icon>

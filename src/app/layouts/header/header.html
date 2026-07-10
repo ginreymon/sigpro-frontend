@@ -12,9 +12,12 @@
       </button>
 
       <a class="flex flex-col sm:flex-row sm:items-center text-white font-semibold tracking-wide cursor-pointer" routerLink="/">
-        <span class="text-lg sm:text-base mr-1">SIGPRO</span>
-        <span class="text-sm sm:text-base">
+        <span class="hidden sm:inline text-lg sm:text-base mr-1">SIGPRO</span>
+        <span class="hidden sm:inline text-sm sm:text-base">
           {{ getAppLocation() | titlecase }}
+        </span>
+        <span class="sm:hidden text-base">
+          {{ getOptionName() | titlecase }}
         </span>
       </a>
 
