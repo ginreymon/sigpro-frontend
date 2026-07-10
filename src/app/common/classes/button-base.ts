@@ -17,7 +17,7 @@ export abstract class ButtonBase {
   private _intents: Record<string, string> = {
     hover: 'border-0 text-gray-600 hover:bg-gray-100',
     cancel: 'text-gray-600 hover:bg-gray-100',
-    accept: 'text-white bg-brand-400 hover:bg-brand-600',
+    accept: 'text-white bg-brand hover:bg-brand-hover',
     action: 'text-gray-700 bg-gray-200 hover:bg-gray-300',
     label: 'hover:bg-brand-200 hover:text-brand-900 text-brand-700 bg-brand-100',
     black: 'text-white bg-black hover:bg-gray-700',
