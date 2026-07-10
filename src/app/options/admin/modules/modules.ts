@@ -66,8 +66,8 @@ export class Modules extends BaseCrudPage<Module> {
   protected override get columns(): TableColumn<Module>[] {
     return [
       { field: 'name', label: 'Nombre' },
-      { field: 'number', label: 'Número' },
       { type: 'template', label: 'Ubicación', templateName: 'locationTemplate' },
+      { field: 'number', label: 'Número' },
       { field: 'operator_count', label: 'Encomendados' },
       { type: 'template', label: 'Centros de trabajo', templateName: 'workCenterTemplate' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },

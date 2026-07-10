@@ -9,6 +9,10 @@
                 {{ row.totalTime }}
             </ng-template>
 
+            <ng-template appTableTemplate="locationTemplate" let-row>
+                {{ row.location?.name }}
+            </ng-template>
+
             <ng-template appTableTemplate="statusTemplate" let-row>
                 <app-ui-badge [active]="row.is_active"></app-ui-badge>
             </ng-template>

@@ -66,6 +66,7 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
       { field: 'start_time', label: 'Hora inicio' },
       { field: 'end_time', label: 'Hora finalización' },
       { type: 'template', label: 'Tiempo total', templateName: 'totalTimeTemplate' },
+      { type: 'template', label: 'Ubicación', templateName: 'locationTemplate' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
   }
