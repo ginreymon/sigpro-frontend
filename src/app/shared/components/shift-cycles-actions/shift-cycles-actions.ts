@@ -44,7 +44,6 @@ export class ShiftCyclesActions {
   private dialogService = inject(DialogService);
   private router = inject(Router);
 
-  private readonly ALLOWED_COST_CENTERS = [110, 103];
   private context = toSignal(this.contextService.context$, { initialValue: null });
 
   actions: ShiftCycleAction[] = [
@@ -127,9 +126,7 @@ export class ShiftCyclesActions {
   openEmployeesSnapshot(): void {
     const context = this.context();
     const snapshot = context?.session?.employees_snapshot ?? [];
-    const employees = (context?.employees ?? []).filter(
-      e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!)
-    );
+    const employees = context?.employees ?? [];
     const preselectedIds = snapshot.map(e => e.id);
     const apprenticeIds = snapshot.filter(e => e.is_apprentice).map(e => e.id);
     this.shiftModals.openEmployees({ employees, preselectedIds, apprenticeIds, apprenticeEditable: true });

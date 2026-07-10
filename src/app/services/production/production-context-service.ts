@@ -9,6 +9,7 @@ import { WorkBreakService } from './work-break-service';
 import { EmployeeService } from './employee-service';
 import { WorkShiftService } from './work-shift-service';
 import { ModuleService } from './module-service';
+import { RouteContextService } from '../core/route-context-service';
 
 @Injectable({ providedIn: 'root' })
 export class ProductionContextService {
@@ -19,6 +20,7 @@ export class ProductionContextService {
   private employeeService = inject(EmployeeService);
   private workShiftService = inject(WorkShiftService);
   private moduleService = inject(ModuleService);
+  private routeContextService = inject(RouteContextService);
 
   private _context$ = new BehaviorSubject<ProductionContext | null>(null);
   context$ = this._context$.asObservable();
@@ -41,6 +43,9 @@ export class ProductionContextService {
     loadWorkShifts = true,
     loadModules = true
   ): Observable<ProductionContext> {
+    const coreModuleId = this.routeContextService.currentModule?.id;
+    const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
+
     return forkJoin({
       session: this.workSessionService.getActive().pipe(catchError(() => of(null))),
       docTypes: this.poService.getDocType().pipe(catchError(() => of([]))),
@@ -48,13 +53,13 @@ export class ProductionContextService {
         ? this.workBreakService.all().pipe(catchError(() => of([])))
         : of([]),
       employees: loadEmployees
-        ? this.employeeService.all().pipe(catchError(() => of([])))
+        ? this.employeeService.all(scopeParams).pipe(catchError(() => of([])))
         : of([]),
       workShifts: loadWorkShifts
-        ? this.workShiftService.all().pipe(catchError(() => of([])))
+        ? this.workShiftService.all(scopeParams).pipe(catchError(() => of([])))
         : of([]),
       modules: loadModules
-        ? this.moduleService.all().pipe(catchError(() => of([])))
+        ? this.moduleService.all(scopeParams).pipe(catchError(() => of([])))
         : of([]),
     }).pipe(
       switchMap(({ session, docTypes, workBreaks, employees, workShifts, modules }) => {

@@ -58,15 +58,11 @@ export class ShiftCycles extends BaseProductionOrderPage {
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
 
-  private readonly ALLOWED_COST_CENTERS = [110, 103];
   private context = toSignal(this.contextService.context$, { initialValue: null });
 
   lastRecordTrigger = signal(0);
   selectedSKU = signal<SkuTaskDetail | null>(null);
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
-  contextEmployees = computed(() =>
-    (this.context()?.employees ?? []).filter(e => this.ALLOWED_COST_CENTERS.includes(e.cost_center_rowid!))
-  );
 
   get document() {
     const doc = this.productionOrder();
@@ -138,7 +134,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
   openEmployeesSnapshot(): void {
     const snapshot = this.currentSession()?.employees_snapshot ?? [];
     this.shiftModals.openEmployees({
-      employees: this.contextEmployees(),
+      employees: this.context()?.employees ?? [],
       preselectedIds: snapshot.map(e => e.id),
       apprenticeIds: snapshot.filter(e => e.is_apprentice).map(e => e.id),
       apprenticeEditable: true,
