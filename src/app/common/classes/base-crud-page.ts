@@ -121,10 +121,10 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
     return matched;
   }
 
-  protected loadList<E extends Partial<AuditEntity>>(service: BaseCrudService<E>, entitiesSignal: WritableSignal<E[]>, filter = false, transform?: (items: E[]) => E[]) {
+  protected loadList<E extends Partial<AuditEntity>>(service: BaseCrudService<E>, entitiesSignal: WritableSignal<E[]>, filter = false, transform?: (items: E[]) => E[], params?: Record<string, string | number>) {
     this.wslService.start();
     service
-      .all()
+      .all(params)
       .pipe(finalize(() => this.wslService.end()))
       .subscribe((entities) => {
         if (filter) entities = entities.filter((e) => (e?.is_active ?? true) && !e?.is_deleted);

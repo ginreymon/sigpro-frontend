@@ -31,8 +31,8 @@ export abstract class BaseCrudService<T> {
       );
   }
 
-  all(): Observable<T[]> {
-    return this.http.get<T[]>(`${this.endpoint}all/`);
+  all(params?: Record<string, string | number>): Observable<T[]> {
+    return this.http.get<T[]>(`${this.endpoint}all/`, { params });
   }
 
   getById(id: number): Observable<T> {

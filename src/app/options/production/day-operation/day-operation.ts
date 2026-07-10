@@ -13,7 +13,6 @@ import { Module } from '../../../models/production/module';
 import { Validators } from '@angular/forms';
 import { minArrayLength } from '../../../common/functions/min-array-length';
 import { parseSessionErrors } from '../../../common/functions/session-errors';
-import { scopeByModuleUrl } from '../../../common/functions/scope-by-module-url';
 import { WorkShiftService } from '../../../services/production/work-shift-service';
 import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
@@ -76,10 +75,13 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   initialize() {
+    const coreModuleId = this.routeContextService.currentModule?.id;
+    const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
+
     this.wslService.start();
     forkJoin({
       session: this.workSessionService.getActive(),
-      employees: this.employeeService.all(),
+      employees: this.employeeService.all(scopeParams),
     })
       .pipe(finalize(() => this.wslService.end()))
       .subscribe({
@@ -91,13 +93,8 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
         error: () => this.currentSession.set(null),
       });
 
-    const currentModuleUrl = this.routeContextService.currentModule?.url;
-    this.loadList(this.moduleService, this.modules, true, (items) =>
-      scopeByModuleUrl(items, currentModuleUrl),
-    );
-    this.loadList(this.workShiftService, this.workShifts, true, (items) =>
-      scopeByModuleUrl(items, currentModuleUrl),
-    );
+    this.loadList(this.moduleService, this.modules, true, undefined, scopeParams);
+    this.loadList(this.workShiftService, this.workShifts, true, undefined, scopeParams);
   }
 
   protected override initializeModelForm(): void {
