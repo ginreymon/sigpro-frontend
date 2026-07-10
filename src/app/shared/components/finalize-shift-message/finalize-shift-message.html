@@ -1,4 +1,5 @@
 <app-unplanned-shift-message
+    [icon]="'alarmClock'"
     [title]="'Jornada activa encontrada'"
     [description]="'Existe una jornada activa pendiente de cierre. Finalízala para iniciar una nueva.'">
     <app-ui-button (onClick)="onClose.emit()">
