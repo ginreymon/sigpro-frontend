@@ -13,6 +13,7 @@ import { Module } from '../../../models/production/module';
 import { Validators } from '@angular/forms';
 import { minArrayLength } from '../../../common/functions/min-array-length';
 import { parseSessionErrors } from '../../../common/functions/session-errors';
+import { scopeByModuleUrl } from '../../../common/functions/scope-by-module-url';
 import { WorkShiftService } from '../../../services/production/work-shift-service';
 import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
@@ -78,24 +79,25 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     this.wslService.start();
     forkJoin({
       session: this.workSessionService.getActive(),
-      workShifts: this.workShiftService.all(),
-      modules: this.moduleService.all(),
       employees: this.employeeService.all(),
     })
       .pipe(finalize(() => this.wslService.end()))
       .subscribe({
-        next: ({ session, workShifts, modules, employees }) => {
+        next: ({ session, employees }) => {
           this.currentSession.set(session as WorkSession);
           if (session) this.setModelFormValues(session);
-          const currentModuleUrl = this.routeContextService.currentModule?.url;
-          const scopedShifts = workShifts.filter((w) => w.location?.core_module?.url === currentModuleUrl);
-          const scopedModules = modules.filter((m) => m.location?.core_module?.url === currentModuleUrl);
-          this.workShifts.set(scopedShifts.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
-          this.modules.set(scopedModules.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
           this.employees.set(employees);
         },
         error: () => this.currentSession.set(null),
       });
+
+    const currentModuleUrl = this.routeContextService.currentModule?.url;
+    this.loadList(this.moduleService, this.modules, true, (items) =>
+      scopeByModuleUrl(items, currentModuleUrl),
+    );
+    this.loadList(this.workShiftService, this.workShifts, true, (items) =>
+      scopeByModuleUrl(items, currentModuleUrl),
+    );
   }
 
   protected override initializeModelForm(): void {
