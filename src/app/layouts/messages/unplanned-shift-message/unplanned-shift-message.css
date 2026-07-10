@@ -1,0 +1,8 @@
+@keyframes unplanned-shift-message-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.unplanned-shift-message-float {
+  animation: unplanned-shift-message-float 5s ease-in-out infinite;
+}
