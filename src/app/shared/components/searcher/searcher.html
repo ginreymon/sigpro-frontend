@@ -1,13 +1,13 @@
-<form class="flex flex-row gap-1" (ngSubmit)="submit()">
-    <div class="relative w-full">       
+<form class="flex flex-row gap-1 min-w-0 w-full" (ngSubmit)="submit()">
+    <div class="relative w-full min-w-0">
         <app-ui-input id="search" [ngModel]="model" (ngModelChange)="onInputChange($event)" [ngModelOptions]="{standalone: true}" [class]="'pr-9'" [placeholder]="'Buscar'"></app-ui-input>
         @if(model){
         <a class="absolute right-3 top-1/2 -translate-y-1/2" (click)="clear()">
             <app-ui-icon [iconName]="'xmark'" [class]="'h-5 w-5'" [appUiIconState]="false"></app-ui-icon>
-        </a> 
-        }       
+        </a>
+        }
     </div>
-    <app-ui-button [intent]="intent" [type]="'submit'">
+    <app-ui-button [intent]="intent" [type]="'submit'" [classNames]="'shrink-0'">
         <app-ui-icon [iconName]="'magnifyingGlass'" [class]="'h-5 w-5'"></app-ui-icon>
         Buscar
     </app-ui-button>

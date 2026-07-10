@@ -19,10 +19,13 @@ export class WorkSpaceLayout extends LocationOption implements OnDestroy {
   showSideContent = signal(false);
   showBackground = signal(true);
   isLargeScreen = signal(window.innerWidth >= 1024);
+  activeTab = signal<'main' | 'aside'>('main');
 
   private resizeSub: Subscription;
 
   @Input() headerVisible: boolean = false; // Esta variable se pone en true pa habilitar la visualización del header de la sección
+  @Input() mainTabLabel: string = 'Formulario';
+  @Input() asideTabLabel: string = 'Detalle';
 
   @Input()
   set backgroundVisible(value: boolean) {

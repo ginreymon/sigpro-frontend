@@ -2,7 +2,7 @@
     <app-finalize-shift-message (onClose)="closeSession()"></app-finalize-shift-message>
 }
 @else {
-<app-work-space-layout [sideContentVisible]="true">
+<app-work-space-layout [sideContentVisible]="true" [mainTabLabel]="'Jornada'" [asideTabLabel]="'Encomendados'">
     <form [formGroup]="modelForm" (ngSubmit)="submit()" main-content
         class="flex flex-col justify-between h-full max-h-full overflow-hidden">
 

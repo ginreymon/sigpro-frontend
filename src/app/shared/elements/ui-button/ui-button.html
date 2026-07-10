@@ -16,5 +16,6 @@
     ${intents[intent]}
     ${classNames}`
   " [disabled]="disabled" [type]="type" [attr.form]="formId" (click)="clickHandler()">
-  <ng-content></ng-content>
+  <ng-content select="app-ui-icon"></ng-content>
+  <span class="btn-label"><ng-content></ng-content></span>
 </button>

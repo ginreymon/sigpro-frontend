@@ -1,0 +1,72 @@
+<app-work-space-layout>
+<div main-content class="flex flex-col h-full max-h-full">
+
+    <div class="flex flex-col items-start justify-start border-b border-default border-gray-300 pb-4 md:pb-5 mb-4">
+        <h3 class="text-2xl font-semibold text-heading text-gray-900">Auditoría</h3>
+        <p class="text-gray-500 mt-2 text-sm w-full">Historial de cambios registrados en el módulo de troquelado.</p>
+    </div>
+
+    <div class="flex-1 min-h-0 overflow-y-auto">
+        <ol class="relative border-s border-gray-200 ms-3">
+
+            <li class="mb-8 ms-6">
+                <span class="absolute flex items-center justify-center w-8 h-8 bg-brand-100 rounded-full -start-4 ring-4 ring-white">
+                    <app-ui-icon [iconName]="'circlePlus'" [class]="'w-4 h-4 text-brand-600'"></app-ui-icon>
+                </span>
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <h4 class="text-sm font-semibold text-gray-800">Máquina creada</h4>
+                        <time class="text-xs text-gray-400">09/07/2026 08:14</time>
+                    </div>
+                    <p class="text-sm text-gray-500">Se registró la máquina <span class="font-medium text-gray-700">Troqueladora 01</span>.</p>
+                    <p class="text-xs text-gray-400 mt-2">Usuario: Juan Pérez</p>
+                </div>
+            </li>
+
+            <li class="mb-8 ms-6">
+                <span class="absolute flex items-center justify-center w-8 h-8 bg-amber-100 rounded-full -start-4 ring-4 ring-white">
+                    <app-ui-icon [iconName]="'pencil'" [class]="'w-4 h-4 text-amber-600'"></app-ui-icon>
+                </span>
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <h4 class="text-sm font-semibold text-gray-800">Turno modificado</h4>
+                        <time class="text-xs text-gray-400">09/07/2026 10:02</time>
+                    </div>
+                    <p class="text-sm text-gray-500">Se actualizó el horario del <span class="font-medium text-gray-700">Turno 1</span>.</p>
+                    <p class="text-xs text-gray-400 mt-2">Usuario: María Gómez</p>
+                </div>
+            </li>
+
+            <li class="mb-8 ms-6">
+                <span class="absolute flex items-center justify-center w-8 h-8 bg-red-100 rounded-full -start-4 ring-4 ring-white">
+                    <app-ui-icon [iconName]="'trash'" [class]="'w-4 h-4 text-red-600'"></app-ui-icon>
+                </span>
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <h4 class="text-sm font-semibold text-gray-800">Proceso eliminado</h4>
+                        <time class="text-xs text-gray-400">08/07/2026 16:45</time>
+                    </div>
+                    <p class="text-sm text-gray-500">Se eliminó el proceso <span class="font-medium text-gray-700">Corte lateral</span>.</p>
+                    <p class="text-xs text-gray-400 mt-2">Usuario: Carlos Ruiz</p>
+                </div>
+            </li>
+
+            <li class="ms-6">
+                <span class="absolute flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full -start-4 ring-4 ring-white">
+                    <app-ui-icon [iconName]="'user'" [class]="'w-4 h-4 text-gray-500'"></app-ui-icon>
+                </span>
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <h4 class="text-sm font-semibold text-gray-800">Encomendado asignado</h4>
+                        <time class="text-xs text-gray-400">08/07/2026 09:30</time>
+                    </div>
+                    <p class="text-sm text-gray-500">Se asignó a <span class="font-medium text-gray-700">Ana Torres</span> a la <span class="font-medium text-gray-700">Máquina 02</span>.</p>
+                    <p class="text-xs text-gray-400 mt-2">Usuario: Juan Pérez</p>
+                </div>
+            </li>
+
+        </ol>
+    </div>
+
+</div>
+</app-work-space-layout>
