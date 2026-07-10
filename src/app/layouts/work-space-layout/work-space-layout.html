@@ -3,11 +3,11 @@
     @if(showSideContent() && !isLargeScreen()){
     <div class="inline-flex items-center gap-1 p-1 bg-slate-100 rounded-lg w-fit">
         <button type="button" (click)="activeTab.set('main')"
-            [class]="'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ' + (activeTab() === 'main' ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-700')">
+            [class]="'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ' + (activeTab() === 'main' ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-700')">
             {{ mainTabLabel }}
         </button>
         <button type="button" (click)="activeTab.set('aside')"
-            [class]="'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ' + (activeTab() === 'aside' ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-700')">
+            [class]="'px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer ' + (activeTab() === 'aside' ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-700')">
             {{ asideTabLabel }}
         </button>
     </div>
