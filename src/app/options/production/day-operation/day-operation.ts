@@ -88,9 +88,10 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
           this.currentSession.set(session as WorkSession);
           if (session) this.setModelFormValues(session);
           const currentModuleUrl = this.routeContextService.currentModule?.url;
-          const scopedShifts = workShifts.filter((w) => w.app_module_detail?.url === currentModuleUrl);
+          const scopedShifts = workShifts.filter((w) => w.location?.core_module?.url === currentModuleUrl);
+          const scopedModules = modules.filter((m) => m.location?.core_module?.url === currentModuleUrl);
           this.workShifts.set(scopedShifts.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
-          this.modules.set(modules.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
+          this.modules.set(scopedModules.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
           this.employees.set(employees);
         },
         error: () => this.currentSession.set(null),

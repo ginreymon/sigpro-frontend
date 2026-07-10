@@ -54,8 +54,7 @@ export class DataExport implements OnInit {
   private wslService = inject(WorkSpaceLoaderService);
   private loaderService = inject(LoaderService);
   private productivityService = inject(ProductivityService);
-  private routeContextService = inject(RouteContextService);
-
+ 
   filterForm: FormGroup = this.fb.group({
     fecha_inicio: [null, Validators.required],
     fecha_fin: [null, Validators.required],
@@ -105,11 +104,9 @@ export class DataExport implements OnInit {
       employees:  this.employeeService.all(),
     })
       .pipe(finalize(() => this.wslService.end()))
-      .subscribe(({ modules, workShifts, employees }) => {
-        const currentModuleUrl = this.routeContextService.currentModule?.url;
-        const scopedShifts = workShifts.filter((w) => w.app_module_detail?.url === currentModuleUrl);
+      .subscribe(({ modules, workShifts, employees }) => {       
         this.modules.set(modules);
-        this.workShifts.set(scopedShifts.filter((e) => (e?.is_active ?? true) && !e?.is_deleted));
+        this.workShifts.set(workShifts);
         this.employees.set(this.sortEmployees(employees));
       });
   }
