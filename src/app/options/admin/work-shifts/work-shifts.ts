@@ -2,8 +2,8 @@ import { Component, signal } from '@angular/core';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { WorkShift } from '../../../models/production/work-shift';
 import { WorkShiftService } from '../../../services/production/work-shift-service';
-import { Module } from '../../../models/core/module';
-import { MenuModuleService } from '../../../services/core/menu-module-service';
+import { ProductionArea } from '../../../models/production/production-area';
+import { ProductionAreaService } from '../../../services/production/production-area-service';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../shared/components/data-table/data-table';
 import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
@@ -50,14 +50,14 @@ import { TitleCasePipe } from '@angular/common';
 })
 export class WorkShifts extends BaseCrudPage<WorkShift> {
   protected override entityName: string = 'Turno';
-  menuModules = signal<Module[]>([]);
+  productionAreas = signal<ProductionArea[]>([]);
 
   constructor(
     private workShiftService: WorkShiftService,
-    private menuModuleService: MenuModuleService,
+    private productionAreaService: ProductionAreaService,
   ) {
     super(workShiftService);
-    this.getMenuModules();
+    this.getProductionAreas();
   }
 
   protected override get columns(): TableColumn<WorkShift>[] {
@@ -66,7 +66,6 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
       { field: 'start_time', label: 'Hora inicio' },
       { field: 'end_time', label: 'Hora finalización' },
       { type: 'template', label: 'Tiempo total', templateName: 'totalTimeTemplate' },
-      { type: 'template', label: 'Módulo', templateName: 'moduleTemplate' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
   }
@@ -80,18 +79,18 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
       endHour: [0, hourValidators],
       startMinutes: [0, minutesValidators],
       endMinutes: [0, minutesValidators],
-      app_module: [null, [Validators.required]],
+      location_id: [null],
       is_active: [true],
     }, { validators: WorkShifts.timeOrderValidator });
   }
 
-  get appModule() {
-    return this.modelForm.get('app_module');
+  get locationId() {
+    return this.modelForm.get('location_id');
   }
 
-  getMenuModules() {
-    this.loadList(this.menuModuleService, this.menuModules, false,
-      items => items.filter(m => m.has_shifts).sort((a, b) => a.name.localeCompare(b.name))
+  getProductionAreas() {
+    this.loadList(this.productionAreaService, this.productionAreas, true,
+      items => items.sort((a, b) => a.name.localeCompare(b.name))
     );
   }
 
@@ -194,6 +193,7 @@ export class WorkShifts extends BaseCrudPage<WorkShift> {
       const [startHour, startMinutes] = event.obj.start_time.split(':').map(Number);
       const [endHour, endMinutes] = event.obj.end_time.split(':').map(Number);
       this.modelForm.patchValue({ ...event.obj, startHour, startMinutes, endHour, endMinutes });
+      this.locationId?.setValue(event.obj.location?.id ?? null);
     }
   }
 }

@@ -9,10 +9,6 @@
                 {{ row.totalTime }}
             </ng-template>
 
-            <ng-template appTableTemplate="moduleTemplate" let-row>
-                {{ row.app_module_detail?.name }}
-            </ng-template>
-
             <ng-template appTableTemplate="statusTemplate" let-row>
                 <app-ui-badge [active]="row.is_active"></app-ui-badge>
             </ng-template>
@@ -46,6 +42,8 @@
             <p> <strong>Hora de finalización:</strong> {{ rowObject.end_time }} </p>
 
             <p> <strong>Área:</strong> {{ rowObject.app_module_detail?.name }} </p>
+
+            <p> <strong>Ubicación:</strong> {{ rowObject.location?.name }} </p>
 
             <p> <strong>Estado activo:</strong> {{ rowObject.is_active ? 'Si': 'No' }} </p>
           
@@ -97,10 +95,10 @@
 
             @if (timeOrderInvalid) {
               <app-ui-error-message>La hora de inicio debe ser menor que la hora de finalización</app-ui-error-message>
-            }
+            }          
 
-            <app-ui-form-field [controlName]="'app_module'" [label]="'Área'">
-                <app-ui-select [className]="'w-full'" formControlName="app_module" [id]="'app_module'" [control]="appModule" [items]="menuModules()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+            <app-ui-form-field [controlName]="'location_id'" [label]="'Ubicación'">
+                <app-ui-select [className]="'w-full'" formControlName="location_id" [id]="'location_id'" [control]="locationId" [items]="productionAreas()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
             </app-ui-form-field>
 
             @if(actionType == 'edit'){

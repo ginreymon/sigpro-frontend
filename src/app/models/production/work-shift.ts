@@ -1,5 +1,6 @@
 import { AuditEntity } from '../../common/interfaces/audit-entity';
 import { Module } from '../core/module';
+import { ProductionArea } from './production-area';
 
 export interface WorkShift extends AuditEntity {
   name: string;
@@ -8,4 +9,6 @@ export interface WorkShift extends AuditEntity {
   totalTime?: string;
   app_module?: number | null;
   app_module_detail?: Module | null;
+  location_id?: number | null;
+  location?: ProductionArea | null;
 }

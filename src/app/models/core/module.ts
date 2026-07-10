@@ -8,6 +8,5 @@ export interface Module {
   update_date?: Date;
   url: string | null;
   state: boolean;
-  has_shifts: boolean;
   options?: Option[];
 }

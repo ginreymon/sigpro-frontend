@@ -13,6 +13,8 @@ import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { WorkCenterService } from '../../../services/production/work-center-service';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { WorkCenter } from '../../../models/production/work-center';
+import { ProductionAreaService } from '../../../services/production/production-area-service';
+import { ProductionArea } from '../../../models/production/production-area';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
@@ -49,17 +51,23 @@ import { UiTooltip } from "../../../shared/elements/ui-tooltip/ui-tooltip";
 export class Modules extends BaseCrudPage<Module> {
   protected override entityName: string = 'módulo';
   workCenters = signal<WorkCenter[]>([]);
+  productionAreas = signal<ProductionArea[]>([]);
 
-  constructor(private moduleService: ModuleService, private workCenterService: WorkCenterService) {
-    super(moduleService);      
+  constructor(
+    private moduleService: ModuleService,
+    private workCenterService: WorkCenterService,
+    private productionAreaService: ProductionAreaService,
+  ) {
+    super(moduleService);
     this.getWorkCenters();
+    this.getProductionAreas();
   }
 
   protected override get columns(): TableColumn<Module>[] {
     return [
       { field: 'name', label: 'Nombre' },
       { field: 'number', label: 'Número' },
-      { field: 'location', label: 'Ubicación' },
+      { type: 'template', label: 'Ubicación', templateName: 'locationTemplate' },
       { field: 'operator_count', label: 'Encomendados' },
       { type: 'template', label: 'Centros de trabajo', templateName: 'workCenterTemplate' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
@@ -71,7 +79,7 @@ export class Modules extends BaseCrudPage<Module> {
       name: [null, [Validators.required, Validators.minLength(3)]],
       number: [null, [Validators.required, Validators.min(1)]],
       operator_count: [null, [Validators.required, Validators.min(1)]],
-      location: [null, [Validators.required, Validators.minLength(4)]],
+      location_id: [null],
       is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
       work_center_id: [null, [Validators.required, Validators.min(1)]],
     });
@@ -89,8 +97,8 @@ export class Modules extends BaseCrudPage<Module> {
     return this.modelForm.get('operator_count');
   }
 
-  get location() {
-    return this.modelForm.get('location');
+  get locationId() {
+    return this.modelForm.get('location_id');
   }
 
   get isActive() {
@@ -106,6 +114,7 @@ export class Modules extends BaseCrudPage<Module> {
     if (event.type == 'edit') {
       this.modelForm.patchValue(event.obj);
       this.workCenter?.setValue(event.obj.work_center.id);
+      this.locationId?.setValue(event.obj.location?.id ?? null);
     }
   }
 
@@ -120,6 +129,12 @@ export class Modules extends BaseCrudPage<Module> {
   getWorkCenters() {
     this.loadList(this.workCenterService, this.workCenters, true,
       items => items.sort((a, b) => a.description.localeCompare(b.description))
+    );
+  }
+
+  getProductionAreas() {
+    this.loadList(this.productionAreaService, this.productionAreas, true,
+      items => items.sort((a, b) => a.name.localeCompare(b.name))
     );
   }
 }
