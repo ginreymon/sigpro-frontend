@@ -23,28 +23,41 @@
   </div>
 
   @if(rowObject.options?.length){
-  <div class="mt-4 mb-2 grid grid-cols-1 md:grid-cols-1 gap-3 py-2 items-stretch">
+  <div class="mt-4 mb-2 divide-y divide-slate-200 border border-slate-200 rounded-lg">
 
-    @for(option of rowObject.options; track option){
+    @for(option of rowObject.options; track option.id){
 
-    <app-ui-option-card [disabled]="true">
-    
-      <div class="flex flex-row justify-between w-full">
-        <h4 class="text-xl font-semibold text-gray-700 mb-2"> {{ option.name | titlecase }} </h4>
-        <app-ui-badge [active]="option.state"></app-ui-badge>
-      </div>
-    
-      <p class="mb-2"> {{ option.description }} </p>    
-    
-      <div class="mt-4 border-t border-slate-200 pt-4">
-    
-        <div class="space-y-1 text-sm text-slate-600">
-          <p> <strong>Ubicación:</strong> {{ rowObject.name | titlecase }} > {{ option.name | titlecase }} </p>
+    <div>
+
+      <button type="button" (click)="toggleOptionExpanded(option.id)"
+        class="w-full flex items-center gap-3 px-4 py-3 text-left cursor-pointer">
+
+        <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="option.state" [class.bg-gray-300]="!option.state"></span>
+
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-gray-700 truncate">{{ option.name | titlecase }}</p>
+          <p class="text-xs text-slate-500 truncate">{{ option.description || 'Sin descripción' }}</p>
         </div>
-    
+
+        <app-ui-badge [active]="option.state"></app-ui-badge>
+
+        <app-ui-icon [iconName]="isOptionExpanded(option.id) ? 'angleUp' : 'angleDown'" [class]="'h-4 w-4 text-gray-400 shrink-0'"></app-ui-icon>
+
+      </button>
+
+      @if(isOptionExpanded(option.id)){
+      <div class="px-4 pb-4">
+        <div class="bg-slate-50 rounded-lg p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
+          <p> <strong>Título:</strong> {{ option.title | titlecase }} </p>
+          <p> <strong>Orden:</strong> {{ option.order }} </p>
+          <p> <strong>Visible en menú:</strong> {{ option.visible ? 'Sí' : 'No' }} </p>
+          <p class="col-span-2 break-all"> <strong>URL:</strong> {{ option.url || '—' }} </p>
+          <p class="col-span-2"> <strong>Ubicación:</strong> {{ rowObject.name | titlecase }} > {{ option.name | titlecase }} </p>
+        </div>
       </div>
-    
-    </app-ui-option-card>
+      }
+
+    </div>
 
     }
   </div>

@@ -14,6 +14,7 @@ import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-fiel
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
+import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { minArrayLength } from '../../../common/functions/min-array-length';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/char-square/char-square";
@@ -34,6 +35,7 @@ import { TitleCasePipe } from '@angular/common';
     UiErrorMessage,
     UiOptionCard,
     UiBadge,
+    UiIcon,
     CharSquare,
     Metadata,
     TitleCasePipe
@@ -42,16 +44,36 @@ import { TitleCasePipe } from '@angular/common';
   styleUrl: './roles.css',
 })
 export class Roles extends BaseCrudPage<Role> {
-  protected override entityName: string = 'rol'; 
+  protected override entityName: string = 'rol';
   options = signal<Option[]>([]);
+  expandedOptionIds = signal<Set<number>>(new Set());
 
   constructor(private roleService: RoleService, private optionService: OptionsService) {
-    super(roleService);   
+    super(roleService);
     this.loadList(this.optionService, this.options, true);
   }
 
   protected override get columns(): TableColumn<Role>[] {
     return [{ field: 'name', label: 'Nombre' }];
+  }
+
+  protected override closeModelForm(): void {
+    this.expandedOptionIds.set(new Set());
+    super.closeModelForm();
+  }
+
+  isOptionExpanded(id: number): boolean {
+    return this.expandedOptionIds().has(id);
+  }
+
+  toggleOptionExpanded(id: number): void {
+    const expanded = new Set(this.expandedOptionIds());
+    if (expanded.has(id)) {
+      expanded.delete(id);
+    } else {
+      expanded.add(id);
+    }
+    this.expandedOptionIds.set(expanded);
   }
 
   protected override initializeModelForm(): void {
