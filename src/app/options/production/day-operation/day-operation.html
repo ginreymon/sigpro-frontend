@@ -27,7 +27,7 @@
                <app-day-operation-detail [workSession]="currentSession()"></app-day-operation-detail>
             }
             
-            @if(!currentSession() && employees().length)
+            @if(!currentSession() && initialDataLoaded())
             {
                 <app-carousel-field [controlName]="'module_id'" [label]="'Módulo'" [showNav]="!!modules().length">
                     @for(module of modules(); track module){

@@ -64,6 +64,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   protected employees = signal<Employee[]>([]);
   protected currentSession = signal<WorkSession | null>(null);
   protected sessionCopy = signal<WorkSession | null>(null);
+  protected initialDataLoaded = signal(false);
   protected displayError!: Signal<string | null>;
 
   constructor(private workSessionService: WorkSessionService) {
@@ -87,8 +88,13 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
           this.currentSession.set(session as WorkSession);
           if (session) this.setModelFormValues(session);
           this.employees.set(employees);
+          this.initialDataLoaded.set(true);
         },
-        error: () => this.currentSession.set(null),
+        error: () => {
+          this.currentSession.set(null);
+          this.initialDataLoaded.set(true);
+          this.errorMessage.set('No se pudo cargar la información de la jornada. Intente de nuevo.');
+        },
       });
 
     this.loadList(this.moduleService, this.modules, true, undefined, scopeParams);
