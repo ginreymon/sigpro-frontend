@@ -1,11 +1,10 @@
-import { Component, OnInit, ViewChild, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
-import { OperationCarousel } from '../../../shared/components/operation-carousel/operation-carousel';
+import { CarouselField } from '../../../shared/components/carousel-field/carousel-field';
 import { ModuleOptionCard } from '../../../shared/components/module-option-card/module-option-card';
 import { WorkShiftOptionCard } from '../../../shared/components/work-shift-option-card/work-shift-option-card';
 import { DateRangeFields } from '../../../shared/components/date-range-fields/date-range-fields';
@@ -30,10 +29,9 @@ import { TableColumn } from '../../../common/interfaces/table-column';
   imports: [
     WorkSpaceLayout,
     ReactiveFormsModule,
-    UiFormField,
     UiButton,
     UiIcon,
-    OperationCarousel,
+    CarouselField,
     ModuleOptionCard,
     WorkShiftOptionCard,
     DateRangeFields,
@@ -44,9 +42,6 @@ import { TableColumn } from '../../../common/interfaces/table-column';
   styleUrl: './data-export.css',
 })
 export class DataExport implements OnInit {
-  @ViewChild('moduleCarousel') moduleCarousel!: OperationCarousel;
-  @ViewChild('workshiftCarousel') workshiftCarousel!: OperationCarousel;
-
   private fb = inject(FormBuilder);
   private employeeService = inject(EmployeeService);
   private moduleService = inject(ModuleService);
@@ -131,11 +126,6 @@ export class DataExport implements OnInit {
   selectEmployee(id: number) { this.empleadoId?.setValue(this.empleadoId?.value === id ? null : id); }
 
   allFieldsFilled(): boolean { return this.filterForm.valid; }
-
-  prevModule() { this.moduleCarousel?.prev(); }
-  nextModule() { this.moduleCarousel?.next(); }
-  prevShift()  { this.workshiftCarousel?.prev(); }
-  nextShift()  { this.workshiftCarousel?.next(); }
 
   generateReport(): void {
     const { fecha_inicio, fecha_fin, modulo_id, turno_id, empleado_id } = this.filterForm.value;

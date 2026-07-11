@@ -1,0 +1,18 @@
+<app-ui-form-field [controlName]="controlName" [label]="label">
+  @if(showNav) {
+  <div formFieldActions class="flex items-center gap-0.5">
+    <app-ui-button [intent]="'label'" [classNames]="'!h-6 !w-6 !px-0 !gap-0 !border-0'" (onClick)="prev()">
+      <app-ui-icon [iconName]="'chevronLeft'" [class]="'w-4 h-4'"></app-ui-icon>
+    </app-ui-button>
+    <app-ui-button [intent]="'label'" [classNames]="'!h-6 !w-6 !px-0 !gap-0 !border-0'" (onClick)="next()">
+      <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4'"></app-ui-icon>
+    </app-ui-button>
+  </div>
+  }
+  <div class="relative bg-gray-100 rounded-lg border border-gray-200">
+    <app-operation-carousel>
+      <ng-content></ng-content>
+    </app-operation-carousel>
+    <div class="absolute right-0 inset-y-0 w-10 bg-linear-to-l from-gray-100 to-transparent pointer-events-none rounded-r-lg"></div>
+  </div>
+</app-ui-form-field>

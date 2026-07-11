@@ -1,11 +1,11 @@
-import { Component, computed, inject, Signal, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, Signal, signal } from '@angular/core';
 import { environment } from '../../../../environments/environment.development';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { WorkSession, EmployeeSnapshot } from '../../../models/production/work-session';
 import { WorkSessionService } from '../../../services/production/work-session-service';
-import { OperationCarousel } from '../../../shared/components/operation-carousel/operation-carousel';
+import { CarouselField } from '../../../shared/components/carousel-field/carousel-field';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { WorkShift } from '../../../models/production/work-shift';
@@ -34,7 +34,7 @@ import { FinalizeShiftMessage } from "../../../shared/components/finalize-shift-
   imports: [
     WorkSpaceLayout,
     UiButton,
-    OperationCarousel,
+    CarouselField,
     UiFormField,
     UiIcon,
     EmployeesModal,
@@ -51,8 +51,6 @@ import { FinalizeShiftMessage } from "../../../shared/components/finalize-shift-
 })
 export class DayOperation extends BaseCrudPage<WorkSession> {
   protected override entityName: string = 'Operación';
-  @ViewChild('moduleCarousel') moduleCarousel!: OperationCarousel;
-  @ViewChild('workshiftCarousel') workshiftCarousel!: OperationCarousel;
 
   private OPERATION_ORDER_URL: string = environment.SHIFT_CYCLES_URL;
   private workShiftService = inject(WorkShiftService);
@@ -191,22 +189,6 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   isSelectedWorkShift(ws: WorkShift) {
     return this.workShiftId?.value === ws.id;
-  }
-
-  nextModule() {
-    this.moduleCarousel.next();
-  }
-
-  prevModule() {
-    this.moduleCarousel.prev();
-  }
-
-  nextWorkshift() {
-    this.workshiftCarousel.next();
-  }
-
-  prevWorkshift() {
-    this.workshiftCarousel.prev();
   }
 
   protected override closeModelForm(): void {

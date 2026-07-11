@@ -3,9 +3,12 @@
   <div [class]="layout === 'horizontal' ? 'flex gap-2 mt-1' : ''">
 
     @if(controls.length == 1 || groupLabel){
-    <label [for]="controlName" [class]="`text-sm font-medium ${layout=='horizontal' ? 'order-2' : ''}`">
-      {{ groupLabel ?? label }}
-    </label>
+    <div [class]="`flex items-center justify-between gap-2 ${layout=='horizontal' ? 'order-2' : ''}`">
+      <label [for]="controlName" class="text-sm font-medium">
+        {{ groupLabel ?? label }}
+      </label>
+      <ng-content select="[formFieldActions]"></ng-content>
+    </div>
     }
 
     <div [class]="layout=='horizontal' ? 'order-1' : ''">
