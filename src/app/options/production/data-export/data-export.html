@@ -20,7 +20,7 @@
                 <!-- Módulo carousel -->
                 <app-carousel-field [controlName]="'modulo_id'" [label]="'Módulo'" [showNav]="!!modules().length">
                     @if(modules().length){
-                    <app-module-option-card [mod]="null" (onToggle)="selectAllModules()"
+                    <app-module-option-card [all]="true" (onToggle)="selectAllModules()"
                         [selected]="isAllModulesSelected()">
                     </app-module-option-card>
                     }

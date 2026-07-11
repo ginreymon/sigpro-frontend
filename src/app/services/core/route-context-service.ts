@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, RoutesRecognized } from '@angular/router';
 import { BehaviorSubject, filter } from 'rxjs';
 import { Option } from '../../models/core/option';
 import { Module } from '../../models/core/module';
@@ -15,13 +15,27 @@ export class RouteContextService {
   option$ = this.optionSubject.asObservable();
 
   private menu: Module[] = [];
+  private latestUrl: string;
 
   get currentModule(): Module | null {
     return this.moduleSubject.value;
   }
 
   constructor(private router: Router) {
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+    this.latestUrl = this.router.url;
+
+    // RoutesRecognized fires before the target route's components are
+    // constructed (NavigationEnd fires after), so the context is already
+    // correct by the time a page reads `currentModule` in its constructor.
+    this.router.events
+      .pipe(filter((event): event is RoutesRecognized => event instanceof RoutesRecognized))
+      .subscribe((event) => {
+        this.latestUrl = event.urlAfterRedirects;
+        this.detectRoute();
+      });
+
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event) => {
+      this.latestUrl = (event as NavigationEnd).urlAfterRedirects;
       this.detectRoute();
     });
   }
@@ -35,7 +49,7 @@ export class RouteContextService {
   private detectRoute() {
     if (!this.menu.length) return;
 
-    const segments = this.router.url.split('/').filter(Boolean);
+    const segments = this.latestUrl.split('/').filter(Boolean);
 
     const module = this.menu.find((m) => m.url === segments[0]);
 

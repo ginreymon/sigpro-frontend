@@ -1,17 +1,18 @@
 <app-ui-option-card
   (onToggle)="onToggle.emit()"
   [selected]="selected">
-  <div class="flex flex-row justify-start gap-2 items-center">
-    <app-ui-icon [iconName]="mod ? 'screwdriverWrench' : 'columns'" class="h-5 w-5"></app-ui-icon>
-    @if(mod) {
-      <p class="font-medium text-sm">
-        {{ mod.number }}
-        <strong class="text-xs text-gray-500"> {{ mod.name | titlecase | ellipsis:25 }}</strong>
-      </p>
-    } @else {
-      <p class="font-medium text-sm">
+  <div class="flex flex-row justify-start gap-2 items-center mb-1">
+    <app-ui-icon [iconName]="all ? 'columns' : 'screwdriverWrench'" class="h-5 w-5"></app-ui-icon>
+    <p class="font-medium text-sm">
+      @if(all) {
         <strong class="text-xs text-gray-500">Todos</strong>
-      </p>
-    }
+      } @else {
+        {{ mod?.number }}
+        <strong class="text-xs text-gray-500"> {{ mod?.name ?? '' | titlecase | ellipsis:25 }}</strong>
+      }
+    </p>
   </div>
+  @if(!all) {
+  <p class="text-xs text-gray-500"><strong>Ubicación</strong> {{ mod?.location?.name ?? '' | titlecase | ellipsis:25 }}</p>
+  }
 </app-ui-option-card>

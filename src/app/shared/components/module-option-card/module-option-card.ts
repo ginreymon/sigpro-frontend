@@ -14,6 +14,7 @@ export class ModuleOptionCard {
   @HostBinding('class') readonly hostClass = 'min-w-50 max-w-50';
 
   @Input() mod: Module | null = null;
+  @Input() all = false;
   @Input() selected = false;
   @Output() onToggle = new EventEmitter<void>();
 }
