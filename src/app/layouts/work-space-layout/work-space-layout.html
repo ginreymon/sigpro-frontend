@@ -1,4 +1,4 @@
-<div class="flex flex-col lg:flex-row lg:justify-between flex-1 w-full min-h-[calc(100vh-4rem)] sm:w-auto sm:min-h-0 lg:min-h-full lg:h-full gap-2 px-3 pt-3 pb-3 sm:px-0 sm:pt-0 sm:pb-0">
+<div class="flex flex-col lg:flex-row lg:justify-between flex-1 w-full h-full min-h-full sm:w-auto gap-2 px-3 pt-3 pb-3 sm:px-0 sm:pt-0 sm:pb-0">
 
     @if(showSideContent() && !isLargeScreen()){
     <div class="flex sm:inline-flex w-full sm:w-fit items-center gap-1 p-1 bg-slate-100 rounded-lg">
@@ -15,8 +15,8 @@
 
     @if(showSideContent()){
 
-    <div [class]="'shrink-0 flex flex-col lg:min-h-full order-2 ' + (!isLargeScreen() && activeTab() !== 'aside' ? 'hidden' : '')" [style.minWidth]="showSideContent() && isLargeScreen() ? 'calc(100vw/3)' : null">
-        <div class="sm:bg-white sm:border sm:border-slate-200 rounded-none sm:rounded-lg shadow-none sm:shadow-md p-0 sm:p-4 lg:p-6 lg:flex-1 lg:overflow-auto">
+    <div [class]="'shrink-0 flex flex-col flex-1 min-h-0 lg:flex-none lg:min-h-full order-2 ' + (!isLargeScreen() && activeTab() !== 'aside' ? 'hidden' : '')" [style.minWidth]="showSideContent() && isLargeScreen() ? 'calc(100vw/3)' : null">
+        <div class="sm:bg-white sm:border sm:border-slate-200 rounded-none sm:rounded-lg shadow-none sm:shadow-md p-0 sm:p-4 lg:p-6 flex-1 min-h-0 overflow-auto">
 
             @if(isLoading()){
             <div class="space-y-4">
