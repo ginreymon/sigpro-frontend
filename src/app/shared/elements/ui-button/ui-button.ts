@@ -1,4 +1,4 @@
-import { AfterContentChecked, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, signal, ViewChild } from '@angular/core';
 import { ButtonBase } from '../../../common/classes/button-base';
 
 @Component({
@@ -7,12 +7,12 @@ import { ButtonBase } from '../../../common/classes/button-base';
   templateUrl: './ui-button.html',
   styleUrl: './ui-button.css',
 })
-export class UiButton extends ButtonBase implements AfterContentChecked {
+export class UiButton extends ButtonBase implements AfterViewChecked {
   @ViewChild('labelSpan') private labelSpan?: ElementRef<HTMLSpanElement>;
 
-  hasLabel = false;
+  hasLabel = signal(false);
 
-  ngAfterContentChecked(): void {
-    this.hasLabel = !!this.labelSpan?.nativeElement.textContent?.trim();
+  ngAfterViewChecked(): void {
+    this.hasLabel.set(!!this.labelSpan?.nativeElement.textContent?.trim());
   }
 }
