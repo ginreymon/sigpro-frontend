@@ -29,7 +29,7 @@
             
             @if(!currentSession() && initialDataLoaded())
             {
-                <app-carousel-field [controlName]="'module_id'" [label]="'Módulo'" [showNav]="!!modules().length">
+                <app-carousel-field [controlName]="'module_id'" [label]="'Módulo'" [showNav]="!!modules().length" [selectedIndex]="selectedModuleIndex">
                     @for(module of modules(); track module){
                       <app-module-option-card
                         [mod]="module"
@@ -41,7 +41,7 @@
                     }
                 </app-carousel-field>
 
-                <app-carousel-field [controlName]="'work_shift_id'" [label]="'Turno'" [showNav]="!!workShifts().length">
+                <app-carousel-field [controlName]="'work_shift_id'" [label]="'Turno'" [showNav]="!!workShifts().length" [selectedIndex]="selectedWorkShiftIndex">
                     @for(workshift of workShifts(); track workshift){
                       <app-work-shift-option-card
                         [shift]="workshift"

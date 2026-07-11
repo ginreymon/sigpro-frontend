@@ -14,6 +14,7 @@ export class CarouselField {
   @Input() controlName!: string;
   @Input() label!: string;
   @Input() showNav = true;
+  @Input() selectedIndex: number | null = null;
 
   @ViewChild(OperationCarousel) private carousel!: OperationCarousel;
 

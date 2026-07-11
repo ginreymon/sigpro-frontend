@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, signal } from '@angular/core';
 import { fromEvent, Subscription } from 'rxjs';
 
 @Component({
@@ -7,7 +7,7 @@ import { fromEvent, Subscription } from 'rxjs';
   templateUrl: './operation-carousel.html',
   styleUrl: './operation-carousel.css',
 })
-export class OperationCarousel implements OnDestroy {
+export class OperationCarousel implements AfterViewInit, OnDestroy {
   @ViewChild('container') container!: ElementRef;
   @ViewChild('track') track!: ElementRef;
 
@@ -21,6 +21,14 @@ export class OperationCarousel implements OnDestroy {
   private readonly SWIPE_THRESHOLD = 50;
   private readonly MOUSE_THRESHOLD = 80;
 
+  private viewReady = false;
+  private pendingIndex: number | null = null;
+
+  @Input() set selectedIndex(index: number | null) {
+    this.pendingIndex = index;
+    this.scrollToSelected();
+  }
+
   private resizeSub: Subscription;
 
   constructor() {
@@ -29,8 +37,23 @@ export class OperationCarousel implements OnDestroy {
     });
   }
 
+  ngAfterViewInit() {
+    this.viewReady = true;
+    this.scrollToSelected();
+  }
+
   ngOnDestroy() {
     this.resizeSub.unsubscribe();
+  }
+
+  private scrollToSelected() {
+    if (!this.viewReady || this.pendingIndex == null) return;
+
+    const containerWidth = this.container.nativeElement.offsetWidth;
+    const trackWidth = this.track.nativeElement.scrollWidth;
+    const maxOffset = Math.max(0, trackWidth - containerWidth);
+
+    this.currentOffset = Math.min(this.pendingIndex * this.cardWidth, maxOffset);
   }
 
   next() {

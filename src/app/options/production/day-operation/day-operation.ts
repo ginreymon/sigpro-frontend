@@ -134,6 +134,16 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
     });
   }
 
+  get selectedModuleIndex(): number | null {
+    const index = this.modules().findIndex((m) => m.id === this.moduleId?.value);
+    return index >= 0 ? index : null;
+  }
+
+  get selectedWorkShiftIndex(): number | null {
+    const index = this.workShifts().findIndex((ws) => ws.id === this.workShiftId?.value);
+    return index >= 0 ? index : null;
+  }
+
   get assignedEmployees(): Employee[] {
     const ids: number[] = this.employeeIds?.value ?? [];
     return ids

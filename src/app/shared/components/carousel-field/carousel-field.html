@@ -10,7 +10,7 @@
   </div>
   }
   <div class="relative bg-gray-100 rounded-lg border border-gray-200">
-    <app-operation-carousel>
+    <app-operation-carousel [selectedIndex]="selectedIndex">
       <ng-content></ng-content>
     </app-operation-carousel>
     <div class="absolute right-0 inset-y-0 w-10 bg-linear-to-l from-gray-100 to-transparent pointer-events-none rounded-r-lg"></div>
