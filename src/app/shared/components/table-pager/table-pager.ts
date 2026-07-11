@@ -19,7 +19,7 @@ export class TablePager {
   @Output() onChange = new EventEmitter<{ page: number; pageSize: number }>();
 
   get rowsPerPage() {
-    const rows = [];
+    const rows = [5];
     for (let i = 10; i <= 100; i += 10) {
       rows.push(i);
     }
