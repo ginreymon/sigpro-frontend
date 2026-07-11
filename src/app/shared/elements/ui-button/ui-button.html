@@ -6,16 +6,15 @@
     inline-flex
     items-center
     justify-center
-    has-[>.btn-label:not(:empty)]:gap-2
     transition-all
     duration-200
     ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
-    border   
+    border
     border-gray-300
     font-medium
     ${intents[intent]}
     ${classNames}`
-  " [disabled]="disabled" [type]="type" [attr.form]="formId" (click)="clickHandler()">
+  " [class.gap-2]="hasLabel" [disabled]="disabled" [type]="type" [attr.form]="formId" (click)="clickHandler()">
   <ng-content select="app-ui-icon"></ng-content>
-  <span class="btn-label"><ng-content></ng-content></span>
+  <span class="btn-label" #labelSpan><ng-content></ng-content></span>
 </button>
