@@ -6,7 +6,7 @@
 
             <app-work-shift-summary [session]="currentSession()" [employeesEditable]="!finalizeDay()" [ordenProduction]="productionOrder()" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
 
-            <app-order-header [productionOrder]="productionOrder()"></app-order-header>
+            <app-order-header [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
 
             <div class="flex-1 min-h-0 overflow-hidden">
                 <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>

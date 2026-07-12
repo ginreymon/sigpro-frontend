@@ -1,3 +1,35 @@
+@if (mobileAccordion()) {
+
+<div class="hidden sm:flex bg-white border border-slate-200 rounded-md p-3 mb-2 flex-row justify-between">
+    @for(card of cards(); track card; let i = $index){
+    <div class="px-2">
+        @if(i !== 0){
+            <h3 class="text-slate-500 text-xs"> {{ card.title }} </h3>
+        }
+        <p [class]="i == 0 ? 'text-3xl font-semibold text-slate-900 mb-1' : 'text-m font-semibold text-slate-900 mb-1'">
+            {{ card.data | uppercase }}
+        </p>
+    </div>
+    }
+</div>
+
+<details class="group sm:hidden bg-white border border-slate-200 rounded-md mb-2">
+    <summary class="p-3 flex flex-row justify-between items-center cursor-pointer list-none">
+        <p class="text-3xl font-semibold text-slate-900">{{ cards()[0]?.data | uppercase }}</p>
+        <app-ui-icon iconName="angleDown" class="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"></app-ui-icon>
+    </summary>
+    <div class="px-3 pb-3 pt-1 border-t border-slate-200 divide-y divide-slate-200">
+        @for(card of restCards(); track card.title){
+        <div class="py-2 flex flex-row justify-between items-baseline gap-3">
+            <h3 class="text-slate-500 text-xs text-left"> {{ card.title }} </h3>
+            <p class="text-sm font-semibold text-slate-900 text-right"> {{ card.data | uppercase }} </p>
+        </div>
+        }
+    </div>
+</details>
+
+} @else {
+
 <div class="bg-white border border-slate-200 rounded-md p-3 mb-2 flex flex-row justify-between">
     @for(card of cards(); track card; let i = $index){
     <div class="px-2">
@@ -10,3 +42,5 @@
     </div>
     }
 </div>
+
+}

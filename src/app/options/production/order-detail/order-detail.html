@@ -12,7 +12,7 @@
     }
 
     @if (productionOrder() && activeTab() === 'tab1') {
-      <app-order-header class="mt-2" [productionOrder]="productionOrder()"></app-order-header>
+      <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
       <div class="flex-1 min-h-0 overflow-hidden">
         <app-production-orders-table
           [readOnly]="true"
