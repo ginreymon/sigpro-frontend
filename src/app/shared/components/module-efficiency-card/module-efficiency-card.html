@@ -1,0 +1,69 @@
+<div
+  class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between min-h-45 hover:shadow-md transition-shadow cursor-pointer"
+  (click)="onClick()">
+
+  <div class="flex justify-between items-start">
+    <div>
+      @if (mod.module_id === 0) {
+        <span class="text-xs font-semibold tracking-widest text-brand-400 uppercase block mb-1">
+          RESUMEN GENERAL
+        </span>
+        <h3 class="text-base font-semibold text-brand-700">PLANTA</h3>
+      } @else {
+        <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-1">
+          MÓDULO {{ padNumber(mod.number) }}
+        </span>
+        <h3 class="text-base font-semibold text-gray-800">{{ mod.name | uppercase }}</h3>
+      }
+    </div>
+    <app-ui-badge [intent]="badgeIntent()" [label]="statusLabel()"></app-ui-badge>
+  </div>
+
+  <div class="mt-2 flex flex-col gap-3">
+    <div>
+      <span [class]="efficiencyClass()">{{ mod.efficiency.toFixed(2) }}%</span>
+      <div class="mt-1 text-xs text-gray-500">
+        <span>{{ mod?.employees_snapshot ?? 0 }} / {{ mod.operator_count }} Encomendados</span>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span class="text-gray-400">Completadas</span>
+          <span [class]="statValueClass('completed')">{{ mod.total_completed ?? 0 }}</span>
+        </div>
+        <app-progress-bar
+          [progress]="mod.total_completed ?? 0"
+          [max]="mod.unit_target ?? 0"
+          [color]="barColor('completed')">
+        </app-progress-bar>
+      </div>
+
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span class="text-gray-400">Saldos</span>
+          <span [class]="statValueClass('rejected')">{{ mod.total_rejected ?? 0 }}</span>
+        </div>
+        <app-progress-bar
+          [progress]="mod.total_rejected ?? 0"
+          [max]="mod.unit_target ?? 0"
+          [color]="barColor('rejected')">
+        </app-progress-bar>
+      </div>
+
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span class="text-gray-400">Bajas</span>
+          <span [class]="statValueClass('scrap')">{{ mod.total_scrap ?? 0 }}</span>
+        </div>
+        <app-progress-bar
+          [progress]="mod.total_scrap ?? 0"
+          [max]="mod.unit_target ?? 0"
+          [color]="barColor('scrap')">
+        </app-progress-bar>
+      </div>
+    </div>
+  </div>
+
+</div>

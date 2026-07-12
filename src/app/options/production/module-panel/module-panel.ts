@@ -3,14 +3,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
 import { catchError, finalize, map, startWith, switchMap, take, tap } from 'rxjs/operators';
 import { ModuleDetailBottomSheet } from '../../../shared/components/module-detail-bottom-sheet/module-detail-bottom-sheet';
-import { ProgressBar } from '../../../shared/components/progress-bar/progress-bar';
-import { UiBadge, BadgeIntent } from '../../../shared/elements/ui-badge/ui-badge';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ModuleEfficiencyStatus } from '../../../models/production/module-efficiency-status';
-import { UpperCasePipe } from '@angular/common';
 import { AppConfigService } from '../../../services/core/app-config-service';
-import { efficiencyTextColor } from '../../../common/functions/efficiency-color';
 import { computePlantaStats } from '../../../common/functions/planta-summary';
 import { LoaderService } from '../../../services/common/loader-service';
 import { EfficiencySummaryBar } from '../../../shared/elements/efficiency-summary-bar/efficiency-summary-bar';
@@ -18,24 +14,11 @@ import { PanelLayout } from '../../../shared/components/panel-layout/panel-layou
 import { ModuleService } from '../../../services/production/module-service';
 import { RouteContextService } from '../../../services/core/route-context-service';
 import { DateRangeForm } from '../../../shared/components/date-range-form/date-range-form';
-
-const STATUS_LABELS: Record<string, string> = {
-  ACTIVE:   'Activo',
-  INACTIVE: 'Inactivo',
-  PAUSED:   'Pausado',
-  DISABLED: 'Inactivo',
-};
-
-const STATUS_INTENTS: Record<string, BadgeIntent> = {
-  ACTIVE:   'default',
-  INACTIVE: 'inactive',
-  PAUSED:   'paused',
-  DISABLED: 'disabled',
-};
+import { ModuleEfficiencyCard } from '../../../shared/components/module-efficiency-card/module-efficiency-card';
 
 @Component({
   selector: 'app-module-panel',
-  imports: [ModuleDetailBottomSheet, ProgressBar, UiBadge, UiIcon, UpperCasePipe, EfficiencySummaryBar, PanelLayout, DateRangeForm],
+  imports: [ModuleDetailBottomSheet, UiIcon, EfficiencySummaryBar, PanelLayout, DateRangeForm, ModuleEfficiencyCard],
   templateUrl: './module-panel.html',
 })
 export class ModulePanel {
@@ -131,50 +114,5 @@ export class ModulePanel {
 
   toggleDateFilter(): void {
     this.showDateFilter.update((v) => !v);
-  }
-
-  statusLabel(status: string): string {
-    return STATUS_LABELS[status] ?? status;
-  }
-
-  badgeIntent(status: string): BadgeIntent {
-    return STATUS_INTENTS[status] ?? 'inactive';
-  }
-
-  padNumber(n: number): string {
-    return n.toString().padStart(2, '0');
-  }
-
-  private readonly _barColors: Record<string, string> = {
-    completed: '#16a34a',
-    rejected:  '#f59e0b',
-    scrap:     '#ef4444',
-  };
-
-  barColor(type: 'completed' | 'rejected' | 'scrap', status: string): string {
-    return status === 'ACTIVE' ? this._barColors[type] : '#9ca3af';
-  }
-
-  statValueClass(type: 'completed' | 'rejected' | 'scrap', status: string): string {
-    if (status !== 'ACTIVE') return 'font-medium text-gray-400';
-    const map: Record<string, string> = {
-      completed: 'font-medium text-green-600',
-      rejected:  'font-medium text-amber-500',
-      scrap:     'font-medium text-red-500',
-    };
-    return map[type];
-  }
-
-  efficiencyClass(efficiency: number, status: string): string {
-    return `text-4xl font-semibold ${this.efficiencyColor(efficiency, status)}`;
-  }
-
-  efficiencyColor(efficiency: number, status: string): string {
-    return efficiencyTextColor(
-      efficiency,
-      this.appConfig.highEfficiencyLimit,
-      this.appConfig.lowEfficiencyLimit,
-      status === 'ACTIVE',
-    );
   }
 }
