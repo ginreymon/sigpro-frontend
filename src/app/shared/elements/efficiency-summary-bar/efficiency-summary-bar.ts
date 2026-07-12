@@ -1,10 +1,11 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { efficiencyTextColor } from '../../../common/functions/efficiency-color';
+import { UiIcon } from '../ui-icon/ui-icon';
 
 @Component({
   selector: 'app-efficiency-summary-bar',
-  imports: [],
+  imports: [UiIcon],
   templateUrl: './efficiency-summary-bar.html',
 })
 export class EfficiencySummaryBar {
@@ -14,6 +15,9 @@ export class EfficiencySummaryBar {
   @Input() status = 'INACTIVE';
   @Input() completed = 0;
   @Input() activeModules?: number;
+  @Input() showFilterButton = false;
+  @Input() filterActive = false;
+  @Output() filterToggle = new EventEmitter<void>();
 
   efficiencyColor(): string {
     return efficiencyTextColor(

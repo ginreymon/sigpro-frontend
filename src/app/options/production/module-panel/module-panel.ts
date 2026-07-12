@@ -17,6 +17,7 @@ import { EfficiencySummaryBar } from '../../../shared/elements/efficiency-summar
 import { PanelLayout } from '../../../shared/components/panel-layout/panel-layout';
 import { ModuleService } from '../../../services/production/module-service';
 import { RouteContextService } from '../../../services/core/route-context-service';
+import { DateRangeForm } from '../../../shared/components/date-range-form/date-range-form';
 
 const STATUS_LABELS: Record<string, string> = {
   ACTIVE:   'Activo',
@@ -34,7 +35,7 @@ const STATUS_INTENTS: Record<string, BadgeIntent> = {
 
 @Component({
   selector: 'app-module-panel',
-  imports: [ModuleDetailBottomSheet, ProgressBar, UiBadge, UiIcon, UpperCasePipe, EfficiencySummaryBar, PanelLayout],
+  imports: [ModuleDetailBottomSheet, ProgressBar, UiBadge, UiIcon, UpperCasePipe, EfficiencySummaryBar, PanelLayout, DateRangeForm],
   templateUrl: './module-panel.html',
 })
 export class ModulePanel {
@@ -47,6 +48,7 @@ export class ModulePanel {
 
   selectedModule = signal<ModuleEfficiencyStatus | null>(null);
   sheetVisible = signal(false);
+  showDateFilter = signal(false);
   readonly modules = signal<ModuleEfficiencyStatus[]>([]);
 
   readonly plantaModule = computed<ModuleEfficiencyStatus>(() => {
@@ -125,6 +127,10 @@ export class ModulePanel {
 
   closeSheet(): void {
     this.sheetVisible.set(false);
+  }
+
+  toggleDateFilter(): void {
+    this.showDateFilter.update((v) => !v);
   }
 
   statusLabel(status: string): string {
