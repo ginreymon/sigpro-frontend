@@ -1,6 +1,6 @@
 @if (cards().length > 0) {
 
-<div class="hidden sm:flex bg-gray-200 text-gray-700 border border-gray-200 rounded-md px-3 py-1.5 mb-2 flex-row justify-between">
+<div class="hidden sm:flex items-start bg-gray-200 text-gray-700 border border-gray-200 rounded-md px-3 py-1.5 mb-2 flex-row justify-between">
   @for (card of cards(); track card.title) {
     <div class="px-2">
       <h3 class="text-slate-500 text-xs">{{ card.title }}</h3>
@@ -10,18 +10,18 @@
           @if (card.iconName) {
             <app-ui-icon [iconName]="card.iconName" class="h-4 w-4"></app-ui-icon>
           }
-          <span [class]="getDataClasses(card)">
+          <span [class]="getDataClasses(card, 'text-sm sm:text-xs lg:text-sm')">
             {{ card.data.toString() | uppercase }}
           </span>
         </div>
       }
 
       @else {
-        <div class="inline-flex flex-row gap-1 items-center mt-0.5">
+        <div class="inline-flex flex-row gap-1 items-start mt-0.5">
           @if (card.iconName) {
             <app-ui-icon [iconName]="card.iconName" class="h-4 w-4"></app-ui-icon>
           }
-          <p [class]="getDataClasses(card)">
+          <p [class]="getDataClasses(card, 'text-sm sm:text-xs lg:text-sm')">
             {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
           </p>
         </div>
