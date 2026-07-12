@@ -1,0 +1,11 @@
+<div [class]="'flex flex-col h-full' + (padded ? ' px-6' : '')">
+
+  <div class="pb-4 border-b border-gray-200">
+    <ng-content select="[panel-header]"></ng-content>
+  </div>
+
+  <div class="flex-1 min-h-0 overflow-y-auto mt-4 pb-6">
+    <ng-content select="[panel-content]"></ng-content>
+  </div>
+
+</div>

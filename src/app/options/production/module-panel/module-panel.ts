@@ -14,6 +14,7 @@ import { efficiencyTextColor } from '../../../common/functions/efficiency-color'
 import { computePlantaStats } from '../../../common/functions/planta-summary';
 import { LoaderService } from '../../../services/common/loader-service';
 import { EfficiencySummaryBar } from '../../../shared/elements/efficiency-summary-bar/efficiency-summary-bar';
+import { PanelLayout } from '../../../shared/components/panel-layout/panel-layout';
 
 const STATUS_LABELS: Record<string, string> = {
   ACTIVE:   'Activo',
@@ -31,7 +32,7 @@ const STATUS_INTENTS: Record<string, BadgeIntent> = {
 
 @Component({
   selector: 'app-module-panel',
-  imports: [ModuleDetailBottomSheet, ProgressBar, UiBadge, UiIcon, UpperCasePipe, EfficiencySummaryBar],
+  imports: [ModuleDetailBottomSheet, ProgressBar, UiBadge, UiIcon, UpperCasePipe, EfficiencySummaryBar, PanelLayout],
   templateUrl: './module-panel.html',
 })
 export class ModulePanel {

@@ -1,11 +1,11 @@
 <app-work-space-layout>
-<div main-content class="flex flex-col h-full">
+<app-panel-layout main-content>
 
-  <div class="pb-4 border-b border-gray-200 flex items-center justify-between">
+  <div panel-header class="flex items-center justify-between">
     <h1 class="text-2xl font-semibold text-gray-800">Estado de troquelado</h1>
   </div>
 
-  <div class="flex-1 min-h-0 overflow-y-auto mt-4">
+  <div panel-content>
     <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
 
       <div class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between min-h-45 hover:shadow-md transition-shadow cursor-pointer">
@@ -140,5 +140,5 @@
     </div>
   </div>
 
-</div>
+</app-panel-layout>
 </app-work-space-layout>

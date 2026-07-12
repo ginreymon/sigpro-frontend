@@ -1,6 +1,6 @@
-<div class="flex flex-col h-full px-6">
+<app-panel-layout [padded]="true">
 
-  <div class="pb-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+  <div panel-header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
     <h1 class="text-xl sm:text-3xl font-semibold text-gray-800 mb-3 mt-3">Estado de producción</h1>
     @if (modules().length) {
       <app-efficiency-summary-bar
@@ -12,7 +12,7 @@
     }
   </div>
 
-  <div class="flex-1 min-h-0 overflow-y-auto mt-4">
+  <div panel-content>
 
     @if (modules().length === 0) {
       <div class="flex flex-col items-center justify-center h-full gap-3 text-gray-300">
@@ -98,7 +98,7 @@
     }
   </div>
 
-</div>
+</app-panel-layout>
 
 <app-module-detail-bottom-sheet
   [visible]="sheetVisible()"
