@@ -133,6 +133,8 @@
             </span>
             @if (mobileActionsColumn) {
             <span>Acciones</span>
+            } @else if (mobileSecondaryColumn) {
+            <span>{{ mobileSecondaryColumn.label }}</span>
             }
         </div>
         }
@@ -153,6 +155,10 @@
                     @if (mobileActionsColumn) {
                     <span class="shrink-0" (click)="$event.stopPropagation()">
                         <ng-container *ngTemplateOutlet="actionsContent; context: { row }"></ng-container>
+                    </span>
+                    } @else if (mobileSecondaryColumn) {
+                    <span class="shrink-0 font-semibold">
+                        <ng-container *ngTemplateOutlet="cellContent; context: { col: mobileSecondaryColumn, row, i }"></ng-container>
                     </span>
                     }
                 </summary>

@@ -137,10 +137,20 @@ export class DataTable<T> {
     return this._columns.find((c) => !c.hidden && c.type === 'tableActionType');
   }
 
+  get mobileSecondaryColumn(): TableColumn<T> | undefined {
+    if (this.mobileActionsColumn) return undefined;
+    const primary = this.primaryColumn;
+    const candidates = this._columns.filter(
+      (c) => !c.hidden && c.field && c.type !== 'tableActionType' && c.type !== 'index' && c !== primary,
+    );
+    return candidates.at(-1);
+  }
+
   get detailColumns(): TableColumn<T>[] {
     const primary = this.primaryColumn;
+    const secondary = this.mobileSecondaryColumn;
     return this._columns.filter(
-      (c) => !c.hidden && c.type !== 'index' && c.type !== 'tableActionType' && c !== primary,
+      (c) => !c.hidden && c.type !== 'index' && c.type !== 'tableActionType' && c !== primary && c !== secondary,
     );
   }
 
