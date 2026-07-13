@@ -1,10 +1,10 @@
 import { Component, Input, computed, signal } from '@angular/core';
 
 @Component({
-  selector: 'app-animated-text',
-  templateUrl: './animated-text.html',
+  selector: 'app-ui-animated-text',
+  templateUrl: './ui-animated-text.html',
 })
-export class AnimatedText {
+export class UiAnimatedText {
   @Input() set text(value: string) { this._text.set(value); }
   @Input() duration = 4.5;
   @Input() letterDelay = 0.2;

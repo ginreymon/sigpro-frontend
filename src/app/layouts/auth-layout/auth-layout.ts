@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { Loader } from "../../shared/elements/loader/loader";
-import { AnimatedText } from "../../shared/elements/animated-text/animated-text";
+import { UiLoader } from "../../shared/elements/ui-loader/ui-loader";
+import { UiAnimatedText } from "../../shared/elements/ui-animated-text/ui-animated-text";
 
 @Component({
   selector: 'app-auth-layout',
-  imports: [Loader, AnimatedText],
+  imports: [UiLoader, UiAnimatedText],
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.css',
 })

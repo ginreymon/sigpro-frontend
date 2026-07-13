@@ -17,7 +17,7 @@ import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../services/auth/auth-service';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
-import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
+import { UiTogglePasswordBtn } from '../../../shared/elements/ui-toggle-password-btn/ui-toggle-password-btn';
 import { ValidationIcon } from '../../../shared/elements/validation-icon/validation-icon';
 import { RegisterRequest } from '../../../models/auth/register-request';
 import { UserService } from '../../../services/user/user-service';
@@ -44,7 +44,7 @@ import { TitleCasePipe } from '@angular/common';
     ReactiveFormsModule,
     UiInput,
     UiErrorMessage,
-    TogglePasswordBtn,
+    UiTogglePasswordBtn,
     ValidationIcon,   
     UiBadge,
     CharSquare,

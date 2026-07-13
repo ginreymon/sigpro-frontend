@@ -2,13 +2,13 @@ import { Component, Input } from '@angular/core';
 import { LoaderService } from '../../../services/common/loader-service';
 
 @Component({
-  selector: 'app-loader',
+  selector: 'app-ui-loader',
   standalone: true,
   imports: [],
-  templateUrl: './loader.html',
-  styleUrl: './loader.css',
+  templateUrl: './ui-loader.html',
+  styleUrl: './ui-loader.css',
 })
-export class Loader {
+export class UiLoader {
   private localShowLoader: boolean = false;
 
   @Input()

@@ -104,7 +104,7 @@
                 <app-ui-form-field [controlName]="'password'" [label]="'Contraseña'">
                     <div class="relative">
                         <app-ui-input formControlName="password" [id]="'password'" [type]="showPassword()?'text':'password'" [placeholder]="'Contraseña'" [control]="password"></app-ui-input>
-                        <app-toggle-password-btn [control]="password" (showPasswordChange)="toggleShowPassword($event)"></app-toggle-password-btn>
+                        <app-ui-toggle-password-btn [control]="password" (showPasswordChange)="toggleShowPassword($event)"></app-ui-toggle-password-btn>
                     </div>
                 </app-ui-form-field>
 

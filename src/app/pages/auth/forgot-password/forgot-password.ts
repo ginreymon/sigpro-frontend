@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthLayout } from '../../../layouts/auth-layout/auth-layout';
 import { Router, RouterLink } from '@angular/router';
-import { FormActionBtn } from '../../../shared/elements/form-action-btn/form-action-btn';
+import { UiFormActionBtn } from '../../../shared/elements/ui-form-action-btn/ui-form-action-btn';
 import { BaseAuthComponent } from '../../../common/classes/base-auth-component';
 import { FormGroup, Validators, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth/auth-service';
@@ -16,7 +16,7 @@ import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [AuthLayout, RouterLink, FormActionBtn, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, UiIcon],
+  imports: [AuthLayout, RouterLink, UiFormActionBtn, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, UiIcon],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css',
 })

@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnInit, signal } from '@angular/core';
 import { AuthService } from '../../services/auth/auth-service';
-import { HeaderMenuItem } from '../../shared/elements/header-menu-item/header-menu-item';
+import { UiHeaderMenuItem } from '../../shared/elements/ui-header-menu-item/ui-header-menu-item';
 import { LocationOption } from '../../common/classes/location-option';
 import { RouterLink } from '@angular/router';
 import { UiIcon } from '../../shared/elements/ui-icon/ui-icon';
@@ -8,7 +8,7 @@ import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-header',
-  imports: [HeaderMenuItem, RouterLink, UiIcon, TitleCasePipe],
+  imports: [UiHeaderMenuItem, RouterLink, UiIcon, TitleCasePipe],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })

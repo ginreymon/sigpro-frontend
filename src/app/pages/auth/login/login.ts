@@ -7,8 +7,8 @@ import { LoginRequest } from '../../../models/auth/login-request';
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs/operators';
 import { BaseAuthComponent } from '../../../common/classes/base-auth-component';
-import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
-import { FormActionBtn } from '../../../shared/elements/form-action-btn/form-action-btn';
+import { UiTogglePasswordBtn } from '../../../shared/elements/ui-toggle-password-btn/ui-toggle-password-btn';
+import { UiFormActionBtn } from '../../../shared/elements/ui-form-action-btn/ui-form-action-btn';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
@@ -18,7 +18,7 @@ import { MenuService } from '../../../services/core/menu-service';
 
 @Component({
   selector: 'app-login',
-  imports: [AuthLayout, RouterLink, ReactiveFormsModule, TogglePasswordBtn, FormActionBtn, UiErrorMessage, UiFormField, UiInput, UiIcon],
+  imports: [AuthLayout, RouterLink, ReactiveFormsModule, UiTogglePasswordBtn, UiFormActionBtn, UiErrorMessage, UiFormField, UiInput, UiIcon],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

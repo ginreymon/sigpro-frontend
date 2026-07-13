@@ -14,7 +14,7 @@
             <app-ui-form-field [controlName]="'password'" [label]="'Contraseña'">
                 <div class="relative">
                     <app-ui-input formControlName="password" [id]="'password'" [placeholder]="'Contraseña'" [control]="password" [type]="showPassword ? 'text' : 'password'" [large]="true"></app-ui-input>
-                    <app-toggle-password-btn (showPasswordChange)="setShowPassword($event)" [showPassword]="showPassword" [invalid]="!!(password?.invalid && password?.touched)" [large]="true"></app-toggle-password-btn>
+                    <app-ui-toggle-password-btn (showPasswordChange)="setShowPassword($event)" [showPassword]="showPassword" [invalid]="!!(password?.invalid && password?.touched)" [large]="true"></app-ui-toggle-password-btn>
                 </div>
             </app-ui-form-field>
 
@@ -31,10 +31,10 @@
 
         </fieldset>
 
-        <app-form-action-btn [disabled]="isLoading()">
+        <app-ui-form-action-btn [disabled]="isLoading()">
             <app-ui-icon iconName="circleRight" [class]="'w-5 h-5'"></app-ui-icon>
             {{isLoading()?'Ingresando...':'Ingresar'}}
-        </app-form-action-btn>
+        </app-ui-form-action-btn>
 
     </form>
 

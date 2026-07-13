@@ -5,8 +5,8 @@ import { BaseAuthComponent } from '../../../common/classes/base-auth-component';
 import { AuthService } from '../../../services/auth/auth-service';
 import { ResetPasswordService } from '../../../services/auth/reset-password-service';
 import { FormGroup, Validators, FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { FormActionBtn } from '../../../shared/elements/form-action-btn/form-action-btn';
-import { TogglePasswordBtn } from '../../../shared/elements/toggle-password-btn/toggle-password-btn';
+import { UiFormActionBtn } from '../../../shared/elements/ui-form-action-btn/ui-form-action-btn';
+import { UiTogglePasswordBtn } from '../../../shared/elements/ui-toggle-password-btn/ui-toggle-password-btn';
 import { ConfirmPwRequest } from '../../../models/auth/confirm-pw-request';
 import { finalize } from 'rxjs';
 import { LoaderService } from '../../../services/common/loader-service';
@@ -22,8 +22,8 @@ import { UiInput } from '../../../shared/elements/ui-input/ui-input';
     AuthLayout,
     RouterLink,
     ReactiveFormsModule,
-    FormActionBtn,
-    TogglePasswordBtn,
+    UiFormActionBtn,
+    UiTogglePasswordBtn,
     ValidationIcon,
     UiIcon,
     UiErrorMessage,

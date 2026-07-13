@@ -35,20 +35,20 @@
         @if(showUserMenu()){
         <ul class="p-1 text-sm text-body font-medium">
           
-          <app-header-menu-item>            
+          <app-ui-header-menu-item>            
             <app-ui-icon [iconName]="'user'" [class]="'w-5 h-5'"></app-ui-icon>  
             <span class="text-sm font-medium ml-2">{{ getUser() }}</span>
-          </app-header-menu-item>
+          </app-ui-header-menu-item>
 
-          <!-- <app-header-menu-item>            
+          <!-- <app-ui-header-menu-item>            
             <app-ui-icon [iconName]="'settings'" [class]="'w-5 h-5'"></app-ui-icon>  
             <span class="text-sm font-medium ml-2">Configuración</span>
-          </app-header-menu-item> -->
+          </app-ui-header-menu-item> -->
 
-          <app-header-menu-item (itemClick)="logout()">
+          <app-ui-header-menu-item (itemClick)="logout()">
             <app-ui-icon [iconName]="'logout'" [class]="'w-5 h-5'"></app-ui-icon>           
             <span class="text-sm font-medium ml-2">Cerrar sesión</span>
-          </app-header-menu-item>
+          </app-ui-header-menu-item>
           
         </ul>
         }
