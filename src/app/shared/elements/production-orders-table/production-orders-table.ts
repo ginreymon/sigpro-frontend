@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
 import { ProductionOrder } from '../../../models/production/production-order';
 import { ColorDetail } from '../../../models/production/color-detail';
 import { SizeQtyDetail } from '../../../models/production/size-detail';
@@ -13,14 +13,58 @@ import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 import { UiTooltip } from "../ui-tooltip/ui-tooltip";
 import { UiIcon } from "../ui-icon/ui-icon";
+import { TableColumnFilter } from '../../components/table-column-filter/table-column-filter';
 
 @Component({
   selector: 'app-production-orders-table',
-  imports: [UiTableButton, UiTooltipFixed, UiTooltip, UiIcon],
+  imports: [UiTableButton, UiTooltipFixed, UiTooltip, UiIcon, TableColumnFilter],
   templateUrl: './production-orders-table.html',
   styleUrl: './production-orders-table.css',
 })
 export class ProductionOrdersTable {
+  @ViewChild(TableColumnFilter) private colorFilterPanel!: TableColumnFilter;
+
+  private selectedColors = new Set<string>();
+  protected colorFilterOpen = false;
+
+  protected get filteredSkuColors(): ColorDetail[] {
+    if (this.selectedColors.size === 0) return this.skuColors;
+    return this.skuColors.filter((c) => this.selectedColors.has(c.color));
+  }
+
+  protected get colorFilterValues(): string[] {
+    return [...new Set(this.skuColors.map((c) => c.color))].sort((a, b) => a.localeCompare(b));
+  }
+
+  protected get isColorFilterActive(): boolean {
+    return this.selectedColors.size > 0;
+  }
+
+  protected readonly isColorChecked = (value: any): boolean => this.selectedColors.has(value);
+
+  protected toggleColorFilterDropdown(event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.colorFilterOpen) {
+      this.colorFilterPanel.close();
+      return;
+    }
+    this.colorFilterOpen = true;
+    this.colorFilterPanel.open(event.currentTarget as HTMLElement);
+  }
+
+  protected toggleColorValue(value: any): void {
+    if (this.selectedColors.has(value)) this.selectedColors.delete(value);
+    else this.selectedColors.add(value);
+  }
+
+  protected clearColorFilter(): void {
+    this.selectedColors.clear();
+    this.colorFilterPanel.close();
+  }
+
+  protected onColorFilterClosed(): void {
+    this.colorFilterOpen = false;
+  }
   private _productionOrder: ProductionOrder | null = null;
   sizes: string[] = [];
   skuColors: ColorDetail[] = [];
