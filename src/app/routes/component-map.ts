@@ -15,7 +15,7 @@ import { TechnicalSheetPage } from '../options/catalog/technical-sheet/technical
 import { Processes } from '../options/stamping/processes/processes';
 import { MachineTypes } from '../options/stamping/machine-types/machine-types';
 import { Machines } from '../options/stamping/machines/machines';
-import { ReferenceSams } from '../options/stamping/reference-sams/reference-sams';
+import { ReferenceSams } from '../options/admin/reference-sams/reference-sams';
 import { AdditionalTimes } from '../options/stamping/additional-times/additional-times';
 import { StampingDayOperation } from '../options/stamping/day-operation/day-operation';
 import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
