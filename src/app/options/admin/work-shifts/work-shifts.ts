@@ -5,9 +5,9 @@ import { WorkShiftService } from '../../../services/production/work-shift-servic
 import { ProductionArea } from '../../../models/production/production-area';
 import { ProductionAreaService } from '../../../services/production/production-area-service';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { DataTable } from '../../../shared/components/data-table/data-table';
-import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
-import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
+import { DataTable } from '../../../shared/components/table/data-table/data-table';
+import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
+import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { AbstractControl, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
@@ -20,8 +20,8 @@ import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
-import { CharSquare } from "../../../shared/components/char-square/char-square";
-import { Metadata } from "../../../shared/components/metadata/metadata";
+import { CharSquare } from "../../../shared/components/widgets/char-square/char-square";
+import { Metadata } from "../../../shared/components/widgets/metadata/metadata";
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
 

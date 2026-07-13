@@ -2,19 +2,19 @@ import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
 import { catchError, finalize, map, startWith, switchMap, take, tap } from 'rxjs/operators';
-import { ModuleDetailBottomSheet } from '../../../shared/components/module-detail-bottom-sheet/module-detail-bottom-sheet';
+import { ModuleDetailBottomSheet } from '../../../shared/components/production/bottom-sheets/module-detail-bottom-sheet/module-detail-bottom-sheet';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ModuleEfficiencyStatus } from '../../../models/production/module-efficiency-status';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { computePlantaStats } from '../../../common/functions/planta-summary';
 import { LoaderService } from '../../../services/common/loader-service';
-import { EfficiencySummaryBar } from '../../../shared/elements/efficiency-summary-bar/efficiency-summary-bar';
-import { PanelLayout } from '../../../shared/components/panel-layout/panel-layout';
+import { EfficiencySummaryBar } from '../../../shared/components/production/widgets/efficiency-summary-bar/efficiency-summary-bar';
+import { PanelLayout } from '../../../shared/components/layout/panel-layout/panel-layout';
 import { ModuleService } from '../../../services/production/module-service';
 import { RouteContextService } from '../../../services/core/route-context-service';
-import { DateRangeForm } from '../../../shared/components/date-range-form/date-range-form';
-import { ModuleEfficiencyCard } from '../../../shared/components/module-efficiency-card/module-efficiency-card';
+import { DateRangeForm } from '../../../shared/components/form-controls/date-range-form/date-range-form';
+import { ModuleEfficiencyCard } from '../../../shared/components/production/cards/module-efficiency-card/module-efficiency-card';
 
 @Component({
   selector: 'app-module-panel',

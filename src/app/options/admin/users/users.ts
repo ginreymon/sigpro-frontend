@@ -1,10 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { DataTable } from '../../../shared/components/data-table/data-table';
+import { DataTable } from '../../../shared/components/table/data-table/data-table';
 import { EmployeeDirectoryService } from '../../../services/user/employee-directory-service';
 import { Employee } from '../../../models/production/employee';
-import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
-import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
+import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
+import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiLabelButton } from '../../../shared/elements/ui-label-button/ui-label-button';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
@@ -24,8 +24,8 @@ import { UserService } from '../../../services/user/user-service';
 import { User } from '../../../models/user/user';
 import { UiBadge } from "../../../shared/elements/ui-badge/ui-badge";
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
-import { CharSquare } from "../../../shared/components/char-square/char-square";
-import { Metadata } from "../../../shared/components/metadata/metadata";
+import { CharSquare } from "../../../shared/components/widgets/char-square/char-square";
+import { Metadata } from "../../../shared/components/widgets/metadata/metadata";
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
 

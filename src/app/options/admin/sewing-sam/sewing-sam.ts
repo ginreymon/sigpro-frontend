@@ -11,15 +11,15 @@ import { ReferenceSam } from '../../../models/production/reference-sam';
 import { SkuItemReference } from '../../../models/production/sku-item-reference';
 import { ReferenceSamService } from '../../../services/production/reference-sam-service';
 import { SkuItemReferenceService } from '../../../services/production/sku-item-reference-service';
-import { CharSquare } from '../../../shared/components/char-square/char-square';
-import { DataTable } from '../../../shared/components/data-table/data-table';
-import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
-import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
+import { CharSquare } from '../../../shared/components/widgets/char-square/char-square';
+import { DataTable } from '../../../shared/components/table/data-table/data-table';
+import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
+import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
-import { Metadata } from "../../../shared/components/metadata/metadata";
+import { Metadata } from "../../../shared/components/widgets/metadata/metadata";
 
 @Component({
   selector: 'app-sewing-sam',

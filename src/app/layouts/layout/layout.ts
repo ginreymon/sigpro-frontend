@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { Header } from '../header/header';
 import { Menu } from '../menu/menu';
 import { RouterOutlet } from '@angular/router';
-import { ConfirmBox } from "../../shared/components/confirm-box/confirm-box";
-import { Toast } from "../../shared/components/toast/toast";
+import { ConfirmBox } from "../../shared/components/notifications/confirm-box/confirm-box";
+import { Toast } from "../../shared/components/notifications/toast/toast";
 import { UiLoader } from "../../shared/elements/ui-loader/ui-loader";
 
 @Component({

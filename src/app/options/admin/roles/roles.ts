@@ -3,9 +3,9 @@ import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-l
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { Role } from '../../../models/user/role';
 import { RoleService } from '../../../services/user/role-service';
-import { DataTable } from '../../../shared/components/data-table/data-table';
-import { SideModalLayout } from '../../../shared/components/side-modal-layout/side-modal-layout';
-import { ModalLayout } from '../../../shared/components/modal-layout/modal-layout';
+import { DataTable } from '../../../shared/components/table/data-table/data-table';
+import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
+import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { OptionsService } from '../../../services/core/options-service';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,8 +17,8 @@ import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { minArrayLength } from '../../../common/functions/min-array-length';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
-import { CharSquare } from "../../../shared/components/char-square/char-square";
-import { Metadata } from '../../../shared/components/metadata/metadata';
+import { CharSquare } from "../../../shared/components/widgets/char-square/char-square";
+import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
 

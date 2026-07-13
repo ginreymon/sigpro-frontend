@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { UiIcon } from '../../../../shared/elements/ui-icon/ui-icon';
 import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
-import { HomeShiftCard } from '../../../../shared/components/home-shift-card/home-shift-card';
+import { HomeShiftCard } from '../../../../shared/components/production/cards/home-shift-card/home-shift-card';
 import { WorkSessionService } from '../../../../services/production/work-session-service';
 import { WorkSession } from '../../../../models/production/work-session';
 import { Router } from '@angular/router';

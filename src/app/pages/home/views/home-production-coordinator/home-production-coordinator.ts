@@ -1,5 +1,5 @@
 import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
-import { EfficiencySummaryBar } from '../../../../shared/elements/efficiency-summary-bar/efficiency-summary-bar';
+import { EfficiencySummaryBar } from '../../../../shared/components/production/widgets/efficiency-summary-bar/efficiency-summary-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
 import { catchError, startWith, switchMap, take } from 'rxjs/operators';

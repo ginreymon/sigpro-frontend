@@ -5,7 +5,7 @@ import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { WorkSession, EmployeeSnapshot } from '../../../models/production/work-session';
 import { WorkSessionService } from '../../../services/production/work-session-service';
-import { CarouselField } from '../../../shared/components/carousel-field/carousel-field';
+import { CarouselField } from '../../../shared/components/form-controls/carousel-field/carousel-field';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { WorkShift } from '../../../models/production/work-shift';
@@ -18,16 +18,16 @@ import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { RouteContextService } from '../../../services/core/route-context-service';
 import { Employee } from '../../../models/production/employee';
-import { EmployeesModal, EmployeesSavePayload } from '../../../shared/components/employees-modal/employees-modal';
-import { EmployeePicker } from '../../../shared/components/employee-picker/employee-picker';
+import { EmployeesModal, EmployeesSavePayload } from '../../../shared/components/production/bottom-sheets/employees-modal/employees-modal';
+import { EmployeePicker } from '../../../shared/components/production/widgets/employee-picker/employee-picker';
 import { ReactiveFormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
-import { DayOperationDetail } from '../../../shared/components/day-operation-detail/day-operation-detail';
+import { DayOperationDetail } from '../../../shared/components/production/cards/day-operation-detail/day-operation-detail';
 import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
-import { ModuleOptionCard } from '../../../shared/components/module-option-card/module-option-card';
-import { WorkShiftOptionCard } from '../../../shared/components/work-shift-option-card/work-shift-option-card';
-import { FinalizeShiftMessage } from "../../../shared/components/finalize-shift-message/finalize-shift-message";
+import { ModuleOptionCard } from '../../../shared/components/production/cards/module-option-card/module-option-card';
+import { WorkShiftOptionCard } from '../../../shared/components/production/cards/work-shift-option-card/work-shift-option-card';
+import { FinalizeShiftMessage } from "../../../shared/components/production/widgets/finalize-shift-message/finalize-shift-message";
 
 @Component({
   selector: 'app-day-operation',

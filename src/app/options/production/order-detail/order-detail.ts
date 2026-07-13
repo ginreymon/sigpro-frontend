@@ -2,12 +2,12 @@ import { Component, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
-import { OrderHeader } from '../../../shared/elements/order-header/order-header';
-import { ProductionOrdersTable } from '../../../shared/elements/production-orders-table/production-orders-table';
+import { OrderHeader } from '../../../shared/components/production/cards/order-header/order-header';
+import { ProductionOrdersTable } from '../../../shared/components/production/tables/production-orders-table/production-orders-table';
 import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
-import { SewingSamTable } from '../../../shared/elements/sewing-sam-table/sewing-sam-table';
-import { MaterialsTable } from '../../../shared/elements/materials-table/materials-table';
+import { SewingSamTable } from '../../../shared/components/production/tables/sewing-sam-table/sewing-sam-table';
+import { MaterialsTable } from '../../../shared/components/production/tables/materials-table/materials-table';
 import { environment } from '../../../../environments/environment';
 import { UnplannedShiftMessage } from "../../../layouts/messages/unplanned-shift-message/unplanned-shift-message";
 
