@@ -1,12 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../../../../environments/environment';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UpperCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { ProductionContextService } from '../../../services/production/production-context-service';
-import { AppConfigService } from '../../../services/core/app-config-service';
-import { UiTooltip } from '../ui-tooltip/ui-tooltip';
-import { efficiencyTextColor } from '../../../common/functions/efficiency-color';
+import { ProductionContextService } from '../../../../../services/production/production-context-service';
+import { AppConfigService } from '../../../../../services/core/app-config-service';
+import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
+import { efficiencyTextColor } from '../../../../../common/functions/efficiency-color';
 
 interface InfoCard {
   title: string;

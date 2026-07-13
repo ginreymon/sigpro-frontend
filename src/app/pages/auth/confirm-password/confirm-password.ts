@@ -10,7 +10,7 @@ import { UiTogglePasswordBtn } from '../../../shared/elements/ui-toggle-password
 import { ConfirmPwRequest } from '../../../models/auth/confirm-pw-request';
 import { finalize } from 'rxjs';
 import { LoaderService } from '../../../services/common/loader-service';
-import { ValidationIcon } from "../../../shared/elements/validation-icon/validation-icon";
+import { UiValidationIcon } from "../../../shared/elements/ui-validation-icon/ui-validation-icon";
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
@@ -24,7 +24,7 @@ import { UiInput } from '../../../shared/elements/ui-input/ui-input';
     ReactiveFormsModule,
     UiFormActionBtn,
     UiTogglePasswordBtn,
-    ValidationIcon,
+    UiValidationIcon,
     UiIcon,
     UiErrorMessage,
     UiFormField,

@@ -18,7 +18,7 @@ import { AuthService } from '../../../services/auth/auth-service';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiTogglePasswordBtn } from '../../../shared/elements/ui-toggle-password-btn/ui-toggle-password-btn';
-import { ValidationIcon } from '../../../shared/elements/validation-icon/validation-icon';
+import { UiValidationIcon } from '../../../shared/elements/ui-validation-icon/ui-validation-icon';
 import { RegisterRequest } from '../../../models/auth/register-request';
 import { UserService } from '../../../services/user/user-service';
 import { User } from '../../../models/user/user';
@@ -45,7 +45,7 @@ import { TitleCasePipe } from '@angular/common';
     UiInput,
     UiErrorMessage,
     UiTogglePasswordBtn,
-    ValidationIcon,   
+    UiValidationIcon,
     UiBadge,
     CharSquare,
     Metadata,

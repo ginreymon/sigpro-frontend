@@ -3,11 +3,11 @@ import { UiIcon } from '../ui-icon/ui-icon';
 import { BaseInputIcon } from '../../../common/classes/base-input-icon';
 
 @Component({
-  selector: 'app-validation-icon',
+  selector: 'app-ui-validation-icon',
   imports: [UiIcon],
-  templateUrl: './validation-icon.html',
-  styleUrl: './validation-icon.css',
+  templateUrl: './ui-validation-icon.html',
+  styleUrl: './ui-validation-icon.css',
 })
-export class ValidationIcon extends BaseInputIcon {
+export class UiValidationIcon extends BaseInputIcon {
   @Input() matchPattern: boolean = false;
 }

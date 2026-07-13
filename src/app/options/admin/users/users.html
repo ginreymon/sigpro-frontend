@@ -111,7 +111,7 @@
                 <app-ui-form-field [controlName]="'confirmPassword'" [label]="'Confirmar contraseña'">
                     <div class="relative">
                         <app-ui-input formControlName="confirmPassword" [id]="'confirmPassword'" [type]="'password'" [placeholder]="'Confirmar contraseña'" [control]="confirmPassword" [extraInvalid]="!!(confirmPassword?.touched && !passwordsMatch)"></app-ui-input>
-                        <app-validation-icon [control]="confirmPassword" [extraInvalid]="!!(confirmPassword?.touched && !passwordsMatch)" [matchPattern]="passwordsMatch"></app-validation-icon>
+                        <app-ui-validation-icon [control]="confirmPassword" [extraInvalid]="!!(confirmPassword?.touched && !passwordsMatch)" [matchPattern]="passwordsMatch"></app-ui-validation-icon>
                     </div>
                 </app-ui-form-field>
 

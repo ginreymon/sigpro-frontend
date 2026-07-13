@@ -14,7 +14,7 @@ import { ShiftModalsService } from '../../../../../services/common/shift-modals-
 import { DialogService } from '../../../../../services/common/dialog-service';
 import { DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
-import { OrderInfoBar } from '../../../../elements/order-info-bar/order-info-bar';
+import { OrderInfoBar } from '../../cards/order-info-bar/order-info-bar';
 import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
 import { ShiftCyclesActions } from "../shift-cycles-actions/shift-cycles-actions";
 
