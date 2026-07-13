@@ -4,15 +4,17 @@
     <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
         @if(productionOrder()){
 
-            <app-work-shift-summary [session]="currentSession()" [employeesEditable]="!finalizeDay()" [ordenProduction]="productionOrder()" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
+            <div class="flex-1 min-h-0 overflow-y-auto flex flex-col md:contents">
+                <app-work-shift-summary [session]="currentSession()" [employeesEditable]="!finalizeDay()" [ordenProduction]="productionOrder()" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
 
-            <app-order-header [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
+                <app-order-header [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
 
-            <div class="flex-1 min-h-0 overflow-hidden">
-                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
+                <div class="flex-1 min-h-0 overflow-hidden">
+                    <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
+                </div>
             </div>
 
-            <div [class]="'flex flex-row items-center mt-4 gap-3 w-full ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">
+            <div [class]="'flex flex-row items-center mt-4 gap-3 w-full shrink-0 ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">
                 @if(!shiftModals.shiftHourlyVisible()||finalizeDay()){
                 <app-shift-cycles-actions class="min-w-0 flex-1" [finalizeDay]="finalizeDay()" [mode]="'labeled'" [inWindow]="inWindow()" [hideMaterials]="false" [hideOp]="false" (onFinalize)="refreshSession()"></app-shift-cycles-actions>
                 }
