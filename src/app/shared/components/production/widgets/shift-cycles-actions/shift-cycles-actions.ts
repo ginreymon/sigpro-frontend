@@ -3,7 +3,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
-import { UiTooltip } from "../../../../elements/ui-tooltip/ui-tooltip";
 import { UiButton } from "../../../../elements/ui-button/ui-button";
 import { UiIcon } from "../../../../elements/ui-icon/ui-icon";
 import { DragCarousel } from "../../../widgets/drag-carousel/drag-carousel";
@@ -26,7 +25,7 @@ export type ShiftCyclesActionsMode = 'icon' | 'labeled';
 
 @Component({
   selector: 'app-shift-cycles-actions',
-  imports: [UiTooltip, UiButton, UiIcon, DragCarousel],
+  imports: [UiButton, UiIcon, DragCarousel],
   templateUrl: './shift-cycles-actions.html',
   styleUrl: './shift-cycles-actions.css',
 })

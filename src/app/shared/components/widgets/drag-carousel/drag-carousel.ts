@@ -11,6 +11,8 @@ export class DragCarousel implements AfterViewInit, OnDestroy {
   @ViewChild('container') container!: ElementRef;
   @ViewChild('track') track!: ElementRef;
 
+  @Input() leadingPadding: boolean = true;
+
   currentOffset = 0;
   cardWidth = 200;
   isLargeScreen = signal(window.innerWidth >= 1024);

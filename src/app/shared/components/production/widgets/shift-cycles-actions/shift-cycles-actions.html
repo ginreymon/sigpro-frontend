@@ -1,12 +1,10 @@
-<app-drag-carousel>
+<app-drag-carousel [leadingPadding]="false">
   @if (mode === 'icon') {
     @for (action of actions; track action.icon) {
       @if (!action.hideWhen?.()) {
-        <app-ui-tooltip [message]="action.tooltip">
-          <app-ui-button [intent]="action.iconIntent" (onClick)="action.handler()">
-            <app-ui-icon [iconName]="action.icon" class="w-5 h-5"></app-ui-icon>
-          </app-ui-button>
-        </app-ui-tooltip>
+        <app-ui-button [attr.title]="action.tooltip" [intent]="action.iconIntent" (onClick)="action.handler()">
+          <app-ui-icon [iconName]="action.icon" class="w-5 h-5"></app-ui-icon>
+        </app-ui-button>
       }
     }
   } @else {
