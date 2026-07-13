@@ -31,7 +31,7 @@
       @if (modules().length === 0) {
         <div class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col items-center justify-center gap-3 min-h-45 text-gray-300">
           <app-ui-icon iconName="screwdriverWrench" class="h-12 w-12"></app-ui-icon>
-          <p class="text-sm text-gray-400">No hay módulos disponibles</p>
+          <p class="text-sm text-gray-400 italic">No hay módulos disponibles</p>
         </div>
       } @else {
         @for (mod of allModules(); track mod.module_id) {
