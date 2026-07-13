@@ -122,6 +122,23 @@ export class DataTable<T> {
     return this._columns.filter(c => !c.hidden).length;
   }
 
+  get primaryColumn(): TableColumn<T> | undefined {
+    return this._columns.find(
+      (c) => !c.hidden && c.field && c.type !== 'tableActionType' && c.type !== 'index',
+    );
+  }
+
+  get mobileActionsColumn(): TableColumn<T> | undefined {
+    return this._columns.find((c) => !c.hidden && c.type === 'tableActionType');
+  }
+
+  get detailColumns(): TableColumn<T>[] {
+    const primary = this.primaryColumn;
+    return this._columns.filter(
+      (c) => !c.hidden && c.type !== 'index' && c.type !== 'tableActionType' && c !== primary,
+    );
+  }
+
   get totalItems(): number {
     return this._paginatedResponse?.count ?? 0;
   }

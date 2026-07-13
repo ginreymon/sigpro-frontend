@@ -4,7 +4,46 @@
       <app-table-tools class="shrink-0" [live]="clientFilter" (onSearch)="searchHandler($event)" [tableToolsButtons]="_tableToolsButtons" (onClick)="toolsHandler($event)"></app-table-tools>
     }
 
-    <div class="flex-1 overflow-auto min-h-0">
+    <ng-template #cellContent let-col="col" let-row="row" let-i="i">
+        @if(col.field && col.type != 'tableActionType' && col.type != 'template' && col.type != 'index'){
+            @if(col.type == 'boolean'){
+                <app-ui-checkbox [(ngModel)]="row.obj[col.field]" [ngModelOptions]="{standalone: true}" [disabled]="true"></app-ui-checkbox>
+            }@else{
+                {{ row.obj[col.field] }}
+            }
+        }
+
+        @if(col.type == 'template'){
+        <ng-container *ngTemplateOutlet="templateMap.get(col.templateName!); context: { $implicit: row.obj }"></ng-container>
+        }
+
+        @if(col.type == 'index'){
+        {{ (i + 1) + offset }}
+        }
+    </ng-template>
+
+    <ng-template #actionsContent let-row="row">
+        <div class="inline-flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+            @for (key of actionKeys; track key) {
+                @if (_actions[key].enabled) {
+                <app-ui-tooltip [message]="_actions[key].toolTip!">
+                    <button class="cursor-pointer" (click)="actionHandler(row.obj,key)">
+                        <app-ui-icon [iconName]="_actions[key].iconName!" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
+                    </button>
+                </app-ui-tooltip>
+                }
+            }
+        </div>
+    </ng-template>
+
+    <ng-template #emptyState>
+        <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
+            <app-ui-icon [iconName]="'magnifyingGlass'" class="h-12 w-12"></app-ui-icon>
+            <p class="text-sm text-gray-400 font-normal">No hay registros para mostrar</p>
+        </div>
+    </ng-template>
+
+    <div class="flex-1 overflow-auto min-h-0 hidden md:block">
 
         <table class="w-full text-sm border-collapse">
 
@@ -37,40 +76,13 @@
                 <tr class="hover:bg-gray-50 transition-colors duration-150">
 
                     @for (col of _columns; track col) {
-
                         @if(!col.hidden){
                         <td [class]="`px-6 py-3 ${getAlignment(col.align)} ${col.classes}`">
-
-                            @if(col.field && col.type != 'tableActionType' && col.type != 'template' && col.type != 'index'){
-                                @if(col.type == 'boolean'){
-                                    <app-ui-checkbox [(ngModel)]="row.obj[col.field]" [ngModelOptions]="{standalone: true}" [disabled]="true"></app-ui-checkbox>
-                                }@else{
-                                    {{ row.obj[col.field] }}
-                                }
-                            }
-
                             @if(col.type == 'tableActionType'){
-                                <div class="inline-flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-                                    @for (key of actionKeys; track key) {
-                                        @if (_actions[key].enabled) {
-                                        <app-ui-tooltip [message]="_actions[key].toolTip!">
-                                            <button class="cursor-pointer" (click)="actionHandler(row.obj,key)">
-                                                <app-ui-icon [iconName]="_actions[key].iconName!" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
-                                            </button>
-                                        </app-ui-tooltip>
-                                        }
-                                    }
-                                </div>
+                                <ng-container *ngTemplateOutlet="actionsContent; context: { row }"></ng-container>
+                            } @else {
+                                <ng-container *ngTemplateOutlet="cellContent; context: { col, row, i }"></ng-container>
                             }
-
-                            @if(col.type == 'template'){
-                            <ng-container *ngTemplateOutlet="templateMap.get(col.templateName!); context: { $implicit: row.obj }"></ng-container>
-                            }
-
-                            @if(col.type == 'index'){
-                            {{ (i + 1) + offset }}
-                            }
-
                         </td>
                         }
                     }
@@ -78,10 +90,7 @@
                 } @empty {
                 <tr>
                     <td [attr.colspan]="visibleColumnCount">
-                        <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
-                            <app-ui-icon [iconName]="'magnifyingGlass'" class="h-12 w-12"></app-ui-icon>
-                            <p class="text-sm text-gray-400 font-normal">No hay registros para mostrar</p>
-                        </div>
+                        <ng-container *ngTemplateOutlet="emptyState"></ng-container>
                     </td>
                 </tr>
                 }
@@ -104,6 +113,73 @@
             </tfoot>
 
         </table>
+
+    </div>
+
+    <div class="flex-1 overflow-auto min-h-0 md:hidden">
+
+        @if (primaryColumn) {
+        <div class="flex justify-between items-center px-4 py-3 bg-gray-200 text-gray-700 sticky top-0 z-20 text-sm title-font tracking-wider font-medium">
+            <span>{{ primaryColumn.label }}</span>
+            @if (mobileActionsColumn) {
+            <span>Acciones</span>
+            }
+        </div>
+        }
+
+        <div class="divide-y divide-gray-200 text-gray-600 font-medium">
+            @for (row of _data; track row; let i = $index) {
+            <details class="group">
+                <summary class="flex justify-between items-center gap-3 px-4 py-3 cursor-pointer list-none hover:bg-gray-50">
+                    <span class="flex items-center gap-2 min-w-0">
+                        <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4 text-gray-400 shrink-0 transition-transform group-open:rotate-90'"></app-ui-icon>
+                        <span class="truncate">
+                            @if (primaryColumn) {
+                            <ng-container *ngTemplateOutlet="cellContent; context: { col: primaryColumn, row, i }"></ng-container>
+                            }
+                        </span>
+                    </span>
+
+                    @if (mobileActionsColumn) {
+                    <span class="shrink-0" (click)="$event.stopPropagation()">
+                        <ng-container *ngTemplateOutlet="actionsContent; context: { row }"></ng-container>
+                    </span>
+                    }
+                </summary>
+
+                <div class="pl-10 pr-4 pb-3 divide-y divide-gray-200 bg-gray-50">
+                    @for (col of detailColumns; track col) {
+                    <div class="flex justify-between items-center gap-3 text-sm min-h-11 py-1.5">
+                        <span class="text-gray-500">{{ col.label }}</span>
+                        <span class="text-right">
+                            <ng-container *ngTemplateOutlet="cellContent; context: { col, row, i }"></ng-container>
+                        </span>
+                    </div>
+                    }
+                </div>
+            </details>
+            } @empty {
+            <ng-container *ngTemplateOutlet="emptyState"></ng-container>
+            }
+        </div>
+
+        @if (footer.length) {
+        <div class="divide-y divide-gray-200 border-t border-gray-300">
+            @for (row of footer; track row) {
+            <div class="px-4 py-3 font-semibold text-gray-700">
+                @for (col of detailColumns; track col) {
+                <div class="flex justify-between items-center gap-3 text-sm py-0.5">
+                    <span>{{ col.label }}</span>
+                    <span>
+                        @if(col.field && col.footerFormat){ {{ $any(row[col.field]) | number:col.footerFormat }}{{ col.footerSuffix ?? '' }} }
+                        @else if(col.field){ {{ row[col.field] }}{{ col.footerSuffix ?? '' }} }
+                    </span>
+                </div>
+                }
+            </div>
+            }
+        </div>
+        }
 
     </div>
 
