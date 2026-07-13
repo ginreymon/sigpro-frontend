@@ -50,15 +50,17 @@
                             }
 
                             @if(col.type == 'tableActionType'){
-                                @for (key of actionKeys; track key) {
-                                    @if (_actions[key].enabled) {
-                                    <app-ui-tooltip [message]="_actions[key].toolTip!">
-                                        <button class="cursor-pointer ml-4" (click)="actionHandler(row.obj,key)">
-                                            <app-ui-icon [iconName]="_actions[key].iconName!" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
-                                        </button>
-                                    </app-ui-tooltip>
+                                <div class="inline-flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+                                    @for (key of actionKeys; track key) {
+                                        @if (_actions[key].enabled) {
+                                        <app-ui-tooltip [message]="_actions[key].toolTip!">
+                                            <button class="cursor-pointer" (click)="actionHandler(row.obj,key)">
+                                                <app-ui-icon [iconName]="_actions[key].iconName!" [class]="`h-5 w-5`" [appUiIconState]="false"></app-ui-icon>
+                                            </button>
+                                        </app-ui-tooltip>
+                                        }
                                     }
-                                }
+                                </div>
                             }
 
                             @if(col.type == 'template'){
