@@ -1,6 +1,6 @@
 @if (mobileAccordion()) {
 
-<div class="hidden sm:flex bg-white border border-slate-200 rounded-md p-3 mb-2 flex-row justify-between">
+<div class="hidden md:flex bg-white border border-slate-200 rounded-md p-3 mb-2 flex-row justify-between">
     @for(card of cards(); track card; let i = $index){
     <div class="px-2">
         @if(i !== 0){
@@ -13,7 +13,7 @@
     }
 </div>
 
-<details class="group sm:hidden bg-white border border-slate-200 rounded-md mb-2">
+<details class="group md:hidden bg-white border border-slate-200 rounded-md mb-2">
     <summary class="p-3 flex flex-row justify-between items-center cursor-pointer list-none">
         <p class="text-3xl font-semibold text-slate-900">{{ cards()[0]?.data | uppercase }}</p>
         <app-ui-icon iconName="angleDown" class="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"></app-ui-icon>
