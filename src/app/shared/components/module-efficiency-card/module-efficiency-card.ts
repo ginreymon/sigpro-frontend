@@ -70,6 +70,10 @@ export class ModuleEfficiencyCard {
     return map[type];
   }
 
+  plantTitleClass(): string {
+    return this.mod.status === 'ACTIVE' ? 'text-brand-700' : 'text-gray-400';
+  }
+
   efficiencyClass(): string {
     return `text-4xl font-semibold ${this.efficiencyColor()}`;
   }
