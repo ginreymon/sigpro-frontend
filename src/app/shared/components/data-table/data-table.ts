@@ -1,4 +1,4 @@
-import { Component, ContentChildren, EventEmitter, Input, Output, QueryList, TemplateRef, } from '@angular/core';
+import { Component, ContentChildren, EventEmitter, Input, Output, QueryList, TemplateRef, ViewChild, } from '@angular/core';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TablePager } from '../table-pager/table-pager';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
@@ -15,10 +15,11 @@ import { TableTemplate, TableTemplateContext } from '../../../directives/table-t
 import { TableToolsButtons, TableToolsButtonType } from '../../../common/interfaces/table-tools-buttons';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { UiIconStateDirective } from "../../../directives/ui-icon-state-directive";
+import { TableColumnFilter } from '../table-column-filter/table-column-filter';
 
 @Component({
   selector: 'app-data-table',
-  imports: [TablePager, TableTools, UiIcon, UiTooltip, NgTemplateOutlet, UiCheckbox, FormsModule, UiIconStateDirective, DecimalPipe],
+  imports: [TablePager, TableTools, UiIcon, UiTooltip, NgTemplateOutlet, UiCheckbox, FormsModule, UiIconStateDirective, DecimalPipe, TableColumnFilter],
   templateUrl: './data-table.html',
   styleUrl: './data-table.css',
 })
@@ -56,9 +57,13 @@ export class DataTable<T> {
   @Input() clientFilter: boolean = false;
   protected activeFilters = new Map<string, Set<any>>();
   protected openFilterField: string | null = null;
-  protected filterDropdownPosition = { top: 0, left: 0 };
-  protected filterUniqueValues: any[] = [];
+  protected filterValues: any[] = [];
   private currentSearchTerm: string = '';
+
+  @ViewChild(TableColumnFilter) private columnFilterPanel!: TableColumnFilter;
+
+  protected readonly isOpenFieldValueChecked = (value: any): boolean =>
+    this.openFilterField != null && this.isValueChecked(this.openFilterField, value);
 
   @Input() footer: T[] = [];
   @Input() showPager: boolean = true;
@@ -246,28 +251,22 @@ export class DataTable<T> {
 
   protected clearColumnFilter(field: string): void {
     this.activeFilters.delete(field);
-    this.openFilterField = null;
     this.applyClientFilters();
+    this.columnFilterPanel.close();
   }
 
   protected toggleFilterDropdown(field: string, event: MouseEvent): void {
     event.stopPropagation();
     if (this.openFilterField === field) {
-      this.openFilterField = null;
+      this.columnFilterPanel.close();
       return;
     }
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const dropdownWidth = 200;
-    let left = rect.left;
-    if (left + dropdownWidth > window.innerWidth - 8) {
-      left = window.innerWidth - dropdownWidth - 8;
-    }
-    this.filterDropdownPosition = { top: rect.bottom + 4, left: Math.max(8, left) };
-    this.filterUniqueValues = this.getUniqueValues(field);
     this.openFilterField = field;
+    this.filterValues = this.getUniqueValues(field);
+    this.columnFilterPanel.open(event.currentTarget as HTMLElement);
   }
 
-  protected closeFilterDropdown(): void {
+  protected onFilterPanelClosed(): void {
     this.openFilterField = null;
   }
 
