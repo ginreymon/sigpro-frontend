@@ -7,8 +7,9 @@
   (mousemove)="onMouseMove($event)"
   (mouseup)="onMouseUp()"
   (mouseleave)="onMouseUp()">
-  <div #track class="min-w-full flex flex-row gap-2 py-2"
+  <div #track class="min-w-full flex flex-row gap-2"
     [class.pl-2]="leadingPadding"
+    [class.py-2]="verticalPadding"
     [class.transition-transform]="!isDragging"
     [class.duration-300]="!isDragging"
     [style.transform]="'translateX(-' + (currentOffset - dragDelta) + 'px)'">
