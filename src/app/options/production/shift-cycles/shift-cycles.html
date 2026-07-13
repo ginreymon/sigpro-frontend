@@ -12,12 +12,12 @@
                 <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
             </div>
 
-            <div [class]="'flex flex-row mt-4 gap-3 w-full ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">
+            <div [class]="'flex flex-row items-center mt-4 gap-3 w-full ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">
                 @if(!shiftModals.shiftHourlyVisible()||finalizeDay()){
-                <app-shift-cycles-actions [finalizeDay]="finalizeDay()" [mode]="'labeled'" [inWindow]="inWindow()" [hideMaterials]="false" [hideOp]="false" (onFinalize)="refreshSession()"></app-shift-cycles-actions>
+                <app-shift-cycles-actions class="min-w-0 flex-1" [finalizeDay]="finalizeDay()" [mode]="'labeled'" [inWindow]="inWindow()" [hideMaterials]="false" [hideOp]="false" (onFinalize)="refreshSession()"></app-shift-cycles-actions>
                 }
-               
-                <div class="flex flex-row gap-3">
+
+                <div class="flex flex-row gap-3 shrink-0">
                     <app-ui-button (onClick)="finalizeDay()? closeSession() :goToSearch()">
                         <app-ui-icon [iconName]="finalizeDay()?'logout':'circleLeft'" class="h-5 w-5"></app-ui-icon>
                         {{ finalizeDay()?'Cerrar día':'Cerrar OP' }}
