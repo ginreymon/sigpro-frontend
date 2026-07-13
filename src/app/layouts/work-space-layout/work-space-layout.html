@@ -41,7 +41,7 @@
     </div>
     }
 
-    <div [class]="'flex flex-col flex-1 order-1 ' + (showSideContent() && !isLargeScreen() && activeTab() !== 'main' ? 'hidden' : '')" [style.maxWidth]="showSideContent() && isLargeScreen() ? 'calc(200vw/3 - 4rem)' : null">
+    <div [class]="'flex flex-col flex-1 min-h-0 lg:min-h-full order-1 ' + (showSideContent() && !isLargeScreen() && activeTab() !== 'main' ? 'hidden' : '')" [style.maxWidth]="showSideContent() && isLargeScreen() ? 'calc(200vw/3 - 4rem)' : null">
 
         @if(showHeader() && headerVisible){
         <div class="sm:bg-white sm:border sm:border-slate-200 rounded-none sm:rounded-lg shadow-none sm:shadow-md p-3 sm:p-4 lg:p-6 mb-2 relative">
