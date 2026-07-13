@@ -70,8 +70,8 @@ export class ModuleEfficiencyCard {
     return map[type];
   }
 
-  plantTitleClass(): string {
-    return this.mod.status === 'ACTIVE' ? 'text-brand-700' : 'text-gray-400';
+  titleClass(activeColorClass: string): string {
+    return this.mod.status === 'ACTIVE' ? activeColorClass : 'text-gray-400';
   }
 
   efficiencyClass(): string {
