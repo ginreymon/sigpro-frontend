@@ -17,13 +17,13 @@
       }
 
       @else {
-        <div class="inline-flex flex-row gap-1 items-start mt-0.5">
+        <div class="inline-flex flex-row gap-1 items-center mt-0.5">
           @if (card.iconName) {
             <app-ui-icon [iconName]="card.iconName" class="h-4 w-4"></app-ui-icon>
           }
-          <p [class]="getDataClasses(card, 'text-sm sm:text-xs lg:text-sm')">
+          <span [class]="getDataClasses(card, 'text-sm sm:text-xs lg:text-sm')">
             {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
-          </p>
+          </span>
         </div>
       }
     </div>
@@ -57,9 +57,9 @@
             @if (card.iconName) {
               <app-ui-icon [iconName]="card.iconName" class="h-4 w-4"></app-ui-icon>
             }
-            <p [class]="getDataClasses(card)">
+            <span [class]="getDataClasses(card)">
               {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
-            </p>
+            </span>
           </div>
         }
       </div>
