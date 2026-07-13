@@ -12,10 +12,11 @@ import { ProductionOrderService } from '../../../services/production/production-
 import { LoaderService } from '../../../services/common/loader-service';
 import { finalize } from 'rxjs';
 import { UiTooltip } from "../ui-tooltip/ui-tooltip";
+import { UiIcon } from "../ui-icon/ui-icon";
 
 @Component({
   selector: 'app-production-orders-table',
-  imports: [UiTableButton, UiTooltipFixed, UiTooltip],
+  imports: [UiTableButton, UiTooltipFixed, UiTooltip, UiIcon],
   templateUrl: './production-orders-table.html',
   styleUrl: './production-orders-table.css',
 })
