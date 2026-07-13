@@ -6,6 +6,7 @@ import { environment } from '../../../../../../environments/environment';
 import { UiTooltip } from "../../../../elements/ui-tooltip/ui-tooltip";
 import { UiButton } from "../../../../elements/ui-button/ui-button";
 import { UiIcon } from "../../../../elements/ui-icon/ui-icon";
+import { DragCarousel } from "../../../widgets/drag-carousel/drag-carousel";
 import { ShiftModalsService } from '../../../../../services/common/shift-modals-service';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { WorkSessionService } from '../../../../../services/production/work-session-service';
@@ -25,7 +26,7 @@ export type ShiftCyclesActionsMode = 'icon' | 'labeled';
 
 @Component({
   selector: 'app-shift-cycles-actions',
-  imports: [UiTooltip, UiButton, UiIcon],
+  imports: [UiTooltip, UiButton, UiIcon, DragCarousel],
   templateUrl: './shift-cycles-actions.html',
   styleUrl: './shift-cycles-actions.css',
 })

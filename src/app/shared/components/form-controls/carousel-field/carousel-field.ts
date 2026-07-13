@@ -2,11 +2,11 @@ import { Component, Input, ViewChild } from '@angular/core';
 import { UiFormField } from '../../../elements/ui-form-field/ui-form-field';
 import { UiButton } from '../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
-import { OperationCarousel } from '../../widgets/operation-carousel/operation-carousel';
+import { DragCarousel } from '../../widgets/drag-carousel/drag-carousel';
 
 @Component({
   selector: 'app-carousel-field',
-  imports: [UiFormField, UiButton, UiIcon, OperationCarousel],
+  imports: [UiFormField, UiButton, UiIcon, DragCarousel],
   templateUrl: './carousel-field.html',
   styleUrl: './carousel-field.css',
 })
@@ -16,7 +16,7 @@ export class CarouselField {
   @Input() showNav = true;
   @Input() selectedIndex: number | null = null;
 
-  @ViewChild(OperationCarousel) private carousel!: OperationCarousel;
+  @ViewChild(DragCarousel) private carousel!: DragCarousel;
 
   prev(): void {
     this.carousel.prev();

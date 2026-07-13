@@ -2,12 +2,12 @@ import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, sign
 import { fromEvent, Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-operation-carousel',
+  selector: 'app-drag-carousel',
   imports: [],
-  templateUrl: './operation-carousel.html',
-  styleUrl: './operation-carousel.css',
+  templateUrl: './drag-carousel.html',
+  styleUrl: './drag-carousel.css',
 })
-export class OperationCarousel implements AfterViewInit, OnDestroy {
+export class DragCarousel implements AfterViewInit, OnDestroy {
   @ViewChild('container') container!: ElementRef;
   @ViewChild('track') track!: ElementRef;
 

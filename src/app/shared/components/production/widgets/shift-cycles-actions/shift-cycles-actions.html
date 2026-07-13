@@ -1,4 +1,4 @@
-<div class="flex flex-row gap-3">
+<app-drag-carousel>
   @if (mode === 'icon') {
     @for (action of actions; track action.icon) {
       @if (!action.hideWhen?.()) {
@@ -19,4 +19,4 @@
       }
     }
   }
-</div>
+</app-drag-carousel>
