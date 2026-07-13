@@ -49,7 +49,8 @@ export class RouteContextService {
   private detectRoute() {
     if (!this.menu.length) return;
 
-    const segments = this.latestUrl.split('/').filter(Boolean);
+    const path = this.latestUrl.split('?')[0].split('#')[0];
+    const segments = path.split('/').filter(Boolean);
 
     const module = this.menu.find((m) => m.url === segments[0]);
 
