@@ -53,19 +53,19 @@
     }
   </div>
 
-  <div box-buttons class="w-full flex flex-row gap-3 border-t border-slate-200 pt-4">
+  <div box-buttons class="w-full flex flex-row items-center gap-3 border-t border-slate-200 pt-4">
     @if (isPaused()) {
       @if (currentBreak()?.custom_reason) {
-        <app-ui-button class="ml-auto" [intent]="'action'" (onClick)="resume()">
+        <app-ui-button class="ml-auto shrink-0" [intent]="'action'" (onClick)="resume()">
           <app-ui-icon [iconName]="'play'" class="w-5 h-5"></app-ui-icon>
           Reanudar
         </app-ui-button>
       }
     } @else {
       @if (activityId) {
-      <app-shift-cycles-actions [inWindow]="isInWindow()" (onFinalize)="onFinalize.emit()"></app-shift-cycles-actions>
+      <app-shift-cycles-actions class="min-w-0 flex-1" [inWindow]="isInWindow()" (onFinalize)="onFinalize.emit()"></app-shift-cycles-actions>
       }
-      <app-ui-button class="ml-auto" [disabled]="!isInWindow()" (onClick)="register()">
+      <app-ui-button class="ml-auto shrink-0" [disabled]="!isInWindow()" (onClick)="register()">
         <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>
         Registrar
       </app-ui-button>
