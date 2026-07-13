@@ -52,7 +52,7 @@ const TAB_FIELDS: Record<string, string[]> = {
 };
 
 @Component({
-  selector: 'app-reference-sams',
+  selector: 'app-stamping-sam',
   imports: [
     WorkSpaceLayout,
     DataTable,
@@ -70,10 +70,10 @@ const TAB_FIELDS: Record<string, string[]> = {
     UiSelect,
     UiCombobox,
   ],
-  templateUrl: './reference-sams.html',
-  styleUrl: './reference-sams.css',
+  templateUrl: './stamping-sam.html',
+  styleUrl: './stamping-sam.css',
 })
-export class ReferenceSams extends BaseCrudPage<StampingReferenceSam> {
+export class StampingSam extends BaseCrudPage<StampingReferenceSam> {
   protected override entityName: string = 'SAM';
 
   tabs = TABS;

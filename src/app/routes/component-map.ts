@@ -15,30 +15,30 @@ import { TechnicalSheetPage } from '../options/catalog/technical-sheet/technical
 import { Processes } from '../options/stamping/processes/processes';
 import { MachineTypes } from '../options/stamping/machine-types/machine-types';
 import { Machines } from '../options/stamping/machines/machines';
-import { ReferenceSams } from '../options/admin/reference-sams/reference-sams';
+import { StampingSam } from '../options/admin/stamping-sam/stamping-sam';
 import { AdditionalTimes } from '../options/stamping/additional-times/additional-times';
 import { StampingDayOperation } from '../options/stamping/day-operation/day-operation';
 import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
 import { StampingAuditory } from '../options/stamping/auditory/auditory';
 
 export const componentMap: Record<string, Type<any>> = {
+  'configuration/app-settings': AppSettings,
   'admin/roles': Roles,
   'admin/users': Users,
   'admin/work-shifts': WorkShifts,
   'admin/modules': Modules,
   'admin/work-breaks': WorkBreaks,
+  'admin/sewing-sam': SewingSAM,
+  'admin/stamping-sam': StampingSam,
   'production/day-operation': DayOperation,
   'production/shift-cycles': ShiftCycles,
-  'admin/sewing-sam': SewingSAM,
   'production/data-export': DataExport,
   'production/module-panel': ModulePanel,
   'production/order-detail': OrderDetail,
-  'configuration/app-settings': AppSettings,
   'catalog/technical-sheet': TechnicalSheetPage,
   'stamping/processes': Processes,
   'stamping/machine-types': MachineTypes,
   'stamping/machines': Machines,
-  'stamping/reference-sams': ReferenceSams,
   'stamping/additional-times': AdditionalTimes,
   'stamping/day-operation': StampingDayOperation,
   'stamping/machine-panel': MachinePanel,
