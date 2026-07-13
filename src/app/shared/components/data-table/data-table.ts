@@ -166,7 +166,7 @@ export class DataTable<T> {
   private buildColumns() {
     const columns: TableColumn<T>[] = [{ type: 'index', label: '' }, ...this._originalColumns];
 
-    if (this._actions.delete || this._actions.edit || this._actions.view) {
+    if (this._actions.delete.enabled || this._actions.edit.enabled || this._actions.view.enabled) {
       columns.push({ type: 'tableActionType', label: '' });
     }
 
