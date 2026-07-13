@@ -34,9 +34,9 @@
                 {{ rowObject.name | titlecase }}
             </h3>
     
-            <p class="text-sm text-slate-500 mb-0.5"> Ubicación: {{ rowObject.location?.name }} </p>
+            <p class="text-sm text-slate-500 my-1"> Ubicación: {{ rowObject.location?.name }} </p>
 
-            <p class="text-sm text-slate-500 mb-2"> Número de encomendados: {{ rowObject.operator_count }} </p>    
+            <p class="text-sm text-slate-500 mb-2"> Encomendados: {{ rowObject.operator_count }} </p>    
             
         </div>
     
@@ -51,6 +51,8 @@
             <p> <strong>Descripción :</strong> {{ rowObject.work_center?.description }} </p>
 
             <p> <strong>Descripción corta:</strong> {{ rowObject.work_center?.short_description }} </p>
+
+            <p> <strong>Ubicación:</strong> {{ rowObject.location?.name }} </p>
 
             <p> <strong>Código:</strong> {{ rowObject.work_center?.code }} </p>
 
