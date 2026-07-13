@@ -140,6 +140,10 @@ export class DataTable<T> {
   get mobileSecondaryColumn(): TableColumn<T> | undefined {
     if (this.mobileActionsColumn) return undefined;
     const primary = this.primaryColumn;
+
+    const explicit = this._columns.find((c) => !c.hidden && c.mobileSecondary && c !== primary);
+    if (explicit) return explicit;
+
     const candidates = this._columns.filter(
       (c) => !c.hidden && c.field && c.type !== 'tableActionType' && c.type !== 'index' && c !== primary,
     );

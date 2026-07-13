@@ -9,4 +9,5 @@ export interface TableColumn<T> {
   templateName?: string;
   footerSuffix?: string;
   footerFormat?: string;
+  mobileSecondary?: boolean;
 }

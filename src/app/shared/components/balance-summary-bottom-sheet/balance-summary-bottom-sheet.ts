@@ -38,7 +38,7 @@ export class BalanceSummaryBottomSheet implements OnChanges {
     { field: 'sku_size',      label: 'Talla' },
     { field: 'sku_reference', label: 'Referencia' },
     { field: 'op_type',       label: 'Tipo Doc' },
-    { field: 'op_number',     label: 'N° OP' },
+    { field: 'op_number',     label: 'N° OP', mobileSecondary: true },
     { type: 'template', label: 'Último Registro', templateName: 'ultimoRegistroTemplate' },
     { type: 'template', label: 'Cantidades',           templateName: 'cantidadesTemplate' },
   ];
