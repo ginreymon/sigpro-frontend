@@ -1,5 +1,6 @@
 <div #container class="scrollbar-thin-clean w-full min-h-0 overflow-hidden select-none"
   [style.maxWidth]="isLargeScreen() ? 'calc(200vw/3 - 8rem)' : 'calc(100vw - 4rem)'"
+  [ngStyle]="edgeFadeStyle"
   (touchstart)="onTouchStart($event)"
   (touchmove)="onTouchMove($event)"
   (touchend)="onTouchEnd()"

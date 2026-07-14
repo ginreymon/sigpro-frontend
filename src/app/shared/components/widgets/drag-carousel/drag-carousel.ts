@@ -1,9 +1,10 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, signal } from '@angular/core';
+import { NgStyle } from '@angular/common';
 import { fromEvent, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-drag-carousel',
-  imports: [],
+  imports: [NgStyle],
   templateUrl: './drag-carousel.html',
   styleUrl: './drag-carousel.css',
 })
@@ -13,6 +14,7 @@ export class DragCarousel implements AfterViewInit, OnDestroy {
 
   @Input() leadingPadding: boolean = true;
   @Input() verticalPadding: boolean = true;
+  @Input() edgeFade: boolean = false;
 
   currentOffset = 0;
   cardWidth = 200;
@@ -47,6 +49,28 @@ export class DragCarousel implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.resizeSub.unsubscribe();
+  }
+
+  get canScrollLeft(): boolean {
+    return this.currentOffset > 0;
+  }
+
+  get canScrollRight(): boolean {
+    if (!this.viewReady) return false;
+    const containerWidth = this.container.nativeElement.offsetWidth;
+    const trackWidth = this.track.nativeElement.scrollWidth;
+    const maxOffset = trackWidth - containerWidth;
+    return this.currentOffset < maxOffset - 1;
+  }
+
+  get edgeFadeStyle(): Record<string, string> {
+    if (!this.edgeFade) return {};
+
+    const FADE = '24px';
+    const left = this.canScrollLeft ? `transparent, black ${FADE}` : 'black 0';
+    const right = this.canScrollRight ? `black calc(100% - ${FADE}), transparent` : 'black 100%';
+    const gradient = `linear-gradient(to right, ${left}, ${right})`;
+    return { '-webkit-mask-image': gradient, 'mask-image': gradient };
   }
 
   private scrollToSelected() {

@@ -4,14 +4,12 @@
     <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
         @if(productionOrder()){
 
-            <div class="flex-1 min-h-0 overflow-y-auto flex flex-col md:contents">
-                <app-work-shift-summary [session]="currentSession()" [employeesEditable]="!finalizeDay()" [ordenProduction]="productionOrder()" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
+            <app-work-shift-summary [session]="currentSession()" [employeesEditable]="!finalizeDay()" [ordenProduction]="productionOrder()" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
 
-                <app-order-header [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
+            <app-order-header [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
 
-                <div class="flex-1 min-h-0 overflow-hidden">
-                    <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
-                </div>
+            <div class="flex-1 min-h-0 overflow-hidden">
+                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
             </div>
 
             <div [class]="'flex flex-row items-center mt-4 gap-3 w-full shrink-0 ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">
