@@ -23,7 +23,7 @@
 <app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">  
     <div class="mb-4 flex items-center gap-4">
     
-        <app-ui-tooltip [message]="'Número del módulo'" [tooltip]="'right'" class="cursor-default">
+        <app-ui-tooltip [message]="'Número'" [tooltip]="'right'" class="cursor-default">
             <app-char-square>
                 {{ rowObject.number }}
             </app-char-square>
@@ -75,12 +75,12 @@
                 <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
             </app-ui-form-field>      
 
-            <app-ui-form-field [controlName]="'number'" [label]="'Número del módulo'">
-                <app-ui-input [type]="'number'" formControlName="number" [id]="'number'" [placeholder]="'Número del módulo'" [control]="number"></app-ui-input>
+            <app-ui-form-field [controlName]="'number'" [label]="'Número'">
+                <app-ui-input [type]="'number'" formControlName="number" [id]="'number'" [placeholder]="'Número'" [control]="number"></app-ui-input>
             </app-ui-form-field>   
 
-            <app-ui-form-field [controlName]="'operator_count'" [label]="'Número de encomendados'">
-                <app-ui-input [type]="'number'" formControlName="operator_count" [id]="'operator_count'" [placeholder]="'Número de encomendados'" [control]="operatorCount"></app-ui-input>
+            <app-ui-form-field [controlName]="'operator_count'" [label]="'Encomendados'">
+                <app-ui-input [type]="'number'" formControlName="operator_count" [id]="'operator_count'" [placeholder]="'Encomendados'" [control]="operatorCount"></app-ui-input>
             </app-ui-form-field>  
 
             <app-ui-form-field [controlName]="'location_id'" [label]="'Ubicación'">
