@@ -123,7 +123,7 @@ export class WorkShiftSummary implements OnInit {
   }
 
   getActionClasses(card: WorkShiftCard): string {
-    const base = 'rounded transition-colors';
+    const base = 'inline-block rounded transition-colors';
     const hoverable = card.title === 'Encomendados' && this.employeesEditable;
     return hoverable ? `${base} cursor-pointer hover:text-gray-700 hover:bg-gray-100` : base;
   }
