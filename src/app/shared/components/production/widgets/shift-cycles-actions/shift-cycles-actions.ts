@@ -15,7 +15,7 @@ import { DialogService } from '../../../../../services/common/dialog-service';
 interface ShiftCycleAction {
   icon: string;
   label: string;
-  tooltip: string;
+  tooltip?: string;
   iconIntent: 'action' | 'cancel';
   handler: () => void;
   hideWhen?: () => boolean;
@@ -50,7 +50,6 @@ export class ShiftCyclesActions {
     {
       icon: 'truck',
       label: 'Última entrega',
-      tooltip: 'Última entrega',
       iconIntent: 'action',
       handler: () => this.lastDelivery(),
       hideWhen: () => this.finalizeDay,
@@ -58,7 +57,6 @@ export class ShiftCyclesActions {
     {
       icon: 'user',
       label: 'Empleados',
-      tooltip: 'Empleados',
       iconIntent: 'cancel',
       handler: () => this.openEmployeesSnapshot(),
       hideWhen: () => this.finalizeDay,
@@ -66,35 +64,35 @@ export class ShiftCyclesActions {
     {
       icon: 'chartArea',
       label: 'Balance',
-      tooltip: 'Balance',
       iconIntent: 'cancel',
       handler: () => this.openBalance(),
     },
     {
       icon: 'pause',
-      label: 'Pausas',
-      tooltip: 'Pausar',
+      label: 'Pausar',
       iconIntent: 'cancel',
       handler: () => this.openPauses(),
       hideWhen: () => this.finalizeDay,
     },
     {
       icon: 'file',
-      label: '',
-      tooltip: 'Materiales / SAM',
+      label: 'Materiales',
       iconIntent: 'action',
       handler: () => this.showMaterials(),
       hideWhen: () => this.hideMaterials
     },
     {
       icon: 'magnifyingGlass',
-      label: '',
-      tooltip: 'Cambiar OP',
+      label: 'Cambiar OP',
       iconIntent: 'action',
       handler: () => this.goToSearch(),
       hideWhen: () => this.hideOp,
     },
   ];
+
+  protected getTooltip(action: ShiftCycleAction): string {
+    return action.tooltip ?? action.label;
+  }
 
   private goToSearch(): void {
     this.router.navigate([], { queryParams: {} });
