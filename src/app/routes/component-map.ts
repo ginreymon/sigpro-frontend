@@ -5,7 +5,7 @@ import { DayOperation } from '../shared/pages/day-operation/day-operation';
 import { WorkShifts } from '../options/admin/work-shifts/work-shifts';
 import { Modules } from '../options/admin/modules/modules';
 import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
-import { ShiftCycles } from '../options/production/shift-cycles/shift-cycles';
+import { ShiftCycles } from '../shared/pages/shift-cycles/shift-cycles';
 import { SewingSAM } from '../options/admin/sewing-sam/sewing-sam';
 import { AppSettings } from '../options/configuration/app-settings/app-settings';
 import { ModulePanel } from '../options/production/module-panel/module-panel';
@@ -40,6 +40,7 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/machines': Machines,
   'stamping/additional-times': AdditionalTimes,
   'stamping/day-operation': DayOperation,
+  'stamping/shift-cycles': ShiftCycles,
   'stamping/machine-panel': MachinePanel,
   'stamping/auditory': StampingAuditory,
 };

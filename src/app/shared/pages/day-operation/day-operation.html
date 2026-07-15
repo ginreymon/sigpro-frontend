@@ -1,5 +1,5 @@
 @if(currentSession()?.editing_finalized){
-    <app-finalize-shift-message (onClose)="closeSession()"></app-finalize-shift-message>
+<app-finalize-shift-message (onClose)="closeSession()"></app-finalize-shift-message>
 }
 @else {
 <app-work-space-layout [sideContentVisible]="true" [mainTabLabel]="'Jornada'" [asideTabLabel]="'Encomendados'">

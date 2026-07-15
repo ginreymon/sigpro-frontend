@@ -1,5 +1,4 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { environment } from '../../../../environments/environment.development';
 import { ProductionOrdersTable } from '../../../shared/components/production/tables/production-orders-table/production-orders-table';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { finalize } from 'rxjs';
@@ -35,6 +34,7 @@ import { ShiftCyclesActions } from "../../../shared/components/production/widget
 import { PauseModal } from '../../../shared/components/production/bottom-sheets/pause-modal/pause-modal';
 import { ShiftModalsService } from '../../../services/common/shift-modals-service';
 import { ProductionRecordContext } from '../../../models/production/production-record-context';
+import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
 
 @Component({
   selector: 'app-shift-cycles',
@@ -45,8 +45,7 @@ import { ProductionRecordContext } from '../../../models/production/production-r
 export class ShiftCycles extends BaseProductionOrderPage {
   protected inWindow = signal(true);
 
-  private DAY_OPERATION_URL = environment.DAY_OPERATION_URL;
-  private OPERATION_ORDER_URL = environment.SHIFT_CYCLES_URL;
+  private shiftNav = inject(ShiftNavigationService);
 
   private dialogService = inject(DialogService);
   private workSessionService = inject(WorkSessionService);
@@ -94,16 +93,16 @@ export class ShiftCycles extends BaseProductionOrderPage {
   }
 
   protected override onContextError(): void {
-    this.router.navigateByUrl(this.DAY_OPERATION_URL);
+    this.shiftNav.goToDayOperation();
   }
 
   goToSearch() {
     this.productionOrder.set(null);
-    this.router.navigateByUrl(this.OPERATION_ORDER_URL);
+    this.shiftNav.goToShiftCycles();
   }
 
   goToDayOperation() {
-    this.router.navigateByUrl(this.DAY_OPERATION_URL);
+    this.shiftNav.goToDayOperation();
   }
 
   openTaskDialog(sku: SkuTaskDetail) {
@@ -190,7 +189,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
           if (payload.scrap_quantity) parts.push(`Bajas: ${payload.scrap_quantity}`);
           this.dialogService.openToast('Cantidades guardadas', parts.join(' · '), 'check');
         },
-        error: () => {        
+        error: () => {
           this.dialogService.openToast('No se pudo guardar', 'Error al guardar el registro.', 'fail');
         },
       });
@@ -208,7 +207,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
     this.productionRecordService.patch(id, payload)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
-        next: () => {         
+        next: () => {
           this.reloadOrder();
           this.shiftModals.reloadBalance();
           this.qms.close();
@@ -248,9 +247,9 @@ export class ShiftCycles extends BaseProductionOrderPage {
       `Hay una tarea activa en ${this.activeRecord.op_type} ${this.activeRecord.op_number}`,
       'fail'
     );
-  }  
+  }
 
-  onPauseSaved(record: WorkBreakRecord) {  
+  onPauseSaved(record: WorkBreakRecord) {
     this.refreshSession();
     this.dialogService.openToast('Pausa registrada', record.name ?? record.custom_reason ?? '', 'check');
   }

@@ -1,5 +1,4 @@
 import { Component, computed, inject, Signal, signal } from '@angular/core';
-import { environment } from '../../../../environments/environment.development';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiButton } from '../../elements/ui-button/ui-button';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
@@ -28,28 +27,9 @@ import { UiAlert } from '../../elements/ui-alert/ui-alert';
 import { ModuleOptionCard } from '../../components/production/cards/module-option-card/module-option-card';
 import { WorkShiftOptionCard } from '../../components/production/cards/work-shift-option-card/work-shift-option-card';
 import { FinalizeShiftMessage } from '../../components/production/widgets/finalize-shift-message/finalize-shift-message';
-
-interface DayOperationConfig {
-  moduleLabel: string;
-  summaryDescription: string;
-  planningDescription: string;
-  nextUrl: string;
-}
-
-const DAY_OPERATION_CONFIG: Record<string, DayOperationConfig> = {
-  production: {
-    moduleLabel: 'Módulo',
-    summaryDescription: 'Vista detallada de la planificación del módulo para hoy.',
-    planningDescription: 'Defina el módulo, el turno y los encomendados para iniciar.',
-    nextUrl: environment.SHIFT_CYCLES_URL,
-  },
-  stamping: {
-    moduleLabel: 'Máquina',
-    summaryDescription: 'Vista detallada de la planificación de la máquina para hoy.',
-    planningDescription: 'Defina la máquina, el turno y los encomendados para iniciar.',
-    nextUrl: '/',
-  },
-};
+import { DayOperationConfig } from '../../../common/interfaces/day-operation-config';
+import { DAY_OPERATION_CONFIG } from '../../../common/const/day-operation-config';
+import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
 
 const DEFAULT_CONFIG: DayOperationConfig = DAY_OPERATION_CONFIG['production'];
 
@@ -81,6 +61,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   private employeeService = inject(EmployeeService);
   private routeContextService = inject(RouteContextService);
   private router = inject(Router);
+  private shiftNav = inject(ShiftNavigationService);
 
   private config: DayOperationConfig =
     DAY_OPERATION_CONFIG[this.routeContextService.currentModule?.url ?? ''] ?? DEFAULT_CONFIG;
@@ -88,7 +69,6 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   protected moduleLabel = this.config.moduleLabel;
   protected summaryDescription = this.config.summaryDescription;
   protected planningDescription = this.config.planningDescription;
-  private nextUrl = this.config.nextUrl;
 
   protected get moduleLabelPlural(): string {
     return this.moduleLabel.toLowerCase() + 's';
@@ -147,21 +127,13 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   protected override reload(): void {}
 
-  get moduleId() {
-    return this.modelForm?.get('module_id');
-  }
+  get moduleId() { return this.modelForm?.get('module_id'); }
 
-  get workShiftId() {
-    return this.modelForm?.get('work_shift_id');
-  }
+  get workShiftId() { return this.modelForm?.get('work_shift_id'); }
 
-  get employeeIds() {
-    return this.modelForm?.get('employee_ids');
-  }
+  get employeeIds() { return this.modelForm?.get('employee_ids'); }
 
-  get apprenticeIdsControl() {
-    return this.modelForm?.get('apprentice_ids');
-  }
+  get apprenticeIdsControl() { return this.modelForm?.get('apprentice_ids'); }
 
   get selectedModule() {
     return this.modules().find((m) => {
@@ -250,7 +222,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   protected override submit(): void {
     if (this.currentSession()) {
-      this.router.navigateByUrl(this.nextUrl);
+      this.shiftNav.goToShiftCycles();
       return;
     }
 
@@ -265,7 +237,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
     super.submit(
       undefined,
-      () => this.router.navigateByUrl(this.nextUrl),
+      () => this.shiftNav.goToShiftCycles(),
       (err) => {
         const messages = parseSessionErrors(err, 'Error al crear la sesión.');
         this.errorMessage.set(messages.join(' · '));

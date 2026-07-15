@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
@@ -8,8 +8,8 @@ import { BaseProductionOrderPage } from '../../../common/classes/base-production
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { SewingSamTable } from '../../../shared/components/production/tables/sewing-sam-table/sewing-sam-table';
 import { MaterialsTable } from '../../../shared/components/production/tables/materials-table/materials-table';
-import { environment } from '../../../../environments/environment';
 import { UnplannedShiftMessage } from "../../../layouts/messages/unplanned-shift-message/unplanned-shift-message";
+import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
 
 const ALL_TABS: TabItem[] = [
   { key: 'tab1', label: 'Orden OP' },
@@ -26,6 +26,8 @@ const SAM_TABS: TabItem[] = [{ key: 'tab3', label: 'SAM Confección' }];
 })
 export class OrderDetail extends BaseProductionOrderPage {
   protected override loadExtras = false;
+
+  private shiftNav = inject(ShiftNavigationService);
 
   private get hasParams(): boolean {
     const { docType, docNumber } = this.route.snapshot.queryParams;
@@ -53,15 +55,13 @@ export class OrderDetail extends BaseProductionOrderPage {
   goToShiftCycles(): void {
     const { docType, docNumber } = this.route.snapshot.queryParams;
     if (docType && docNumber) {
-      this.router.navigate(['/', ...environment.SHIFT_CYCLES_URL.split('/')], {
-        queryParams: { docType, docNumber },
-      });
+      this.shiftNav.goToShiftCycles({ docType, docNumber });
     } else {
       this.goToDayOperation();
     }
   }
 
   goToDayOperation() {
-    this.router.navigate(['/', ...environment.DAY_OPERATION_URL.split('/')]);
+    this.shiftNav.goToDayOperation();
   }
 }
