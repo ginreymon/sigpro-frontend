@@ -37,6 +37,7 @@ import { ShiftNavigationService } from '../../../services/core/shift-navigation-
 import { RouteContextService } from '../../../services/core/route-context-service';
 import { ShiftCyclesConfig } from '../../../common/interfaces/shift-cycles-config';
 import { SHIFT_CYCLES_CONFIG } from '../../../common/const/shift-cycles-config';
+import { AppConfigService } from '../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-shift-cycles',
@@ -55,7 +56,8 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
   private dialogService = inject(DialogService);
   private workSessionService = inject(WorkSessionService);
-  private qms = inject(QuantityModalService);
+  protected qms = inject(QuantityModalService);
+  private appConfig = inject(AppConfigService);
   private productionRecordService = inject(ProductionRecordService);
   private destroyRef = inject(DestroyRef);
   protected shiftModals = inject(ShiftModalsService);
@@ -82,7 +84,8 @@ export class ShiftCycles extends BaseProductionOrderPage {
   );
 
   override ngOnInit(): void {
-    super.ngOnInit();
+    this.loaderService.showLoader();
+    this.appConfig.load().subscribe(() => super.ngOnInit());
     this.shiftModals.employeesSaved$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => this.updateEmployees(data));
@@ -230,6 +233,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
   }
 
   handleEditRecord({ sku, record }: { sku: SkuTaskDetail; record: ProductionRecordContext }): void {
+    this.shiftModals.close();
     this.selectedSKU.set(sku);
     this.qms.openForEdit(record);
   }

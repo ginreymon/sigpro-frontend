@@ -100,7 +100,7 @@
 
 @if(productionOrder() && config.showHourlyRecord){
 <app-shift-hourly-record
-    [class.hidden]="!!shiftModals.activeModal()"
+    [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
     [enabled]="currentSession() !== null"
     [activityId]="currentSession()?.active_activity?.id"
     [activeBreak]="currentSession()?.active_activity?.active_break ?? null"
