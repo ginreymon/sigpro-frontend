@@ -22,7 +22,6 @@ import { ShiftTimeAlert } from '../../../shared/components/production/widgets/sh
 import { QuantityModal } from '../../../shared/components/production/bottom-sheets/quantity-modal/quantity-modal';
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
 import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
-import { FinalizeShiftMessage } from '../../../shared/components/production/widgets/finalize-shift-message/finalize-shift-message';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { ShiftHourlyRecord } from '../../../shared/components/production/widgets/shift-hourly-record/shift-hourly-record';
@@ -35,6 +34,9 @@ import { PauseModal } from '../../../shared/components/production/bottom-sheets/
 import { ShiftModalsService } from '../../../services/common/shift-modals-service';
 import { ProductionRecordContext } from '../../../models/production/production-record-context';
 import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
+import { RouteContextService } from '../../../services/core/route-context-service';
+import { ShiftCyclesConfig } from '../../../common/interfaces/shift-cycles-config';
+import { SHIFT_CYCLES_CONFIG } from '../../../common/const/shift-cycles-config';
 
 @Component({
   selector: 'app-shift-cycles',
@@ -46,6 +48,10 @@ export class ShiftCycles extends BaseProductionOrderPage {
   protected inWindow = signal(true);
 
   private shiftNav = inject(ShiftNavigationService);
+  private routeContextService = inject(RouteContextService);
+
+  protected config: ShiftCyclesConfig =
+    SHIFT_CYCLES_CONFIG[this.routeContextService.currentModule?.url ?? ''] ?? SHIFT_CYCLES_CONFIG['production'];
 
   private dialogService = inject(DialogService);
   private workSessionService = inject(WorkSessionService);
