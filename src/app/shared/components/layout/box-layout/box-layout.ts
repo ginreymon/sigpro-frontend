@@ -12,5 +12,6 @@ export class BoxLayout {
   @Input() title: string | null = null;
   @Input() transparent = false;
   @Input() zClass = 'z-50';
+  @Input() classNames: string | null = null;
   @Output() onRestoreClick = new EventEmitter<void>();
 }

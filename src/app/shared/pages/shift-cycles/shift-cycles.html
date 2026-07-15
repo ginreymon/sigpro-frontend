@@ -25,7 +25,7 @@
 
             <div [class]="'flex flex-row items-center mt-4 gap-3 w-full shrink-0 ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">
                 @if(!shiftModals.shiftHourlyVisible()||finalizeDay()){
-                <app-shift-cycles-actions class="min-w-0 flex-1" [finalizeDay]="finalizeDay()" [mode]="'labeled'" [inWindow]="inWindow()" [hideMaterials]="false" [hideOp]="false" (onFinalize)="refreshSession()"></app-shift-cycles-actions>
+                <app-shift-cycles-actions class="min-w-0 flex-1" [finalizeDay]="finalizeDay()" [mode]="'labeled'" [inWindow]="inWindow()" [hideMaterials]="!config.showMaterialsAction" [hideOp]="false" [hideStampingRecord]="!config.showStampingRecord" (onFinalize)="refreshSession()"></app-shift-cycles-actions>
                 }
 
                 <div class="flex flex-row gap-3 shrink-0 ml-3">
@@ -110,6 +110,16 @@
     (onActivityPaused)="onPauseSaved($event)"
     (inWindowChange)="inWindow.set($event)"
 ></app-shift-hourly-record>
+}
+
+@if(productionOrder() && config.showStampingRecord){
+<app-stamping-record
+    [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
+    [visible]="shiftModals.stampingRecordVisible()"
+    [inWindow]="inWindow()"
+    (onClose)="shiftModals.closeStampingRecord()"
+    (onFinalize)="refreshSession()"
+></app-stamping-record>
 }
 
 }

@@ -1,8 +1,8 @@
 @if(isVisible()){
-<app-box-layout [title]="'Pausar'">
+<app-box-layout [title]="'Pausar'" [classNames]="'max-w-md'">
 
-    <div box-content class="flex flex-col gap-3 py-4 max-h-[60vh]">
-        <div class="grid grid-cols-1 gap-3 items-stretch overflow-y-auto max-h-[30vh] border-t border-slate-200 pt-4">
+    <div box-content class="flex flex-col gap-3 py-4">
+        <div class="grid grid-cols-1 gap-3 items-stretch overflow-y-auto max-h-[50vh] border-t border-slate-200 pt-4">
             @for(wb of workBreaks(); track wb.id){
             <app-ui-option-card [obj]="wb" [selected]="selectedBreak()?.id === wb.id" (onToggle)="selectBreak($event)">
                 <a class="font-semibold text-sm flex flex-row justify-start w-full">

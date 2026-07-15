@@ -43,6 +43,17 @@ export class ShiftModalsService {
   /** Global readable state of ShiftHourlyRecord visibility */
   readonly shiftHourlyVisible = signal(false);
 
+  /** Visibility of the stamping registration panel (StampingRecord) */
+  readonly stampingRecordVisible = signal(false);
+
+  openStampingRecord(): void {
+    this.stampingRecordVisible.set(true);
+  }
+
+  closeStampingRecord(): void {
+    this.stampingRecordVisible.set(false);
+  }
+
   reloadBalance(): void {
     this.reloadBalanceTrigger.update(n => n + 1);
   }

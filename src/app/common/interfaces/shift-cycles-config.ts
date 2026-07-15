@@ -6,4 +6,6 @@ export interface ShiftCyclesConfig {
   showQuantityModal: boolean;
   showHourlyRecord: boolean;
   readOnlyOrdersTable: boolean;
+  showStampingRecord: boolean;
+  showMaterialsAction: boolean;
 }

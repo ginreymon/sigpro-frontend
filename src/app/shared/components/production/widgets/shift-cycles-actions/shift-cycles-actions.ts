@@ -36,6 +36,7 @@ export class ShiftCyclesActions {
   @Output() onFinalize = new EventEmitter<void>();
   @Input() hideMaterials: boolean = true;
   @Input() hideOp: boolean = true;
+  @Input() hideStampingRecord: boolean = true;
 
   private shiftModals = inject(ShiftModalsService);
   private contextService = inject(ProductionContextService);
@@ -88,6 +89,13 @@ export class ShiftCyclesActions {
       handler: () => this.goToSearch(),
       hideWhen: () => this.hideOp,
     },
+    {
+      icon: 'circlePlus',
+      label: 'Registrar',
+      iconIntent: 'action',
+      handler: () => this.openStampingRecord(),
+      hideWhen: () => this.hideStampingRecord,
+    },
   ];
 
   protected getTooltip(action: ShiftCycleAction): string {
@@ -113,6 +121,10 @@ export class ShiftCyclesActions {
       shiftEndTime: session?.work_shift?.end_time ?? null,
       inWindow: this.inWindow,
     });
+  }
+
+  openStampingRecord(): void {
+    this.shiftModals.openStampingRecord();
   }
 
   openPauses(): void {

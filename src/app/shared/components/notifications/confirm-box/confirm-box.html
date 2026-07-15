@@ -1,5 +1,5 @@
 @if(openModal()){
-<app-box-layout [message]="message" [title]="title">
+<app-box-layout [message]="message" [title]="title" [classNames]="'max-w-md'">
 
   @if(!hideCancel){
   <app-ui-button box-buttons [intent]="'cancel'" (onClick)="closeConfirm()">

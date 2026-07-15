@@ -1,0 +1,55 @@
+@if (visible()) {
+<app-box-layout [title]="'Registro Hora'" >
+
+  <div box-content class="flex flex-col">
+    <app-ui-tabs
+      [tabs]="tabs"
+      [activeKey]="activeTab()"
+      (tabChange)="onTabChange($event)">
+    </app-ui-tabs>
+
+    <div class="mt-4 min-h-[10rem]">
+      @if (activeTab() === 'produccion') {
+        <!-- contenido de Producción pendiente de definir -->
+      } @else if (activeTab() === 'tiempos_adicionales') {
+        <app-ui-loader [showLoader]="isLoadingAdditionalTimes()"></app-ui-loader>
+        @if (!isLoadingAdditionalTimes()) {
+          <app-searcher [live]="true" (onSearch)="searchAdditionalTimes($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
+          <div class="divide-y divide-gray-200 max-h-[50vh] overflow-y-auto">
+            @for (item of filteredAdditionalTimes(); track item.id) {
+              <div class="flex justify-between items-center gap-3 text-sm py-2">
+                <span class="flex items-center gap-2">
+                  <app-ui-checkbox
+                    [ngModel]="isSelected(item.id)"
+                    [ngModelOptions]="{standalone: true}"
+                    (ngModelChange)="toggleAdditionalTime(item.id)">
+                  </app-ui-checkbox>
+                  {{ item.process }} · {{ item.code_number }}
+                </span>
+                <span class="text-gray-500">{{ item.standard_time }}</span>
+              </div>
+            } @empty {
+              <p class="text-sm text-gray-400 py-4 text-center">No hay tiempos adicionales</p>
+            }
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <div box-buttons class="w-full flex flex-row items-center gap-3">
+    <app-shift-cycles-actions
+      class="min-w-0 flex-1"
+      [mode]="'labeled'"
+      [inWindow]="inWindow"
+      [hideMaterials]="true"
+      [hideOp]="false"
+      [hideStampingRecord]="true"
+      (onFinalize)="onFinalize.emit()">
+    </app-shift-cycles-actions>
+
+    <app-ui-button class="shrink-0" [intent]="'cancel'" (onClick)="close()">Cerrar</app-ui-button>
+  </div>
+
+</app-box-layout>
+}
