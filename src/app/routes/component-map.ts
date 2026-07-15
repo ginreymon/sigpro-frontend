@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
 import { Roles } from '../options/admin/roles/roles';
 import { Users } from '../options/admin/users/users';
-import { DayOperation } from '../options/production/day-operation/day-operation';
+import { DayOperation } from '../shared/pages/day-operation/day-operation';
 import { WorkShifts } from '../options/admin/work-shifts/work-shifts';
 import { Modules } from '../options/admin/modules/modules';
 import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
@@ -17,7 +17,6 @@ import { MachineTypes } from '../options/stamping/machine-types/machine-types';
 import { Machines } from '../options/stamping/machines/machines';
 import { StampingSam } from '../options/admin/stamping-sam/stamping-sam';
 import { AdditionalTimes } from '../options/stamping/additional-times/additional-times';
-import { StampingDayOperation } from '../options/stamping/day-operation/day-operation';
 import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
 import { StampingAuditory } from '../options/stamping/auditory/auditory';
 
@@ -40,7 +39,7 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/machine-types': MachineTypes,
   'stamping/machines': Machines,
   'stamping/additional-times': AdditionalTimes,
-  'stamping/day-operation': StampingDayOperation,
+  'stamping/day-operation': DayOperation,
   'stamping/machine-panel': MachinePanel,
   'stamping/auditory': StampingAuditory,
 };

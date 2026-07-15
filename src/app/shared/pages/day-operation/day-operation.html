@@ -13,9 +13,9 @@
                 </h3>
                 <p class="text-gray-500 mt-2 text-sm w-full">
                     @if(currentSession()){
-                        Vista detallada de la planificación del módulo para hoy.
+                        {{ summaryDescription }}
                     }@else{
-                        Defina el módulo, el turno y los encomendados para iniciar.
+                        {{ planningDescription }}
                     }
                 </p>
                 <app-ui-alert [intent]="'error'" [message]="displayError()" (onClose)="errorMessage.set(null)" class="pr-1"></app-ui-alert>
@@ -26,10 +26,10 @@
             {
                <app-day-operation-detail [workSession]="currentSession()"></app-day-operation-detail>
             }
-            
+
             @if(!currentSession() && initialDataLoaded())
             {
-                <app-carousel-field [controlName]="'module_id'" [label]="'Módulo'" [showNav]="!!modules().length" [selectedIndex]="selectedModuleIndex">
+                <app-carousel-field [controlName]="'module_id'" [label]="moduleLabel" [showNav]="!!modules().length" [selectedIndex]="selectedModuleIndex">
                     @for(module of modules(); track module){
                       <app-module-option-card
                         [mod]="module"
@@ -37,7 +37,7 @@
                         [selected]="isSelectedModule(module)">
                       </app-module-option-card>
                     } @empty {
-                      <p class="text-sm text-gray-400 italic py-1 px-2">Sin módulos disponibles</p>
+                      <p class="text-sm text-gray-400 italic py-1 px-2">Sin {{ moduleLabelPlural }} disponibles</p>
                     }
                 </app-carousel-field>
 
@@ -84,7 +84,7 @@
                 </app-ui-button>
                 }
 
-            </div>           
+            </div>
             <app-ui-button [type]="'submit'">
                 {{currentSession()?'Continuar':'Siguente'}}
                 <app-ui-icon [iconName]="'circleRight'" class="h-5 w-5"></app-ui-icon>

@@ -1,13 +1,13 @@
 import { Component, computed, inject, Signal, signal } from '@angular/core';
 import { environment } from '../../../../environments/environment.development';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { UiButton } from '../../../shared/elements/ui-button/ui-button';
+import { UiButton } from '../../elements/ui-button/ui-button';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { WorkSession, EmployeeSnapshot } from '../../../models/production/work-session';
 import { WorkSessionService } from '../../../services/production/work-session-service';
-import { CarouselField } from '../../../shared/components/form-controls/carousel-field/carousel-field';
-import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
-import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
+import { CarouselField } from '../../components/form-controls/carousel-field/carousel-field';
+import { UiFormField } from '../../elements/ui-form-field/ui-form-field';
+import { UiIcon } from '../../elements/ui-icon/ui-icon';
 import { WorkShift } from '../../../models/production/work-shift';
 import { Module } from '../../../models/production/module';
 import { Validators } from '@angular/forms';
@@ -18,16 +18,40 @@ import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { RouteContextService } from '../../../services/core/route-context-service';
 import { Employee } from '../../../models/production/employee';
-import { EmployeesModal, EmployeesSavePayload } from '../../../shared/components/production/bottom-sheets/employees-modal/employees-modal';
-import { EmployeePicker } from '../../../shared/components/production/widgets/employee-picker/employee-picker';
+import { EmployeesModal, EmployeesSavePayload } from '../../components/production/bottom-sheets/employees-modal/employees-modal';
+import { EmployeePicker } from '../../components/production/widgets/employee-picker/employee-picker';
 import { ReactiveFormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
-import { DayOperationDetail } from '../../../shared/components/production/cards/day-operation-detail/day-operation-detail';
-import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
-import { ModuleOptionCard } from '../../../shared/components/production/cards/module-option-card/module-option-card';
-import { WorkShiftOptionCard } from '../../../shared/components/production/cards/work-shift-option-card/work-shift-option-card';
-import { FinalizeShiftMessage } from "../../../shared/components/production/widgets/finalize-shift-message/finalize-shift-message";
+import { DayOperationDetail } from '../../components/production/cards/day-operation-detail/day-operation-detail';
+import { UiAlert } from '../../elements/ui-alert/ui-alert';
+import { ModuleOptionCard } from '../../components/production/cards/module-option-card/module-option-card';
+import { WorkShiftOptionCard } from '../../components/production/cards/work-shift-option-card/work-shift-option-card';
+import { FinalizeShiftMessage } from '../../components/production/widgets/finalize-shift-message/finalize-shift-message';
+
+interface DayOperationConfig {
+  moduleLabel: string;
+  summaryDescription: string;
+  planningDescription: string;
+  nextUrl: string;
+}
+
+const DAY_OPERATION_CONFIG: Record<string, DayOperationConfig> = {
+  production: {
+    moduleLabel: 'Módulo',
+    summaryDescription: 'Vista detallada de la planificación del módulo para hoy.',
+    planningDescription: 'Defina el módulo, el turno y los encomendados para iniciar.',
+    nextUrl: environment.SHIFT_CYCLES_URL,
+  },
+  stamping: {
+    moduleLabel: 'Máquina',
+    summaryDescription: 'Vista detallada de la planificación de la máquina para hoy.',
+    planningDescription: 'Defina la máquina, el turno y los encomendados para iniciar.',
+    nextUrl: '/',
+  },
+};
+
+const DEFAULT_CONFIG: DayOperationConfig = DAY_OPERATION_CONFIG['production'];
 
 @Component({
   selector: 'app-day-operation',
@@ -44,20 +68,31 @@ import { FinalizeShiftMessage } from "../../../shared/components/production/widg
     UiAlert,
     ModuleOptionCard,
     WorkShiftOptionCard,
-    FinalizeShiftMessage
-],
+    FinalizeShiftMessage,
+  ],
   templateUrl: './day-operation.html',
   styleUrl: './day-operation.css',
 })
 export class DayOperation extends BaseCrudPage<WorkSession> {
   protected override entityName: string = 'Operación';
 
-  private OPERATION_ORDER_URL: string = environment.SHIFT_CYCLES_URL;
   private workShiftService = inject(WorkShiftService);
   private moduleService = inject(ModuleService);
   private employeeService = inject(EmployeeService);
   private routeContextService = inject(RouteContextService);
   private router = inject(Router);
+
+  private config: DayOperationConfig =
+    DAY_OPERATION_CONFIG[this.routeContextService.currentModule?.url ?? ''] ?? DEFAULT_CONFIG;
+
+  protected moduleLabel = this.config.moduleLabel;
+  protected summaryDescription = this.config.summaryDescription;
+  protected planningDescription = this.config.planningDescription;
+  private nextUrl = this.config.nextUrl;
+
+  protected get moduleLabelPlural(): string {
+    return this.moduleLabel.toLowerCase() + 's';
+  }
 
   protected modules = signal<Module[]>([]);
   protected workShifts = signal<WorkShift[]>([]);
@@ -215,7 +250,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   protected override submit(): void {
     if (this.currentSession()) {
-      this.router.navigateByUrl(this.OPERATION_ORDER_URL);
+      this.router.navigateByUrl(this.nextUrl);
       return;
     }
 
@@ -230,7 +265,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
     super.submit(
       undefined,
-      () => this.router.navigateByUrl(this.OPERATION_ORDER_URL), 
+      () => this.router.navigateByUrl(this.nextUrl),
       (err) => {
         const messages = parseSessionErrors(err, 'Error al crear la sesión.');
         this.errorMessage.set(messages.join(' · '));
@@ -255,7 +290,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
       .closeSession(this.currentSession()?.id!)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
-        next: (value) => {
+        next: () => {
           this.currentSession.set(null);
           this.router.navigateByUrl('/');
         },
