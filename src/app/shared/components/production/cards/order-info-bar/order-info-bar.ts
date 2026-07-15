@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
 import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
+import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { efficiencyTextColor } from '../../../../../common/functions/efficiency-color';
 
 interface InfoCard {
@@ -20,7 +21,7 @@ interface InfoCard {
 @Component({
   selector: 'app-order-info-bar',
   standalone: true,
-  imports: [UpperCasePipe, UiTooltip],
+  imports: [UpperCasePipe, UiTooltip, UiIcon],
   templateUrl: './order-info-bar.html',
 })
 export class OrderInfoBar {
@@ -74,6 +75,9 @@ export class OrderInfoBar {
     if (card.thresholds && card.numericValue != null) {
       const color = efficiencyTextColor(card.numericValue, card.thresholds.green, card.thresholds.red);
       return `text-sm font-semibold ${color}`;
+    }
+    if (card.action) {
+      return 'text-sm font-semibold text-brand-700 underline-offset-2 group-hover:underline';
     }
     return 'text-sm font-semibold text-slate-900';
   }
