@@ -20,7 +20,7 @@
             <app-order-header [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
 
             <div class="flex-1 min-h-0 overflow-hidden">
-                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
+                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" [readOnly]="config.readOnlyOrdersTable" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
             </div>
 
             <div [class]="'flex flex-row items-center mt-4 gap-3 w-full shrink-0 ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">

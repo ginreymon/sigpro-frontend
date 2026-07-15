@@ -7,9 +7,10 @@ const DEFAULT_CONFIG: ShiftCyclesConfig = {
   showShiftTimeAlert: true,
   showQuantityModal: true,
   showHourlyRecord: true,
+  readOnlyOrdersTable: false,
 };
 
 export const SHIFT_CYCLES_CONFIG: Record<string, ShiftCyclesConfig> = {
   production: { ...DEFAULT_CONFIG },
-  stamping: { ...DEFAULT_CONFIG, showHourlyRecord: false },
+  stamping: { ...DEFAULT_CONFIG, showHourlyRecord: false, readOnlyOrdersTable: true },
 };

@@ -5,4 +5,5 @@ export interface ShiftCyclesConfig {
   showShiftTimeAlert: boolean;
   showQuantityModal: boolean;
   showHourlyRecord: boolean;
+  readOnlyOrdersTable: boolean;
 }
