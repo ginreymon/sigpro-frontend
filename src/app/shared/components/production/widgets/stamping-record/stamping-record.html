@@ -54,7 +54,12 @@
       (onFinalize)="onFinalize.emit()">
     </app-shift-cycles-actions>
 
-    <app-ui-button class="ml-auto shrink-0" (onClick)="close()">
+    <app-ui-button [intent]="'cancel'" class="ml-auto shrink-0" (onClick)="close()">
+      <app-ui-icon [iconName]="'circleXmark'" class="w-5 h-5"></app-ui-icon>
+      Cancelar
+    </app-ui-button>
+
+    <app-ui-button class="shrink-0" (onClick)="close()">
       <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>
       Registrar
     </app-ui-button>
