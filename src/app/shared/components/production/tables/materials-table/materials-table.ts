@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
 import { TableColumn } from '../../../../../common/interfaces/table-column';
 import { PaginatedResponse } from '../../../../../common/interfaces/paginated-response';
 import { DataTable } from '../../../table/data-table/data-table';
@@ -24,7 +24,7 @@ interface FlatMaterial {
   imports: [DataTable, TableTemplate],
   templateUrl: './materials-table.html',
 })
-export class MaterialsTable implements OnInit {
+export class MaterialsTable implements OnChanges {
   @Input() docType!:   string;
   @Input() docNumber!: number;
 
@@ -32,6 +32,8 @@ export class MaterialsTable implements OnInit {
   private wslService             = inject(WorkSpaceLoaderService);
 
   paginatedResponse = signal<PaginatedResponse<FlatMaterial> | null>(null);
+
+  private loadedKey: string | null = null;
 
   readonly columns: TableColumn<FlatMaterial>[] = [
     { field: 'color',          label: 'Color' },
@@ -44,7 +46,11 @@ export class MaterialsTable implements OnInit {
     { type: 'template', templateName: 'totalTemplate',   label: 'Total',   align: 'right' },
   ];
 
-  ngOnInit(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['docType'] && !changes['docNumber']) return;
+    const key = `${this.docType}:${this.docNumber}`;
+    if (key === this.loadedKey) return;
+    this.loadedKey = key;
     this.load();
   }
 

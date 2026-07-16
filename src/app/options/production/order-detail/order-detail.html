@@ -2,38 +2,40 @@
 <app-work-space-layout [headerVisible]="false">
   <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
 
-    <app-ui-tabs [tabs]="tabs()" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
+    <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
 
-    @if (!productionOrder() && !isLoading() && activeTab() !== 'tab3') {
+    @if (!productionOrder() && !isLoading()) {
       <div class="flex flex-col items-center justify-center flex-1 gap-3 text-gray-300 py-6">
         <app-ui-icon [iconName]="'magnifyingGlass'" class="h-24 w-24"></app-ui-icon>
         <p class="text-sm text-gray-400">No hay orden seleccionada</p>
       </div>
     }
 
-    @if (productionOrder() && activeTab() === 'tab1') {
-      <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
-      <div class="flex-1 min-h-0 overflow-hidden">
-        <app-production-orders-table
-          [readOnly]="true"
-          [productionOrder]="productionOrder()"
-          [currentSession]="currentSession()">
-        </app-production-orders-table>
+    @if (productionOrder()) {
+      <div [class.hidden]="activeTab() !== 'tab1'" class="flex-1 min-h-0 overflow-hidden flex flex-col">
+        <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
+        <div class="flex-1 min-h-0 overflow-hidden">
+          <app-production-orders-table
+            [readOnly]="true"
+            [productionOrder]="productionOrder()"
+            [currentSession]="currentSession()">
+          </app-production-orders-table>
+        </div>
       </div>
-    }
 
-    @if (productionOrder() && activeTab() === 'tab2') {
-      <div class="flex-1 min-h-0 overflow-hidden mt-2">
+      <div [class.hidden]="activeTab() !== 'tab2'" class="flex-1 min-h-0 overflow-hidden mt-2">
         <app-materials-table
           [docType]="productionOrder()!.documentType"
           [docNumber]="productionOrder()!.documentNumber">
         </app-materials-table>
       </div>
-    }
 
-    @if (activeTab() === 'tab3') {
-      <div class="flex-1 min-h-0 overflow-hidden mt-2">
-        <app-sewing-sam-table/>
+      <div [class.hidden]="activeTab() !== 'tab3'" class="flex-1 min-h-0 overflow-hidden mt-2">
+        <app-sam-goal-calculator
+          [samValue]="productionOrder()!.sam ?? null"
+          [reference]="productionOrder()!.reference"
+          [description]="productionOrder()!.description">
+        </app-sam-goal-calculator>
       </div>
     }
 

@@ -1,5 +1,6 @@
 import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { SamCalculatorStateService } from './sam-calculator-state';
+import { calcSamTarget } from './sam-target-formula';
 
 const MOBILE_BREAKPOINT = 640;
 const CARD_WIDTH = 224;
@@ -19,12 +20,7 @@ export class SamTargetCalculatorPanel {
   intervalo = signal<number>(60);
   operarios = signal<number>(1);
 
-  targetUnits = computed(() => {
-    const sam = Number(this.active()?.samValue);
-    if (!sam || sam <= 0) return null;
-    if (this.intervalo() <= 0) return '0';
-    return ((this.intervalo() * this.operarios()) / sam).toFixed(1);
-  });
+  targetUnits = computed(() => calcSamTarget(this.active()?.samValue, this.intervalo(), this.operarios()));
 
   private readonly reposition = (): void => {};
 

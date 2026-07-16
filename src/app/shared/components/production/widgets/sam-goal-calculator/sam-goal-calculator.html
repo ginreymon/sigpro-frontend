@@ -1,0 +1,43 @@
+<div class="h-full overflow-auto flex items-start sm:items-center justify-center p-3 sm:p-6">
+  <div class="w-full max-w-md bg-white border border-slate-200 rounded-lg shadow-sm p-4 sm:p-6">
+
+    <div class="flex items-start justify-between gap-3 mb-4">
+      <div class="min-w-0">
+        <h3 class="text-lg font-semibold text-slate-900 truncate">{{ reference }}</h3>
+        @if (description) {
+          <p class="text-sm text-slate-500 truncate">{{ description }}</p>
+        }
+      </div>
+      @if (samValue) {
+        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-semibold bg-green-100 text-green-700 shrink-0">
+          SAM {{ samValue }}
+        </span>
+      } @else {
+        <span class="text-xs text-slate-400 italic shrink-0">Sin SAM</span>
+      }
+    </div>
+
+    @if (samValue) {
+      <div class="space-y-1">
+        <app-ui-form-field [controlName]="'intervalo'" [label]="'Intervalo (min)'">
+          <app-ui-input [type]="'number'" [ngModel]="intervalo()" (ngModelChange)="intervalo.set(+$event)"></app-ui-input>
+        </app-ui-form-field>
+
+        <app-ui-form-field [controlName]="'operarios'" [label]="'Operarios'">
+          <app-ui-input [type]="'number'" [isFloat]="true" [ngModel]="operarios()" (ngModelChange)="operarios.set(+$event)"></app-ui-input>
+        </app-ui-form-field>
+
+        <div class="pt-3 mt-3 flex items-center justify-between">
+          <span class="text-sm text-slate-500">Meta por turno</span>
+          <span class="text-2xl font-semibold text-green-600">
+            {{ targetUnits() ?? '—' }}
+            <span class="text-sm font-normal text-slate-400">uds</span>
+          </span>
+        </div>
+      </div>
+    } @else {
+      <p class="text-sm text-slate-400 italic text-center py-6">Esta referencia no tiene SAM asignado.</p>
+    }
+
+  </div>
+</div>
