@@ -13,7 +13,9 @@
       }
     </div>
     <div class="flex flex-col items-end gap-1 shrink-0">
+      @if(item?.standard_time){
       <span class="text-xs font-semibold text-green-600 whitespace-nowrap">SAM {{ item?.standard_time }}</span>
+      }
       <ng-content select="[quantity-input]"></ng-content>
     </div>
   </div>

@@ -27,13 +27,7 @@
               <app-additional-stamping-time-card
                 [item]="item"
                 [selected]="isSelected(item.id)"
-                (onToggle)="toggleAdditionalTime(item.id)">
-                <!-- <input quantity-input type="number" min="0"
-                  class="w-16 text-xs border border-slate-300 rounded px-2 py-1 text-right focus:outline-none focus:ring-1 focus:ring-green-400"
-                  placeholder="Cant."
-                  [value]="getQuantity(item.id)"
-                  (input)="setQuantity(item.id, +$any($event.target).value)"
-                  (click)="$event.stopPropagation()" /> -->
+                (onToggle)="toggleAdditionalTime(item.id)">              
               </app-additional-stamping-time-card>
             } @empty {
               <p class="text-sm text-gray-400 py-4 text-center">No hay tiempos adicionales</p>
