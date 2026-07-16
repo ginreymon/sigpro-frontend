@@ -3,7 +3,7 @@ import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-l
 import { DataTable } from '../../../shared/components/table/data-table/data-table';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
-import { BaseCrudPage } from '../../../common/classes/base-crud-page';
+import { AdminOnlyCrudPage } from '../../../common/classes/admin-only-crud-page';
 import { StampingReferenceSam } from '../../../models/stamping/stamping-reference-sam';
 import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
@@ -18,6 +18,7 @@ import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/widgets/char-square/char-square';
 import { TableColumn } from '../../../common/interfaces/table-column';
+import { TableToolsButtons } from '../../../common/interfaces/table-tools-buttons';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
 import { SamTargetCalculator } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator';
 import { SamTargetCalculatorPanel } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator-panel';
@@ -80,8 +81,15 @@ const TAB_FIELDS: Record<string, string[]> = {
   templateUrl: './stamping-sam.html',
   styleUrl: './stamping-sam.css',
 })
-export class StampingSam extends BaseCrudPage<StampingReferenceSam> {
+export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
   protected override entityName: string = 'SAM';
+
+  protected override tableToolsButtons: TableToolsButtons = {
+    filter: { enabled: false },
+    columns: { enabled: false },
+    export: { enabled: false },
+    addItem: { enabled: this.isAdminModule },
+  };
 
   tabs = TABS;
   activeTab = signal('identification');

@@ -29,6 +29,8 @@ export const componentMap: Record<string, Type<any>> = {
   'admin/work-breaks': WorkBreaks,
   'admin/sewing-sam': SewingSAM,
   'admin/stamping-sam': StampingSam,
+  'stamping/stamping-sam': StampingSam,
+  'production/sewing-sam': SewingSAM,
   'production/day-operation': DayOperation,
   'production/shift-cycles': ShiftCycles,
   'production/data-export': DataExport,

@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { BaseCrudPage } from '../../../common/classes/base-crud-page';
+import { AdminOnlyCrudPage } from '../../../common/classes/admin-only-crud-page';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableColumn } from '../../../common/interfaces/table-column';
@@ -31,7 +31,7 @@ import { SamCalculatorStateService } from '../../../shared/components/production
   templateUrl: './sewing-sam.html',
   styleUrl: './sewing-sam.css',
 })
-export class SewingSAM extends BaseCrudPage<SkuItemReference> {
+export class SewingSAM extends AdminOnlyCrudPage<SkuItemReference> {
   protected override entityName: string = 'SAM';
 
   samRecord = signal<Partial<ReferenceSam>>({});
@@ -45,6 +45,7 @@ export class SewingSAM extends BaseCrudPage<SkuItemReference> {
   }
 
   protected override get actions(): TableActions {
+    if (!this.isAdminModule) return super.actions;
     return {
       view: { enabled: true, title: 'Ver Referencia', iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: true, title: 'SAM', iconName: 'pencil', toolTip: 'SAM' },
