@@ -11,8 +11,19 @@ import { ProductionContextService } from '../../../../../services/production/pro
 import { WorkSessionService } from '../../../../../services/production/work-session-service';
 import { LoaderService } from '../../../../../services/common/loader-service';
 import { DialogService } from '../../../../../services/common/dialog-service';
+import { ShiftCyclesConfig } from '../../../../../common/interfaces/shift-cycles-config';
+
+export type ShiftCycleActionKey =
+  | 'stampingRecord'
+  | 'lastDelivery'
+  | 'employees'
+  | 'balance'
+  | 'pause'
+  | 'materials'
+  | 'changeOp';
 
 interface ShiftCycleAction {
+  key: ShiftCycleActionKey;
   icon: string;
   label: string;
   tooltip?: string;
@@ -34,9 +45,8 @@ export class ShiftCyclesActions {
   @Input() mode: ShiftCyclesActionsMode = 'icon';
   @Input() inWindow: boolean = false;
   @Output() onFinalize = new EventEmitter<void>();
-  @Input() hideMaterials: boolean = true;
-  @Input() hideOp: boolean = true;
-  @Input() hideStampingRecord: boolean = true;
+  @Input() config: ShiftCyclesConfig | null = null;
+  @Input() hiddenActions: ShiftCycleActionKey[] = [];
 
   private shiftModals = inject(ShiftModalsService);
   private contextService = inject(ProductionContextService);
@@ -49,54 +59,67 @@ export class ShiftCyclesActions {
 
   actions: ShiftCycleAction[] = [
     {
+      key: 'stampingRecord',
       icon: 'hourglassStart',
       label: 'Tiempos',
       iconIntent: 'action',
       handler: () => this.openStampingRecord(),
-      hideWhen: () => this.hideStampingRecord,
+      hideWhen: () => this.isHidden('stampingRecord', c => c.showStampingRecord),
     },
     {
+      key: 'lastDelivery',
       icon: 'truck',
       label: 'Última entrega',
       iconIntent: 'action',
       handler: () => this.lastDelivery(),
-      hideWhen: () => this.finalizeDay,
+      hideWhen: () => this.finalizeDay || this.isHidden('lastDelivery', c => c.showLastDeliveryAction),
     },
     {
+      key: 'employees',
       icon: 'user',
       label: 'Empleados',
       iconIntent: 'cancel',
       handler: () => this.openEmployeesSnapshot(),
-      hideWhen: () => this.finalizeDay,
+      hideWhen: () => this.finalizeDay || this.isHidden('employees', c => c.showEmployeesModal),
     },
     {
+      key: 'balance',
       icon: 'chartArea',
       label: 'Balance',
       iconIntent: 'cancel',
       handler: () => this.openBalance(),
+      hideWhen: () => this.isHidden('balance', c => c.showBalanceSheet),
     },
     {
+      key: 'pause',
       icon: 'pause',
       label: 'Pausar',
       iconIntent: 'cancel',
       handler: () => this.openPauses(),
-      hideWhen: () => this.finalizeDay,
+      hideWhen: () => this.finalizeDay || this.isHidden('pause', c => c.showPauseModal),
     },
     {
+      key: 'materials',
       icon: 'file',
       label: 'Materiales',
       iconIntent: 'action',
       handler: () => this.showMaterials(),
-      hideWhen: () => this.hideMaterials
+      hideWhen: () => this.isHidden('materials', c => c.showMaterialsAction),
     },
     {
+      key: 'changeOp',
       icon: 'magnifyingGlass',
       label: 'Cambiar OP',
       iconIntent: 'action',
       handler: () => this.goToSearch(),
-      hideWhen: () => this.hideOp,
-    },    
+      hideWhen: () => this.isHidden('changeOp', c => c.showChangeOpAction),
+    },
   ];
+
+  private isHidden(key: ShiftCycleActionKey, configFlag: (config: ShiftCyclesConfig) => boolean): boolean {
+    if (this.hiddenActions.includes(key)) return true;
+    return this.config ? !configFlag(this.config) : false;
+  }
 
   protected getTooltip(action: ShiftCycleAction): string {
     return action.tooltip ?? action.label;

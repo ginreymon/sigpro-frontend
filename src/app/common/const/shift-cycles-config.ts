@@ -10,6 +10,8 @@ const DEFAULT_CONFIG: ShiftCyclesConfig = {
   readOnlyOrdersTable: false,
   showStampingRecord: false,
   showMaterialsAction: true,
+  showLastDeliveryAction: true,
+  showChangeOpAction: true,
 };
 
 export const SHIFT_CYCLES_CONFIG: Record<string, ShiftCyclesConfig> = {
@@ -20,5 +22,7 @@ export const SHIFT_CYCLES_CONFIG: Record<string, ShiftCyclesConfig> = {
     readOnlyOrdersTable: true,
     showStampingRecord: true,
     showMaterialsAction: false,
+    showLastDeliveryAction: false,
+    showBalanceSheet: false,
   },
 };

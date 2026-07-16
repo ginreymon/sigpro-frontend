@@ -8,4 +8,6 @@ export interface ShiftCyclesConfig {
   readOnlyOrdersTable: boolean;
   showStampingRecord: boolean;
   showMaterialsAction: boolean;
+  showLastDeliveryAction: boolean;
+  showChangeOpAction: boolean;
 }

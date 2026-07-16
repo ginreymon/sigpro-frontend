@@ -11,6 +11,7 @@ import { UiLoader } from '../../../../elements/ui-loader/ui-loader';
 import { Searcher } from '../../../form-controls/searcher/searcher';
 import { AdditionalStampingTimeService } from '../../../../../services/stamping/additional-stamping-time-service';
 import { AdditionalStampingTime } from '../../../../../models/stamping/additional-stamping-time';
+import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 
 @Component({
   selector: 'app-stamping-record',
@@ -25,6 +26,8 @@ export class StampingRecord {
   @Output() onFinalize = new EventEmitter<void>();
 
   private additionalTimeService = inject(AdditionalStampingTimeService);
+
+  protected stampingConfig = SHIFT_CYCLES_CONFIG['stamping'];
 
   protected tabs: TabItem[] = [
     { key: 'produccion', label: 'Producción' },
