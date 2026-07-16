@@ -49,6 +49,13 @@ export class ShiftCyclesActions {
 
   actions: ShiftCycleAction[] = [
     {
+      icon: 'hourglassStart',
+      label: 'Tiempos',
+      iconIntent: 'action',
+      handler: () => this.openStampingRecord(),
+      hideWhen: () => this.hideStampingRecord,
+    },
+    {
       icon: 'truck',
       label: 'Última entrega',
       iconIntent: 'action',
@@ -88,14 +95,7 @@ export class ShiftCyclesActions {
       iconIntent: 'action',
       handler: () => this.goToSearch(),
       hideWhen: () => this.hideOp,
-    },
-    {
-      icon: 'circlePlus',
-      label: 'Registrar',
-      iconIntent: 'action',
-      handler: () => this.openStampingRecord(),
-      hideWhen: () => this.hideStampingRecord,
-    },
+    },    
   ];
 
   protected getTooltip(action: ShiftCycleAction): string {

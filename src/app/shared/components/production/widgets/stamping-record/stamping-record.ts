@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
+import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiCheckbox } from '../../../../elements/ui-checkbox/ui-checkbox';
 import { UiTabs, TabItem } from '../../../../elements/ui-tabs/ui-tabs';
 import { ShiftCyclesActions } from '../shift-cycles-actions/shift-cycles-actions';
@@ -14,7 +15,7 @@ import { AdditionalStampingTime } from '../../../../../models/stamping/additiona
 @Component({
   selector: 'app-stamping-record',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiCheckbox, UiTabs, ShiftCyclesActions, UiLoader, Searcher, FormsModule],
+  imports: [BoxLayout, UiButton, UiIcon, UiCheckbox, UiTabs, ShiftCyclesActions, UiLoader, Searcher, FormsModule],
   templateUrl: './stamping-record.html',
 })
 export class StampingRecord {
