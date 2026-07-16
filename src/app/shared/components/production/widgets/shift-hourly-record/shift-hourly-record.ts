@@ -17,6 +17,7 @@ import { finalize } from 'rxjs';
 import { OrderInfoBar } from '../../cards/order-info-bar/order-info-bar';
 import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
 import { ShiftCyclesActions } from "../shift-cycles-actions/shift-cycles-actions";
+import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 
 @Component({
   selector: 'app-shift-hourly-record',
@@ -33,6 +34,8 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Output() onFinalize = new EventEmitter<void>();
   @Output() onActivityPaused = new EventEmitter<WorkBreakRecord>();
   @Output() inWindowChange = new EventEmitter<boolean>();
+
+  protected config = SHIFT_CYCLES_CONFIG['production'];
 
   private appConfig = inject(AppConfigService);
   private activityService = inject(WorkSessionActivityService);
