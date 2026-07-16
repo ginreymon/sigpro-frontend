@@ -15,19 +15,19 @@
         <app-ui-loader [showLoader]="isLoadingAdditionalTimes()"></app-ui-loader>
         @if (!isLoadingAdditionalTimes()) {
           <app-searcher [live]="true" (onSearch)="searchAdditionalTimes($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
-          <div class="divide-y divide-gray-200 max-h-[50vh] overflow-y-auto">
+          <div class="grid grid-cols-1 gap-2 max-h-[50vh] overflow-y-auto">
             @for (item of filteredAdditionalTimes(); track item.id) {
-              <div class="flex justify-between items-center gap-3 text-sm py-2">
-                <span class="flex items-center gap-2">
-                  <app-ui-checkbox
-                    [ngModel]="isSelected(item.id)"
-                    [ngModelOptions]="{standalone: true}"
-                    (ngModelChange)="toggleAdditionalTime(item.id)">
-                  </app-ui-checkbox>
-                  {{ item.process }} · {{ item.code_number }}
-                </span>
-                <span class="text-gray-500">{{ item.standard_time }}</span>
-              </div>
+              <app-additional-stamping-time-card
+                [item]="item"
+                [selected]="isSelected(item.id)"
+                (onToggle)="toggleAdditionalTime(item.id)">
+                <input quantity-input type="number" min="0"
+                  class="w-16 text-xs text-right border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                  placeholder="Cant."
+                  [value]="getQuantity(item.id)"
+                  (input)="setQuantity(item.id, $any($event.target).value)"
+                  (click)="$event.stopPropagation()" />
+              </app-additional-stamping-time-card>
             } @empty {
               <p class="text-sm text-gray-400 py-4 text-center">No hay tiempos adicionales</p>
             }

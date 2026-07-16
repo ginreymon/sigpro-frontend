@@ -1,14 +1,13 @@
 import { Component, EventEmitter, Input, Output, signal, computed, input, effect, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
-import { UiCheckbox } from '../../../../elements/ui-checkbox/ui-checkbox';
 import { UiTabs, TabItem } from '../../../../elements/ui-tabs/ui-tabs';
 import { ShiftCyclesActions } from '../shift-cycles-actions/shift-cycles-actions';
 import { UiLoader } from '../../../../elements/ui-loader/ui-loader';
 import { Searcher } from '../../../form-controls/searcher/searcher';
+import { AdditionalStampingTimeCard } from '../../cards/additional-stamping-time-card/additional-stamping-time-card';
 import { AdditionalStampingTimeService } from '../../../../../services/stamping/additional-stamping-time-service';
 import { AdditionalStampingTime } from '../../../../../models/stamping/additional-stamping-time';
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
@@ -16,7 +15,7 @@ import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-co
 @Component({
   selector: 'app-stamping-record',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiIcon, UiCheckbox, UiTabs, ShiftCyclesActions, UiLoader, Searcher, FormsModule],
+  imports: [BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesActions, UiLoader, Searcher, AdditionalStampingTimeCard],
   templateUrl: './stamping-record.html',
 })
 export class StampingRecord {
@@ -38,6 +37,7 @@ export class StampingRecord {
   protected isLoadingAdditionalTimes = signal(false);
   protected additionalTimes = signal<AdditionalStampingTime[]>([]);
   protected selectedAdditionalTimeIds = signal<number[]>([]);
+  protected additionalTimeQuantities = signal<Record<number, number>>({});
   private additionalTimesSearchText = signal('');
 
   protected filteredAdditionalTimes = computed(() => {
@@ -74,6 +74,14 @@ export class StampingRecord {
     this.selectedAdditionalTimeIds.update((ids) =>
       ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
     );
+  }
+
+  protected getQuantity(id: number): number {
+    return this.additionalTimeQuantities()[id] ?? 0;
+  }
+
+  protected setQuantity(id: number, value: string): void {
+    this.additionalTimeQuantities.update((quantities) => ({ ...quantities, [id]: Number(value) || 0 }));
   }
 
   protected close(): void {
