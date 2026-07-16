@@ -1,14 +1,21 @@
 import { Injectable, signal } from '@angular/core';
 
+export interface SamCalculatorActive {
+  id: number;
+  samValue: string;
+  clickX: number;
+  clickY: number;
+}
+
 @Injectable()
 export class SamCalculatorStateService {
-  readonly activeId = signal<number | null>(null);
+  readonly active = signal<SamCalculatorActive | null>(null);
 
-  toggle(id: number): void {
-    this.activeId.update(current => (current === id ? null : id));
+  open(active: SamCalculatorActive): void {
+    this.active.update(current => (current?.id === active.id ? null : active));
   }
 
   close(): void {
-    this.activeId.set(null);
+    this.active.set(null);
   }
 }

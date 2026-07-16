@@ -9,12 +9,13 @@ import { WorkSpaceLoaderService } from '../../../../../services/common/work-spac
 import { DataTable } from '../../../table/data-table/data-table';
 import { TableTemplate } from '../../../../../directives/table-template';
 import { SamTargetCalculator } from '../../widgets/sam-target-calculator/sam-target-calculator';
+import { SamTargetCalculatorPanel } from '../../widgets/sam-target-calculator/sam-target-calculator-panel';
 import { SamCalculatorStateService } from '../../widgets/sam-target-calculator/sam-calculator-state';
 import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-sewing-sam-table',
-  imports: [DataTable, TableTemplate, SamTargetCalculator],
+  imports: [DataTable, TableTemplate, SamTargetCalculator, SamTargetCalculatorPanel],
   providers: [SamCalculatorStateService],
   templateUrl: './sewing-sam-table.html',
 })

@@ -19,6 +19,9 @@ import { TableTemplate } from '../../../directives/table-template';
 import { CharSquare } from '../../../shared/components/widgets/char-square/char-square';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
+import { SamTargetCalculator } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator';
+import { SamTargetCalculatorPanel } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator-panel';
+import { SamCalculatorStateService } from '../../../shared/components/production/widgets/sam-target-calculator/sam-calculator-state';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { Reference } from '../../../models/catalog/reference';
 import { ReferencesService } from '../../../services/catalog/references-service';
@@ -69,7 +72,10 @@ const TAB_FIELDS: Record<string, string[]> = {
     UiTabs,
     UiSelect,
     UiCombobox,
+    SamTargetCalculator,
+    SamTargetCalculatorPanel,
   ],
+  providers: [SamCalculatorStateService],
   templateUrl: './stamping-sam.html',
   styleUrl: './stamping-sam.css',
 })
@@ -188,7 +194,7 @@ export class StampingSam extends BaseCrudPage<StampingReferenceSam> {
       { field: 'machine_name', label: 'Máquina' },
       { field: 'process', label: 'Proceso' },
       { field: 'tasks_per_hour', label: 'Tarea/hora', align: 'center' },
-      { field: 'sam_single_person', label: 'SAM', align: 'center' },
+      { type: 'template', label: 'SAM', templateName: 'samTemplate', align: 'center' },
     ];
   }
 

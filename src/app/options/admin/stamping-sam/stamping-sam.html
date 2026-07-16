@@ -7,10 +7,16 @@
             <ng-template appTableTemplate="referenceTemplate" let-row>
                 {{ row.reference?.reference ?? '—' }}
             </ng-template>
-           
+
+            <ng-template appTableTemplate="samTemplate" let-row>
+                <app-sam-target-calculator [samValue]="row.sam_single_person" [calcId]="row.id" />
+            </ng-template>
+
         </app-data-table>
     </div>
 </app-work-space-layout>
+
+<app-sam-target-calculator-panel />
 
 <app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
 

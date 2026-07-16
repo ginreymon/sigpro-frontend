@@ -1,4 +1,4 @@
-import { Component, computed, HostListener, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
@@ -20,10 +20,14 @@ import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-err
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { Metadata } from "../../../shared/components/widgets/metadata/metadata";
+import { SamTargetCalculator } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator';
+import { SamTargetCalculatorPanel } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator-panel';
+import { SamCalculatorStateService } from '../../../shared/components/production/widgets/sam-target-calculator/sam-calculator-state';
 
 @Component({
   selector: 'app-sewing-sam',
-  imports: [WorkSpaceLayout, DataTable, ModalLayout, SideModalLayout, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, TableTemplate, CharSquare, Metadata],
+  imports: [WorkSpaceLayout, DataTable, ModalLayout, SideModalLayout, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, TableTemplate, CharSquare, Metadata, SamTargetCalculator, SamTargetCalculatorPanel],
+  providers: [SamCalculatorStateService],
   templateUrl: './sewing-sam.html',
   styleUrl: './sewing-sam.css',
 })
@@ -32,64 +36,12 @@ export class SewingSAM extends BaseCrudPage<SkuItemReference> {
 
   samRecord = signal<Partial<ReferenceSam>>({});
   samRecordLoading = signal<boolean>(false);
-  openSam = signal<{ id: number; value: string; style: Record<string, string> } | null>(null);
-  samIntervalo = signal<number>(60);
-  samOperarios = signal<number>(1);
-
-  samTargetUnits = computed(() => {
-    const sam = Number(this.openSam()?.value);
-    if (!sam || sam <= 0) return null;
-    if (this.samIntervalo() <= 0) return '0';
-    return ((this.samIntervalo() * this.samOperarios()) / sam).toFixed(1);
-  });
-
-  private readonly samScrollHandler = (): void => {
-    this.openSam.set(null);
-    document.removeEventListener('scroll', this.samScrollHandler, true);
-  };
 
   constructor(
     skuItemReferenceService: SkuItemReferenceService,
     private referenceSamService: ReferenceSamService,
   ) {
     super(skuItemReferenceService);
-  }
-
-  @HostListener('document:click')
-  closeSamDropdown(): void {
-    if (this.openSam()) {
-      this.openSam.set(null);
-      document.removeEventListener('scroll', this.samScrollHandler, true);
-    }
-  }
-
-  toggleSamDropdown(event: MouseEvent, row: SkuItemReference): void {
-    event.stopPropagation();
-    if (this.openSam()?.id === row.rowid_item) {
-      this.openSam.set(null);
-      document.removeEventListener('scroll', this.samScrollHandler, true);
-      return;
-    }
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const DROPDOWN_HEIGHT = 160;
-    const OFFSET = 4;
-    const style: Record<string, string> = {
-      position: 'fixed',
-      zIndex: '9999',
-      width: '192px',
-      left: `${rect.left}px`,
-    };
-    if (rect.bottom + OFFSET + DROPDOWN_HEIGHT <= window.innerHeight) {
-      style['top'] = `${rect.bottom + OFFSET}px`;
-    } else {
-      style['bottom'] = `${window.innerHeight - rect.top + OFFSET}px`;
-    }
-    document.addEventListener('scroll', this.samScrollHandler, true);
-    this.openSam.set({ id: row.rowid_item, value: row.sam_value!, style });
-  }
-
-  stopSamProp(event: MouseEvent): void {
-    event.stopPropagation();
   }
 
   protected override get actions(): TableActions {
