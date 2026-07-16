@@ -1,4 +1,4 @@
-<app-drag-carousel [leadingPadding]="false" [verticalPadding]="false" [edgeFade]="true">
+<app-drag-carousel [leadingPadding]="false" [verticalPadding]="false" [edgeFade]="true" [showArrows]="true">
   @if (mode === 'icon') {
     @for (action of actions; track action.icon) {
       @if (!action.hideWhen?.()) {

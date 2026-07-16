@@ -1,19 +1,35 @@
-<div #container class="scrollbar-thin-clean w-full min-h-0 overflow-hidden select-none"
-  [style.maxWidth]="isLargeScreen() ? 'calc(200vw/3 - 8rem)' : 'calc(100vw - 4rem)'"
-  [ngStyle]="edgeFadeStyle"
-  (touchstart)="onTouchStart($event)"
-  (touchmove)="onTouchMove($event)"
-  (touchend)="onTouchEnd()"
-  (mousedown)="onMouseDown($event)"
-  (mousemove)="onMouseMove($event)"
-  (mouseup)="onMouseUp()"
-  (mouseleave)="onMouseUp()">
-  <div #track class="min-w-full flex flex-row gap-2"
-    [class.pl-2]="leadingPadding"
-    [class.py-2]="verticalPadding"
-    [class.transition-transform]="!isDragging"
-    [class.duration-300]="!isDragging"
-    [style.transform]="'translateX(-' + (currentOffset - dragDelta) + 'px)'">
-    <ng-content></ng-content>
+<div class="flex items-center gap-3">
+
+  @if (showArrows && isLargeScreen() && canScrollLeft) {
+    <app-ui-button [intent]="'label'" [classNames]="'!h-8 !w-8 !px-0 !gap-0 !bg-transparent shrink-0'" (onClick)="prev()">
+      <app-ui-icon [iconName]="'chevronLeft'" [class]="'w-4 h-4'"></app-ui-icon>
+    </app-ui-button>
+  }
+
+  <div #container class="scrollbar-thin-clean w-full min-h-0 overflow-hidden select-none"
+    [style.maxWidth]="isLargeScreen() ? 'calc(200vw/3 - 8rem)' : 'calc(100vw - 4rem)'"
+    [ngStyle]="edgeFadeStyle"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd()"
+    (mousedown)="onMouseDown($event)"
+    (mousemove)="onMouseMove($event)"
+    (mouseup)="onMouseUp()"
+    (mouseleave)="onMouseUp()">
+    <div #track class="min-w-full flex flex-row gap-2"
+      [class.pl-2]="leadingPadding"
+      [class.py-2]="verticalPadding"
+      [class.transition-transform]="!isDragging"
+      [class.duration-300]="!isDragging"
+      [style.transform]="'translateX(-' + (currentOffset - dragDelta) + 'px)'">
+      <ng-content></ng-content>
+    </div>
   </div>
+
+  @if (showArrows && isLargeScreen() && canScrollRight) {
+    <app-ui-button [intent]="'label'" [classNames]="'!h-8 !w-8 !px-0 !gap-0 !bg-transparent shrink-0'" (onClick)="next()">
+      <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4'"></app-ui-icon>
+    </app-ui-button>
+  }
+
 </div>

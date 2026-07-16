@@ -1,10 +1,12 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, signal } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { fromEvent, Subscription } from 'rxjs';
+import { UiButton } from '../../../elements/ui-button/ui-button';
+import { UiIcon } from '../../../elements/ui-icon/ui-icon';
 
 @Component({
   selector: 'app-drag-carousel',
-  imports: [NgStyle],
+  imports: [NgStyle, UiButton, UiIcon],
   templateUrl: './drag-carousel.html',
   styleUrl: './drag-carousel.css',
 })
@@ -15,6 +17,7 @@ export class DragCarousel implements AfterViewInit, OnDestroy {
   @Input() leadingPadding: boolean = true;
   @Input() verticalPadding: boolean = true;
   @Input() edgeFade: boolean = false;
+  @Input() showArrows: boolean = false;
 
   currentOffset = 0;
   cardWidth = 200;
