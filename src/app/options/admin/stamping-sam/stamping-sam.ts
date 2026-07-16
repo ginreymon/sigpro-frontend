@@ -22,6 +22,7 @@ import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
 import { SamTargetCalculator } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator';
 import { SamTargetCalculatorPanel } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator-panel';
 import { SamCalculatorStateService } from '../../../shared/components/production/widgets/sam-target-calculator/sam-calculator-state';
+import { calcSamTarget } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-formula';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { Reference } from '../../../models/catalog/reference';
 import { ReferencesService } from '../../../services/catalog/references-service';
@@ -94,6 +95,10 @@ export class StampingSam extends BaseCrudPage<StampingReferenceSam> {
 
   onTabChange(key: string): void {
     this.activeTab.set(key);
+  }
+
+  protected calcTasksPerHour(samSinglePerson: string | number | null): string | null {
+    return calcSamTarget(samSinglePerson, 60, 1);
   }
 
   get tabsView(): TabItem[] {
@@ -192,8 +197,8 @@ export class StampingSam extends BaseCrudPage<StampingReferenceSam> {
       { field: 'identification', label: 'Identificación' },
       { type: 'template', label: 'Referencia', templateName: 'referenceTemplate' },
       { field: 'machine_name', label: 'Máquina' },
-      { field: 'process', label: 'Proceso' },
-      { field: 'tasks_per_hour', label: 'Tarea/hora', align: 'center' },
+      // { field: 'tasks_per_hour', label: 'Tarea/Hora (BD)', align: 'center' },
+      { type: 'template', label: 'Tarea/Hora', templateName: 'tasksPerHourTemplate', align: 'center' },
       { type: 'template', label: 'SAM', templateName: 'samTemplate', align: 'center' },
     ];
   }

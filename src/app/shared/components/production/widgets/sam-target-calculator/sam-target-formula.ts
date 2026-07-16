@@ -6,5 +6,5 @@ export function calcSamTarget(
   const sam = Number(samValue);
   if (!sam || sam <= 0) return null;
   if (intervalo <= 0) return '0';
-  return ((intervalo * operarios) / sam).toFixed(1);
+  return Math.round((intervalo * operarios) / sam).toString();
 }

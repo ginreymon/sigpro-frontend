@@ -8,6 +8,10 @@
                 {{ row.reference?.reference ?? '—' }}
             </ng-template>
 
+            <ng-template appTableTemplate="tasksPerHourTemplate" let-row>
+                {{ calcTasksPerHour(row.sam_single_person) ?? '—' }}
+            </ng-template>
+
             <ng-template appTableTemplate="samTemplate" let-row>
                 <app-sam-target-calculator [samValue]="row.sam_single_person" [calcId]="row.id" />
             </ng-template>
