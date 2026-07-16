@@ -1,7 +1,7 @@
 <app-modal-layout [visible]="visible" [title]="'Encomendados'" [acceptLabel]="'Actualizar'" [hideAccept]="readOnly" (onAccept)="save()" (onCancel)="cancel()">
 
   <app-ui-form-field [label]="'Empleados'">
-    <div class="flex flex-col max-h-[40vh]">
+    <div class="flex flex-col max-h-[50vh]">
       <app-employee-picker
         [employees]="sortedEmployees()"
         [selectedIds]="selectedIds()"

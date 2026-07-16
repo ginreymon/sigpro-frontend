@@ -1,21 +1,22 @@
-import { Component, EventEmitter, Input, Output, signal, computed, input, effect, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal, computed, input, effect, inject, untracked } from '@angular/core';
 import { finalize } from 'rxjs';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiTabs, TabItem } from '../../../../elements/ui-tabs/ui-tabs';
 import { ShiftCyclesActions } from '../shift-cycles-actions/shift-cycles-actions';
-import { UiLoader } from '../../../../elements/ui-loader/ui-loader';
 import { Searcher } from '../../../form-controls/searcher/searcher';
+import { UiLabelButton } from '../../../../elements/ui-label-button/ui-label-button';
 import { AdditionalStampingTimeCard } from '../../cards/additional-stamping-time-card/additional-stamping-time-card';
 import { AdditionalStampingTimeService } from '../../../../../services/stamping/additional-stamping-time-service';
 import { AdditionalStampingTime } from '../../../../../models/stamping/additional-stamping-time';
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
+import { LoaderService } from '../../../../../services/common/loader-service';
 
 @Component({
   selector: 'app-stamping-record',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesActions, UiLoader, Searcher, AdditionalStampingTimeCard],
+  imports: [BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesActions, Searcher, AdditionalStampingTimeCard, UiLabelButton],
   templateUrl: './stamping-record.html',
 })
 export class StampingRecord {
@@ -25,6 +26,7 @@ export class StampingRecord {
   @Output() onFinalize = new EventEmitter<void>();
 
   private additionalTimeService = inject(AdditionalStampingTimeService);
+  private loaderService = inject(LoaderService);
 
   protected stampingConfig = SHIFT_CYCLES_CONFIG['stamping'];
 
@@ -39,6 +41,7 @@ export class StampingRecord {
   protected selectedAdditionalTimeIds = signal<number[]>([]);
   protected additionalTimeQuantities = signal<Record<number, number>>({});
   private additionalTimesSearchText = signal('');
+  protected showOnlySelectedAdditionalTimes = signal(false);
 
   protected filteredAdditionalTimes = computed(() => {
     const q = this.additionalTimesSearchText().toLowerCase().trim();
@@ -52,9 +55,21 @@ export class StampingRecord {
     );
   });
 
+  protected displayedAdditionalTimes = computed(() => {
+    const list = this.filteredAdditionalTimes();
+    if (!this.showOnlySelectedAdditionalTimes()) return list;
+    const ids = this.selectedAdditionalTimeIds();
+    return list.filter((item) => ids.includes(item.id));
+  });
+
   constructor() {
     effect(() => {
       if (this.visible()) this.loadAdditionalTimes();
+    });
+    effect(() => {
+      if (this.showOnlySelectedAdditionalTimes() && this.selectedAdditionalTimeIds().length === 0) {
+        untracked(() => this.showOnlySelectedAdditionalTimes.set(false));
+      }
     });
   }
 
@@ -80,8 +95,8 @@ export class StampingRecord {
     return this.additionalTimeQuantities()[id] ?? 0;
   }
 
-  protected setQuantity(id: number, value: string): void {
-    this.additionalTimeQuantities.update((quantities) => ({ ...quantities, [id]: Number(value) || 0 }));
+  protected setQuantity(id: number, value: number): void {
+    this.additionalTimeQuantities.update((quantities) => ({ ...quantities, [id]: value || 0 }));
   }
 
   protected close(): void {
@@ -90,8 +105,12 @@ export class StampingRecord {
 
   private loadAdditionalTimes(): void {
     this.isLoadingAdditionalTimes.set(true);
+    this.loaderService.showLoader();
     this.additionalTimeService.all()
-      .pipe(finalize(() => this.isLoadingAdditionalTimes.set(false)))
+      .pipe(finalize(() => {
+        this.isLoadingAdditionalTimes.set(false);
+        this.loaderService.hideLoader();
+      }))
       .subscribe({
         next: (data) => this.additionalTimes.set(data),
       });
