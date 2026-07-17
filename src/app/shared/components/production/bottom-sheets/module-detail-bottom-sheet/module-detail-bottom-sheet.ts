@@ -50,10 +50,10 @@ export class ModuleDetailBottomSheet implements OnChanges {
 
   readonly skeletonRows = Array(4).fill(0);
 
-  readonly tableActions: Partial<TableActions> = {
+  readonly tableActions = computed<Partial<TableActions>>(() => ({
     view: { enabled: true, title: 'Ver balance', iconName: 'eye', toolTip: 'Ver' },
-    edit: { enabled: true, title: 'Editar', iconName: 'pencil', toolTip: 'Editar' },
-  };
+    edit: { enabled: !this.moduleId(), title: 'Editar', iconName: 'pencil', toolTip: 'Editar' },
+  }));
 
   readonly pagedRows = computed(() => ({
     count: this.rows().length,
