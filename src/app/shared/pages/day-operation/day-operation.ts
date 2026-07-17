@@ -94,7 +94,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
     this.wslService.start();
     forkJoin({
-      session: this.workSessionService.getActive(),
+      session: this.workSessionService.getActive(scopeParams),
       employees: this.employeeService.all(scopeParams),
     })
       .pipe(finalize(() => this.wslService.end()))
@@ -239,7 +239,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
       undefined,
       () => this.shiftNav.goToShiftCycles(),
       (err) => {
-        const messages = parseSessionErrors(err, 'Error al crear la sesión.');
+        const messages = parseSessionErrors(err, 'No se pudo crear la sesión de trabajo. Inténtalo nuevamente.');
         this.errorMessage.set(messages.join(' · '));
       },
     );

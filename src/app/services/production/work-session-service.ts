@@ -9,8 +9,8 @@ import { Observable } from 'rxjs';
 export class WorkSessionService extends BaseCrudService<WorkSession> {
   protected override _endpoint: string = '/production/work-sessions/';
 
-  getActive(): Observable<any> {
-    return this.http.get(`${this.endpoint}active/`);
+  getActive(params?: Record<string, string | number>): Observable<any> {
+    return this.http.get(`${this.endpoint}active/`, { params });
   }
 
   closeSession(id: number): Observable<any> {

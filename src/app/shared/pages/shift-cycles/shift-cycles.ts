@@ -241,7 +241,10 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
   refreshSession() {
     this.loaderService.showLoader();
-    this.workSessionService.getActive()
+    const coreModuleId = this.routeContextService.currentModule?.id;
+    const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
+
+    this.workSessionService.getActive(scopeParams)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (session: WorkSession) => {

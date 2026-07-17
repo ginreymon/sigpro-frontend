@@ -47,7 +47,7 @@ export class ProductionContextService {
     const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
 
     return forkJoin({
-      session: this.workSessionService.getActive().pipe(catchError(() => of(null))),
+      session: this.workSessionService.getActive(scopeParams).pipe(catchError(() => of(null))),
       docTypes: this.poService.getDocType().pipe(catchError(() => of([]))),
       workBreaks: loadWorkBreaks
         ? this.workBreakService.all().pipe(catchError(() => of([])))
