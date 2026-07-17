@@ -66,6 +66,7 @@ export class DataTable<T> {
     this.openFilterField != null && this.isValueChecked(this.openFilterField, value);
 
   @Input() footer: T[] = [];
+  @Input() footerLabel: string = 'TOTALES';
   @Input() showPager: boolean = true;
   @Input() showSearch: boolean = true;
 
@@ -153,6 +154,27 @@ export class DataTable<T> {
   get detailColumns(): TableColumn<T>[] {
     const primary = this.primaryColumn;
     const secondary = this.mobileSecondaryColumn;
+    return this._columns.filter(
+      (c) => !c.hidden && c.type !== 'index' && c.type !== 'tableActionType' && c !== primary && c !== secondary,
+    );
+  }
+
+  // Footer rows have no actions, so the secondary/detail split ignores mobileActionsColumn.
+  get footerSecondaryColumn(): TableColumn<T> | undefined {
+    const primary = this.primaryColumn;
+
+    const explicit = this._columns.find((c) => !c.hidden && c.mobileSecondary && c !== primary);
+    if (explicit) return explicit;
+
+    const candidates = this._columns.filter(
+      (c) => !c.hidden && c.field && c.type !== 'tableActionType' && c.type !== 'index' && c !== primary,
+    );
+    return candidates.at(-1);
+  }
+
+  get footerDetailColumns(): TableColumn<T>[] {
+    const primary = this.primaryColumn;
+    const secondary = this.footerSecondaryColumn;
     return this._columns.filter(
       (c) => !c.hidden && c.type !== 'index' && c.type !== 'tableActionType' && c !== primary && c !== secondary,
     );
