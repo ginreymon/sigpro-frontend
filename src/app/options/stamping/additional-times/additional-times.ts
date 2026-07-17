@@ -66,7 +66,7 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
       { field: 'code_number', label: 'Código' },
       { field: 'machine_name', label: 'Máquina' },
       { field: 'process', label: 'Proceso' },
-      { field: 'standard_time', label: 'Tiempo estándar' },
+      { type: 'template', label: 'Tiempo estándar', templateName: 'standardTimeTemplate' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
   }
