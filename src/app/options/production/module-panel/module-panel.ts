@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
-import { catchError, finalize, map, startWith, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, finalize, startWith, switchMap, take } from 'rxjs/operators';
 import { ModuleDetailBottomSheet } from '../../../shared/components/production/bottom-sheets/module-detail-bottom-sheet/module-detail-bottom-sheet';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { ProductivityService } from '../../../services/production/productivity-service';
@@ -11,7 +11,6 @@ import { computePlantaStats } from '../../../common/functions/planta-summary';
 import { LoaderService } from '../../../services/common/loader-service';
 import { EfficiencySummaryBar } from '../../../shared/components/production/widgets/efficiency-summary-bar/efficiency-summary-bar';
 import { PanelLayout } from '../../../shared/components/layout/panel-layout/panel-layout';
-import { ModuleService } from '../../../services/production/module-service';
 import { RouteContextService } from '../../../services/core/route-context-service';
 import { DateRangeForm } from '../../../shared/components/form-controls/date-range-form/date-range-form';
 import { ModuleEfficiencyCard } from '../../../shared/components/production/cards/module-efficiency-card/module-efficiency-card';
@@ -26,7 +25,6 @@ export class ModulePanel {
   private loaderService = inject(LoaderService);
   private destroyRef = inject(DestroyRef);
   private appConfig = inject(AppConfigService);
-  private moduleService = inject(ModuleService);
   private routeContextService = inject(RouteContextService);
 
   selectedModule = signal<ModuleEfficiencyStatus | null>(null);
@@ -79,22 +77,14 @@ export class ModulePanel {
   );
 
   constructor() {
-    let allowedModuleIds: Set<number> | null = null;
+    const coreModuleId = this.routeContextService.currentModule?.id;
 
     this.appConfig.load().pipe(
       take(1),
-      switchMap(() => {
-        const coreModuleId = this.routeContextService.currentModule?.id;
-        return coreModuleId
-          ? this.moduleService.all({ core_module_id: coreModuleId })
-          : of([]);
-      }),
-      tap((mods) => { allowedModuleIds = mods.length ? new Set(mods.map((m) => m.id)) : null; }),
       switchMap(() => interval(30_000).pipe(startWith(0))),
       switchMap((_, index) => {
         if (index === 0) this.loaderService.showLoader();
-        return this.productivityService.getModuleShiftSummary().pipe(
-          map((data) => allowedModuleIds ? data.filter((m) => allowedModuleIds!.has(m.module_id)) : data),
+        return this.productivityService.getModuleShiftSummary(coreModuleId).pipe(
           catchError(() => of([] as ModuleEfficiencyStatus[])),
           finalize(() => this.loaderService.hideLoader()),
         );

@@ -64,8 +64,10 @@ export class ProductivityService {
     );
   }
 
-  getModuleShiftSummary(): Observable<ModuleEfficiencyStatus[]> {
-    return this.http.get<ModuleEfficiencyStatus[]>(`${this.path}/module-shift-summary/`);
+  getModuleShiftSummary(coreModuleId?: number): Observable<ModuleEfficiencyStatus[]> {
+    let params = new HttpParams();
+    if (coreModuleId !== undefined) params = params.set('core_module_id', coreModuleId);
+    return this.http.get<ModuleEfficiencyStatus[]>(`${this.path}/module-shift-summary/`, { params });
   }
 
   getModuleEfficiency(startDate: string, endDate: string, moduleId?: number): Observable<ModuleEfficiencyRow[]> {
