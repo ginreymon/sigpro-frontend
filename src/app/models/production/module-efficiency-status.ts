@@ -1,5 +1,6 @@
 export interface ModuleEfficiencyStatus {
   module_id: number;
+  core_module_id?: number | null;
   number: number;
   name: string;
   location: string;
