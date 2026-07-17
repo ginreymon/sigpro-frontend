@@ -1,7 +1,7 @@
 <div class="flex items-center gap-3">
 
-  @if (showArrows && isLargeScreen() && canScrollLeft) {
-    <app-ui-button [intent]="'label'" [classNames]="'!h-8 !w-8 !px-0 !gap-0 !bg-transparent shrink-0'" (onClick)="prev()">
+  @if (showArrows && (canScrollLeft || canScrollRight)) {
+    <app-ui-button [intent]="'label'" [classNames]="'!h-8 !w-8 !px-0 !gap-0 !bg-transparent shrink-0'" [disabled]="!canScrollLeft" (onClick)="prev()">
       <app-ui-icon [iconName]="'chevronLeft'" [class]="'w-4 h-4'"></app-ui-icon>
     </app-ui-button>
   }
@@ -26,8 +26,8 @@
     </div>
   </div>
 
-  @if (showArrows && isLargeScreen() && canScrollRight) {
-    <app-ui-button [intent]="'label'" [classNames]="'!h-8 !w-8 !px-0 !gap-0 !bg-transparent shrink-0'" (onClick)="next()">
+  @if (showArrows && (canScrollLeft || canScrollRight)) {
+    <app-ui-button [intent]="'label'" [classNames]="'!h-8 !w-8 !px-0 !gap-0 !bg-transparent shrink-0'" [disabled]="!canScrollRight" (onClick)="next()">
       <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4'"></app-ui-icon>
     </app-ui-button>
   }
