@@ -44,12 +44,15 @@ export class ModuleDetailBottomSheet implements OnChanges {
   rows = signal<ModuleEfficiencyRow[]>([]);
   balanceContext = signal<BalanceContext | null>(null);
   readonly balanceVisible = computed(() => !!this.balanceContext());
+  editRow = signal<ModuleEfficiencyRow | null>(null);
+  readonly editVisible = computed(() => !!this.editRow());
   private moduleId = signal<number | null>(null);
 
   readonly skeletonRows = Array(4).fill(0);
 
   readonly tableActions: Partial<TableActions> = {
     view: { enabled: true, title: 'Ver balance', iconName: 'eye', toolTip: 'Ver' },
+    edit: { enabled: true, title: 'Editar', iconName: 'pencil', toolTip: 'Editar' },
   };
 
   readonly pagedRows = computed(() => ({
@@ -130,6 +133,7 @@ export class ModuleDetailBottomSheet implements OnChanges {
       this.hasSearched.set(false);
       this.isLoading.set(false);
       this.balanceContext.set(null);
+      this.editRow.set(null);
       this.dateRangeForm?.form.reset();
     }
   }
@@ -159,6 +163,15 @@ export class ModuleDetailBottomSheet implements OnChanges {
 
   handleAction(event: TableActionEvent<ModuleEfficiencyRow>): void {
     if (event.type === 'view') this.openDetail(event.obj);
+    if (event.type === 'edit') this.openEdit(event.obj);
+  }
+
+  openEdit(row: ModuleEfficiencyRow): void {
+    this.editRow.set(row);
+  }
+
+  closeEdit(): void {
+    this.editRow.set(null);
   }
 
   openDetail(row: ModuleEfficiencyRow): void {

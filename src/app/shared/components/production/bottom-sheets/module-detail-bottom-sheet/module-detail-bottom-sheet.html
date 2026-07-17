@@ -99,4 +99,11 @@
     [moduleId]="balanceContext()?.moduleId"
     (onClose)="closeBalance()">
   </app-balance-summary-bottom-sheet>
+
+  <app-bottom-sheet-shell [visible]="editVisible()" title="Editar" [fullscreen]="false" (onClose)="closeEdit()">
+    <div class="flex flex-col items-center justify-center gap-3 text-gray-300 h-full">
+      <app-ui-icon iconName="pencil" class="h-12 w-12"></app-ui-icon>
+      <p class="text-sm text-gray-400">Próximamente</p>
+    </div>
+  </app-bottom-sheet-shell>
 }
