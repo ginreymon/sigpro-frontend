@@ -16,6 +16,16 @@ import { TableToolsButtons, TableToolsButtonType } from '../../../../common/inte
 import { TableActionEvent } from '../../../../common/interfaces/table-action-event';
 import { UiIconStateDirective } from "../../../../directives/ui-icon-state-directive";
 import { TableColumnFilter } from '../table-column-filter/table-column-filter';
+import {
+  buildTableColumns,
+  getPrimaryColumn,
+  getMobileActionsColumn,
+  getMobileSecondaryColumn,
+  getDetailColumns,
+  getFooterSecondaryColumn,
+  getFooterDetailColumns,
+} from './table-column-utils';
+import { TableFilterState } from './table-filter-state';
 
 @Component({
   selector: 'app-data-table',
@@ -55,10 +65,9 @@ export class DataTable<T> {
 
   // Client-side filtering
   @Input() clientFilter: boolean = false;
-  protected activeFilters = new Map<string, Set<any>>();
+  private filterState = new TableFilterState<T>();
   protected openFilterField: string | null = null;
   protected filterValues: any[] = [];
-  private currentSearchTerm: string = '';
 
   @ViewChild(TableColumnFilter) private columnFilterPanel!: TableColumnFilter;
 
@@ -129,55 +138,27 @@ export class DataTable<T> {
   }
 
   get primaryColumn(): TableColumn<T> | undefined {
-    return this._columns.find(
-      (c) => !c.hidden && c.field && c.type !== 'tableActionType' && c.type !== 'index',
-    );
+    return getPrimaryColumn(this._columns);
   }
 
   get mobileActionsColumn(): TableColumn<T> | undefined {
-    return this._columns.find((c) => !c.hidden && c.type === 'tableActionType');
+    return getMobileActionsColumn(this._columns);
   }
 
   get mobileSecondaryColumn(): TableColumn<T> | undefined {
-    if (this.mobileActionsColumn) return undefined;
-    const primary = this.primaryColumn;
-
-    const explicit = this._columns.find((c) => !c.hidden && c.mobileSecondary && c !== primary);
-    if (explicit) return explicit;
-
-    const candidates = this._columns.filter(
-      (c) => !c.hidden && c.field && c.type !== 'tableActionType' && c.type !== 'index' && c !== primary,
-    );
-    return candidates.at(-1);
+    return getMobileSecondaryColumn(this._columns);
   }
 
   get detailColumns(): TableColumn<T>[] {
-    const primary = this.primaryColumn;
-    const secondary = this.mobileSecondaryColumn;
-    return this._columns.filter(
-      (c) => !c.hidden && c.type !== 'index' && c.type !== 'tableActionType' && c !== primary && c !== secondary,
-    );
+    return getDetailColumns(this._columns);
   }
 
-  // Footer rows have no actions, so the secondary/detail split ignores mobileActionsColumn.
   get footerSecondaryColumn(): TableColumn<T> | undefined {
-    const primary = this.primaryColumn;
-
-    const explicit = this._columns.find((c) => !c.hidden && c.mobileSecondary && c !== primary);
-    if (explicit) return explicit;
-
-    const candidates = this._columns.filter(
-      (c) => !c.hidden && c.field && c.type !== 'tableActionType' && c.type !== 'index' && c !== primary,
-    );
-    return candidates.at(-1);
+    return getFooterSecondaryColumn(this._columns);
   }
 
   get footerDetailColumns(): TableColumn<T>[] {
-    const primary = this.primaryColumn;
-    const secondary = this.footerSecondaryColumn;
-    return this._columns.filter(
-      (c) => !c.hidden && c.type !== 'index' && c.type !== 'tableActionType' && c !== primary && c !== secondary,
-    );
+    return getFooterDetailColumns(this._columns);
   }
 
   get totalItems(): number {
@@ -200,45 +181,11 @@ export class DataTable<T> {
   }
 
   private buildColumns() {
-    const columns: TableColumn<T>[] = [{ type: 'index', label: '' }, ...this._originalColumns];
-
-    if (this._actions.delete.enabled || this._actions.edit.enabled || this._actions.view.enabled) {
-      columns.push({ type: 'tableActionType', label: '' });
-    }
-
-    this._columns = columns.map((col, i) => ({
-      ...col,
-      align: col.align ?? (i == columns.length - 1 ? 'right' : 'left'),
-      hidden: col.hidden ?? false,
-      order: col.order ?? i,
-      classes: col.classes ?? '',
-    }));
+    this._columns = buildTableColumns(this._originalColumns, this._actions);
   }
 
   private applyClientFilters(): void {
-    if (!this.clientFilter) {
-      this._data = [...this._rawData];
-      return;
-    }
-
-    let filtered = this._rawData;
-
-    const term = this.currentSearchTerm.toLowerCase().trim();
-    if (term) {
-      filtered = filtered.filter(row =>
-        Object.values(row.obj as object).some(v =>
-          String(v ?? '').toLowerCase().includes(term)
-        )
-      );
-    }
-
-    for (const [field, values] of this.activeFilters) {
-      if (values.size > 0) {
-        filtered = filtered.filter(row => values.has((row.obj as any)[field]));
-      }
-    }
-
-    this._data = filtered;
+    this._data = this.filterState.apply(this._rawData, this.clientFilter);
   }
 
   protected isColumnFilterable(col: TableColumn<T>): boolean {
@@ -249,44 +196,21 @@ export class DataTable<T> {
     return col.field as string;
   }
 
-  protected getUniqueValues(field: string): any[] {
-    const seen = new Set<any>();
-    const result: any[] = [];
-    for (const row of this._rawData) {
-      const val = (row.obj as any)[field];
-      if (!seen.has(val)) {
-        seen.add(val);
-        result.push(val);
-      }
-    }
-    return result.sort((a, b) => {
-      if (a == null) return 1;
-      if (b == null) return -1;
-      return String(a).localeCompare(String(b), undefined, { numeric: true });
-    });
-  }
-
   protected isFilterActive(field: string): boolean {
-    return (this.activeFilters.get(field)?.size ?? 0) > 0;
+    return this.filterState.isFilterActive(field);
   }
 
   protected isValueChecked(field: string, value: any): boolean {
-    return this.activeFilters.get(field)?.has(value) ?? false;
+    return this.filterState.isValueChecked(field, value);
   }
 
   protected toggleFilterValue(field: string, value: any): void {
-    if (!this.activeFilters.has(field)) {
-      this.activeFilters.set(field, new Set());
-    }
-    const vals = this.activeFilters.get(field)!;
-    if (vals.has(value)) vals.delete(value);
-    else vals.add(value);
-    if (vals.size === 0) this.activeFilters.delete(field);
+    this.filterState.toggleFilterValue(field, value);
     this.applyClientFilters();
   }
 
   protected clearColumnFilter(field: string): void {
-    this.activeFilters.delete(field);
+    this.filterState.clearFilter(field);
     this.applyClientFilters();
     this.columnFilterPanel.close();
   }
@@ -298,7 +222,7 @@ export class DataTable<T> {
       return;
     }
     this.openFilterField = field;
-    this.filterValues = this.getUniqueValues(field);
+    this.filterValues = this.filterState.getUniqueValues(field, this._rawData);
     this.columnFilterPanel.open(event.currentTarget as HTMLElement);
   }
 
@@ -318,7 +242,7 @@ export class DataTable<T> {
 
   searchHandler(value: string) {
     if (this.clientFilter) {
-      this.currentSearchTerm = value;
+      this.filterState.setSearchTerm(value);
       this.applyClientFilters();
     } else {
       this.onSearch.emit(value);
