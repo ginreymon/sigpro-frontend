@@ -34,11 +34,8 @@
         }
       } @else if (activeTab() === 'quantities') {
         @if (!isLoadingModalData()) {
-          <div class="flex justify-between mb-2 text-xs text-gray-700">
-            <span>Ordenada: {{ totalOrderedQuantity }}</span>
-            <span>Ya estampada: {{ totalStampedQuantity }}</span>
-          </div>
-          <form [formGroup]="quantityForm">
+          
+          <form [formGroup]="quantityForm" class="mb-4">
             <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Cantidad producida'">
               <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">
                 <span right-addon>Pendiente: {{ totalPendingQuantity }}</span>
@@ -51,6 +48,8 @@
               </app-ui-error-message>
             }
           </form>
+          
+          <app-stamping-quantity-counter [orderDetail]="orderDetail()" [newCompletedQty]="newCompletedQty"></app-stamping-quantity-counter>
         }
       } @else if (activeTab() === 'additionaltimes') {
         @if (!isLoadingModalData()) {

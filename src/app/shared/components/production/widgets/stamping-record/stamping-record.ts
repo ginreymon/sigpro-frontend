@@ -13,6 +13,7 @@ import { UiLargeInput } from '../../../../elements/ui-large-input/ui-large-input
 import { UiErrorMessage } from '../../../../elements/ui-error-message/ui-error-message';
 import { AdditionalStampingTimeCard } from '../../cards/additional-stamping-time-card/additional-stamping-time-card';
 import { StampingReferenceCard } from '../../cards/stamping-reference-card/stamping-reference-card';
+import { StampingQuantityCounter } from '../../cards/stamping-quantity-counter/stamping-quantity-counter';
 import { AdditionalStampingTimeService } from '../../../../../services/stamping/additional-stamping-time-service';
 import { OPStampingService } from '../../../../../services/stamping/op-stamping-service';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
@@ -27,7 +28,7 @@ import { LoaderService } from '../../../../../services/common/loader-service';
   standalone: true,
   imports: [
     BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesActions, Searcher,
-    AdditionalStampingTimeCard, StampingReferenceCard, UiLabelButton,
+    AdditionalStampingTimeCard, StampingReferenceCard, StampingQuantityCounter, UiLabelButton,
     ReactiveFormsModule, UiFormField, UiLargeInput, UiErrorMessage,
   ],
   templateUrl: './stamping-record.html',
@@ -113,12 +114,12 @@ export class StampingRecord {
     return Number(this.orderDetail()?.orderedQty) || 0;
   }
 
-  protected get totalStampedQuantity(): number {
-    return Number(this.orderDetail()?.stampedQty) || 0;
-  }
-
   protected get totalPendingQuantity(): number {
     return Number(this.orderDetail()?.pendingQty) || 0;
+  }
+
+  protected get newCompletedQty(): number {
+    return Number(this.quantityForm.get('completed_quantity')?.value) || 0;
   }
 
   protected get exceedsMaxError(): { max: number; total: number } | null {
