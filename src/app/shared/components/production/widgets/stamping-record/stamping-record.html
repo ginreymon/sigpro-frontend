@@ -3,13 +3,13 @@
 
   <div box-content class="flex flex-col">
     <app-ui-tabs class="w-full border-t border-slate-200 mt-4"
-      [tabs]="tabs"
+      [tabs]="tabsView"
       [activeKey]="activeTab()"
       (tabChange)="onTabChange($event)">
     </app-ui-tabs>
 
     <div class="mt-4 min-h-40">
-      @if (activeTab() === 'produccion') {
+      @if (activeTab() === 'reference') {
         @if (!isLoadingModalData()) {
           <app-searcher [live]="true" [intent]="'action'" (onSearch)="searchReferences($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
           <div class="flex justify-between mt-4 mb-2">
@@ -32,7 +32,27 @@
             }
           </div>
         }
-      } @else if (activeTab() === 'tiempos_adicionales') {
+      } @else if (activeTab() === 'quantities') {
+        @if (!isLoadingModalData()) {
+          <div class="flex justify-between mb-2 text-xs text-gray-700">
+            <span>Ordenada: {{ totalOrderedQuantity }}</span>
+            <span>Ya estampada: {{ totalStampedQuantity }}</span>
+          </div>
+          <form [formGroup]="quantityForm">
+            <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Cantidad producida'">
+              <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">
+                <span right-addon>Pendiente: {{ totalPendingQuantity }}</span>
+              </app-ui-large-input>
+            </app-ui-form-field>
+
+            @if (exceedsMaxError) {
+              <app-ui-error-message>
+                La cantidad ({{ exceedsMaxError.total }}) supera lo pendiente por estampar ({{ exceedsMaxError.max }}).
+              </app-ui-error-message>
+            }
+          </form>
+        }
+      } @else if (activeTab() === 'additionaltimes') {
         @if (!isLoadingModalData()) {
           <app-searcher [live]="true" [intent]="'action'" (onSearch)="searchAdditionalTimes($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
           <div class="flex justify-between mt-4 mb-2">
@@ -74,7 +94,7 @@
       Cancelar
     </app-ui-button>
 
-    <app-ui-button class="shrink-0" (onClick)="close()">
+    <app-ui-button class="shrink-0" (onClick)="register()">
       <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>
       Registrar
     </app-ui-button>

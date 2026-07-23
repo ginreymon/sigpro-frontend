@@ -26,6 +26,8 @@ import { ProductionRecordService } from '../../../services/production/production
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { ShiftHourlyRecord } from '../../../shared/components/production/widgets/shift-hourly-record/shift-hourly-record';
 import { StampingRecord } from '../../../shared/components/production/widgets/stamping-record/stamping-record';
+import { StampingRecord as StampingRecordModel } from '../../../models/stamping/stamping-record';
+import { StampingRecordService } from '../../../services/stamping/stamping-record-service';
 import { ProductionContext } from '../../../models/production/production-context';
 import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
 import { parseSessionErrors } from '../../../common/functions/session-errors';
@@ -60,6 +62,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
   protected qms = inject(QuantityModalService);
   private appConfig = inject(AppConfigService);
   private productionRecordService = inject(ProductionRecordService);
+  private stampingRecordService = inject(StampingRecordService);
   private destroyRef = inject(DestroyRef);
   protected shiftModals = inject(ShiftModalsService);
 
@@ -201,6 +204,28 @@ export class ShiftCycles extends BaseProductionOrderPage {
         },
         error: () => {
           this.dialogService.openToast('No se pudo guardar', 'Error al guardar el registro.', 'fail');
+        },
+      });
+  }
+
+  saveStamping(record: Partial<StampingRecordModel>) {
+    const activityId = this.currentSession()?.active_activity?.id;
+    if (!activityId) return;
+
+    const payload: Partial<StampingRecordModel> = { ...record, work_session_activity: activityId };
+
+    this.loaderService.showLoader();
+    this.stampingRecordService.create(payload)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => {
+          this.shiftModals.closeStampingRecord();
+          this.reloadOrder();
+          this.dialogService.openToast('Registro guardado', `Completadas: ${payload.completed_quantity}`, 'check');
+        },
+        error: (err) => {
+          const message = err?.error?.non_field_errors?.[0] ?? 'Error al guardar el registro.';
+          this.dialogService.openToast('No se pudo guardar', message, 'fail');
         },
       });
   }

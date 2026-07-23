@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, signal, computed, input, effect, inject, untracked } from '@angular/core';
 import { finalize, forkJoin, of } from 'rxjs';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
@@ -7,20 +8,28 @@ import { UiTabs, TabItem } from '../../../../elements/ui-tabs/ui-tabs';
 import { ShiftCyclesActions } from '../shift-cycles-actions/shift-cycles-actions';
 import { Searcher } from '../../../form-controls/searcher/searcher';
 import { UiLabelButton } from '../../../../elements/ui-label-button/ui-label-button';
+import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
+import { UiLargeInput } from '../../../../elements/ui-large-input/ui-large-input';
+import { UiErrorMessage } from '../../../../elements/ui-error-message/ui-error-message';
 import { AdditionalStampingTimeCard } from '../../cards/additional-stamping-time-card/additional-stamping-time-card';
 import { StampingReferenceCard } from '../../cards/stamping-reference-card/stamping-reference-card';
 import { AdditionalStampingTimeService } from '../../../../../services/stamping/additional-stamping-time-service';
-import { StampingReferenceSamService } from '../../../../../services/stamping/stamping-reference-sam-service';
+import { OPStampingService } from '../../../../../services/stamping/op-stamping-service';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { AdditionalStampingTime } from '../../../../../models/stamping/additional-stamping-time';
-import { StampingReferenceSam } from '../../../../../models/stamping/stamping-reference-sam';
+import { StampingOrderDetail } from '../../../../../models/stamping/stamping-order-detail';
+import { StampingRecord as StampingRecordPayload } from '../../../../../models/stamping/stamping-record';
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 import { LoaderService } from '../../../../../services/common/loader-service';
 
 @Component({
   selector: 'app-stamping-record',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesActions, Searcher, AdditionalStampingTimeCard, StampingReferenceCard, UiLabelButton],
+  imports: [
+    BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesActions, Searcher,
+    AdditionalStampingTimeCard, StampingReferenceCard, UiLabelButton,
+    ReactiveFormsModule, UiFormField, UiLargeInput, UiErrorMessage,
+  ],
   templateUrl: './stamping-record.html',
 })
 export class StampingRecord {
@@ -28,31 +37,40 @@ export class StampingRecord {
   @Input() inWindow = false;
   @Output() onClose = new EventEmitter<void>();
   @Output() onFinalize = new EventEmitter<void>();
+  @Output() onSave = new EventEmitter<Partial<StampingRecordPayload>>();
 
   private additionalTimeService = inject(AdditionalStampingTimeService);
-  private stampingReferenceSamService = inject(StampingReferenceSamService);
+  private opStampingService = inject(OPStampingService);
   private productionContextService = inject(ProductionContextService);
   private loaderService = inject(LoaderService);
+  private fb = inject(FormBuilder);
 
   protected stampingConfig = SHIFT_CYCLES_CONFIG['stamping'];
 
   protected tabs: TabItem[] = [
-    { key: 'produccion', label: 'Referencia' },
-    { key: 'tiempos_adicionales', label: 'Tiempos Adicionales' },
+    { key: 'reference', label: 'Referencia' },
+    { key: 'quantities', label: 'Cantidades' },
+    { key: 'additionaltimes', label: 'Tiempos Adicionales' },
   ];
 
-  protected activeTab = signal('produccion');
+  protected activeTab = signal('reference');
   protected isLoadingModalData = signal(false);
+  protected submitAttempted = signal(false);
   protected additionalTimes = signal<AdditionalStampingTime[]>([]);
   protected selectedAdditionalTimeIds = signal<number[]>([]);
   protected additionalTimeQuantities = signal<Record<number, number>>({});
   private additionalTimesSearchText = signal('');
   protected showOnlySelectedAdditionalTimes = signal(false);
 
-  protected stampingReferences = signal<StampingReferenceSam[]>([]);
+  protected orderDetail = signal<StampingOrderDetail | null>(null);
   protected selectedReferenceSamId = signal<number | null>(null);
   private referencesSearchText = signal('');
   protected showOnlySelectedReference = signal(false);
+
+  protected quantityForm: FormGroup = this.fb.group(
+    { completed_quantity: [null, [Validators.required, Validators.min(1), this.integerValidator]] },
+    { validators: [this.exceedsMaxValidator.bind(this)] },
+  );
 
   protected filteredAdditionalTimes = computed(() => {
     const q = this.additionalTimesSearchText().toLowerCase().trim();
@@ -75,7 +93,7 @@ export class StampingRecord {
 
   protected filteredReferences = computed(() => {
     const q = this.referencesSearchText().toLowerCase().trim();
-    const list = this.stampingReferences();
+    const list = this.orderDetail()?.referenceSams ?? [];
     if (!q) return list;
     return list.filter(
       (item) =>
@@ -91,9 +109,48 @@ export class StampingRecord {
     return list.filter((item) => item.id === id);
   });
 
+  protected get totalOrderedQuantity(): number {
+    return Number(this.orderDetail()?.orderedQty) || 0;
+  }
+
+  protected get totalStampedQuantity(): number {
+    return Number(this.orderDetail()?.stampedQty) || 0;
+  }
+
+  protected get totalPendingQuantity(): number {
+    return Number(this.orderDetail()?.pendingQty) || 0;
+  }
+
+  protected get exceedsMaxError(): { max: number; total: number } | null {
+    return this.quantityForm.errors?.['exceedsMax'] ?? null;
+  }
+
+  protected get canSubmit(): boolean {
+    return this.selectedReferenceSamId() !== null && this.quantityForm.valid;
+  }
+
+  protected get tabsView(): TabItem[] {
+    return this.tabs.map((tab) => ({ ...tab, hasError: this.tabHasError(tab.key) }));
+  }
+
+  private tabHasError(key: string): boolean {
+    if (!this.submitAttempted()) return false;
+    if (key === 'reference') return this.selectedReferenceSamId() === null;
+    if (key === 'quantities') return this.quantityForm.invalid;
+    return false;
+  }
+
   constructor() {
     effect(() => {
-      if (this.visible()) this.loadModalData();
+      if (this.visible()) {
+        this.loadModalData();
+      } else {
+        untracked(() => {
+          this.quantityForm.reset({ completed_quantity: null });
+          this.selectedReferenceSamId.set(null);
+          this.submitAttempted.set(false);
+        });
+      }
     });
     effect(() => {
       if (this.showOnlySelectedAdditionalTimes() && this.selectedAdditionalTimeIds().length === 0) {
@@ -149,27 +206,62 @@ export class StampingRecord {
     this.onClose.emit();
   }
 
+  protected register(): void {
+    this.submitAttempted.set(true);
+    this.quantityForm.markAllAsTouched();
+
+    if (!this.canSubmit) return;
+
+    const order = this.productionContextService.snapshot?.order;
+    if (!order) return;
+
+    const payload: Partial<StampingRecordPayload> = {
+      op_rowid: order.rowId,
+      op_number: order.documentNumber,
+      op_type: order.documentType,
+      stamping_reference_sam: this.selectedReferenceSamId(),
+      ordered_quantity: this.totalOrderedQuantity,
+      completed_quantity: Number(this.quantityForm.value.completed_quantity),
+    };
+
+    this.onSave.emit(payload);
+  }
+
+  private integerValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (value === null || value === undefined || value === '') return null;
+    return Number.isInteger(Number(value)) ? null : { notInteger: true };
+  }
+
+  private exceedsMaxValidator(group: AbstractControl): ValidationErrors | null {
+    const completed = Number(group.get('completed_quantity')?.value) || 0;
+    return completed > this.totalPendingQuantity
+      ? { exceedsMax: { max: this.totalPendingQuantity, total: completed } }
+      : null;
+  }
+
   private loadModalData(): void {
     this.isLoadingModalData.set(true);
     this.loaderService.showLoader();
 
-    const referenceRowId = this.productionContextService.snapshot?.order?.referenceRowId;
-    const references$ = referenceRowId
-      ? this.stampingReferenceSamService.all({ rowid_item: referenceRowId })
-      : of<StampingReferenceSam[]>([]);
+    const order = this.productionContextService.snapshot?.order;
+    const orderDetail$ = order
+      ? this.opStampingService.getOrderDetail(order.documentType, order.documentNumber)
+      : of<StampingOrderDetail | null>(null);
 
     forkJoin({
       additionalTimes: this.additionalTimeService.all(),
-      references: references$,
+      orderDetail: orderDetail$,
     })
       .pipe(finalize(() => {
         this.isLoadingModalData.set(false);
         this.loaderService.hideLoader();
       }))
       .subscribe({
-        next: ({ additionalTimes, references }) => {
+        next: ({ additionalTimes, orderDetail }) => {
           this.additionalTimes.set(additionalTimes);
-          this.stampingReferences.set(references);
+          this.orderDetail.set(orderDetail);
+          const references = orderDetail?.referenceSams ?? [];
           this.selectedReferenceSamId.set(references.length === 1 ? references[0].id : null);
         },
       });

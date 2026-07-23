@@ -119,6 +119,7 @@
     [inWindow]="inWindow()"
     (onClose)="shiftModals.closeStampingRecord()"
     (onFinalize)="refreshSession()"
+    (onSave)="saveStamping($event)"
 ></app-stamping-record>
 }
 
