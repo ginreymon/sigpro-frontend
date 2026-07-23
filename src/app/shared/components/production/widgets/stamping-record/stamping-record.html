@@ -8,11 +8,32 @@
       (tabChange)="onTabChange($event)">
     </app-ui-tabs>
 
-    <div class="mt-4 min-h-[10rem]">
+    <div class="mt-4 min-h-40">
       @if (activeTab() === 'produccion') {
-        <!-- contenido de Producción pendiente de definir -->
+        @if (!isLoadingModalData()) {
+          <app-searcher [live]="true" [intent]="'action'" (onSearch)="searchReferences($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
+          <div class="flex justify-between mt-4 mb-2">
+            <app-ui-label-button
+              [intent]="showOnlySelectedReference() ? 'label' : 'action'"
+              (onClick)="showOnlySelectedReference.set(!showOnlySelectedReference())">
+              Solo seleccionada ({{ selectedReferenceSamId() ? 1 : 0 }})
+            </app-ui-label-button>
+            <p class="text-xs text-gray-700">Referencias disponibles ({{ filteredReferences().length }})</p>
+          </div>
+          <div class="grid grid-cols-1 gap-2 max-h-[45vh] overflow-y-auto">
+            @for (item of displayedReferences(); track item.id) {
+              <app-stamping-reference-card
+                [item]="item"
+                [selected]="isReferenceSelected(item.id)"
+                (onToggle)="selectReference(item.id)">
+              </app-stamping-reference-card>
+            } @empty {
+              <p class="text-sm text-gray-400 py-4 text-center">No hay referencias para esta OP</p>
+            }
+          </div>
+        }
       } @else if (activeTab() === 'tiempos_adicionales') {
-        @if (!isLoadingAdditionalTimes()) {
+        @if (!isLoadingModalData()) {
           <app-searcher [live]="true" [intent]="'action'" (onSearch)="searchAdditionalTimes($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
           <div class="flex justify-between mt-4 mb-2">
             <app-ui-label-button

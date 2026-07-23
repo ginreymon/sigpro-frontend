@@ -60,7 +60,7 @@ export class ShiftCyclesActions {
   actions: ShiftCycleAction[] = [
     {
       key: 'stampingRecord',
-      icon: 'hourglassStart',
+      icon: 'clock',
       label: 'Tiempos',
       iconIntent: 'action',
       handler: () => this.openStampingRecord(),
