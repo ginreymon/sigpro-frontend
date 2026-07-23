@@ -4,7 +4,7 @@
       <div class="flex flex-row justify-start gap-2 items-center mb-1">
         <app-ui-icon [iconName]="'hammer'" class="h-4 w-4"></app-ui-icon>
         <p class="font-medium text-sm">     
-          <strong class="text-xs "> {{ item?.process ?? '' | titlecase }}</strong>
+          <strong> {{ item?.process ?? '' | titlecase }}</strong>
         </p>
       </div>
       <p class="text-xs"><strong>Código</strong> {{ item?.engineering_code }}</p>
