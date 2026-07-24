@@ -19,13 +19,8 @@ export interface StampingReferenceSam extends TimeAuditEntity, UserAuditEntity, 
   stamp_type_description_name?: string | null;
   technique?: number | null;
   technique_name?: string | null;
-  garment_type?: string | null;
   fabric_type?: number | null;
   fabric_type_name?: string | null;
-  line?: string | null;
-  brand?: string | null;
-  collection?: string | null;
-  process?: string | null;
   frames?: number | null;
   inks?: number | null;
   prints?: number | null;
