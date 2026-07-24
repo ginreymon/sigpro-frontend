@@ -44,14 +44,12 @@ const TABS: TabItem[] = [
   { key: 'identification', label: 'Identificación' },
   { key: 'production', label: 'Producción' },
   { key: 'sam', label: 'SAM' },
-  { key: 'classification', label: 'Clasificación' },
   { key: 'process', label: 'Proceso' },
 ];
 
 const TAB_FIELDS: Record<string, string[]> = {
   identification: ['no_reference', 'rowid_item', 'identification'],
-  production: ['location', 'machine', 'piece', 'people_count', 'stamped_pieces', 'pieces_per_board'],
-  classification: ['fabric_type'],
+  production: ['location', 'machine', 'piece', 'people_count', 'stamped_pieces', 'pieces_per_board', 'fabric_type'],
   process: ['stamp_type_description', 'technique', 'frames', 'inks', 'prints', 'layout_form', 'pre_dried'],
   sam: ['sam_single_person', 'tasks_per_hour', 'is_active'],
 };
