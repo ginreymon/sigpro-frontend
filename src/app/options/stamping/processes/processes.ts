@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../shared/components/table/data-table/data-table';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
@@ -18,6 +18,9 @@ import { CharSquare } from '../../../shared/components/widgets/char-square/char-
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
+import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
+import { StampingMachine } from '../../../models/stamping/stamping-machine';
+import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
 
 @Component({
   selector: 'app-processes',
@@ -36,6 +39,7 @@ import { TableActionEvent } from '../../../common/interfaces/table-action-event'
     TableTemplate,
     CharSquare,
     TitleCasePipe,
+    UiSelect,
   ],
   templateUrl: './processes.html',
   styleUrl: './processes.css',
@@ -43,13 +47,23 @@ import { TableActionEvent } from '../../../common/interfaces/table-action-event'
 export class Processes extends BaseCrudPage<StampingProcess> {
   protected override entityName: string = 'proceso de estampación';
 
-  constructor(private stampingProcessService: StampingProcessService) {
+  machines = signal<StampingMachine[]>([]);
+
+  constructor(
+    private stampingProcessService: StampingProcessService,
+    private stampingMachineService: StampingMachineService,
+  ) {
     super(stampingProcessService);
+  }
+
+  ngOnInit(): void {
+    this.loadList(this.stampingMachineService, this.machines);
   }
 
   protected override get columns(): TableColumn<StampingProcess>[] {
     return [
       { field: 'name', label: 'Nombre' },
+      { field: 'machine_name', label: 'Máquina' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
   }
@@ -57,12 +71,17 @@ export class Processes extends BaseCrudPage<StampingProcess> {
   protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
       name: [null, [Validators.required, Validators.minLength(3)]],
+      machine: [null],
       is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
     });
   }
 
   get name() {
     return this.modelForm.get('name');
+  }
+
+  get machine() {
+    return this.modelForm.get('machine');
   }
 
   get isActive() {

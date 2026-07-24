@@ -4,4 +4,6 @@ import { ActiveEntity } from '../../common/interfaces/active-entity';
 
 export interface StampingProcess extends TimeAuditEntity, UserAuditEntity, ActiveEntity {
   name: string;
+  machine?: number | null;
+  machine_name?: string | null;
 }
