@@ -38,7 +38,7 @@
           <form [formGroup]="quantityForm" class="mb-4">
             <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Cantidad producida'">
               <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">
-                <span right-addon>Pendiente: {{ totalPendingQuantity }}</span>
+                <span right-addon>Estampadas: {{ totalStampedQuantity }}</span>
               </app-ui-large-input>
             </app-ui-form-field>
 

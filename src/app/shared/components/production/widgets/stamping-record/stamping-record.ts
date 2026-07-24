@@ -118,6 +118,10 @@ export class StampingRecord {
     return Number(this.orderDetail()?.pendingQty) || 0;
   }
 
+  protected get totalStampedQuantity(): number {
+    return Number(this.orderDetail()?.stampedQty) || 0;
+  }
+
   protected get newCompletedQty(): number {
     return Number(this.quantityForm.get('completed_quantity')?.value) || 0;
   }
