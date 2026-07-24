@@ -51,8 +51,8 @@ const TABS: TabItem[] = [
 const TAB_FIELDS: Record<string, string[]> = {
   identification: ['no_reference', 'rowid_item', 'identification'],
   production: ['location', 'machine', 'piece', 'people_count', 'stamped_pieces', 'pieces_per_board'],
-  classification: ['fabric_type', 'brand', 'line', 'collection', 'garment_type'],
-  process: ['stamp_type_description', 'technique', 'process', 'frames', 'inks', 'prints', 'layout_form', 'pre_dried'],
+  classification: ['fabric_type'],
+  process: ['stamp_type_description', 'technique', 'frames', 'inks', 'prints', 'layout_form', 'pre_dried'],
   sam: ['sam_single_person', 'tasks_per_hour', 'is_active'],
 };
 
@@ -189,15 +189,6 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
       rowid_item: event.value.rowid_item,
       identification: event.value.reference,
     });
-
-    if (this.actionType === 'create') {
-      this.modelForm.patchValue({
-        brand: event.value.brand,
-        line: event.value.line,
-        collection: event.value.collection,
-        garment_type: event.value.group,
-      });
-    }
   }
 
   protected override get columns(): TableColumn<StampingReferenceSam>[] {
@@ -226,12 +217,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
       location: [null],
       stamp_type_description: [null],
       technique: [null],
-      garment_type: [null],
       fabric_type: [null],
-      line: [null],
-      brand: [null],
-      collection: [null],
-      process: [null],
       frames: [null],
       inks: [null],
       prints: [null],
@@ -252,12 +238,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
   get location() { return this.modelForm.get('location'); }
   get stampTypeDescription() { return this.modelForm.get('stamp_type_description'); }
   get technique() { return this.modelForm.get('technique'); }
-  get garmentType() { return this.modelForm.get('garment_type'); }
   get fabricType() { return this.modelForm.get('fabric_type'); }
-  get line() { return this.modelForm.get('line'); }
-  get brand() { return this.modelForm.get('brand'); }
-  get collection() { return this.modelForm.get('collection'); }
-  get process() { return this.modelForm.get('process'); }
   get frames() { return this.modelForm.get('frames'); }
   get inks() { return this.modelForm.get('inks'); }
   get prints() { return this.modelForm.get('prints'); }
