@@ -264,11 +264,17 @@ export class StampingRecord {
       }))
       .subscribe({
         next: ({ additionalTimes, orderDetail }) => {
-          this.additionalTimes.set(additionalTimes);
+          this.additionalTimes.set(this.filterByModuleMachine(additionalTimes));
           this.orderDetail.set(orderDetail);
           const references = orderDetail?.referenceSams ?? [];
           this.selectedReferenceSamId.set(references.length === 1 ? references[0].id : null);
         },
       });
+  }
+
+  private filterByModuleMachine(times: AdditionalStampingTime[]): AdditionalStampingTime[] {
+    const moduleMachineId = this.productionContextService.snapshot?.session?.current_module?.machine?.id ?? null;
+    if (!moduleMachineId) return times;
+    return times.filter((t) => t.machine == null || t.machine === moduleMachineId);
   }
 }
