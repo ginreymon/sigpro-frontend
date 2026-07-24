@@ -73,7 +73,7 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'stampingReferenceSamForm'" [classNames]="'max-w-3xl'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'stampingReferenceSamForm'" (onCancel)="closeModelForm()">
 
     <form id="stampingReferenceSamForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()">
