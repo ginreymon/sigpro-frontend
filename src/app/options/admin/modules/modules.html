@@ -97,7 +97,7 @@
                 <app-ui-select [className]="'w-full'" formControlName="location_id" [id]="'location_id'" [control]="locationId" [items]="productionAreas()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
             </app-ui-form-field>
 
-            @if(actionType == 'edit' && isStampingLocation){
+            @if(isStampingLocation){
             <app-ui-form-field [controlName]="'machine'" [label]="'Máquina asignada'">
                 <app-ui-select [className]="'w-full'" formControlName="machine" [id]="'machine'" [control]="machine" [items]="machines()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
             </app-ui-form-field>
