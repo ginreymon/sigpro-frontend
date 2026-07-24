@@ -17,11 +17,11 @@
   `" [ngModel]="value" (ngModelChange)="changeHandle($event)" (blur)="onTouched()" [disabled]="disabled">
 
   @if(showDefaultOption){
-  <option class="text-gray-400" [value]="null">{{ placeholder || 'Seleccione...' }}</option>
+  <option class="text-gray-400" [ngValue]="null">{{ placeholder || 'Seleccione...' }}</option>
   }
 
   @for (item of (keyValue && key ? _items : items); track item) {
-  <option [value]="keyValue && key ? item[keyValue] : item">
+  <option [ngValue]="keyValue && key ? item[keyValue] : item">
     {{ keyValue && key ? item[key] : item }}
   </option>
   }

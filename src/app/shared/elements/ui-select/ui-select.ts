@@ -40,7 +40,7 @@ export class UiSelect extends BaseControlValueAccessor<any> {
     return this._items;
   }
 
-  changeHandle(value: string | number) {
+  changeHandle(value: string | number | null) {
     this.value = value;
     const index = this.items.findIndex((i) => i == value);
     this.onChange(value);
