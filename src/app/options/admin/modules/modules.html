@@ -57,10 +57,20 @@
             <p> <strong>Código:</strong> {{ rowObject.work_center?.code }} </p>
 
             <p> <strong>Estado activo:</strong> {{ rowObject.is_active ? 'Si': 'No' }} </p>
-          
+
         </div>
 
     </div>
+
+    @if(isStampingModule){
+    <div class="mb-4 border-t border-slate-200 pt-4">
+
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Máquina de estampación </h4>
+
+        <p class="text-sm"> <strong>Máquina asignada:</strong> {{ rowObject.machine?.name ?? 'Sin máquina asignada' }} </p>
+
+    </div>
+    }
 
     <app-metadata [rowObject]="rowObject"></app-metadata>
 
@@ -86,6 +96,12 @@
             <app-ui-form-field [controlName]="'location_id'" [label]="'Ubicación'">
                 <app-ui-select [className]="'w-full'" formControlName="location_id" [id]="'location_id'" [control]="locationId" [items]="productionAreas()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
             </app-ui-form-field>
+
+            @if(actionType == 'edit' && isStampingLocation){
+            <app-ui-form-field [controlName]="'machine'" [label]="'Máquina asignada'">
+                <app-ui-select [className]="'w-full'" formControlName="machine" [id]="'machine'" [control]="machine" [items]="machines()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+            </app-ui-form-field>
+            }
 
             <app-ui-form-field [controlName]="'work_center_id'" [label]="'Centro de trabajo'">
                 <app-ui-select [className]="'w-full'" formControlName="work_center_id" [id]="'work_center_id'" [control]="workCenter" [items]="workCenters()" [key]="'description'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>

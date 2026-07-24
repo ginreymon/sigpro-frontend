@@ -24,6 +24,8 @@ import { Metadata } from "../../../shared/components/widgets/metadata/metadata";
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
 import { UiTooltip } from "../../../shared/elements/ui-tooltip/ui-tooltip";
+import { StampingMachine } from '../../../models/stamping/stamping-machine';
+import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
 
 @Component({
   selector: 'app-modules',
@@ -43,7 +45,7 @@ import { UiTooltip } from "../../../shared/elements/ui-tooltip/ui-tooltip";
     CharSquare,
     Metadata,
     TitleCasePipe,
-    UiTooltip
+    UiTooltip,
 ],
   templateUrl: './modules.html',
   styleUrl: './modules.css',
@@ -52,15 +54,31 @@ export class Modules extends BaseCrudPage<Module> {
   protected override entityName: string = 'módulo';
   workCenters = signal<WorkCenter[]>([]);
   productionAreas = signal<ProductionArea[]>([]);
+  machines = signal<StampingMachine[]>([]);
 
   constructor(
     private moduleService: ModuleService,
     private workCenterService: WorkCenterService,
     private productionAreaService: ProductionAreaService,
+    private stampingMachineService: StampingMachineService,
   ) {
     super(moduleService);
     this.getWorkCenters();
     this.getProductionAreas();
+    this.loadList(this.stampingMachineService, this.machines, true,
+      items => items.sort((a, b) => a.name.localeCompare(b.name))
+    );
+  }
+
+  protected get isStampingLocation(): boolean {
+    const locationId = this.locationId?.value;
+    if (!locationId) return false;
+    const area = this.productionAreas().find((a) => a.id === Number(locationId));
+    return area?.core_module?.url === 'stamping';
+  }
+
+  protected get isStampingModule(): boolean {
+    return this.rowObject.location?.core_module?.url === 'stamping';
   }
 
   protected override get columns(): TableColumn<Module>[] {
@@ -79,9 +97,10 @@ export class Modules extends BaseCrudPage<Module> {
       name: [null, [Validators.required, Validators.minLength(3)]],
       number: [null, [Validators.required, Validators.min(1)]],
       operator_count: [null, [Validators.required, Validators.min(1)]],
-      location_id: [null],
+      location_id: [null, [Validators.required, Validators.min(1)]],
       is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
       work_center_id: [null, [Validators.required, Validators.min(1)]],
+      machine: [null],
     });
   }
 
@@ -109,21 +128,32 @@ export class Modules extends BaseCrudPage<Module> {
     return this.modelForm.get('work_center_id');
   }
 
+  get machine() {
+    return this.modelForm.get('machine');
+  }
+
   protected override actionHandler(event: TableActionEvent<Module>): void {
     super.actionHandler(event);
+
     if (event.type == 'edit') {
       this.modelForm.patchValue(event.obj);
       this.workCenter?.setValue(event.obj.work_center.id);
       this.locationId?.setValue(event.obj.location?.id ?? null);
+      this.machine?.setValue(event.obj.machine?.id ?? null);
     }
   }
 
   protected override submit(): void {
-    const workcenter: Partial<Module> = {
-      ...this.modelForm.value,
+    const { machine, ...formValue } = this.modelForm.value;
+    const payload: Partial<Module> = {
+      ...formValue,
       is_active: this.isActive?.value ?? true,
+      // If location isn't in the stamping domain, force null so the backend clears
+      // any existing assignment instead of leaving it orphaned.
+      machine_id: this.isStampingLocation ? (machine ? Number(machine) : null) : null,
     };
-    super.submit(workcenter);
+
+    super.submit(payload);
   }
 
   getWorkCenters() {
