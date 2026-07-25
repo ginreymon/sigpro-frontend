@@ -27,8 +27,8 @@ import { calcSamTarget } from '../../../shared/components/production/widgets/sam
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { Reference } from '../../../models/catalog/reference';
 import { ReferencesService } from '../../../services/catalog/references-service';
-import { StampingMachine } from '../../../models/stamping/stamping-machine';
-import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
+import { StampingMachineType } from '../../../models/stamping/stamping-machine-type';
+import { StampingMachineTypeService } from '../../../services/stamping/stamping-machine-type-service';
 import { StampingPiece } from '../../../models/stamping/stamping-piece';
 import { StampingPieceService } from '../../../services/stamping/stamping-piece-service';
 import { StampingLocation } from '../../../models/stamping/stamping-location';
@@ -49,7 +49,7 @@ const TABS: TabItem[] = [
 
 const TAB_FIELDS: Record<string, string[]> = {
   identification: ['no_reference', 'rowid_item', 'identification'],
-  production: ['location', 'machine', 'piece', 'people_count', 'stamped_pieces', 'pieces_per_board', 'fabric_type'],
+  production: ['location', 'machine_type', 'piece', 'people_count', 'stamped_pieces', 'pieces_per_board', 'fabric_type'],
   process: ['stamp_type_description', 'technique', 'frames', 'inks', 'prints', 'layout_form', 'pre_dried'],
   sam: ['sam_single_person', 'tasks_per_hour', 'is_active'],
 };
@@ -92,7 +92,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
   tabs = TABS;
   activeTab = signal('identification');
   references = signal<Reference[]>([]);
-  machines = signal<StampingMachine[]>([]);
+  machineTypes = signal<StampingMachineType[]>([]);
   pieces = signal<StampingPiece[]>([]);
   locations = signal<StampingLocation[]>([]);
   stampTypeDescriptions = signal<StampingStampTypeDescription[]>([]);
@@ -142,7 +142,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
   constructor(
     stampingReferenceSamService: StampingReferenceSamService,
     private referencesService: ReferencesService,
-    private stampingMachineService: StampingMachineService,
+    private stampingMachineTypeService: StampingMachineTypeService,
     private stampingPieceService: StampingPieceService,
     private stampingLocationService: StampingLocationService,
     private stampingStampTypeDescriptionService: StampingStampTypeDescriptionService,
@@ -158,7 +158,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
       .pipe(finalize(() => this.wslService.end()))
       .subscribe((references) => this.references.set(references));
 
-    this.loadList(this.stampingMachineService, this.machines);
+    this.loadList(this.stampingMachineTypeService, this.machineTypes);
     this.loadList(this.stampingPieceService, this.pieces);
     this.loadList(this.stampingLocationService, this.locations);
     this.loadList(this.stampingStampTypeDescriptionService, this.stampTypeDescriptions);
@@ -193,7 +193,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
     return [
       { field: 'identification', label: 'Identificación' },
       { type: 'template', label: 'Referencia', templateName: 'referenceTemplate' },
-      { field: 'machine_name', label: 'Máquina' },
+      { field: 'machine_type_name', label: 'Tipo de Máquina' },
       // { field: 'tasks_per_hour', label: 'Tarea/Hora (BD)', align: 'center' },
       { type: 'template', label: 'Tarea/Hora', templateName: 'tasksPerHourTemplate', align: 'center' },
       { type: 'template', label: 'SAM', templateName: 'samTemplate', align: 'center' },
@@ -205,7 +205,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
       no_reference: [true],
       rowid_item: [null, [Validators.required]],
       identification: [null, [Validators.required, Validators.minLength(2)]],
-      machine: [null, [Validators.required]],
+      machine_type: [null, [Validators.required]],
       people_count: [null, [Validators.required, Validators.min(1)]],
       piece: [null, [Validators.required]],
       stamped_pieces: [null, [Validators.required, Validators.min(1)]],
@@ -229,7 +229,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
   get noReference() { return this.modelForm.get('no_reference'); }
   get rowidItem() { return this.modelForm.get('rowid_item'); }
   get identification() { return this.modelForm.get('identification'); }
-  get machine() { return this.modelForm.get('machine'); }
+  get machineType() { return this.modelForm.get('machine_type'); }
   get peopleCount() { return this.modelForm.get('people_count'); }
   get piece() { return this.modelForm.get('piece'); }
   get stampedPieces() { return this.modelForm.get('stamped_pieces'); }

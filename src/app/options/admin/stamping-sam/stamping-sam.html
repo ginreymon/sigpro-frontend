@@ -31,7 +31,7 @@
         <div>
             <h3 class="text-2xl font-semibold text-slate-900 mb-1"> {{ rowObject.identification }} </h3>
             <p class="text-sm text-slate-500"> {{ rowObject.reference?.reference }} </p>
-            <p class="text-sm text-slate-500"> {{ rowObject.machine_name }} </p>
+            <p class="text-sm text-slate-500"> {{ rowObject.machine_type_name }} </p>
         </div>
     </div>
 
@@ -100,8 +100,8 @@
                     <app-ui-select [className]="'w-full'" formControlName="location" [id]="'location'" [control]="location" [items]="locations()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
-                <app-ui-form-field [controlName]="'machine'" [label]="'Máquina'">
-                    <app-ui-select [className]="'w-full'" formControlName="machine" [id]="'machine'" [control]="machine" [items]="machines()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+                <app-ui-form-field [controlName]="'machine_type'" [label]="'Tipo de Máquina'">
+                    <app-ui-select [className]="'w-full'" formControlName="machine_type" [id]="'machine_type'" [control]="machineType" [items]="machineTypes()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'piece'" [label]="'Pieza(s)'">

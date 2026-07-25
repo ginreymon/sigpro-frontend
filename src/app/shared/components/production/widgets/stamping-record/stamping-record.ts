@@ -101,7 +101,7 @@ export class StampingRecord {
     return list.filter(
       (item) =>
         item.identification.toLowerCase().includes(q) ||
-        (item.machine_name ?? '').toLowerCase().includes(q),
+        (item.machine_type_name ?? '').toLowerCase().includes(q),
     );
   });
 
