@@ -1,12 +1,13 @@
 import { Component, Input, Output, EventEmitter, signal, OnChanges, SimpleChanges } from '@angular/core';
 import { UiIcon } from '../ui-icon/ui-icon';
 import { TabItem } from '../ui-tabs/ui-tabs';
+import { DragCarousel } from '../../components/widgets/drag-carousel/drag-carousel';
 
 export type UiBreadcrumbAlign = 'left' | 'center' | 'right';
 
 @Component({
   selector: 'app-ui-breadcrumb',
-  imports: [UiIcon],
+  imports: [UiIcon, DragCarousel],
   templateUrl: './ui-breadcrumb.html',
   host: { class: 'block' },
 })
