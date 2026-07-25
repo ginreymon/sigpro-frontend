@@ -1,0 +1,25 @@
+<nav aria-label="breadcrumbs">
+  <ol class="flex items-center flex-wrap gap-2 text-sm">
+    @for (tab of tabs; track tab.key; let last = $last) {
+      <li class="flex items-center gap-2">
+        <button
+          type="button"
+          [disabled]="tab.disabled"
+          (click)="setTab(tab.key)"
+          [class.text-brand-700]="activeTab() === tab.key && !tab.hasError"
+          [class.font-semibold]="activeTab() === tab.key"
+          [class.text-gray-500]="activeTab() !== tab.key && !tab.disabled && !tab.hasError"
+          [class.text-red-500]="tab.hasError"
+          [class.opacity-50]="tab.disabled"
+          [class.cursor-not-allowed]="tab.disabled"
+          [class.pointer-events-none]="tab.disabled"
+          class="px-1 py-0.5 rounded hover:text-brand-400 transition-colors cursor-pointer">
+          {{ tab.label }}
+        </button>
+        @if (!last) {
+          <app-ui-icon [iconName]="'chevronRight'" class="h-4 w-4 text-gray-400"></app-ui-icon>
+        }
+      </li>
+    }
+  </ol>
+</nav>

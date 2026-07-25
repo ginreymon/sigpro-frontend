@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
-import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
+import { TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
+import { UiBreadcrumb } from '../../../shared/elements/ui-breadcrumb/ui-breadcrumb';
 import { Machines } from '../machines/machines';
 import { MachineTypes } from '../machine-types/machine-types';
 import { Processes } from '../processes/processes';
@@ -14,7 +15,7 @@ const TABS: TabItem[] = [
 
 @Component({
   selector: 'app-machines-config',
-  imports: [UiTabs, Machines, MachineTypes, Processes, AdditionalTimes],
+  imports: [UiBreadcrumb, Machines, MachineTypes, Processes, AdditionalTimes],
   templateUrl: './machines-config.html',
   styleUrl: './machines-config.css',
 })
