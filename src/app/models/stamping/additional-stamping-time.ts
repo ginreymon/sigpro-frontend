@@ -5,8 +5,10 @@ import { ActiveEntity } from '../../common/interfaces/active-entity';
 export interface AdditionalStampingTime extends TimeAuditEntity, UserAuditEntity, ActiveEntity {
   code_number: string;
   engineering_code: string;
-  machine: number;
+  machine?: number | null;
   machine_name?: string | null;
+  machine_type: number;
+  machine_type_name?: string | null;
   process: string;
   process_description?: string[] | null;
   standard_time?: string | null;

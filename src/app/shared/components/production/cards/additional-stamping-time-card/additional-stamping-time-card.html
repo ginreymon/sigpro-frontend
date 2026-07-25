@@ -8,8 +8,8 @@
         </p>
       </div>
       <p class="text-xs"><strong>Código</strong> {{ item?.engineering_code }}</p>
-      @if (item?.machine_name) {
-        <p class="text-xs"><strong>Máquina</strong> {{ item?.machine_name }}</p>
+      @if (item?.machine_name ?? item?.machine_type_name; as machineLabel) {
+        <p class="text-xs"><strong>Máquina</strong> {{ machineLabel }}</p>
       }
     </div>
     <div class="flex flex-col items-end gap-1 shrink-0">

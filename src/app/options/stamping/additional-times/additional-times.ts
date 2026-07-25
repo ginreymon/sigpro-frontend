@@ -20,6 +20,8 @@ import { TableColumn } from '../../../common/interfaces/table-column';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { StampingMachine } from '../../../models/stamping/stamping-machine';
 import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
+import { StampingMachineType } from '../../../models/stamping/stamping-machine-type';
+import { StampingMachineTypeService } from '../../../services/stamping/stamping-machine-type-service';
 import { UiStringListInput } from '../../../shared/elements/ui-string-list-input/ui-string-list-input';
 
 @Component({
@@ -48,16 +50,19 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
   protected override entityName: string = 'tiempo adicional';
 
   machines = signal<StampingMachine[]>([]);
+  machineTypes = signal<StampingMachineType[]>([]);
 
   constructor(
     private additionalStampingTimeService: AdditionalStampingTimeService,
     private stampingMachineService: StampingMachineService,
+    private stampingMachineTypeService: StampingMachineTypeService,
   ) {
     super(additionalStampingTimeService);
   }
 
   ngOnInit(): void {
     this.loadList(this.stampingMachineService, this.machines);
+    this.loadList(this.stampingMachineTypeService, this.machineTypes);
   }
 
   protected override get columns(): TableColumn<AdditionalStampingTime>[] {
@@ -65,6 +70,7 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
       { field: 'engineering_code', label: 'Código ingeniería' },
       { field: 'code_number', label: 'Código' },
       { field: 'machine_name', label: 'Máquina' },
+      { field: 'machine_type_name', label: 'Tipo de Máquina' },
       { field: 'process', label: 'Proceso' },
       { type: 'template', label: 'Tiempo estándar', templateName: 'standardTimeTemplate' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
@@ -75,7 +81,8 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
     this.modelForm = this.fb.group({
       code_number: [null, [Validators.required]],
       engineering_code: [null, [Validators.required]],
-      machine: [null, [Validators.required]],
+      machine: [null],
+      machine_type: [null, [Validators.required]],
       process: [null, [Validators.required]],
       process_description: [[]],
       standard_time: [null],
@@ -86,6 +93,7 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
   get codeNumber() { return this.modelForm.get('code_number'); }
   get engineeringCode() { return this.modelForm.get('engineering_code'); }
   get machine() { return this.modelForm.get('machine'); }
+  get machineType() { return this.modelForm.get('machine_type'); }
   get process() { return this.modelForm.get('process'); }
   get processDescription() { return this.modelForm.get('process_description'); }
   get standardTime() { return this.modelForm.get('standard_time'); }
