@@ -51,8 +51,8 @@ export class StampingRecord {
 
   protected tabs: TabItem[] = [
     { key: 'reference', label: 'Referencia' },
-    { key: 'quantities', label: 'Cantidades' },
     { key: 'additionaltimes', label: 'Tiempos Adicionales' },
+    { key: 'quantities', label: 'Cantidades' },
   ];
 
   protected activeTab = signal('reference');
@@ -266,7 +266,7 @@ export class StampingRecord {
       }))
       .subscribe({
         next: ({ additionalTimes, orderDetail }) => {
-          this.additionalTimes.set(this.filterByMachineType(additionalTimes));
+          this.additionalTimes.set(this.filterByMachine(this.filterByMachineType(additionalTimes)));
           this.orderDetail.set(orderDetail);
           const references = this.filterByMachineType(orderDetail?.referenceSams ?? []);
           this.referenceSams.set(references);
@@ -275,12 +275,19 @@ export class StampingRecord {
       });
   }
 
-  // Referencias SAM y tiempos adicionales se filtran por tipo de máquina del módulo activo,
-  // no por unidad física específica.
+  // Referencias SAM y tiempos adicionales se filtran primero por tipo de máquina del módulo activo.
   private filterByMachineType<T extends { machine_type?: number | null }>(items: T[]): T[] {
     const moduleMachineTypeId =
       this.productionContextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
     if (!moduleMachineTypeId) return items;
     return items.filter((item) => item.machine_type == null || item.machine_type === moduleMachineTypeId);
+  }
+
+  // Tiempos adicionales además se acotan por máquina específica (machine es opcional en el
+  // modelo — sin máquina asignada, el tiempo aplica a cualquier unidad del tipo ya filtrado).
+  private filterByMachine<T extends { machine?: number | null }>(items: T[]): T[] {
+    const moduleMachineId = this.productionContextService.snapshot?.session?.current_module?.machine?.id ?? null;
+    if (!moduleMachineId) return items;
+    return items.filter((item) => item.machine == null || item.machine === moduleMachineId);
   }
 }
