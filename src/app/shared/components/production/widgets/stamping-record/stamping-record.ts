@@ -266,7 +266,7 @@ export class StampingRecord {
       }))
       .subscribe({
         next: ({ additionalTimes, orderDetail }) => {
-          this.additionalTimes.set(this.filterByMachine(additionalTimes));
+          this.additionalTimes.set(this.filterByMachineType(additionalTimes));
           this.orderDetail.set(orderDetail);
           const references = this.filterByMachineType(orderDetail?.referenceSams ?? []);
           this.referenceSams.set(references);
@@ -275,14 +275,8 @@ export class StampingRecord {
       });
   }
 
-  // Tiempos adicionales se registran por máquina física específica (p.ej. AUTOMATICO 01 vs 02 difieren).
-  private filterByMachine<T extends { machine?: number | null }>(items: T[]): T[] {
-    const moduleMachineId = this.productionContextService.snapshot?.session?.current_module?.machine?.id ?? null;
-    if (!moduleMachineId) return items;
-    return items.filter((item) => item.machine == null || item.machine === moduleMachineId);
-  }
-
-  // Referencias SAM se registran por tipo de máquina, no por unidad física (no distinguen 01 de 02).
+  // Referencias SAM y tiempos adicionales se filtran por tipo de máquina del módulo activo,
+  // no por unidad física específica.
   private filterByMachineType<T extends { machine_type?: number | null }>(items: T[]): T[] {
     const moduleMachineTypeId =
       this.productionContextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
