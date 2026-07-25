@@ -15,6 +15,6 @@ export interface Module extends AuditEntity {
   work_center: WorkCenter;
   employees?: Employee[];
 
-  machine?: { id: number; name: string } | null;
+  machine?: { id: number; name: string; machine_type_id: number } | null;
   machine_id?: number | null;
 }

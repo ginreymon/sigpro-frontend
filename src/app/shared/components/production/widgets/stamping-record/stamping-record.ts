@@ -268,16 +268,25 @@ export class StampingRecord {
         next: ({ additionalTimes, orderDetail }) => {
           this.additionalTimes.set(this.filterByMachine(additionalTimes));
           this.orderDetail.set(orderDetail);
-          const references = this.filterByMachine(orderDetail?.referenceSams ?? []);
+          const references = this.filterByMachineType(orderDetail?.referenceSams ?? []);
           this.referenceSams.set(references);
           this.selectedReferenceSamId.set(references.length === 1 ? references[0].id : null);
         },
       });
   }
 
+  // Tiempos adicionales se registran por máquina física específica (p.ej. AUTOMATICO 01 vs 02 difieren).
   private filterByMachine<T extends { machine?: number | null }>(items: T[]): T[] {
     const moduleMachineId = this.productionContextService.snapshot?.session?.current_module?.machine?.id ?? null;
     if (!moduleMachineId) return items;
     return items.filter((item) => item.machine == null || item.machine === moduleMachineId);
+  }
+
+  // Referencias SAM se registran por tipo de máquina, no por unidad física (no distinguen 01 de 02).
+  private filterByMachineType<T extends { machine_type?: number | null }>(items: T[]): T[] {
+    const moduleMachineTypeId =
+      this.productionContextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
+    if (!moduleMachineTypeId) return items;
+    return items.filter((item) => item.machine_type == null || item.machine_type === moduleMachineTypeId);
   }
 }

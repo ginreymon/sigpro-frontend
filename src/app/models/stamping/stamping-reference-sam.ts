@@ -9,6 +9,7 @@ export interface StampingReferenceSam extends TimeAuditEntity, UserAuditEntity, 
   reference?: SkuItemFields | null;
   machine: number;
   machine_name?: string | null;
+  machine_type?: number | null;
   people_count: number;
   piece: number;
   piece_name?: string | null;
