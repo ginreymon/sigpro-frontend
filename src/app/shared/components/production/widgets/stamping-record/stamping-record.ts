@@ -19,6 +19,7 @@ import { OPStampingService } from '../../../../../services/stamping/op-stamping-
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { AdditionalStampingTime } from '../../../../../models/stamping/additional-stamping-time';
 import { StampingOrderDetail } from '../../../../../models/stamping/stamping-order-detail';
+import { StampingReferenceSam } from '../../../../../models/stamping/stamping-reference-sam';
 import { StampingRecord as StampingRecordPayload } from '../../../../../models/stamping/stamping-record';
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 import { LoaderService } from '../../../../../services/common/loader-service';
@@ -64,6 +65,7 @@ export class StampingRecord {
   protected showOnlySelectedAdditionalTimes = signal(false);
 
   protected orderDetail = signal<StampingOrderDetail | null>(null);
+  protected referenceSams = signal<StampingReferenceSam[]>([]);
   protected selectedReferenceSamId = signal<number | null>(null);
   private referencesSearchText = signal('');
   protected showOnlySelectedReference = signal(false);
@@ -94,7 +96,7 @@ export class StampingRecord {
 
   protected filteredReferences = computed(() => {
     const q = this.referencesSearchText().toLowerCase().trim();
-    const list = this.orderDetail()?.referenceSams ?? [];
+    const list = this.referenceSams();
     if (!q) return list;
     return list.filter(
       (item) =>
@@ -264,17 +266,18 @@ export class StampingRecord {
       }))
       .subscribe({
         next: ({ additionalTimes, orderDetail }) => {
-          this.additionalTimes.set(this.filterByModuleMachine(additionalTimes));
+          this.additionalTimes.set(this.filterByMachine(additionalTimes));
           this.orderDetail.set(orderDetail);
-          const references = orderDetail?.referenceSams ?? [];
+          const references = this.filterByMachine(orderDetail?.referenceSams ?? []);
+          this.referenceSams.set(references);
           this.selectedReferenceSamId.set(references.length === 1 ? references[0].id : null);
         },
       });
   }
 
-  private filterByModuleMachine(times: AdditionalStampingTime[]): AdditionalStampingTime[] {
+  private filterByMachine<T extends { machine?: number | null }>(items: T[]): T[] {
     const moduleMachineId = this.productionContextService.snapshot?.session?.current_module?.machine?.id ?? null;
-    if (!moduleMachineId) return times;
-    return times.filter((t) => t.machine == null || t.machine === moduleMachineId);
+    if (!moduleMachineId) return items;
+    return items.filter((item) => item.machine == null || item.machine === moduleMachineId);
   }
 }

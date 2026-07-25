@@ -28,7 +28,11 @@
                 (onToggle)="selectReference(item.id)">
               </app-stamping-reference-card>
             } @empty {
-              <p class="text-sm text-gray-400 py-4 text-center">No hay referencias para esta OP</p>
+              @if ((orderDetail()?.referenceSams?.length ?? 0) > 0) {
+                <p class="text-sm text-gray-400 py-4 text-center">No hay referencias para esta máquina</p>
+              } @else {
+                <p class="text-sm text-gray-400 py-4 text-center">No hay referencias para esta OP</p>
+              }
             }
           </div>
         }
