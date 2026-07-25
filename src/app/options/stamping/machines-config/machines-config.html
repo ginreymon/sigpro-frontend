@@ -1,0 +1,15 @@
+<div class="flex flex-col h-full min-h-full">
+  <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" class="mb-2"></app-ui-tabs>
+
+  <div class="flex-1 min-h-0">
+    @if (activeTab() === 'machines') {
+      <app-machines />
+    } @else if (activeTab() === 'machine-types') {
+      <app-machine-types />
+    } @else if (activeTab() === 'processes') {
+      <app-processes />
+    } @else if (activeTab() === 'additional-times') {
+      <app-additional-times />
+    }
+  </div>
+</div>

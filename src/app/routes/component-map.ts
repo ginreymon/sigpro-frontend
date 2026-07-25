@@ -17,6 +17,7 @@ import { MachineTypes } from '../options/stamping/machine-types/machine-types';
 import { Machines } from '../options/stamping/machines/machines';
 import { StampingSam } from '../options/admin/stamping-sam/stamping-sam';
 import { AdditionalTimes } from '../options/stamping/additional-times/additional-times';
+import { MachinesConfig } from '../options/stamping/machines-config/machines-config';
 import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
 import { StampingAuditory } from '../options/stamping/auditory/auditory';
 
@@ -41,6 +42,7 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/machine-types': MachineTypes,
   'stamping/machines': Machines,
   'stamping/additional-times': AdditionalTimes,
+  'stamping/machines-config': MachinesConfig,
   'stamping/day-operation': DayOperation,
   'stamping/shift-cycles': ShiftCycles,
   'stamping/machine-panel': MachinePanel,
