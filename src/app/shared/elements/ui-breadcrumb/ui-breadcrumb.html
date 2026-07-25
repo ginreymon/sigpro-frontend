@@ -1,29 +1,28 @@
-<nav aria-label="breadcrumbs" class="block w-full">
+<nav aria-label="breadcrumbs" class="block w-full overflow-x-auto">
   <ol
-    class="flex items-center flex-wrap gap-2 text-sm w-full"
+    class="flex items-center gap-2 text-sm flex-nowrap sm:flex-wrap w-max sm:w-full"
     [class.justify-start]="align === 'left'"
     [class.justify-center]="align === 'center'"
     [class.justify-end]="align === 'right'">
     @for (tab of tabs; track tab.key; let last = $last) {
-      <li class="flex items-center gap-2">
+      <li class="flex items-center gap-2 shrink-0">
         <button
           type="button"
           [disabled]="tab.disabled"
           (click)="setTab(tab.key)"
           [class.text-brand-400]="activeTab() === tab.key && !tab.hasError"
-          [class.font-semibold]="activeTab() === tab.key"
           [class.text-gray-500]="activeTab() !== tab.key && !tab.disabled && !tab.hasError"
           [class.text-red-500]="tab.hasError"
           [class.opacity-50]="tab.disabled"
           [class.cursor-not-allowed]="tab.disabled"
           [class.pointer-events-none]="tab.disabled"
-          class="px-1 py-0.5 rounded hover:bg-gray-100 hover:text-brand-700 transition-colors cursor-pointer">
+          class="px-1 py-0.5 rounded hover:bg-gray-100 hover:text-brand-700 transition-colors cursor-pointer whitespace-nowrap">
           {{ tab.label }}
         </button>
         @if (!last) {
-          <app-ui-icon [iconName]="'chevronRight'" class="h-4 w-4 text-gray-400"></app-ui-icon>
+          <app-ui-icon [iconName]="'chevronRight'" class="h-4 w-4 text-gray-400 shrink-0"></app-ui-icon>
         }
-      </li>     
+      </li>
     }
   </ol>
 </nav>
