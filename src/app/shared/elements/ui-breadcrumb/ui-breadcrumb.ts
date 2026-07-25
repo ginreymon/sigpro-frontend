@@ -2,14 +2,18 @@ import { Component, Input, Output, EventEmitter, signal, OnChanges, SimpleChange
 import { UiIcon } from '../ui-icon/ui-icon';
 import { TabItem } from '../ui-tabs/ui-tabs';
 
+export type UiBreadcrumbAlign = 'left' | 'center' | 'right';
+
 @Component({
   selector: 'app-ui-breadcrumb',
   imports: [UiIcon],
   templateUrl: './ui-breadcrumb.html',
+  host: { class: 'block' },
 })
 export class UiBreadcrumb implements OnChanges {
   @Input() tabs: TabItem[] = [];
   @Input() initialTab?: string;
+  @Input() align: UiBreadcrumbAlign = 'left';
   @Output() tabChange = new EventEmitter<string>();
 
   activeTab = signal('');
