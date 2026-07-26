@@ -8,6 +8,7 @@ import { Module } from '../../../../models/core/module';
 
 interface AreaTile {
   name: string;
+  optionName: string;
   routerLink: string;
   iconName: string;
 }
@@ -46,20 +47,24 @@ export class HomeEngineer implements OnInit, OnDestroy {
   }
 
   private buildAreas(menu: Module[]): AreaTile[] {
+    // GET core/menu/ ya viene pre-filtrado por state=True (queryset del backend) y no
+    // serializa ese campo — chequear mod.state/op.state acá siempre da undefined y
+    // descarta todo. visible es el único filtro real que manda el endpoint.
+    // Un módulo solo aparece si tiene una opción marcada is_home_target — no hay
+    // fallback a "la primera por order".
     return menu
-      .filter((mod) => mod.state && mod.url && mod.options?.some((op) => op.visible && op.state))
-      .sort((a, b) => a.order - b.order)
-      .map((mod) => {
-        const visibleOptions = (mod.options ?? []).filter((op) => op.visible && op.state);
-        const targetOption =
-          visibleOptions.find((op) => op.is_home_target) ??
-          [...visibleOptions].sort((a, b) => a.order - b.order)[0];
-
-        return {
-          name: mod.name,
-          routerLink: `/${mod.url}/${targetOption?.url}`,
-          iconName: MODULE_ICONS[mod.url ?? ''] ?? DEFAULT_ICON,
-        };
-      });
+      .filter((mod) => mod.url)
+      .map((mod) => ({
+        mod,
+        targetOption: (mod.options ?? []).find((op) => op.visible && op.is_home_target),
+      }))
+      .filter((entry) => entry.targetOption)
+      .sort((a, b) => a.mod.order - b.mod.order)
+      .map(({ mod, targetOption }) => ({
+        name: mod.name,
+        optionName: targetOption!.name,
+        routerLink: `/${mod.url}/${targetOption!.url}`,
+        iconName: MODULE_ICONS[mod.url ?? ''] ?? DEFAULT_ICON,
+      }));
   }
 }
