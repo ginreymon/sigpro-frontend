@@ -15,14 +15,10 @@ interface AreaTile {
 
 // Module.url -> icon. No hay campo de icono en el modelo, se mapea acá; los módulos
 // sin entrada usan DEFAULT_ICON.
-const MODULE_ICONS: Record<string, string> = {
-  production: 'chartArea',
-  stamping: 'hammer',
-  catalog: 'file',
-  admin: 'screwdriverWrench',
-  configuration: 'screwdriverWrench',
+const MODULE_ICONS: Record<string, string> = { 
+  configuration: 'gears',
 };
-const DEFAULT_ICON = 'file';
+const DEFAULT_ICON = 'gear';
 
 @Component({
   selector: 'app-home-engineer',
