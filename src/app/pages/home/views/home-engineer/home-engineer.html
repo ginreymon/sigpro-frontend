@@ -1,0 +1,14 @@
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+  @for (area of areas(); track area.routerLink) {
+    <a
+      [routerLink]="area.routerLink"
+      class="flex flex-col items-center justify-center gap-3 bg-white border border-gray-200 rounded-lg p-6 min-h-32 text-center hover:border-brand-400 hover:shadow-md transition-all duration-200 cursor-pointer">
+      <span class="flex items-center justify-center w-14 h-14 rounded-full bg-brand-100 text-brand-700">
+        <app-ui-icon [iconName]="area.iconName" class="w-7 h-7"></app-ui-icon>
+      </span>
+      <span class="text-sm font-semibold text-gray-700">{{ area.name | titlecase }}</span>
+    </a>
+  } @empty {
+    <p class="text-sm text-gray-400 col-span-full text-center py-6">No hay áreas disponibles.</p>
+  }
+</div>
