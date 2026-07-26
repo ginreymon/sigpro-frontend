@@ -10,4 +10,5 @@ export interface Option {
   title: string | null;
   description: string | null;
   visible: boolean;
+  is_home_target: boolean;
 }

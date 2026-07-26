@@ -50,13 +50,14 @@ export class HomeEngineer implements OnInit, OnDestroy {
       .filter((mod) => mod.state && mod.url && mod.options?.some((op) => op.visible && op.state))
       .sort((a, b) => a.order - b.order)
       .map((mod) => {
-        const firstOption = [...(mod.options ?? [])]
-          .filter((op) => op.visible && op.state)
-          .sort((a, b) => a.order - b.order)[0];
+        const visibleOptions = (mod.options ?? []).filter((op) => op.visible && op.state);
+        const targetOption =
+          visibleOptions.find((op) => op.is_home_target) ??
+          [...visibleOptions].sort((a, b) => a.order - b.order)[0];
 
         return {
           name: mod.name,
-          routerLink: `/${mod.url}/${firstOption?.url}`,
+          routerLink: `/${mod.url}/${targetOption?.url}`,
           iconName: MODULE_ICONS[mod.url ?? ''] ?? DEFAULT_ICON,
         };
       });
