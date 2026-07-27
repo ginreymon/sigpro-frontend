@@ -202,8 +202,9 @@ export class StampingRecord {
   }
 
   protected selectReference(id: number): void {
-    this.selectedReferenceSamId.set(id);
-    this.recordForm.patchValue({ stamping_reference_sam: id });
+    const newId = this.selectedReferenceSamId() === id ? null : id;
+    this.selectedReferenceSamId.set(newId);
+    this.recordForm.patchValue({ stamping_reference_sam: newId });
   }
 
   protected close(): void {
