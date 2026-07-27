@@ -13,6 +13,7 @@ export class UiFormField {
   @Input() layout: 'vertical' | 'horizontal' = 'vertical';
   @Input() controls: Partial<FormFieldConfig>[] = [];
   @Input() groupLabel: string | null = null;
+  @Input() hideLabel = false;
 
   @Input() set label(value: string) {
     this.updateFirstControl({ label: value });
