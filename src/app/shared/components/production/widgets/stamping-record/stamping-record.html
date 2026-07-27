@@ -8,7 +8,7 @@
       (tabChange)="onTabChange($event)">
     </app-ui-tabs>
 
-    <div class="mt-4 min-h-40">
+    <form [formGroup]="recordForm" class="mt-4 min-h-40">
       @if (activeTab() === 'reference') {
         @if (!isLoadingModalData()) {
           <app-searcher [live]="true" [intent]="'action'" (onSearch)="searchReferences($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
@@ -42,7 +42,7 @@
       } @else if (activeTab() === 'quantities') {
         @if (!isLoadingModalData()) {
           
-          <form [formGroup]="quantityForm" class="mb-4">
+          <div class="mb-4">
             <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Cantidad producida'">
               <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">
                 <span right-addon>Estampadas: {{ totalStampedQuantity }}</span>
@@ -54,8 +54,8 @@
                 La cantidad ({{ exceedsMaxError.total }}) supera lo pendiente por estampar ({{ exceedsMaxError.max }}).
               </app-ui-error-message>
             }
-          </form>
-          
+          </div>
+
           <app-stamping-quantity-counter [orderDetail]="orderDetail()" [newCompletedQty]="newCompletedQty"></app-stamping-quantity-counter>
         }
       } @else if (activeTab() === 'additionaltimes') {
@@ -85,7 +85,7 @@
           </div>
         }
       }
-    </div>
+    </form>
   </div>
 
   <div box-buttons class="w-full flex flex-row items-center gap-3 border-t border-slate-200 pt-4">

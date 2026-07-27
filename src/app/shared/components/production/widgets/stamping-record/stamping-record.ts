@@ -51,8 +51,8 @@ export class StampingRecord {
 
   protected tabs: TabItem[] = [
     { key: 'reference', label: 'Referencia' },
-    { key: 'additionaltimes', label: 'Tiempos Adicionales' },
     { key: 'quantities', label: 'Cantidades' },
+    { key: 'additionaltimes', label: 'Tiempos Adicionales' },
   ];
 
   protected activeTab = signal('reference');
@@ -70,8 +70,12 @@ export class StampingRecord {
   private referencesSearchText = signal('');
   protected showOnlySelectedReference = signal(false);
 
-  protected quantityForm: FormGroup = this.fb.group(
-    { completed_quantity: [null, [Validators.required, Validators.min(1), this.integerValidator]] },
+  protected recordForm: FormGroup = this.fb.group(
+    {
+      stamping_reference_sam: [null, Validators.required],
+      completed_quantity: [null, [Validators.required, Validators.min(1), this.integerValidator]],
+      additional_times: [[] as number[]],
+    },
     { validators: [this.exceedsMaxValidator.bind(this)] },
   );
 
@@ -125,15 +129,15 @@ export class StampingRecord {
   }
 
   protected get newCompletedQty(): number {
-    return Number(this.quantityForm.get('completed_quantity')?.value) || 0;
+    return Number(this.recordForm.get('completed_quantity')?.value) || 0;
   }
 
   protected get exceedsMaxError(): { max: number; total: number } | null {
-    return this.quantityForm.errors?.['exceedsMax'] ?? null;
+    return this.recordForm.errors?.['exceedsMax'] ?? null;
   }
 
   protected get canSubmit(): boolean {
-    return this.selectedReferenceSamId() !== null && this.quantityForm.valid;
+    return this.recordForm.valid;
   }
 
   protected get tabsView(): TabItem[] {
@@ -142,8 +146,10 @@ export class StampingRecord {
 
   private tabHasError(key: string): boolean {
     if (!this.submitAttempted()) return false;
-    if (key === 'reference') return this.selectedReferenceSamId() === null;
-    if (key === 'quantities') return this.quantityForm.invalid;
+    if (key === 'reference') return this.recordForm.get('stamping_reference_sam')?.invalid ?? false;
+    if (key === 'quantities') {
+      return this.recordForm.get('completed_quantity')?.invalid || !!this.exceedsMaxError;
+    }
     return false;
   }
 
@@ -153,8 +159,13 @@ export class StampingRecord {
         this.loadModalData();
       } else {
         untracked(() => {
-          this.quantityForm.reset({ completed_quantity: null });
+          this.recordForm.reset({
+            stamping_reference_sam: null,
+            completed_quantity: null,
+            additional_times: [],
+          });
           this.selectedReferenceSamId.set(null);
+          this.selectedAdditionalTimeIds.set([]);
           this.submitAttempted.set(false);
         });
       }
@@ -188,9 +199,11 @@ export class StampingRecord {
   }
 
   protected toggleAdditionalTime(id: number): void {
-    this.selectedAdditionalTimeIds.update((ids) =>
-      ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
-    );
+    this.selectedAdditionalTimeIds.update((ids) => {
+      const updated = ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id];
+      this.recordForm.patchValue({ additional_times: updated });
+      return updated;
+    });
   }
 
   protected getQuantity(id: number): number {
@@ -207,6 +220,7 @@ export class StampingRecord {
 
   protected selectReference(id: number): void {
     this.selectedReferenceSamId.set(id);
+    this.recordForm.patchValue({ stamping_reference_sam: id });
   }
 
   protected close(): void {
@@ -215,7 +229,7 @@ export class StampingRecord {
 
   protected register(): void {
     this.submitAttempted.set(true);
-    this.quantityForm.markAllAsTouched();
+    this.recordForm.markAllAsTouched();
 
     if (!this.canSubmit) return;
 
@@ -226,9 +240,10 @@ export class StampingRecord {
       op_rowid: order.rowId,
       op_number: order.documentNumber,
       op_type: order.documentType,
-      stamping_reference_sam: this.selectedReferenceSamId(),
+      stamping_reference_sam: this.recordForm.value.stamping_reference_sam,
       ordered_quantity: this.totalOrderedQuantity,
-      completed_quantity: Number(this.quantityForm.value.completed_quantity),
+      completed_quantity: Number(this.recordForm.value.completed_quantity),
+      additional_times: this.recordForm.value.additional_times,
     };
 
     this.onSave.emit(payload);
@@ -270,7 +285,9 @@ export class StampingRecord {
           this.orderDetail.set(orderDetail);
           const references = this.filterByMachineType(orderDetail?.referenceSams ?? []);
           this.referenceSams.set(references);
-          this.selectedReferenceSamId.set(references.length === 1 ? references[0].id : null);
+          const autoSelectedId = references.length === 1 ? references[0].id : null;
+          this.selectedReferenceSamId.set(autoSelectedId);
+          this.recordForm.patchValue({ stamping_reference_sam: autoSelectedId });
         },
       });
   }

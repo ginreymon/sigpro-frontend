@@ -13,4 +13,6 @@ export interface StampingRecord extends AuditEntity {
 
   start_time: string;
   end_time: string | null;
+
+  additional_times?: number[];
 }
