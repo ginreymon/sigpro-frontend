@@ -1,7 +1,7 @@
 @if(isVisible()){
 <app-box-layout [title]="'Pausar'" [classNames]="'max-w-md'">
 
-    <div box-content class="flex flex-col gap-3 py-4">
+    <div box-content class="flex flex-col gap-3 py-4 text-slate-500">
         <div class="grid grid-cols-1 gap-3 items-stretch overflow-y-auto max-h-[50vh] border-t border-slate-200 pt-4">
             @for(wb of workBreaks(); track wb.id){
             <app-ui-option-card [obj]="wb" [selected]="selectedBreak()?.id === wb.id" (onToggle)="selectBreak($event)">
@@ -26,19 +26,24 @@
         </div>
 
         @if(isCustomSelected()){
-        <textarea
-            class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500"
-            type="text"
-            placeholder="Describe el motivo..."
-            [value]="customReason()"
-            (input)="customReason.set($any($event.target).value)"
-        ></textarea>
+        <form [formGroup]="pauseForm" class="flex flex-col gap-3">
+            @if(isStamping()){
+            <app-ui-form-field [controlName]="'minutes'" [label]="'Minutos'">
+                <app-ui-large-input [type]="'number'" formControlName="minutes" [placeholder]="'Ej: 15'"></app-ui-large-input>
+            </app-ui-form-field>
+            }
+            <app-ui-form-field [controlName]="'reason'" [label]="'Motivo'">
+                <textarea
+                    formControlName="reason"
+                    class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500"
+                    placeholder="Describe el motivo..."
+                ></textarea>
+            </app-ui-form-field>
+        </form>
         }
 
-        @if(touched() && !isValid){
-        <app-ui-error-message>
-            {{ isCustomSelected()? 'Debe escribir el motivo' : 'Debe seleccionar al menos 1 opción' }}            
-        </app-ui-error-message>
+        @if(touched() && !selectedBreak() && !isCustomSelected()){
+        <app-ui-error-message>Debe seleccionar al menos 1 opción</app-ui-error-message>
         }
     </div>
 
