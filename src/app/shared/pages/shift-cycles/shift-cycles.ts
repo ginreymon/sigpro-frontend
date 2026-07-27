@@ -93,6 +93,9 @@ export class ShiftCycles extends BaseProductionOrderPage {
     this.shiftModals.employeesSaved$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => this.updateEmployees(data));
+    this.shiftModals.pauseSaved$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(record => this.onPauseSaved(record));
   }
 
   protected override beforeLoad(): void {
