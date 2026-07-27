@@ -225,7 +225,10 @@ export class StampingRecord {
       stamping_reference_sam: this.recordForm.value.stamping_reference_sam,
       ordered_quantity: this.totalOrderedQuantity,
       completed_quantity: Number(this.recordForm.value.completed_quantity),
-      additional_times: this.recordForm.value.additional_times,
+      additional_times: (this.recordForm.value.additional_times as number[]).map((id) => ({
+        id,
+        count: 1,
+      })),
     };
 
     this.onSave.emit(payload);
