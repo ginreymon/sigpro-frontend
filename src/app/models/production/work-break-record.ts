@@ -12,4 +12,6 @@ export interface WorkBreakRecord extends AuditEntity {
   work_session_activity?: Number;
 }
 
-export type PausePayload = | { work_break: number } | { custom_reason: string };
+export type PausePayload =
+  | { work_break: number }
+  | { custom_reason: string; work_break_minutes?: number };
