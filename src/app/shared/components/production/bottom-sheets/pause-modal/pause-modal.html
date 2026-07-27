@@ -26,7 +26,7 @@
         </div>
 
         @if(isCustomSelected()){
-        <form [formGroup]="pauseForm" class="flex flex-col gap-3">
+        <form [formGroup]="pauseForm" class="flex flex-col gap-0 p-4 border border-slate-200 rounded-lg bg-slate-50">
             @if(isStamping()){
             <app-ui-form-field [controlName]="'minutes'" [label]="'Minutos'">
                 <app-ui-large-input [type]="'number'" formControlName="minutes" [placeholder]="'Ej: 15'"></app-ui-large-input>
