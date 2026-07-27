@@ -50,8 +50,8 @@ export class StampingRecord {
   protected stampingConfig = SHIFT_CYCLES_CONFIG['stamping'];
 
   protected tabs: TabItem[] = [
-    { key: 'reference', label: 'Referencia' },
     { key: 'quantities', label: 'Cantidades' },
+    { key: 'reference', label: 'Referencia' },
     { key: 'additionaltimes', label: 'Tiempos Adicionales' },
   ];
 
@@ -68,7 +68,6 @@ export class StampingRecord {
   protected referenceSams = signal<StampingReferenceSam[]>([]);
   protected selectedReferenceSamId = signal<number | null>(null);
   private referencesSearchText = signal('');
-  protected showOnlySelectedReference = signal(false);
 
   protected recordForm: FormGroup = this.fb.group(
     {
@@ -109,13 +108,6 @@ export class StampingRecord {
     );
   });
 
-  protected displayedReferences = computed(() => {
-    const list = this.filteredReferences();
-    if (!this.showOnlySelectedReference()) return list;
-    const id = this.selectedReferenceSamId();
-    return list.filter((item) => item.id === id);
-  });
-
   protected get totalOrderedQuantity(): number {
     return Number(this.orderDetail()?.orderedQty) || 0;
   }
@@ -134,10 +126,6 @@ export class StampingRecord {
 
   protected get exceedsMaxError(): { max: number; total: number } | null {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
-  }
-
-  protected get canSubmit(): boolean {
-    return this.recordForm.valid;
   }
 
   protected get tabsView(): TabItem[] {
@@ -173,11 +161,6 @@ export class StampingRecord {
     effect(() => {
       if (this.showOnlySelectedAdditionalTimes() && this.selectedAdditionalTimeIds().length === 0) {
         untracked(() => this.showOnlySelectedAdditionalTimes.set(false));
-      }
-    });
-    effect(() => {
-      if (this.showOnlySelectedReference() && this.selectedReferenceSamId() === null) {
-        untracked(() => this.showOnlySelectedReference.set(false));
       }
     });
   }
@@ -229,9 +212,8 @@ export class StampingRecord {
 
   protected register(): void {
     this.submitAttempted.set(true);
-    this.recordForm.markAllAsTouched();
 
-    if (!this.canSubmit) return;
+    if (!this.validateRecordForm()) return;
 
     const order = this.productionContextService.snapshot?.order;
     if (!order) return;
@@ -247,6 +229,14 @@ export class StampingRecord {
     };
 
     this.onSave.emit(payload);
+  }
+
+  private validateRecordForm(): boolean {
+    this.recordForm.markAllAsTouched();
+    Object.keys(this.recordForm.controls).forEach((key) => {
+      this.recordForm.get(key)?.updateValueAndValidity({ onlySelf: true, emitEvent: true });
+    });
+    return this.recordForm.valid;
   }
 
   private integerValidator(control: AbstractControl): ValidationErrors | null {
@@ -285,9 +275,6 @@ export class StampingRecord {
           this.orderDetail.set(orderDetail);
           const references = this.filterByMachineType(orderDetail?.referenceSams ?? []);
           this.referenceSams.set(references);
-          const autoSelectedId = references.length === 1 ? references[0].id : null;
-          this.selectedReferenceSamId.set(autoSelectedId);
-          this.recordForm.patchValue({ stamping_reference_sam: autoSelectedId });
         },
       });
   }
