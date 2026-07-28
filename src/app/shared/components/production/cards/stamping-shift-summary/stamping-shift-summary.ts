@@ -6,6 +6,7 @@ import { UpperCasePipe } from '@angular/common';
 import { ProductivityParams } from '../../../../../models/production/productivity-params';
 import { EfficiencyPeriod } from '../../../../../models/production/efficiency-period';
 import { StampingProductivityService } from '../../../../../services/stamping/stamping-productivity-service';
+import { WorkSession } from '../../../../../models/production/work-session';
 
 @Component({
   selector: 'app-stamping-shift-summary',
@@ -18,5 +19,10 @@ export class StampingShiftSummary extends WorkShiftSummary {
 
   protected override getEfficiency(params: ProductivityParams): Observable<EfficiencyPeriod> {
     return this.stampingProductivityService.getEfficiencyPeriod(params);
+  }
+
+  protected override buildCards(s: WorkSession): void {
+    super.buildCards(s);
+    this.cards.update(cards => cards.filter(c => c.title !== 'Bajas/Saldos'));
   }
 }
