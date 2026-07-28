@@ -40,10 +40,14 @@
 
     <div class="mb-4 border-t border-slate-200 pt-4">
         <h4 class="text-xl font-semibold text-gray-700 mb-2"> Pasos del proceso </h4>
-        @if (rowObject.process_description?.length) {
+        @if (rowObject.steps?.length) {
         <ol class="list-decimal list-inside space-y-1 text-sm">
-            @for (step of rowObject.process_description; track $index) {
-            <li>{{ step }}</li>
+            @for (step of rowObject.steps; track $index) {
+            <li>{{ step.description }}
+                @if (step.standard_time) {
+                <span class="text-slate-500"> — {{ step.standard_time }}</span>
+                }
+            </li>
             }
         </ol>
         } @else {
@@ -84,10 +88,10 @@
                 <app-ui-input [type]="'number'" [isFloat]="true" formControlName="standard_time" [id]="'standard_time'" [placeholder]="'Ej: 0.1500'" [control]="standardTime"></app-ui-input>
             </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'process_description'" [label]="'Pasos del proceso'">
-                <app-ui-string-list-input formControlName="process_description" [id]="'process_description'"
-                    [control]="processDescription" [itemPlaceholder]="'Describe el paso'"
-                    [addLabel]="'Agregar paso'"></app-ui-string-list-input>
+            <app-ui-form-field [controlName]="'steps'" [label]="'Pasos del proceso'">
+                <app-ui-step-list-input formControlName="steps" [id]="'steps'" [control]="steps"
+                    [descriptionPlaceholder]="'Describe el paso'" [timePlaceholder]="'Tiempo'"
+                    [addLabel]="'Agregar paso'"></app-ui-step-list-input>
             </app-ui-form-field>
 
             @if(actionType == 'edit'){

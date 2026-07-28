@@ -4,7 +4,10 @@ import { DataTable } from '../../../shared/components/table/data-table/data-tabl
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
-import { AdditionalStampingTime } from '../../../models/stamping/additional-stamping-time';
+import {
+  AdditionalStampingTime,
+  AdditionalStampingTimeStep,
+} from '../../../models/stamping/additional-stamping-time';
 import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
@@ -22,7 +25,7 @@ import { StampingMachine } from '../../../models/stamping/stamping-machine';
 import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
 import { StampingMachineType } from '../../../models/stamping/stamping-machine-type';
 import { StampingMachineTypeService } from '../../../services/stamping/stamping-machine-type-service';
-import { UiStringListInput } from '../../../shared/elements/ui-string-list-input/ui-string-list-input';
+import { UiStepListInput } from '../../../shared/elements/ui-step-list-input/ui-step-list-input';
 
 @Component({
   selector: 'app-additional-times',
@@ -41,7 +44,7 @@ import { UiStringListInput } from '../../../shared/elements/ui-string-list-input
     TableTemplate,
     CharSquare,
     UiSelect,
-    UiStringListInput,
+    UiStepListInput,
   ],
   templateUrl: './additional-times.html',
   styleUrl: './additional-times.css',
@@ -84,7 +87,7 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
       machine: [null],
       machine_type: [null, [Validators.required]],
       process: [null, [Validators.required]],
-      process_description: [[]],
+      steps: [[]],
       standard_time: [null],
       is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
     });
@@ -95,7 +98,7 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
   get machine() { return this.modelForm.get('machine'); }
   get machineType() { return this.modelForm.get('machine_type'); }
   get process() { return this.modelForm.get('process'); }
-  get processDescription() { return this.modelForm.get('process_description'); }
+  get steps() { return this.modelForm.get('steps'); }
   get standardTime() { return this.modelForm.get('standard_time'); }
   get isActive() { return this.modelForm.get('is_active'); }
 
@@ -104,7 +107,7 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
     if (event.type == 'edit') {
       this.modelForm.patchValue({
         ...event.obj,
-        process_description: event.obj.process_description ?? [],
+        steps: event.obj.steps ?? [],
       });
     }
   }
@@ -112,8 +115,8 @@ export class AdditionalTimes extends BaseCrudPage<AdditionalStampingTime> {
   protected override submit(): void {
     const additionalStampingTime: Partial<AdditionalStampingTime> = {
       ...this.modelForm.value,
-      process_description: (this.modelForm.value.process_description ?? []).filter(
-        (step: string) => step.trim().length > 0,
+      steps: (this.modelForm.value.steps ?? []).filter(
+        (step: AdditionalStampingTimeStep) => step.description.trim().length > 0,
       ),
       is_active: this.isActive?.value ?? true,
     };
