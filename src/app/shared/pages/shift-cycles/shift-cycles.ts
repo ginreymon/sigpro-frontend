@@ -9,6 +9,7 @@ import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { OrderHeader } from '../../../shared/components/production/cards/order-header/order-header';
 import { WorkShiftSummary } from '../../../shared/components/production/cards/work-shift-summary/work-shift-summary';
+import { StampingShiftSummary } from '../../../shared/components/production/cards/stamping-shift-summary/stamping-shift-summary';
 import { EmployeesModal } from '../../../shared/components/production/bottom-sheets/employees-modal/employees-modal';
 import { BalanceBottomSheet } from '../../../shared/components/production/bottom-sheets/balance-bottom-sheet/balance-bottom-sheet';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
@@ -44,7 +45,7 @@ import { AppConfigService } from '../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, EmployeesModal, BalanceBottomSheet, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, UnplannedShiftMessage, ShiftCyclesActions],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceBottomSheet, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, UnplannedShiftMessage, ShiftCyclesActions],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })

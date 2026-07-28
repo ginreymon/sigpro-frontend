@@ -1,9 +1,11 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Observable } from 'rxjs';
 import { WorkShiftCard } from '../../../../../common/interfaces/work-shift-card';
 import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
 import { WorkSession } from '../../../../../models/production/work-session';
 import { ProductivityService } from '../../../../../services/production/productivity-service';
 import { ProductivityParams } from '../../../../../models/production/productivity-params';
+import { EfficiencyPeriod } from '../../../../../models/production/efficiency-period';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UpperCasePipe } from '@angular/common';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
@@ -80,7 +82,7 @@ export class WorkShiftSummary implements OnInit {
       shiftId:   s.work_shift.id,
     };
 
-    this.productivityService.getEfficiencyPeriod(params).subscribe({
+    this.getEfficiency(params).subscribe({
       next: (summary) => {
         this.contextService.setEfficiency(summary);
         const noBackendData = !summary.unit_target && !summary.efficiency;
@@ -97,6 +99,10 @@ export class WorkShiftSummary implements OnInit {
         }));
       },
     });
+  }
+
+  protected getEfficiency(params: ProductivityParams): Observable<EfficiencyPeriod> {
+    return this.productivityService.getEfficiencyPeriod(params);
   }
 
   private calculateSamTarget(s: WorkSession, startUtc: string): number {
