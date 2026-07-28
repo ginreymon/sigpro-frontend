@@ -86,7 +86,7 @@ export class WorkShiftSummary implements OnInit {
       next: (summary) => {
         this.contextService.setEfficiency(summary);
         const noBackendData = !summary.unit_target && !summary.efficiency;
-        if (noBackendData && this.ordenProduction && !this.ordenProduction.sam) {
+        if (noBackendData && this.ordenProduction && !this.getEffectiveSam()) {
           this.showSamAlert(this.ordenProduction);
         }
         const samTarget = noBackendData ? this.calculateSamTarget(s, startUtc) : null;
@@ -105,15 +105,19 @@ export class WorkShiftSummary implements OnInit {
     return this.productivityService.getEfficiencyPeriod(params);
   }
 
-  private calculateSamTarget(s: WorkSession, startUtc: string): number {
-    const sam = this.ordenProduction?.sam;
+  protected getEffectiveSam(): number | undefined {
+    return this.ordenProduction?.sam;
+  }
+
+  protected calculateSamTarget(s: WorkSession, startUtc: string): number | string {
+    const sam = this.getEffectiveSam();
     if (!sam) return 0;
     const weighted = s.employees_snapshot?.reduce((sum, e) => sum + (e.is_apprentice ? 0.5 : 1), 0) ?? 0;
     const elapsedMinutes = (Date.now() - new Date(startUtc).getTime()) / 60000;
     return Math.round((elapsedMinutes * weighted) / sam);
   }
 
-  private showSamAlert(po: ProductionOrder) {
+  protected showSamAlert(po: ProductionOrder) {
     this.dialogService.openToast(
       'Configuración incompleta',
       `No se puede calcular la meta porque la referencia "${po.reference}" no tiene un valor SAM registrado.`,
