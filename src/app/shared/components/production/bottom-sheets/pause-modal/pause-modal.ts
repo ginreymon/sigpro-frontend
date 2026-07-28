@@ -125,7 +125,11 @@ export class PauseModal implements OnInit {
         };
 
     this.loaderService.showLoader();
-    this.activityService.pause(activityId, payload)
+    const pause$ = this.isStamping()
+      ? this.activityService.pauseAutoResume(activityId, payload)
+      : this.activityService.pause(activityId, payload);
+
+    pause$
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (pause) => {

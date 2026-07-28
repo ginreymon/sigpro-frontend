@@ -15,6 +15,10 @@ export class WorkSessionActivityService extends BaseCrudService<WorkSessionActiv
     return this.http.post(`${this.endpoint}${id}/pause/`, data);
   }
 
+  pauseAutoResume(id: number, data: PausePayload): Observable<any> {
+    return this.http.post(`${this.endpoint}${id}/pause-autoresume/`, data);
+  }
+
   resume(id: number): Observable<any> {
     return this.http.post(`${this.endpoint}${id}/resume/`, {});
   }
