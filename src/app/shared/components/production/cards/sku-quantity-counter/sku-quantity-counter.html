@@ -23,5 +23,6 @@
             <p class="text-m font-semibold mb-1 text-slate-900">{{ toDo }}</p>
         </div>
     </div>
+    <app-progress-bar class="w-full mt-3" [max]="selectedSKU.orderedQty" [progress]="totalDone"></app-progress-bar>
 </div>
 }
