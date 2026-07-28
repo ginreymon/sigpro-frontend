@@ -54,7 +54,11 @@
         </app-sku-quantity-counter>
         }
         @else{
-        <app-sku-quantity-summary class="w-full" [selectedSKU]="selectedSKU"></app-sku-quantity-summary>
+        <app-sku-quantity-summary class="w-full" [selectedSKU]="selectedSKU"
+            [newCompletedQty]="completedQty"
+            [newRejectedQty]="rejectedQty"
+            [newScrapQty]="scrapQty">
+        </app-sku-quantity-summary>
         }
     </div>
 

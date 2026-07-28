@@ -60,8 +60,8 @@ export class ShiftCyclesActions {
   actions: ShiftCycleAction[] = [
     {
       key: 'stampingRecord',
-      icon: 'clock',
-      label: 'Tiempos',
+      icon: 'circleRight',
+      label: 'Registrar',
       iconIntent: 'action',
       handler: () => this.openStampingRecord(),
       hideWhen: () => this.isHidden('stampingRecord', c => c.showStampingRecord),

@@ -10,10 +10,14 @@ import { ProgressBar } from '../../../widgets/progress-bar/progress-bar';
 })
 export class SkuQuantitySummary {
   @Input() selectedSKU: SkuTaskDetail | null = null;
+  @Input() newCompletedQty = 0;
+  @Input() newRejectedQty = 0;
+  @Input() newScrapQty = 0;
 
   get totalDone(): number {
     if (!this.selectedSKU) return 0;
-    return this.selectedSKU.completedQty + this.selectedSKU.rejectedQty + this.selectedSKU.wasteQty;
+    return this.selectedSKU.completedQty + this.selectedSKU.rejectedQty + this.selectedSKU.wasteQty
+      + this.newCompletedQty + this.newRejectedQty + this.newScrapQty;
   }
 
   get toDo(): number {
