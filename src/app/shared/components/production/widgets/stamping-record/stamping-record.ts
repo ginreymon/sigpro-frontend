@@ -55,7 +55,7 @@ export class StampingRecord {
     { key: 'additionaltimes', label: 'Tiempos Adicionales' },
   ];
 
-  protected activeTab = signal('reference');
+  protected activeTab = signal('quantities');
   protected isLoadingModalData = signal(false);
   protected submitAttempted = signal(false);
   protected additionalTimes = signal<AdditionalStampingTime[]>([]);
