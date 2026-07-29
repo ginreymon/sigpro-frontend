@@ -58,7 +58,7 @@ export class StampingShiftSummary extends WorkShiftSummary {
         this.referenceSamsLoaded = true;
         const sams = (detail.referenceSams ?? [])
           .filter(r => r.machine_type == null || r.machine_type === machineTypeId)
-          .map(r => Number(r.sam_single_person))
+          .map(r => Number(r.sam))
           .filter(v => !isNaN(v) && v > 0);
         this.maxReferenceSam = sams.length ? Math.max(...sams) : undefined;
         if (this.lastSession) this.loadProductivityCards(this.lastSession);

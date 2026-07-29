@@ -8,7 +8,7 @@ import { StampingReferenceSam } from '../../../models/stamping/stamping-referenc
 import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize, Subscription } from 'rxjs';
+import { distinctUntilChanged, finalize, Subscription } from 'rxjs';
 import { StampingReferenceSamService } from '../../../services/stamping/stamping-reference-sam-service';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
@@ -51,7 +51,7 @@ const TAB_FIELDS: Record<string, string[]> = {
   identification: ['no_reference', 'rowid_item', 'identification'],
   production: ['location', 'machine_type', 'piece', 'people_count', 'stamped_pieces', 'pieces_per_board', 'fabric_type'],
   process: ['stamp_type_description', 'technique', 'frames', 'inks', 'prints', 'layout_form', 'pre_dried'],
-  sam: ['sam_single_person', 'tasks_per_hour', 'is_active'],
+  sam: ['sam', 'tasks_per_hour', 'is_active'],
 };
 
 @Component({
@@ -103,8 +103,8 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
     this.activeTab.set(key);
   }
 
-  protected calcTasksPerHour(samSinglePerson: string | number | null): string | null {
-    return calcSamTarget(samSinglePerson, 60, 1);
+  protected calcTasksPerHour(sam: string | number | null): string | null {
+    return calcSamTarget(sam, 60, 1);
   }
 
   get tabsView(): TabItem[] {
@@ -122,7 +122,14 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
 
   private wireNoReferenceDependency(): void {
     this.noReferenceSub?.unsubscribe();
-    this.noReferenceSub = this.noReference!.valueChanges.subscribe((requiresReference) => {
+    // `validateModelForm()` (base-crud-page.ts) calls `updateValueAndValidity({
+    // emitEvent: true })` on every control on submit — Angular re-emits
+    // `valueChanges` unconditionally from that call, even when the value
+    // didn't change. Without `distinctUntilChanged()`, that spurious emission
+    // re-ran this reset on every Guardar/Actualizar click, wiping
+    // `identification` right before its own validity check and making the
+    // form permanently invalid.
+    this.noReferenceSub = this.noReference!.valueChanges.pipe(distinctUntilChanged()).subscribe((requiresReference) => {
       this.rowidItem?.setValue(null);
       this.identification?.setValue(null);
       this.syncRowidItemValidator(requiresReference);
@@ -209,7 +216,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
       people_count: [null, [Validators.required, Validators.min(1)]],
       piece: [null, [Validators.required]],
       stamped_pieces: [null, [Validators.required, Validators.min(1)]],
-      sam_single_person: [null, [Validators.required, Validators.min(0.0001)]],
+      sam: [null, [Validators.required, Validators.min(0.0001)]],
       tasks_per_hour: [null, [Validators.required, Validators.min(1)]],
       is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
       location: [null],
@@ -243,7 +250,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
   get piecesPerBoard() { return this.modelForm.get('pieces_per_board'); }
   get layoutForm() { return this.modelForm.get('layout_form'); }
   get preDried() { return this.modelForm.get('pre_dried'); }
-  get samSinglePerson() { return this.modelForm.get('sam_single_person'); }
+  get sam() { return this.modelForm.get('sam'); }
   get tasksPerHour() { return this.modelForm.get('tasks_per_hour'); }
   get isActive() { return this.modelForm.get('is_active'); }
 

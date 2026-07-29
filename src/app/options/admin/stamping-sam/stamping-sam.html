@@ -9,11 +9,11 @@
             </ng-template>
 
             <ng-template appTableTemplate="tasksPerHourTemplate" let-row>
-                {{ calcTasksPerHour(row.sam_single_person) ?? '—' }}
+                {{ calcTasksPerHour(row.sam) ?? '—' }}
             </ng-template>
 
             <ng-template appTableTemplate="samTemplate" let-row>
-                <app-sam-target-calculator [samValue]="row.sam_single_person" [calcId]="row.id" />
+                <app-sam-target-calculator [samValue]="row.sam" [calcId]="row.id" />
             </ng-template>
 
         </app-data-table>
@@ -64,7 +64,7 @@
     <div class="mb-4 border-t border-slate-200 pt-4">
         <h4 class="text-xl font-semibold text-gray-700 mb-2"> SAM </h4>
         <div class="space-y-2 text-sm">
-            <p><strong>SAM por persona:</strong> {{ rowObject.sam_single_person }}</p>
+            <p><strong>SAM por persona:</strong> {{ rowObject.sam }}</p>
             <p><strong>Estado activo:</strong> {{ rowObject.is_active ? 'Si' : 'No' }}</p>
         </div>
     </div>
@@ -156,8 +156,8 @@
             </div>
 
             <div [class.hidden]="activeTab() !== 'sam'" class="mt-4">
-                <app-ui-form-field [controlName]="'sam_single_person'" [label]="'SAM por persona'">
-                    <app-ui-input [type]="'number'" [isFloat]="true" formControlName="sam_single_person" [id]="'sam_single_person'" [placeholder]="'Ej: 4.1260'" [control]="samSinglePerson"></app-ui-input>
+                <app-ui-form-field [controlName]="'sam'" [label]="'SAM por persona'">
+                    <app-ui-input [type]="'number'" [isFloat]="true" formControlName="sam" [id]="'sam'" [placeholder]="'Ej: 4.1260'" [control]="sam"></app-ui-input>
                 </app-ui-form-field>
 
                 <app-ui-form-field [controlName]="'tasks_per_hour'" [label]="'Tareas por hora'">
