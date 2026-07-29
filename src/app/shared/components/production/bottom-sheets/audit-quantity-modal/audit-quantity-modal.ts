@@ -5,6 +5,7 @@ import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
 import { UiLargeInput } from '../../../../elements/ui-large-input/ui-large-input';
 import { UiErrorMessage } from '../../../../elements/ui-error-message/ui-error-message';
+import { UiSuccessMessage } from '../../../../elements/ui-success-message/ui-success-message';
 import { ProgressBar } from '../../../widgets/progress-bar/progress-bar';
 import { AuditQuantityModalService } from '../../../../../services/common/audit-quantity-modal-service';
 
@@ -18,7 +19,7 @@ const PACKAGE_SIZE = 80;
 @Component({
   selector: 'app-audit-quantity-modal',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, UiErrorMessage, ProgressBar],
+  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, UiErrorMessage, UiSuccessMessage, ProgressBar],
   templateUrl: './audit-quantity-modal.html',
 })
 export class AuditQuantityModal {
@@ -69,12 +70,23 @@ export class AuditQuantityModal {
     return Math.floor(value / PACKAGE_SIZE);
   }
 
+  remainderFor(controlName: string): number {
+    const value = Number(this.quantityForm.get(controlName)?.value) || 0;
+    return value % PACKAGE_SIZE;
+  }
+
   totalPackages(): number {
     return this.colorRows().reduce((sum, row) => sum + this.packagesFor(row.controlName), 0);
   }
 
-  mismatchError(controlName: string): { total: number; entered: number } | null {
-    return this.quantityForm.get(controlName)?.errors?.['mismatch'] ?? null;
+  rowMatches(controlName: string, total: number): boolean {
+    const value = this.quantityForm.get(controlName)?.value;
+    if (value === null || value === undefined || value === '') return false;
+    return Number(value) === total;
+  }
+
+  missingTotal(): number {
+    return this.totalOrderedQty() - this.enteredTotal();
   }
 
   private integerValidator(control: AbstractControl): ValidationErrors | null {

@@ -9,19 +9,21 @@
                     @for (row of colorRows(); track row.controlName) {
                     <app-ui-form-field [controlName]="row.controlName" [label]="row.color">
                         <app-ui-large-input [type]="'number'" [formControlName]="row.controlName" [placeholder]="'Total: ' + row.total" [hasAddon]="true">
-                            <span right-addon>{{ packagesFor(row.controlName) }} paq.</span>
+                            <span right-addon [class]="rowMatches(row.controlName, row.total) ? 'text-green-600' : 'text-red-500'">{{ packagesFor(row.controlName) }} paq / {{ remainderFor(row.controlName) }} unid</span>
                         </app-ui-large-input>
-                    </app-ui-form-field>
-
-                    @if (mismatchError(row.controlName); as error) {
-                    <app-ui-error-message>
-                        {{ row.color }}: la cantidad ingresada ({{ error.entered }}) no coincide con su total ({{ error.total }}).
-                    </app-ui-error-message>
-                    }
+                    </app-ui-form-field>                  
                     }
                 </fieldset>
             </div>
         </form>
+
+        @if (quantityForm.valid) {
+        <app-ui-success-message class="w-full">Arqueo completo.</app-ui-success-message>
+        } @else if (missingTotal() !== 0) {
+        <app-ui-error-message class="w-full">
+            {{ missingTotal() > 0 ? 'Faltan ' + missingTotal() : 'Sobran ' + -missingTotal() }} unidades por ingresar.
+        </app-ui-error-message>
+        }
 
         <div class="w-full py-3 flex flex-col justify-start mt-4 shrink-0 bg-gray-200 text-gray-700 border border-gray-200 rounded-md px-3">
             <div class="w-full grid grid-cols-4">
