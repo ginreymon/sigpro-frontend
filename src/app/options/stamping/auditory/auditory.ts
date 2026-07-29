@@ -10,7 +10,6 @@ import { OrderSearcher } from '../../../shared/components/production/widgets/ord
 import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
 import { ProductionOrder } from '../../../models/production/production-order';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
-import { UnplannedShiftMessage } from '../../../layouts/messages/unplanned-shift-message/unplanned-shift-message';
 import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
 
 const TABS: TabItem[] = [
@@ -20,7 +19,7 @@ const TABS: TabItem[] = [
 
 @Component({
   selector: 'app-stamping-auditory',
-  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, ProductionOrdersTable, OrderSearcher, UiButton, UnplannedShiftMessage],
+  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, ProductionOrdersTable, OrderSearcher, UiButton],
   templateUrl: './auditory.html',
 })
 export class StampingAuditory extends BaseProductionOrderPage {
