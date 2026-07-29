@@ -1,18 +1,15 @@
 @if(selectedSKU) {
-<div class="w-full py-3 flex flex-col justify-start">
+<div class="w-full py-3 flex flex-col justify-start mt-2 bg-gray-200 text-gray-700 border border-gray-200 rounded-md px-3">
     <div class="w-full flex flex-row justify-between">
         <div>
-            <h3 class="text-slate-500 text-xs">Unidades Ordenadas</h3>
+            <h3 class="text-gray-700 text-xs">Unidades Ordenadas</h3>
             <p class="text-m font-semibold mb-1 text-slate-900">{{ selectedSKU.orderedQty }}</p>
         </div>
         <div class="h-full flex flex-col items-end">
-            <h3 class="text-slate-500 text-xs">Unidades Por Hacer</h3>
+            <h3 class="text-gray-700 text-xs">Unidades Por Hacer</h3>
             <p class="text-m font-semibold mb-1 text-slate-900">{{ toDo }}</p>
         </div>
     </div>
-</div>
-
-<div class="w-full border-t border-slate-200 pb-4">
-    <app-progress-bar class="w-full" [max]="selectedSKU.orderedQty" [progress]="totalDone"></app-progress-bar>
+    <app-progress-bar class="w-full mt-3" [max]="selectedSKU.orderedQty" [progress]="totalDone"></app-progress-bar>
 </div>
 }
