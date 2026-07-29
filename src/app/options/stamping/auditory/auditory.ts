@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Location } from '@angular/common';
+import { finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
@@ -10,10 +11,11 @@ import { OrderSearcher } from '../../../shared/components/production/widgets/ord
 import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
 import { ProductionOrder } from '../../../models/production/production-order';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
-import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
-import { AuditQuantityModal, AuditedColorQuantity } from '../../../shared/components/production/bottom-sheets/audit-quantity-modal/audit-quantity-modal';
+import { AuditQuantityModal, AuditedColorQuantity } from '../../../shared/components/production/modals/audit-quantity-modal/audit-quantity-modal';
 import { AuditQuantityModalService } from '../../../services/common/audit-quantity-modal-service';
 import { DialogService } from '../../../services/common/dialog-service';
+import { AuditRecordService } from '../../../services/stamping/audit-record-service';
+import { AuditRecordBulkPayload } from '../../../models/stamping/audit-record';
 
 const TABS: TabItem[] = [
   { key: 'tab1', label: 'Orden OP' },
@@ -28,10 +30,10 @@ const TABS: TabItem[] = [
 export class StampingAuditory extends BaseProductionOrderPage {
   protected override loadExtras = false;
 
-  private shiftNav = inject(ShiftNavigationService);
   private location = inject(Location);
   private auditQuantityModal = inject(AuditQuantityModalService);
   private dialogService = inject(DialogService);
+  private auditRecordService = inject(AuditRecordService);
 
   private context = toSignal(this.contextService.context$, { initialValue: null });
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
@@ -61,25 +63,38 @@ export class StampingAuditory extends BaseProductionOrderPage {
     this.location.replaceState(this.router.serializeUrl(tree));
   }
 
-  goToShiftCycles(): void {
-    const order = this.productionOrder();
-    if (order) {
-      this.shiftNav.goToShiftCycles({ docType: order.documentType, docNumber: order.documentNumber });
-    } else {
-      this.goToDayOperation();
-    }
-  }
-
-  goToDayOperation() {
-    this.shiftNav.goToDayOperation();
-  }
-
   openAuditQuantityModal(): void {
     const order = this.productionOrder();
     if (order) this.auditQuantityModal.open(order);
   }
 
-  onAuditQuantitySaved(quantities: AuditedColorQuantity[]): void {
-    this.dialogService.openToast('Cantidad auditada', `Se registraron las cantidades de ${quantities.length} color(es).`, 'check');
+  onAuditQuantitySaved(rows: AuditedColorQuantity[]): void {
+    const order = this.productionOrder();
+    if (!order) return;
+
+    const payload: AuditRecordBulkPayload = {
+      op_number: order.documentNumber,
+      op_rowid: order.rowId,
+      op_type: order.documentType,
+      total_op_quantity: rows.reduce((sum, row) => sum + row.orderedQty, 0),
+      colors: rows.map((row) => ({
+        color: row.color,
+        sku_rowids: row.skuRowIds,
+        ordered_quantity: row.orderedQty,
+        audited_quantity: row.quantity,
+      })),
+    };
+
+    this.loaderService.showLoader();
+    this.auditRecordService.createBulk(payload)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => {
+          this.dialogService.openToast('Auditoría guardada', `Se registraron las cantidades de ${rows.length} color(es).`, 'check');
+        },
+        error: () => {
+          this.dialogService.openToast('No se pudo guardar', 'Error al guardar la auditoría.', 'fail');
+        },
+      });
   }
 }
