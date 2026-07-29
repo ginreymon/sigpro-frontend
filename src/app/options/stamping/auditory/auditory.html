@@ -1,12 +1,26 @@
-<app-work-space-layout>
-<app-panel-layout main-content>
+@if(currentSession()){
+<app-work-space-layout [headerVisible]="false">
+  <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
 
-    <div panel-header>
-        <h3 class="text-2xl font-semibold text-heading text-gray-900">Auditoría</h3>
-        <p class="text-gray-500 mt-2 text-sm w-full">Historial de cambios registrados en el módulo de troquelado.</p>
-    </div>
+    <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
 
-    <div panel-content>
+    @if (!productionOrder() && !isLoading()) {
+      <app-order-searcher [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)"></app-order-searcher>
+    }
+
+    @if (productionOrder()) {
+      <div [class.hidden]="activeTab() !== 'tab1'" class="flex-1 min-h-0 overflow-hidden flex flex-col">
+        <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
+        <div class="flex-1 min-h-0 overflow-hidden">
+          <app-production-orders-table
+            [readOnly]="true"
+            [productionOrder]="productionOrder()"
+            [currentSession]="currentSession()">
+          </app-production-orders-table>
+        </div>
+      </div>
+
+      <div [class.hidden]="activeTab() !== 'tab2'" class="flex-1 min-h-0 overflow-auto mt-2">
         <ol class="relative border-s border-gray-200 ms-3">
 
             <li class="mb-8 ms-6">
@@ -66,7 +80,33 @@
             </li>
 
         </ol>
-    </div>
+      </div>
+    }
 
-</app-panel-layout>
+    @if (productionOrder()) {
+      <div class="flex flex-row justify-end mt-4 gap-3">
+        <app-ui-button (onClick)="goToSearch()">
+          <app-ui-icon [iconName]="'magnifyingGlass'" class="h-5 w-5"></app-ui-icon>
+          Buscar otra OP
+        </app-ui-button>
+        <app-ui-button (onClick)="goToShiftCycles()">
+          <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+          Regresar
+        </app-ui-button>
+      </div>
+    }
+
+  </div>
 </app-work-space-layout>
+}
+@if(!currentSession() && !isLoading()){
+<div class="-m-6 h-[calc(100vh-4rem)] flex items-center justify-center">
+    <app-unplanned-shift-message [title]="'Jornada no planificada'"
+        [description]="'No has configurado la jornada de trabajo. Asigna un turno, módulo y operarios para poder visualizar los detalles de las órdenes de producción.'">
+        <app-ui-button (onClick)="goToDayOperation()">
+            <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+            Planificar jornada
+        </app-ui-button>
+    </app-unplanned-shift-message>
+</div>
+}
