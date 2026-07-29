@@ -1,0 +1,61 @@
+@if (visible()) {
+<app-box-layout [title]="'Ingresar cantidad auditada'" [classNames]="'max-w-md'">
+
+    <div box-content class="flex flex-col h-full min-h-0 items-center border-t border-slate-200 pt-4 mt-2">
+
+        <form id="auditQuantityForm" class="w-full flex-1 min-h-0 flex flex-col" [formGroup]="quantityForm">
+            <div class="w-full flex-1 min-h-0 max-h-[50vh] overflow-y-auto">
+                <fieldset>
+                    @for (row of colorRows(); track row.controlName) {
+                    <app-ui-form-field [controlName]="row.controlName" [label]="row.color">
+                        <app-ui-large-input [type]="'number'" [formControlName]="row.controlName" [placeholder]="'Total: ' + row.total" [hasAddon]="true">
+                            <span right-addon>{{ packagesFor(row.controlName) }} paq.</span>
+                        </app-ui-large-input>
+                    </app-ui-form-field>
+
+                    @if (mismatchError(row.controlName); as error) {
+                    <app-ui-error-message>
+                        {{ row.color }}: la cantidad ingresada ({{ error.entered }}) no coincide con su total ({{ error.total }}).
+                    </app-ui-error-message>
+                    }
+                    }
+                </fieldset>
+            </div>
+        </form>
+
+        <div class="w-full py-3 flex flex-col justify-start mt-4 shrink-0 bg-gray-200 text-gray-700 border border-gray-200 rounded-md px-3">
+            <div class="w-full grid grid-cols-4">
+                <div class="pr-2">
+                    <h3 class="text-gray-700 text-xs">OP</h3>
+                    <p class="text-m font-semibold mb-1 text-slate-700">{{ productionOrder()?.documentNumber }}</p>
+                </div>
+                <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
+                    <h3 class="text-gray-700 text-xs">Ingresado</h3>
+                    <p [class]="'text-m font-semibold mb-1 ' + (enteredTotal() === totalOrderedQty() ? 'text-green-600' : 'text-red-500')">{{ enteredTotal() }}</p>
+                </div>
+                <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
+                    <h3 class="text-gray-700 text-xs">Paquetes</h3>
+                    <p class="text-m font-semibold mb-1 text-slate-700">{{ totalPackages() }}</p>
+                </div>
+                <div class="h-full flex flex-col items-end border-l pl-2 border-gray-400">
+                    <h3 class="text-gray-700 text-xs">Total OP</h3>
+                    <p class="text-m font-semibold mb-1 text-slate-900">{{ totalOrderedQty() }}</p>
+                </div>
+            </div>
+            <app-progress-bar class="w-full mt-3" [max]="totalOrderedQty()" [progress]="enteredTotal()"></app-progress-bar>
+        </div>
+
+    </div>
+
+    <div box-buttons class="flex flex-row gap-3">
+        <app-ui-button [intent]="'cancel'" (onClick)="cancel()">
+            Cancelar
+        </app-ui-button>
+
+        <app-ui-button [disabled]="quantityForm.invalid" (onClick)="save()">
+            Guardar
+        </app-ui-button>
+    </div>
+
+</app-box-layout>
+}

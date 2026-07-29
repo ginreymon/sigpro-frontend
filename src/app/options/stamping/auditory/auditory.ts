@@ -11,6 +11,9 @@ import { BaseProductionOrderPage } from '../../../common/classes/base-production
 import { ProductionOrder } from '../../../models/production/production-order';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
+import { AuditQuantityModal, AuditedColorQuantity } from '../../../shared/components/production/bottom-sheets/audit-quantity-modal/audit-quantity-modal';
+import { AuditQuantityModalService } from '../../../services/common/audit-quantity-modal-service';
+import { DialogService } from '../../../services/common/dialog-service';
 
 const TABS: TabItem[] = [
   { key: 'tab1', label: 'Orden OP' },
@@ -19,7 +22,7 @@ const TABS: TabItem[] = [
 
 @Component({
   selector: 'app-stamping-auditory',
-  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, ProductionOrdersTable, OrderSearcher, UiButton],
+  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, ProductionOrdersTable, OrderSearcher, UiButton, AuditQuantityModal],
   templateUrl: './auditory.html',
 })
 export class StampingAuditory extends BaseProductionOrderPage {
@@ -27,6 +30,8 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
   private shiftNav = inject(ShiftNavigationService);
   private location = inject(Location);
+  private auditQuantityModal = inject(AuditQuantityModalService);
+  private dialogService = inject(DialogService);
 
   private context = toSignal(this.contextService.context$, { initialValue: null });
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
@@ -67,5 +72,14 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
   goToDayOperation() {
     this.shiftNav.goToDayOperation();
+  }
+
+  openAuditQuantityModal(): void {
+    const order = this.productionOrder();
+    if (order) this.auditQuantityModal.open(order);
+  }
+
+  onAuditQuantitySaved(quantities: AuditedColorQuantity[]): void {
+    this.dialogService.openToast('Cantidad auditada', `Se registraron las cantidades de ${quantities.length} color(es).`, 'check');
   }
 }

@@ -88,6 +88,10 @@
           <app-ui-icon [iconName]="'magnifyingGlass'" class="h-5 w-5"></app-ui-icon>
           Buscar otra OP
         </app-ui-button>
+        <app-ui-button (onClick)="openAuditQuantityModal()">
+          <app-ui-icon [iconName]="'check'" class="h-5 w-5"></app-ui-icon>
+          Auditar
+        </app-ui-button>
         <app-ui-button (onClick)="goToShiftCycles()">
           <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
           Regresar
@@ -97,3 +101,5 @@
 
   </div>
 </app-work-space-layout>
+
+<app-audit-quantity-modal (onSave)="onAuditQuantitySaved($event)"></app-audit-quantity-modal>
