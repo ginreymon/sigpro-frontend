@@ -49,7 +49,7 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
         this.dialogService.closeConfirm();
         this.deleteHandler(event.obj.id,
           () => {
-            this.dialogService.openToast('Proceso exitoso', `${label} fue eliminado correctamente.`, 'check');
+            this.dialogService.openToast('Eliminado', `${label} fue eliminado correctamente.`, 'check');
           },
           () => {
             this.dialogService.openToast('Aviso', `${label} no pudo ser eliminado.`, 'fail');
