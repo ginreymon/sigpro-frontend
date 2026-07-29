@@ -45,7 +45,7 @@ import { StampingMachineService } from '../../../services/stamping/stamping-mach
   styleUrl: './processes.css',
 })
 export class Processes extends BaseCrudPage<StampingProcess> {
-  protected override entityName: string = 'proceso de estampación';
+  protected override entityName: string = 'proceso';
 
   machines = signal<StampingMachine[]>([]);
 

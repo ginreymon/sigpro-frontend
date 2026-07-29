@@ -41,7 +41,7 @@ import { TitleCasePipe } from '@angular/common';
   styleUrl: './machine-types.css',
 })
 export class MachineTypes extends BaseCrudPage<StampingMachineType> {
-  protected override entityName: string = 'tipo de máquina de estampación';
+  protected override entityName: string = 'tipo de máquina';
 
   constructor(private stampingMachineTypeService: StampingMachineTypeService) {
     super(stampingMachineTypeService);

@@ -54,7 +54,7 @@ const DEFAULT_CONFIG: DayOperationConfig = DAY_OPERATION_CONFIG['production'];
   styleUrl: './day-operation.css',
 })
 export class DayOperation extends BaseCrudPage<WorkSession> {
-  protected override entityName: string = 'Operación';
+  protected override entityName: string = 'Jornada';
 
   private workShiftService = inject(WorkShiftService);
   private moduleService = inject(ModuleService);
