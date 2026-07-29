@@ -7,7 +7,7 @@ import { ProductionOrdersTable } from '../../../shared/components/production/tab
 import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { MaterialsTable } from '../../../shared/components/production/tables/materials-table/materials-table';
-import { UnplannedShiftMessage } from "../../../layouts/messages/unplanned-shift-message/unplanned-shift-message";
+import { InfoCardTemplate } from "../../../template/info-card-template/info-card-template";
 import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
 import { SamGoalCalculator } from '../../../shared/components/production/widgets/sam-goal-calculator/sam-goal-calculator';
 
@@ -19,7 +19,7 @@ const TABS: TabItem[] = [
 
 @Component({
   selector: 'app-order-detail',
-  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, ProductionOrdersTable, UiButton, MaterialsTable, UnplannedShiftMessage, SamGoalCalculator],
+  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, ProductionOrdersTable, UiButton, MaterialsTable, InfoCardTemplate, SamGoalCalculator],
   templateUrl: './order-detail.html',
   styleUrl: './order-detail.css',
 })
