@@ -74,7 +74,7 @@
 }
 
 @if(config.showBalanceSheet){
-<app-balance-bottom-sheet
+<app-balance-modal
   [visible]="shiftModals.activeModal() === 'balance'"
   [currentSession]="shiftModals.balanceData()?.currentSession ?? null"
   [shiftEndTime]="shiftModals.balanceData()?.shiftEndTime ?? null"
@@ -82,7 +82,7 @@
   [reloadTrigger]="shiftModals.reloadBalanceTrigger()"
   (onClose)="shiftModals.close()"
   (onEditRecord)="handleEditRecord($event)"
-></app-balance-bottom-sheet>
+></app-balance-modal>
 }
 
 @if(config.showPauseModal){

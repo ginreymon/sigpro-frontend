@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
 import { catchError, finalize, startWith, switchMap, take } from 'rxjs/operators';
-import { ModuleDetailBottomSheet } from '../../../shared/components/production/bottom-sheets/module-detail-bottom-sheet/module-detail-bottom-sheet';
+import { ModuleDetailModal } from '../../../shared/components/production/modals/module-detail-modal/module-detail-modal';
 import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ModuleEfficiencyStatus } from '../../../models/production/module-efficiency-status';
@@ -17,7 +17,7 @@ import { ModuleEfficiencyCard } from '../../../shared/components/production/card
 
 @Component({
   selector: 'app-module-panel',
-  imports: [ModuleDetailBottomSheet, UiIcon, EfficiencySummaryBar, PanelLayout, DateRangeForm, ModuleEfficiencyCard],
+  imports: [ModuleDetailModal, UiIcon, EfficiencySummaryBar, PanelLayout, DateRangeForm, ModuleEfficiencyCard],
   templateUrl: './module-panel.html',
 })
 export class ModulePanel {

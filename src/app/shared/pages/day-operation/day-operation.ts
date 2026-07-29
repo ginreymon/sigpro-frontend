@@ -17,7 +17,7 @@ import { ModuleService } from '../../../services/production/module-service';
 import { EmployeeService } from '../../../services/production/employee-service';
 import { RouteContextService } from '../../../services/core/route-context-service';
 import { Employee } from '../../../models/production/employee';
-import { EmployeesModal, EmployeesSavePayload } from '../../components/production/bottom-sheets/employees-modal/employees-modal';
+import { EmployeesModal, EmployeesSavePayload } from '../../components/production/modals/employees-modal/employees-modal';
 import { EmployeePicker } from '../../components/production/widgets/employee-picker/employee-picker';
 import { ReactiveFormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';

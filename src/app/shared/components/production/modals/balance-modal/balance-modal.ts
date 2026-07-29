@@ -22,12 +22,12 @@ import { LoaderService } from '../../../../../services/common/loader-service';
 import { SkuTaskDetail } from '../../../../../models/production/sku-task-detail';
 
 @Component({
-  selector: 'app-balance-bottom-sheet',
+  selector: 'app-balance-modal',
   imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DatePipe, DecimalPipe, UiLabelButton],
-  templateUrl: './balance-bottom-sheet.html',
-  styleUrl: './balance-bottom-sheet.css',
+  templateUrl: './balance-modal.html',
+  styleUrl: './balance-modal.css',
 })
-export class BalanceBottomSheet {
+export class BalanceModal {
   visible = input<boolean>(false);
   reloadTrigger = input<number>(0);
   @Input() shiftEndTime: string | null = null;

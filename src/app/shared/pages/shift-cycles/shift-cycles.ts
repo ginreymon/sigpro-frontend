@@ -10,8 +10,8 @@ import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { OrderHeader } from '../../../shared/components/production/cards/order-header/order-header';
 import { WorkShiftSummary } from '../../../shared/components/production/cards/work-shift-summary/work-shift-summary';
 import { StampingShiftSummary } from '../../../shared/components/production/cards/stamping-shift-summary/stamping-shift-summary';
-import { EmployeesModal } from '../../../shared/components/production/bottom-sheets/employees-modal/employees-modal';
-import { BalanceBottomSheet } from '../../../shared/components/production/bottom-sheets/balance-bottom-sheet/balance-bottom-sheet';
+import { EmployeesModal } from '../../../shared/components/production/modals/employees-modal/employees-modal';
+import { BalanceModal } from '../../../shared/components/production/modals/balance-modal/balance-modal';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
@@ -20,7 +20,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { LastRecordCard } from '../../../shared/components/production/cards/last-record-card/last-record-card';
 import { ShiftTimeAlert } from '../../../shared/components/production/widgets/shift-time-alert/shift-time-alert';
-import { QuantityModal } from '../../../shared/components/production/bottom-sheets/quantity-modal/quantity-modal';
+import { QuantityModal } from '../../../shared/components/production/modals/quantity-modal/quantity-modal';
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
 import { InfoCardTemplate } from '../../../template/info-card-template/info-card-template';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
@@ -34,7 +34,7 @@ import { BaseProductionOrderPage } from '../../../common/classes/base-production
 import { parseSessionErrors } from '../../../common/functions/session-errors';
 import { EmployeesSavedData } from '../../../services/common/shift-modals-service';
 import { ShiftCyclesActions } from "../../../shared/components/production/widgets/shift-cycles-actions/shift-cycles-actions";
-import { PauseModal } from '../../../shared/components/production/bottom-sheets/pause-modal/pause-modal';
+import { PauseModal } from '../../../shared/components/production/modals/pause-modal/pause-modal';
 import { ShiftModalsService } from '../../../services/common/shift-modals-service';
 import { ProductionRecordContext } from '../../../models/production/production-record-context';
 import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
@@ -45,7 +45,7 @@ import { AppConfigService } from '../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceBottomSheet, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesActions],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesActions],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })

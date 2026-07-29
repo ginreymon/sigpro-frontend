@@ -13,11 +13,11 @@ import { TableActions } from '../../../../../common/interfaces/table-actions';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
 
 @Component({
-  selector: 'app-balance-summary-bottom-sheet',
+  selector: 'app-balance-summary-modal',
   imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DatePipe],
-  templateUrl: './balance-summary-bottom-sheet.html',
+  templateUrl: './balance-summary-modal.html',
 })
-export class BalanceSummaryBottomSheet implements OnChanges {
+export class BalanceSummaryModal implements OnChanges {
   @Input() visible: boolean = false;
   @Input() startDate: string | null = null;
   @Input() endDate: string | null = null;

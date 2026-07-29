@@ -14,7 +14,7 @@ import { TableColumn } from '../../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../../common/interfaces/table-actions';
 import { TableActionEvent } from '../../../../../common/interfaces/table-action-event';
 import { efficiencyTextColor } from '../../../../../common/functions/efficiency-color';
-import { BalanceSummaryBottomSheet } from '../balance-summary-bottom-sheet/balance-summary-bottom-sheet';
+import { BalanceSummaryModal } from '../balance-summary-modal/balance-summary-modal';
 
 interface BalanceContext {
   startDate: string;
@@ -24,11 +24,11 @@ interface BalanceContext {
 }
 
 @Component({
-  selector: 'app-module-detail-bottom-sheet',
-  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe, BalanceSummaryBottomSheet],
-  templateUrl: './module-detail-bottom-sheet.html',
+  selector: 'app-module-detail-modal',
+  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe, BalanceSummaryModal],
+  templateUrl: './module-detail-modal.html',
 })
-export class ModuleDetailBottomSheet implements OnChanges {
+export class ModuleDetailModal implements OnChanges {
 
   @ViewChild(DateRangeForm) private dateRangeForm!: DateRangeForm;
 

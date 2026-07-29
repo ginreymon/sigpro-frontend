@@ -91,14 +91,14 @@
 
   </app-bottom-sheet-shell>
 
-  <app-balance-summary-bottom-sheet
+  <app-balance-summary-modal
     [visible]="balanceVisible()"
     [title]="balanceContext()?.title ?? ''"
     [startDate]="balanceContext()?.startDate ?? null"
     [endDate]="balanceContext()?.endDate ?? null"
     [moduleId]="balanceContext()?.moduleId"
     (onClose)="closeBalance()">
-  </app-balance-summary-bottom-sheet>
+  </app-balance-summary-modal>
 
   <app-bottom-sheet-shell [visible]="editVisible()" title="Editar" [fullscreen]="false" (onClose)="closeEdit()">
     <div class="flex flex-col items-center justify-center gap-3 text-gray-300 h-full">
