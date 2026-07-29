@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth/auth-service';
 import { LoaderService } from '../services/common/loader-service';
-import { catchError, map, of } from 'rxjs';
+import { catchError, finalize, map, of } from 'rxjs';
 
 export const accessGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
@@ -17,16 +17,19 @@ export const accessGuard: CanActivateFn = (route, state) => {
 
   return authService.hasAccess(optionId).pipe(
     map((res) => {
-      loaderService.hideLoader();
       if (res.hasAccess) return true;
 
       router.navigate(['/not-authorized']);
       return false;
     }),
     catchError(() => {
-      loaderService.hideLoader();
       router.navigate(['/']);
       return of(false);
     }),
+    // `finalize` runs even if a superseding navigation cancels/unsubscribes this
+    // guard mid-flight — unlike the `map`/`catchError` callbacks above, which
+    // only run on emission. Without this, a cancelled guard left the loader
+    // stuck visible forever, blocking every future click behind its overlay.
+    finalize(() => loaderService.hideLoader()),
   );
 };
