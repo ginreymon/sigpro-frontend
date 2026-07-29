@@ -58,22 +58,22 @@
 
         <div class="relative z-10">
             <div class="flex items-center gap-2 mb-3">
-                @if(hasPendingOperation()) {
+                @if(hasPendingSession()) {
                 <app-ui-icon [iconName]="'play'" [class]="'w-4 h-4 opacity-75'"></app-ui-icon>
                 } @else {
                 <app-ui-icon [iconName]="'circlePlus'" [class]="'w-4 h-4 opacity-75'"></app-ui-icon>
                 }
                 <span class="text-xs font-semibold uppercase tracking-wider opacity-75">
-                    {{ hasPendingOperation() ? 'Operación en progreso' : 'Nueva operación' }}
+                    {{ hasPendingSession() ? 'Jornada en progreso' : 'Nueva jornada' }}
                 </span>
             </div>
 
             <h2 class="text-xl font-semibold tracking-wide mb-1">
-                {{ hasPendingOperation() ? 'Continuar operación' : 'Iniciar operación' }}
+                {{ hasPendingSession() ? 'Continuar jornada' : 'Iniciar jornada' }}
             </h2>
             <p class="text-sm opacity-70 leading-relaxed">
-                @if(hasPendingOperation()) {
-                Tiene una operación en progreso. Continúe desde donde se quedó.
+                @if(hasPendingSession()) {
+                Tiene una jornada en progreso. Continúe desde donde se quedó.
                 } @else {
                 Comienze una nueva orden de producción de la jornada.
                 }
@@ -81,7 +81,7 @@
         </div>
 
         <app-ui-button [intent]="'action'" [classNames]="'relative z-10 mt-6 self-start'" (onClick)="goToShiftCycles()">
-            {{ hasPendingOperation() ? 'Continuar' : 'Comenzar' }}
+            {{ hasPendingSession() ? 'Continuar' : 'Comenzar' }}
             <app-ui-icon [iconName]="'circleRight'" [class]="'w-4 h-4'"></app-ui-icon>
         </app-ui-button>
 

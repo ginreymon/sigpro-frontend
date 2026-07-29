@@ -13,7 +13,7 @@ import { ShiftNavigationService } from '../../../../services/core/shift-navigati
   styleUrl: './home-dethorn-remover.css',
 })
 export class HomeDethornRemover implements OnInit {
-  readonly hasPendingOperation = signal(false);
+  readonly hasPendingSession = signal(false);
   readonly activeSession = signal<WorkSession | null>(null);
   readonly isLoading = signal(true);
 
@@ -28,12 +28,12 @@ export class HomeDethornRemover implements OnInit {
     this.workSessionService.getActive().subscribe({
       next: (session: WorkSession | null) => {
         this.activeSession.set(session);
-        this.hasPendingOperation.set(!!session);
+        this.hasPendingSession.set(!!session);
         this.isLoading.set(false);
       },
       error: () => {
         this.activeSession.set(null);
-        this.hasPendingOperation.set(false);
+        this.hasPendingSession.set(false);
         this.isLoading.set(false);
       },
     });
