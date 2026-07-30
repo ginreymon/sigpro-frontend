@@ -5,14 +5,24 @@
       <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" (tabChange)="onTabChange($event)" />
 
       @if (productionOrder() && activeTab() === 'tab1') {
-      <app-ui-badge
-        [intent]="opApprovalStatus() === 'approved' ? 'active' : 'danger'"
-        [label]="opApprovalStatus() === 'approved' ? 'Auditada' : 'No auditada'">
-      </app-ui-badge>
+      <div class="flex items-center gap-2 shrink-0">
+        <app-ui-badge
+          [intent]="opApprovalStatus() === 'approved' ? 'active' : 'danger'"
+          [label]="opApprovalStatus() === 'approved' ? 'Completo' : 'Incompleto'">
+        </app-ui-badge>
+        <app-ui-badge
+          [intent]="auditedQuantityPercentage() === 100 ? 'active' : 'danger'"
+          [label]="auditedQuantityPercentage() + '%'">
+        </app-ui-badge>
+        <app-ui-badge
+          [intent]="isConfirmed() ? 'active' : 'danger'"
+          [label]="isConfirmed() ? 'Confirmada' : 'No confirmada'">
+        </app-ui-badge>
+      </div>
       }
     </div>
 
-    @if (!productionOrder() && !isLoading()) {
+    @if (!productionOrder() && !isLoading() && activeTab() === 'tab1') {
       <app-order-searcher [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)" class="mt-2"></app-order-searcher>
     }
 
@@ -42,7 +52,7 @@
           (onAction)="onAuditedOpAction($event)">
 
           <ng-template appTableTemplate="matchesTotalTemplate" let-row>
-            <app-ui-badge [active]="row.matches_total" [activeText]="'Coincide'" [inactiveText]="'Con diferencias'"></app-ui-badge>
+            <app-ui-badge [active]="row.matches_total" [activeText]="'Completo'" [inactiveText]="'Incompleto'"></app-ui-badge>
           </ng-template>
 
           <ng-template appTableTemplate="auditedAtTemplate" let-row>
@@ -54,21 +64,21 @@
     </div>
 
     @if (productionOrder()) {
-      <div class="flex flex-row justify-end mt-4 gap-3">
-        @if (activeTab() === 'tab1') {
-        <app-ui-button (onClick)="confirmAuditBlock()" [intent]="'accept'" [disabled]="!allColorsAudited() || isConfirmed()">
-          <app-ui-icon [iconName]="'check'" class="h-5 w-5"></app-ui-icon>
-          Confirmar
-        </app-ui-button>
-        <app-ui-button (onClick)="deleteAuditBlock()" [intent]="'cancel'" [disabled]="!hasAuditRecords()">
-          <app-ui-icon [iconName]="'trash'" class="h-5 w-5"></app-ui-icon>
-          Eliminar
-        </app-ui-button>
-        }
+      <div class="flex flex-row justify-end mt-4 gap-3">        
         <app-ui-button (onClick)="goToSearch()" [intent]="'action'">
           <app-ui-icon [iconName]="'magnifyingGlass'" class="h-5 w-5"></app-ui-icon>
           Buscar OP
         </app-ui-button>
+        @if (activeTab() === 'tab1' && !isConfirmed()) {
+        <app-ui-button (onClick)="deleteAuditBlock()" [intent]="'action'" [disabled]="!hasAuditRecords()">
+          <app-ui-icon [iconName]="'trash'" class="h-5 w-5"></app-ui-icon>
+          Eliminar
+        </app-ui-button>
+        <app-ui-button (onClick)="confirmAuditBlock()" [disabled]="!allColorsAudited()">
+          <app-ui-icon [iconName]="'check'" class="h-5 w-5"></app-ui-icon>
+          Confirmar
+        </app-ui-button>
+        }
       </div>
     }
 

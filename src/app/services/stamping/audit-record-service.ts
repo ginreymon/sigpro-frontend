@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { BaseCrudService } from '../common/base-crud-service';
-import { AuditRecord, AuditRecordBulkPayload, AuditedOpSummary } from '../../models/stamping/audit-record';
+import { AuditRecord, AuditRecordBulkPayload, AuditedOpSummary, AuditStatus } from '../../models/stamping/audit-record';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response';
 
 @Injectable({
@@ -28,13 +28,22 @@ export class AuditRecordService extends BaseCrudService<AuditRecord> {
     );
   }
 
+  // Lightweight status for one OP — no per-color detail, just enough to
+  // know if it's already audited when searching an OP.
+  getStatus(docType: string, docNumber: number): Observable<AuditStatus> {
+    return this.http.get<AuditStatus>(`${this.endpoint}status/`, {
+      params: { docType, docNumber },
+    });
+  }
+
   // Global list, one row per audited OP — most recently audited first
-  // (backend orders by -updated_at).
-  getAuditedOps(limit: number, offset: number): Observable<PaginatedResponse<AuditedOpSummary>> {
+  // (backend orders by -updated_at). search filters by op_number (parcial).
+  getAuditedOps(limit: number, offset: number, search?: string): Observable<PaginatedResponse<AuditedOpSummary>> {
+    const params: Record<string, string | number> = { limit, offset };
+    if (search) params['search'] = search;
+
     return this.http
-      .get<PaginatedResponse<AuditedOpSummary>>(`${this.endpoint}audited-ops/`, {
-        params: { limit, offset },
-      })
+      .get<PaginatedResponse<AuditedOpSummary>>(`${this.endpoint}audited-ops/`, { params })
       .pipe(map((resp) => ({ ...resp, params: { limit, offset } })));
   }
 }

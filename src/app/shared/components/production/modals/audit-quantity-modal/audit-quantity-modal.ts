@@ -56,11 +56,12 @@ export class AuditQuantityModal {
   });
 
   constructor() {
-    // Always opens empty (placeholder visible) regardless of edit mode —
-    // entering the value fresh each time is the whole point of the audit.
+    // Prefills with the color's already-saved audited_quantity when editing
+    // one that was audited before — existingQuantity is null when there's
+    // nothing saved yet (fresh entry), matching isEditMode().
     effect(() => {
       if (this.aqms.visible()) {
-        this.quantityForm.reset({ [QUANTITY_CONTROL]: null });
+        this.quantityForm.reset({ [QUANTITY_CONTROL]: this.aqms.existingQuantity() });
       }
     });
   }

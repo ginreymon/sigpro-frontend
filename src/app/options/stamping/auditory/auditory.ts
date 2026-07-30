@@ -18,7 +18,7 @@ import { AuditQuantityModal, AuditedColorQuantity } from '../../../shared/compon
 import { AuditQuantityModalService } from '../../../services/common/audit-quantity-modal-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { AuditRecordService } from '../../../services/stamping/audit-record-service';
-import { AuditRecord, AuditRecordBulkPayload, AuditedOpSummary } from '../../../models/stamping/audit-record';
+import { AuditRecord, AuditRecordBulkPayload, AuditedOpSummary, AuditStatus } from '../../../models/stamping/audit-record';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
@@ -27,7 +27,7 @@ import { TableTemplate } from '../../../directives/table-template';
 
 const TABS: TabItem[] = [
   { key: 'tab1', label: 'Orden OP' },
-  { key: 'tab2', label: 'Auditoría' },
+  { key: 'tab2', label: 'Auditorías' },
 ];
 
 @Component({
@@ -53,6 +53,10 @@ export class StampingAuditory extends BaseProductionOrderPage {
   // Auditada/Estado columns, which must see every color regardless of any
   // pager.
   protected auditRecordsAll = signal<AuditRecord[]>([]);
+  // Instant "is_audited" flag for the loaded OP, from the lightweight status
+  // endpoint (GET /audit-records/status/?docType=&docNumber=) — resolves as
+  // soon as the OP is found, without waiting on the full per-color fetch.
+  protected auditStatus = signal<AuditStatus | null>(null);
   // Full color set for the loaded OP at the moment a row's edit icon was
   // clicked — needed to merge the modal's single-color result back into a
   // complete replaceBulk payload (the other colors must survive the replace).
@@ -64,6 +68,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
   protected auditedOpsResponse = signal<PaginatedResponse<AuditedOpSummary> | null>(null);
   private auditedOpsPage = 1;
   private auditedOpsLimit = environment.DEFAULT_PAGE_SIZE;
+  private auditedOpsSearchTerm = '';
 
   protected auditedOpsColumns: TableColumn<AuditedOpSummary>[] = [
     { field: 'op_type', label: 'Tipo' },
@@ -77,7 +82,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
   protected auditedOpsActions: TableActions = {
     view: { enabled: false },
-    edit: { enabled: true, title: 'Editar auditoría', iconName: 'pencil', toolTip: 'Editar' },
+    edit: { enabled: false },
     delete: { enabled: true, title: 'Eliminar auditoría', iconName: 'trash', toolTip: 'Eliminar' },
     create: { enabled: false },
   };
@@ -109,6 +114,19 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
   protected isConfirmed = computed(() => this.auditRecordsAll().some((r) => r.is_audited));
 
+  // % of quantity audited — total ordered quantity across every color of the
+  // OP (100% baseline) vs. audited_quantity actually entered so far. Not the
+  // color-count ratio: a color with 0 entered still counts as 0 toward the
+  // numerator here, and colors with no entry yet at all also contribute 0.
+  protected auditedQuantityPercentage = computed(() => {
+    const colors = this.productionOrder()?.colors ?? [];
+    const totalOrdered = colors.reduce((sum, c) => sum + (Number(c.totals?.[0]?.orderedQty) || 0), 0);
+    if (totalOrdered === 0) return 0;
+
+    const totalAudited = this.auditRecordsAll().reduce((sum, r) => sum + r.audited_quantity, 0);
+    return Math.round((totalAudited / totalOrdered) * 100);
+  });
+
   // "Orden OP" tab table — row-level edit opens the same per-color audit
   // modal as the "Auditoría" tab, whether that color has been audited yet or not.
   protected opTableActions: TableActions = {
@@ -134,6 +152,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
   goToSearch(): void {
     this.productionOrder.set(null);
     this.auditRecordsAll.set([]);
+    this.auditStatus.set(null);
   }
 
   override setDocument(doc: ProductionOrder | null): void {
@@ -145,7 +164,14 @@ export class StampingAuditory extends BaseProductionOrderPage {
     });
     this.location.replaceState(this.router.serializeUrl(tree));
 
+    this.loadAuditStatus(doc);
     this.loadAllAuditRecords();
+  }
+
+  private loadAuditStatus(order: ProductionOrder): void {
+    this.auditRecordService
+      .getStatus(order.documentType, order.documentNumber)
+      .subscribe((status) => this.auditStatus.set(status));
   }
 
   private loadAllAuditRecords(): void {
@@ -160,7 +186,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
   private loadAuditedOps(): void {
     const offset = (this.auditedOpsPage - 1) * this.auditedOpsLimit;
     this.auditRecordService
-      .getAuditedOps(this.auditedOpsLimit, offset)
+      .getAuditedOps(this.auditedOpsLimit, offset, this.auditedOpsSearchTerm)
       .subscribe((res) => this.auditedOpsResponse.set(res));
   }
 
@@ -170,21 +196,15 @@ export class StampingAuditory extends BaseProductionOrderPage {
     this.loadAuditedOps();
   }
 
-  onAuditedOpAction(event: TableActionEvent<AuditedOpSummary>): void {
-    if (event.type === 'edit') this.editAuditedOp(event.obj);
-    if (event.type === 'delete') this.deleteAuditedOp(event.obj);
+  // Search by op_number, same pattern as PaginatedCrudPage.searchHandler.
+  auditedOpsSearchHandler(value: string): void {
+    this.auditedOpsSearchTerm = value;
+    this.auditedOpsPage = 1;
+    this.loadAuditedOps();
   }
 
-  // Loads that OP into the "Orden OP" tab so its colors can be edited —
-  // reuses the same route-driven load the order searcher already triggers.
-  private editAuditedOp(row: AuditedOpSummary): void {
-    if (row.op_type == null || row.op_number == null) return;
-
-    this.activeTab.set('tab1');
-    this.router.navigate([], {
-      queryParams: { docType: row.op_type, docNumber: row.op_number },
-      queryParamsHandling: 'merge',
-    });
+  onAuditedOpAction(event: TableActionEvent<AuditedOpSummary>): void {
+    if (event.type === 'delete') this.deleteAuditedOp(event.obj);
   }
 
   private deleteAuditedOp(row: AuditedOpSummary): void {
@@ -192,7 +212,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
     this.dialogService.openConfirm(
       'Eliminar auditoría',
-      `¿Está seguro de que desea eliminar el bloque de auditoría de la OP ${row.op_number}?`,
+      `¿Eliminar la auditoría de la OP ${row.op_number}?`,
       'Eliminar',
       () => {
         this.dialogService.closeConfirm();
@@ -208,9 +228,10 @@ export class StampingAuditory extends BaseProductionOrderPage {
               const current = this.productionOrder();
               if (current && current.documentNumber === row.op_number && current.documentType === row.op_type) {
                 this.auditRecordsAll.set([]);
+                this.auditStatus.set(null);
               }
 
-              this.dialogService.openToast('Auditoría eliminada', `Se eliminó el bloque de auditoría de la OP ${row.op_number}.`, 'check');
+              this.dialogService.openToast('Auditoría eliminada', `Se eliminó la auditoría de la OP ${row.op_number}.`, 'check');
             },
             error: () => {
               this.dialogService.openToast('No se pudo eliminar', 'Error al eliminar la auditoría.', 'fail');
@@ -246,7 +267,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
     this.dialogService.openConfirm(
       'Eliminar auditoría',
-      `¿Está seguro de que desea eliminar el bloque de auditoría de la OP ${order.documentNumber}?`,
+      `¿Eliminar la auditoría de la OP ${order.documentNumber}?`,
       'Eliminar',
       () => {
         this.dialogService.closeConfirm();
@@ -257,8 +278,9 @@ export class StampingAuditory extends BaseProductionOrderPage {
           .subscribe({
             next: () => {
               this.auditRecordsAll.set([]);
+              this.auditStatus.set(null);
               this.loadAuditedOps();
-              this.dialogService.openToast('Auditoría eliminada', 'Se eliminó el bloque de auditoría de la OP.', 'check');
+              this.dialogService.openToast('Auditoría eliminada', `Se eliminó la auditoría de la OP ${order.documentNumber}.`, 'check');
             },
             error: () => {
               this.dialogService.openToast('No se pudo eliminar', 'Error al eliminar la auditoría.', 'fail');
@@ -281,6 +303,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
           this.auditRecordsAll.set(records);
           this.loadAuditedOps();
           this.dialogService.openToast('Auditoría confirmada', `Se confirmó la auditoría de la OP ${order.documentNumber}.`, 'check');
+          this.activeTab.set('tab2');
         },
         error: () => {
           this.dialogService.openToast('No se pudo confirmar', 'Error al confirmar la auditoría.', 'fail');

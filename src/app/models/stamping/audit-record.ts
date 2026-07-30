@@ -31,6 +31,16 @@ export interface AuditedOpSummary extends AuditEntity {
   is_audited: boolean;
 }
 
+// Lightweight audit status for a single OP (docType/docNumber) — no per-color
+// detail, just enough to know if it's already audited when searching an OP.
+export interface AuditStatus {
+  exists: boolean;
+  is_audited: boolean;
+  total_ordered_quantity: number | null;
+  total_audited_quantity: number | null;
+  matches_total: boolean | null;
+}
+
 export interface AuditRecordBulkPayload {
   op_number: number | null;
   op_rowid: number | null;
