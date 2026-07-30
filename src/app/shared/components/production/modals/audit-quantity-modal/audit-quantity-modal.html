@@ -1,5 +1,5 @@
 @if (visible()) {
-<app-box-layout [title]="'Ingresar cantidad auditada'" [classNames]="'max-w-md'">
+<app-box-layout [title]="isEditMode() ? 'Editar cantidad auditada' : 'Ingresar cantidad auditada'" [classNames]="'max-w-md'">
 
     <div box-content class="flex flex-col h-full min-h-0 items-center border-t border-slate-200 pt-4 mt-2">
 
@@ -17,7 +17,7 @@
             </div>
         </form>
 
-        @if (quantityForm.valid) {
+        @if (quantityForm.valid && missingTotal() === 0) {
         <app-ui-success-message class="w-full">Arqueo completo.</app-ui-success-message>
         } @else if (missingTotal() !== 0) {
         <app-ui-error-message class="w-full">
@@ -55,7 +55,7 @@
         </app-ui-button>
 
         <app-ui-button [disabled]="quantityForm.invalid" (onClick)="save()">
-            Guardar
+            {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
         </app-ui-button>
     </div>
 

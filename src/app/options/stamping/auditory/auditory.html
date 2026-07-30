@@ -11,76 +11,53 @@
       <div [class.hidden]="activeTab() !== 'tab1'" class="flex-1 min-h-0 overflow-hidden flex flex-col">
         <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
         <div class="flex-1 min-h-0 overflow-hidden">
-          <app-production-orders-table
-            [readOnly]="true"
+          <app-order-sku-audit-table
             [productionOrder]="productionOrder()"
-            [currentSession]="currentSession()">
-          </app-production-orders-table>
+            [actions]="opTableActions()"
+            (onAction)="onOpTableAction($event)">
+          </app-order-sku-audit-table>
         </div>
       </div>
-
-      <div [class.hidden]="activeTab() !== 'tab2'" class="flex-1 min-h-0 overflow-auto mt-2">
-        <ol class="relative border-s border-gray-200 ms-3">
-
-            <li class="mb-8 ms-6">
-                <span class="absolute flex items-center justify-center w-8 h-8 bg-brand-100 rounded-full -start-4 ring-4 ring-white">
-                    <app-ui-icon [iconName]="'circlePlus'" [class]="'w-4 h-4 text-brand-600'"></app-ui-icon>
-                </span>
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-1">
-                        <h4 class="text-sm font-semibold text-gray-800">Máquina creada</h4>
-                        <time class="text-xs text-gray-400">09/07/2026 08:14</time>
-                    </div>
-                    <p class="text-sm text-gray-500">Se registró la máquina <span class="font-medium text-gray-700">Troqueladora 01</span>.</p>
-                    <p class="text-xs text-gray-400 mt-2">Usuario: Juan Pérez</p>
-                </div>
-            </li>
-
-            <li class="mb-8 ms-6">
-                <span class="absolute flex items-center justify-center w-8 h-8 bg-amber-100 rounded-full -start-4 ring-4 ring-white">
-                    <app-ui-icon [iconName]="'pencil'" [class]="'w-4 h-4 text-amber-600'"></app-ui-icon>
-                </span>
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-1">
-                        <h4 class="text-sm font-semibold text-gray-800">Turno modificado</h4>
-                        <time class="text-xs text-gray-400">09/07/2026 10:02</time>
-                    </div>
-                    <p class="text-sm text-gray-500">Se actualizó el horario del <span class="font-medium text-gray-700">Turno 1</span>.</p>
-                    <p class="text-xs text-gray-400 mt-2">Usuario: María Gómez</p>
-                </div>
-            </li>
-
-            <li class="mb-8 ms-6">
-                <span class="absolute flex items-center justify-center w-8 h-8 bg-red-100 rounded-full -start-4 ring-4 ring-white">
-                    <app-ui-icon [iconName]="'trash'" [class]="'w-4 h-4 text-red-600'"></app-ui-icon>
-                </span>
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-1">
-                        <h4 class="text-sm font-semibold text-gray-800">Proceso eliminado</h4>
-                        <time class="text-xs text-gray-400">08/07/2026 16:45</time>
-                    </div>
-                    <p class="text-sm text-gray-500">Se eliminó el proceso <span class="font-medium text-gray-700">Corte lateral</span>.</p>
-                    <p class="text-xs text-gray-400 mt-2">Usuario: Carlos Ruiz</p>
-                </div>
-            </li>
-
-            <li class="ms-6">
-                <span class="absolute flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full -start-4 ring-4 ring-white">
-                    <app-ui-icon [iconName]="'user'" [class]="'w-4 h-4 text-gray-500'"></app-ui-icon>
-                </span>
-                <div class="bg-white border border-gray-200 rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-1">
-                        <h4 class="text-sm font-semibold text-gray-800">Encomendado asignado</h4>
-                        <time class="text-xs text-gray-400">08/07/2026 09:30</time>
-                    </div>
-                    <p class="text-sm text-gray-500">Se asignó a <span class="font-medium text-gray-700">Ana Torres</span> a la <span class="font-medium text-gray-700">Máquina 02</span>.</p>
-                    <p class="text-xs text-gray-400 mt-2">Usuario: Juan Pérez</p>
-                </div>
-            </li>
-
-        </ol>
-      </div>
     }
+
+    <div [class.hidden]="activeTab() !== 'tab2'" class="flex-1 min-h-0 overflow-hidden mt-2 flex flex-col">
+      @if (productionOrder()) {
+        <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
+      }
+
+      <div class="flex flex-row justify-end gap-3 mb-2 shrink-0">
+        <app-ui-button (onClick)="editAuditBlock()" [intent]="'action'" [disabled]="!hasAuditRecords()">
+          <app-ui-icon [iconName]="'pencil'" class="h-5 w-5"></app-ui-icon>
+          Editar
+        </app-ui-button>
+        <app-ui-button (onClick)="deleteAuditBlock()" [intent]="'cancel'" [disabled]="!hasAuditRecords()">
+          <app-ui-icon [iconName]="'trash'" class="h-5 w-5"></app-ui-icon>
+          Eliminar
+        </app-ui-button>
+      </div>
+
+      <div class="flex-1 min-h-0 overflow-hidden">
+        <app-data-table
+          [paginatedResponse]="auditRecordsResponse()"
+          [columns]="auditColumns"
+          [actions]="auditActions"
+          [showSearch]="false"
+          [footer]="auditFooter()"
+          [footerLabel]="'Totales'"
+          (onPagerChange)="auditPagerHandler($event)"
+          (onAction)="onAuditTableAction($event)">
+
+          <ng-template appTableTemplate="auditedQtyTemplate" let-row>
+            <span [class]="row.quantities_match ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'">{{ row.audited_quantity }}</span>
+          </ng-template>
+
+          <ng-template appTableTemplate="authorizedTemplate" let-row>
+            <app-ui-badge [active]="row.quantities_match" [activeText]="'Autorizado'" [inactiveText]="'Pendiente'"></app-ui-badge>
+          </ng-template>
+
+        </app-data-table>
+      </div>
+    </div>
 
     @if (productionOrder()) {
       <div class="flex flex-row justify-end mt-4 gap-3">

@@ -14,6 +14,7 @@ import { finalize } from 'rxjs';
 import { UiTooltip } from "../../../../elements/ui-tooltip/ui-tooltip";
 import { UiIcon } from "../../../../elements/ui-icon/ui-icon";
 import { TableColumnFilter } from '../../../table/table-column-filter/table-column-filter';
+import { buildColorSizeMatrix } from './color-size-matrix';
 
 @Component({
   selector: 'app-production-orders-table',
@@ -76,144 +77,31 @@ export class ProductionOrdersTable {
   private loaderService = inject(LoaderService);
 
   get productionOrder() {
-    return this._productionOrder; 
+    return this._productionOrder;
   }
 
   @Input()
   set productionOrder(po: ProductionOrder | null) {
     this._productionOrder = po;
-    this.buildColorSizeStructure();
-    this.fillMissingSizes();
-    this.calculateTotalsBySize();
+
+    if (!po) {
+      this.sizes = [];
+      this.skuColors = [];
+      this.totalBySizes = [];
+      this.grandTotal = null;
+      return;
+    }
+
+    const matrix = buildColorSizeMatrix(po);
+    this.sizes = matrix.sizes;
+    this.skuColors = matrix.skuColors;
+    this.totalBySizes = matrix.totalBySizes;
+    this.grandTotal = matrix.grandTotal;
   }
 
   @Input() currentSession: WorkSession | null = null;
   @Input() readOnly: boolean = false;
   @Output() onSelectSKU = new EventEmitter<SkuTaskDetail>();
-
-  buildColorSizeStructure() {
-    if (!this._productionOrder) return;
-
-    this.skuColors = [...this._productionOrder.colors].sort((a, b) =>
-      a.color.localeCompare(b.color),
-    );
-
-    const order = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-    const sizeSet = new Set<string>();
-
-    this.skuColors = this.skuColors.map((c) => {
-      const numberSizes = c.sizes
-        .filter((s) => !isNaN(Number(s.size)))
-        .sort((a, b) => Number(a.size) - Number(b.size));
-
-      const letterSizes = c.sizes
-        .filter((s) => isNaN(Number(s.size)))
-        .sort((a, b) => {
-          const order = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-
-          const ai = order.indexOf(a.size);
-          const bi = order.indexOf(b.size);
-
-          return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-        });
-
-      const sizes = [...numberSizes, ...letterSizes];
-      sizes.forEach((s) => sizeSet.add(s.size));
-
-      return {
-        ...c,
-        sizes,
-      };
-    });
-
-    const numberSizes = Array.from(sizeSet)
-      .filter((s) => !isNaN(Number(s)))
-      .sort((a, b) => Number(a) - Number(b));
-
-    const letterSizes = Array.from(sizeSet)
-      .filter((s) => isNaN(Number(s)))
-      .sort((a, b) => order.indexOf(a) - order.indexOf(b));
-
-    this.sizes = [...numberSizes, ...letterSizes];
-  }
-
-  fillMissingSizes() {
-    this.skuColors = [...this.skuColors].map((c) => {
-      const sizeMap = new Map<string, SizeQtyDetail>();
-
-      c.sizes.forEach((s) => {
-        sizeMap.set(s.size, s);
-      });
-
-      const completedSizes = this.sizes.map((size) => {
-        if (sizeMap.has(size)) {
-          return sizeMap.get(size)!;
-        }
-
-        return {
-          size,
-          skuRowId: 0,
-          orderedQty: 0,
-          plannedQty: 0,
-          completedQty: 0,
-          wasteQty: 0,
-          rejectedQty: 0,
-        };
-      });
-
-      return {
-        ...c,
-        sizes: completedSizes,
-      };
-    });
-  }
-
-  calculateTotalsBySize() {
-    const totalsMap = new Map<string, SizeQtyDetail>();
-
-    const totalSizes: SizeQtyDetail = {
-      skuRowId: 0,
-      orderedQty: 0,
-      plannedQty: 0,
-      completedQty: 0,
-      wasteQty: 0,
-      rejectedQty: 0,
-      size: '',
-    };
-
-    this.sizes.forEach((s) => {
-      totalsMap.set(s, {
-        ...totalSizes,
-        size: s,
-      });
-    });
-
-    this.skuColors.forEach((c) => {
-      c.sizes.forEach((sizeObj: any) => {
-        const total = totalsMap.get(sizeObj.size);
-
-        if (total) {
-          total.completedQty += sizeObj.completedQty;
-          total.orderedQty += sizeObj.orderedQty;
-          total.plannedQty += sizeObj.plannedQty;
-          total.wasteQty += sizeObj.wasteQty;
-          total.rejectedQty += sizeObj.rejectedQty;
-        }
-      });
-    });
-
-    this.totalBySizes = Array.from(totalsMap.values());
-    this.grandTotal = { ...totalSizes };
-
-    this.totalBySizes.forEach((ts) => {
-      if (!this.grandTotal) return;
-      this.grandTotal.completedQty += ts.completedQty;
-      this.grandTotal.orderedQty += ts.orderedQty;
-      this.grandTotal.plannedQty += ts.plannedQty;
-      this.grandTotal.wasteQty += ts.wasteQty;
-      this.grandTotal.rejectedQty += ts.rejectedQty;
-    });
-  }
 
   getProducedQty(size: any): number {
     return Number(size.completedQty) + Number(size.rejectedQty) + Number(size.wasteQty);

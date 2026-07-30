@@ -1,5 +1,5 @@
 import { Component, computed, effect, EventEmitter, inject, Output } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
@@ -32,15 +32,22 @@ export class AuditQuantityModal {
 
   protected visible = this.aqms.visible;
   protected productionOrder = this.aqms.productionOrder;
+  protected existingRecords = this.aqms.existingRecords;
+  protected editingColor = this.aqms.editingColor;
+  protected isEditMode = computed(() => this.existingRecords().length > 0);
 
   protected colorRows = computed(() => {
     const order = this.productionOrder();
     if (!order) return [];
-    return order.colors.map((color, index) => ({
+    const existingByColor = new Map(this.existingRecords().map((r) => [r.color, r.audited_quantity]));
+    const targetColor = this.editingColor();
+    const colors = targetColor ? order.colors.filter((c) => c.color === targetColor) : order.colors;
+    return colors.map((color, index) => ({
       controlName: `qty_${index}`,
       color: color.color,
       total: Number(color.totals?.[0]?.orderedQty) || 0,
       skuRowIds: color.sizes.map((s) => s.skuRowId),
+      initialValue: existingByColor.get(color.color) ?? null,
     }));
   });
 
@@ -55,7 +62,7 @@ export class AuditQuantityModal {
       const rows = this.colorRows();
       const controls: Record<string, any> = {};
       rows.forEach((row) => {
-        controls[row.controlName] = [null, [Validators.required, Validators.min(0), this.integerValidator, this.matchesTotal(row.total)]];
+        controls[row.controlName] = [row.initialValue, [Validators.required, Validators.min(0), this.integerValidator]];
       });
       this.quantityForm = this.fb.group(controls);
     });
@@ -96,14 +103,6 @@ export class AuditQuantityModal {
     const value = control.value;
     if (value === null || value === undefined || value === '') return null;
     return Number.isInteger(Number(value)) ? null : { notInteger: true };
-  }
-
-  private matchesTotal(total: number): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      if (value === null || value === undefined || value === '') return null;
-      return Number(value) === total ? null : { mismatch: { total, entered: Number(value) } };
-    };
   }
 
   cancel(): void {

@@ -4,7 +4,12 @@
       type="button"
       [disabled]="tab.disabled"
       (click)="setTab(tab.key)"
-      [class.border-b-2]="activeTab() === tab.key"
+      [class.border-t]="activeTab() === tab.key"
+      [class.border-l]="activeTab() === tab.key"
+      [class.border-r]="activeTab() === tab.key"
+      [class.-mb-px]="activeTab() === tab.key"
+      [class.bg-white]="activeTab() === tab.key"
+      [class.shadow-sm]="activeTab() === tab.key"
       [class.border-brand-400]="activeTab() === tab.key && !tab.hasError"
       [class.text-brand-400]="activeTab() === tab.key && !tab.hasError"
       [class.text-gray-400]="activeTab() !== tab.key && !tab.disabled && !tab.hasError"
@@ -13,7 +18,7 @@
       [class.opacity-50]="tab.disabled"
       [class.cursor-not-allowed]="tab.disabled"
       [class.pointer-events-none]="tab.disabled"
-      class="px-6 py-3 text-sm font-medium hover:text-brand-400 transition-colors cursor-pointer">
+      class="px-6 py-3 text-sm font-medium rounded-t-md hover:text-brand-400 transition-colors cursor-pointer">
       {{ tab.label }}
     </button>
   }
