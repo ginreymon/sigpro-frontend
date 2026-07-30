@@ -1,10 +1,12 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { ProductionOrder } from '../../../../../models/production/production-order';
+import { AuditRecord } from '../../../../../models/stamping/audit-record';
 import { TableActions, TableActionType } from '../../../../../common/interfaces/table-actions';
 import { TableActionEvent } from '../../../../../common/interfaces/table-action-event';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
 import { TableColumnFilter } from '../../../table/table-column-filter/table-column-filter';
+import { UiIconStateDirective } from '../../../../../directives/ui-icon-state-directive';
 import { buildColorSizeMatrix } from '../production-orders-table/color-size-matrix';
 
 export interface OpColorRow {
@@ -15,7 +17,7 @@ export interface OpColorRow {
 
 @Component({
   selector: 'app-order-sku-audit-table',
-  imports: [UiIcon, UiTooltip, TableColumnFilter],
+  imports: [UiIcon, UiTooltip, TableColumnFilter, UiIconStateDirective],
   templateUrl: './order-sku-audit-table.html',
 })
 export class OrderSkuAuditTable {
@@ -23,6 +25,12 @@ export class OrderSkuAuditTable {
 
   protected sizes: string[] = [];
   protected rows: OpColorRow[] = [];
+
+  private auditByColor = new Map<string, AuditRecord>();
+
+  @Input() set auditRecords(records: AuditRecord[] | null) {
+    this.auditByColor = new Map((records ?? []).map((r) => [r.color, r]));
+  }
 
   private selectedColors = new Set<string>();
   protected colorFilterOpen = false;
@@ -70,6 +78,17 @@ export class OrderSkuAuditTable {
 
   protected get hasAnyAction(): boolean {
     return this.actionKeys.some((key) => this._actions[key].enabled);
+  }
+
+  protected auditedQty(color: string): number | null {
+    return this.auditByColor.get(color)?.audited_quantity ?? null;
+  }
+
+  // null = no audit record for this color yet (nothing to compare).
+  protected matchesTotal(row: OpColorRow): boolean | null {
+    const record = this.auditByColor.get(row.color);
+    if (!record) return null;
+    return record.audited_quantity === row.total;
   }
 
   protected get colorFilterValues(): string[] {

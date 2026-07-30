@@ -10,12 +10,25 @@ export interface AuditRecord extends AuditEntity {
   ordered_quantity: number;
   audited_quantity: number;
   total_ordered_quantity: number;
+  is_audited: boolean;
 
   total_audited_quantity?: number;
   matches_total?: boolean;
   // Per-row: ordered_quantity === audited_quantity for this color — drives
   // the "Autorizado" (ready for production) column.
   quantities_match?: boolean;
+}
+
+// One row per audited OP (not per color) — feeds the global "audited OPs"
+// list in the "Auditoría" tab.
+export interface AuditedOpSummary extends AuditEntity {
+  op_number: number | null;
+  op_rowid: number | null;
+  op_type: string | null;
+  total_ordered_quantity: number;
+  total_audited_quantity: number;
+  matches_total: boolean;
+  is_audited: boolean;
 }
 
 export interface AuditRecordBulkPayload {

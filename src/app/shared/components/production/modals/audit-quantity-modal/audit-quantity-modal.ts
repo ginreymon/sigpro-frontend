@@ -17,6 +17,7 @@ export interface AuditedColorQuantity {
 }
 
 const PACKAGE_SIZE = 80;
+const QUANTITY_CONTROL = 'quantity';
 
 @Component({
   selector: 'app-audit-quantity-modal',
@@ -28,75 +29,60 @@ export class AuditQuantityModal {
   private aqms = inject(AuditQuantityModalService);
   private fb = inject(FormBuilder);
 
-  @Output() onSave = new EventEmitter<AuditedColorQuantity[]>();
+  @Output() onSave = new EventEmitter<AuditedColorQuantity>();
+
+  protected readonly quantityControlName = QUANTITY_CONTROL;
 
   protected visible = this.aqms.visible;
   protected productionOrder = this.aqms.productionOrder;
-  protected existingRecords = this.aqms.existingRecords;
-  protected editingColor = this.aqms.editingColor;
-  protected isEditMode = computed(() => this.existingRecords().length > 0);
+  protected isEditMode = computed(() => this.aqms.existingQuantity() !== null);
 
-  protected colorRows = computed(() => {
+  // The single color being audited — never the full order color set.
+  protected colorData = computed(() => {
     const order = this.productionOrder();
-    if (!order) return [];
-    const existingByColor = new Map(this.existingRecords().map((r) => [r.color, r.audited_quantity]));
-    const targetColor = this.editingColor();
-    const colors = targetColor ? order.colors.filter((c) => c.color === targetColor) : order.colors;
-    return colors.map((color, index) => ({
-      controlName: `qty_${index}`,
-      color: color.color,
-      total: Number(color.totals?.[0]?.orderedQty) || 0,
-      skuRowIds: color.sizes.map((s) => s.skuRowId),
-      initialValue: existingByColor.get(color.color) ?? null,
-    }));
+    const color = this.aqms.color();
+    if (!order || !color) return null;
+    const match = order.colors.find((c) => c.color === color);
+    if (!match) return null;
+    return {
+      color: match.color,
+      total: Number(match.totals?.[0]?.orderedQty) || 0,
+      skuRowIds: match.sizes.map((s) => s.skuRowId),
+    };
   });
 
-  protected totalOrderedQty = computed(() =>
-    this.colorRows().reduce((sum, row) => sum + row.total, 0),
-  );
-
-  protected quantityForm: FormGroup = this.fb.group({});
+  protected quantityForm: FormGroup = this.fb.group({
+    [QUANTITY_CONTROL]: [null, [Validators.required, Validators.min(0), this.integerValidator]],
+  });
 
   constructor() {
+    // Always opens empty (placeholder visible) regardless of edit mode —
+    // entering the value fresh each time is the whole point of the audit.
     effect(() => {
-      const rows = this.colorRows();
-      const controls: Record<string, any> = {};
-      rows.forEach((row) => {
-        controls[row.controlName] = [row.initialValue, [Validators.required, Validators.min(0), this.integerValidator]];
-      });
-      this.quantityForm = this.fb.group(controls);
+      if (this.aqms.visible()) {
+        this.quantityForm.reset({ [QUANTITY_CONTROL]: null });
+      }
     });
   }
 
-  enteredTotal(): number {
-    return this.colorRows().reduce((sum, row) => {
-      const value = this.quantityForm.get(row.controlName)?.value;
-      return sum + (Number(value) || 0);
-    }, 0);
+  enteredQty(): number {
+    return Number(this.quantityForm.get(QUANTITY_CONTROL)?.value) || 0;
   }
 
-  packagesFor(controlName: string): number {
-    const value = Number(this.quantityForm.get(controlName)?.value) || 0;
-    return Math.floor(value / PACKAGE_SIZE);
+  packages(): number {
+    return Math.floor(this.enteredQty() / PACKAGE_SIZE);
   }
 
-  remainderFor(controlName: string): number {
-    const value = Number(this.quantityForm.get(controlName)?.value) || 0;
-    return value % PACKAGE_SIZE;
+  remainder(): number {
+    return this.enteredQty() % PACKAGE_SIZE;
   }
 
-  totalPackages(): number {
-    return this.colorRows().reduce((sum, row) => sum + this.packagesFor(row.controlName), 0);
+  matches(): boolean {
+    return this.enteredQty() === (this.colorData()?.total ?? 0);
   }
 
-  rowMatches(controlName: string, total: number): boolean {
-    const value = this.quantityForm.get(controlName)?.value;
-    if (value === null || value === undefined || value === '') return false;
-    return Number(value) === total;
-  }
-
-  missingTotal(): number {
-    return this.totalOrderedQty() - this.enteredTotal();
+  missing(): number {
+    return (this.colorData()?.total ?? 0) - this.enteredQty();
   }
 
   private integerValidator(control: AbstractControl): ValidationErrors | null {
@@ -111,13 +97,14 @@ export class AuditQuantityModal {
 
   save(): void {
     if (this.quantityForm.invalid) return;
-    const result: AuditedColorQuantity[] = this.colorRows().map((row) => ({
-      color: row.color,
-      quantity: Number(this.quantityForm.value[row.controlName]),
-      orderedQty: row.total,
-      skuRowIds: row.skuRowIds,
-    }));
-    this.onSave.emit(result);
+    const data = this.colorData();
+    if (!data) return;
+    this.onSave.emit({
+      color: data.color,
+      quantity: Number(this.quantityForm.value[QUANTITY_CONTROL]),
+      orderedQty: data.total,
+      skuRowIds: data.skuRowIds,
+    });
     this.aqms.close();
   }
 }

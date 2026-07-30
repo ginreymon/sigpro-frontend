@@ -1,7 +1,16 @@
 <app-work-space-layout [headerVisible]="false">
   <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
 
-    <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" (tabChange)="onTabChange($event)" />
+    <div class="flex items-center justify-between gap-3">
+      <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" (tabChange)="onTabChange($event)" />
+
+      @if (productionOrder() && activeTab() === 'tab1') {
+      <app-ui-badge
+        [intent]="opApprovalStatus() === 'approved' ? 'active' : 'danger'"
+        [label]="opApprovalStatus() === 'approved' ? 'Auditada' : 'No auditada'">
+      </app-ui-badge>
+      }
+    </div>
 
     @if (!productionOrder() && !isLoading()) {
       <app-order-searcher [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)" class="mt-2"></app-order-searcher>
@@ -13,7 +22,8 @@
         <div class="flex-1 min-h-0 overflow-hidden">
           <app-order-sku-audit-table
             [productionOrder]="productionOrder()"
-            [actions]="opTableActions()"
+            [auditRecords]="auditRecordsAll()"
+            [actions]="opTableActions"
             (onAction)="onOpTableAction($event)">
           </app-order-sku-audit-table>
         </div>
@@ -21,38 +31,22 @@
     }
 
     <div [class.hidden]="activeTab() !== 'tab2'" class="flex-1 min-h-0 overflow-hidden mt-2 flex flex-col">
-      @if (productionOrder()) {
-        <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
-      }
-
-      <div class="flex flex-row justify-end gap-3 mb-2 shrink-0">
-        <app-ui-button (onClick)="editAuditBlock()" [intent]="'action'" [disabled]="!hasAuditRecords()">
-          <app-ui-icon [iconName]="'pencil'" class="h-5 w-5"></app-ui-icon>
-          Editar
-        </app-ui-button>
-        <app-ui-button (onClick)="deleteAuditBlock()" [intent]="'cancel'" [disabled]="!hasAuditRecords()">
-          <app-ui-icon [iconName]="'trash'" class="h-5 w-5"></app-ui-icon>
-          Eliminar
-        </app-ui-button>
-      </div>
 
       <div class="flex-1 min-h-0 overflow-hidden">
         <app-data-table
-          [paginatedResponse]="auditRecordsResponse()"
-          [columns]="auditColumns"
-          [actions]="auditActions"
+          [paginatedResponse]="auditedOpsResponse()"
+          [columns]="auditedOpsColumns"
+          [actions]="auditedOpsActions"
           [showSearch]="false"
-          [footer]="auditFooter()"
-          [footerLabel]="'Totales'"
-          (onPagerChange)="auditPagerHandler($event)"
-          (onAction)="onAuditTableAction($event)">
+          (onPagerChange)="auditedOpsPagerHandler($event)"
+          (onAction)="onAuditedOpAction($event)">
 
-          <ng-template appTableTemplate="auditedQtyTemplate" let-row>
-            <span [class]="row.quantities_match ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'">{{ row.audited_quantity }}</span>
+          <ng-template appTableTemplate="matchesTotalTemplate" let-row>
+            <app-ui-badge [active]="row.matches_total" [activeText]="'Coincide'" [inactiveText]="'Con diferencias'"></app-ui-badge>
           </ng-template>
 
-          <ng-template appTableTemplate="authorizedTemplate" let-row>
-            <app-ui-badge [active]="row.quantities_match" [activeText]="'Autorizado'" [inactiveText]="'Pendiente'"></app-ui-badge>
+          <ng-template appTableTemplate="auditedAtTemplate" let-row>
+            {{ row.updated_at | date:'dd/MM/yyyy HH:mm' }}
           </ng-template>
 
         </app-data-table>
@@ -61,13 +55,19 @@
 
     @if (productionOrder()) {
       <div class="flex flex-row justify-end mt-4 gap-3">
+        @if (activeTab() === 'tab1') {
+        <app-ui-button (onClick)="confirmAuditBlock()" [intent]="'accept'" [disabled]="!allColorsAudited() || isConfirmed()">
+          <app-ui-icon [iconName]="'check'" class="h-5 w-5"></app-ui-icon>
+          Confirmar
+        </app-ui-button>
+        <app-ui-button (onClick)="deleteAuditBlock()" [intent]="'cancel'" [disabled]="!hasAuditRecords()">
+          <app-ui-icon [iconName]="'trash'" class="h-5 w-5"></app-ui-icon>
+          Eliminar
+        </app-ui-button>
+        }
         <app-ui-button (onClick)="goToSearch()" [intent]="'action'">
           <app-ui-icon [iconName]="'magnifyingGlass'" class="h-5 w-5"></app-ui-icon>
           Buscar OP
-        </app-ui-button>
-        <app-ui-button (onClick)="openAuditQuantityModal()">
-          <app-ui-icon [iconName]="'check'" class="h-5 w-5"></app-ui-icon>
-          Auditar
         </app-ui-button>
       </div>
     }

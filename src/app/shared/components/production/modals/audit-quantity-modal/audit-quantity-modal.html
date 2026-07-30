@@ -3,25 +3,21 @@
 
     <div box-content class="flex flex-col h-full min-h-0 items-center border-t border-slate-200 pt-4 mt-2">
 
-        <form id="auditQuantityForm" class="w-full flex-1 min-h-0 flex flex-col" [formGroup]="quantityForm">
-            <div class="w-full flex-1 min-h-0 max-h-[50vh] overflow-y-auto">
-                <fieldset>
-                    @for (row of colorRows(); track row.controlName) {
-                    <app-ui-form-field [controlName]="row.controlName" [label]="row.color">
-                        <app-ui-large-input [type]="'number'" [formControlName]="row.controlName" [placeholder]="'Total: ' + row.total" [hasAddon]="true">
-                            <span right-addon [class]="rowMatches(row.controlName, row.total) ? 'text-green-600' : 'text-red-500'">{{ packagesFor(row.controlName) }} paq / {{ remainderFor(row.controlName) }} unid</span>
-                        </app-ui-large-input>
-                    </app-ui-form-field>                  
-                    }
-                </fieldset>
-            </div>
+        <form id="auditQuantityForm" class="w-full" [formGroup]="quantityForm">
+            <fieldset>
+                <app-ui-form-field [controlName]="quantityControlName" [label]="colorData()?.color ?? ''">
+                    <app-ui-large-input [type]="'number'" [formControlName]="quantityControlName" [placeholder]="'Total: ' + (colorData()?.total ?? 0)" [hasAddon]="true">
+                        <span right-addon [class]="matches() ? 'text-green-600' : 'text-red-500'">{{ packages() }} paq / {{ remainder() }} unid</span>
+                    </app-ui-large-input>
+                </app-ui-form-field>
+            </fieldset>
         </form>
 
-        @if (quantityForm.valid && missingTotal() === 0) {
+        @if (quantityForm.valid && missing() === 0) {
         <app-ui-success-message class="w-full">Arqueo completo.</app-ui-success-message>
-        } @else if (missingTotal() !== 0) {
+        } @else if (missing() !== 0) {
         <app-ui-error-message class="w-full">
-            {{ missingTotal() > 0 ? 'Faltan ' + missingTotal() : 'Sobran ' + -missingTotal() }} unidades por ingresar.
+            {{ missing() > 0 ? 'Faltan ' + missing() : 'Sobran ' + -missing() }} unidades por ingresar.
         </app-ui-error-message>
         }
 
@@ -33,18 +29,18 @@
                 </div>
                 <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
                     <h3 class="text-gray-700 text-xs">Ingresado</h3>
-                    <p [class]="'text-m font-semibold mb-1 ' + (enteredTotal() === totalOrderedQty() ? 'text-green-600' : 'text-red-500')">{{ enteredTotal() }}</p>
+                    <p [class]="'text-m font-semibold mb-1 ' + (matches() ? 'text-green-600' : 'text-red-500')">{{ enteredQty() }}</p>
                 </div>
                 <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
                     <h3 class="text-gray-700 text-xs">Paquetes</h3>
-                    <p class="text-m font-semibold mb-1 text-slate-700">{{ totalPackages() }}</p>
+                    <p class="text-m font-semibold mb-1 text-slate-700">{{ packages() }}</p>
                 </div>
                 <div class="h-full flex flex-col items-end border-l pl-2 border-gray-400">
-                    <h3 class="text-gray-700 text-xs">Total OP</h3>
-                    <p class="text-m font-semibold mb-1 text-slate-900">{{ totalOrderedQty() }}</p>
+                    <h3 class="text-gray-700 text-xs">Total color</h3>
+                    <p class="text-m font-semibold mb-1 text-slate-900">{{ colorData()?.total ?? 0 }}</p>
                 </div>
             </div>
-            <app-progress-bar class="w-full mt-3" [max]="totalOrderedQty()" [progress]="enteredTotal()"></app-progress-bar>
+            <app-progress-bar class="w-full mt-3" [max]="colorData()?.total ?? 0" [progress]="enteredQty()"></app-progress-bar>
         </div>
 
     </div>

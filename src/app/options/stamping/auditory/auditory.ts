@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Location } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { finalize } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -18,7 +18,7 @@ import { AuditQuantityModal, AuditedColorQuantity } from '../../../shared/compon
 import { AuditQuantityModalService } from '../../../services/common/audit-quantity-modal-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { AuditRecordService } from '../../../services/stamping/audit-record-service';
-import { AuditRecord, AuditRecordBulkPayload } from '../../../models/stamping/audit-record';
+import { AuditRecord, AuditRecordBulkPayload, AuditedOpSummary } from '../../../models/stamping/audit-record';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
@@ -32,7 +32,7 @@ const TABS: TabItem[] = [
 
 @Component({
   selector: 'app-stamping-auditory',
-  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, OrderSkuAuditTable, OrderSearcher, UiButton, AuditQuantityModal, DataTable, TableTemplate, UiBadge],
+  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, OrderSkuAuditTable, OrderSearcher, UiButton, AuditQuantityModal, DataTable, TableTemplate, UiBadge, DatePipe],
   templateUrl: './auditory.html',
 })
 export class StampingAuditory extends BaseProductionOrderPage {
@@ -49,60 +49,74 @@ export class StampingAuditory extends BaseProductionOrderPage {
   activeTab = signal('tab1');
   tabs = TABS;
 
-  // "Auditoría" tab table — reads the AuditRecord block already saved for the
-  // loaded OP (one row per color). Records are managed in bulk per OP, so
-  // "edit" reopens the modal with the whole block prefilled instead of
-  // patching a single row.
-  protected auditRecordsResponse = signal<PaginatedResponse<AuditRecord> | null>(null);
-  private editingAuditBlock = signal(false);
-  // Full color set for the loaded OP at the moment an edit (whole-block or
-  // single-row) was opened — needed to merge the modal's result (which may
-  // only contain one color) back into a complete replaceBulk payload.
+  // Unpaged full set for the loaded OP — feeds the "Orden OP" tab's
+  // Auditada/Estado columns, which must see every color regardless of any
+  // pager.
+  protected auditRecordsAll = signal<AuditRecord[]>([]);
+  // Full color set for the loaded OP at the moment a row's edit icon was
+  // clicked — needed to merge the modal's single-color result back into a
+  // complete replaceBulk payload (the other colors must survive the replace).
   private currentAuditRecords: AuditRecord[] = [];
-  private auditPage = 1;
-  private auditLimit = environment.DEFAULT_PAGE_SIZE;
 
-  // Delete acts on the whole OP block, so it's a plain button above the
-  // table. Edit is available both per-row (single color) and as a
-  // whole-block button.
-  protected auditColumns: TableColumn<AuditRecord>[] = [
-    { field: 'color', label: 'Color' },
-    { field: 'ordered_quantity', label: 'Ordenada', align: 'right' },
-    { field: 'audited_quantity', label: 'Auditada', type: 'template', templateName: 'auditedQtyTemplate', align: 'right' },
-    { field: 'quantities_match', label: 'Autorizado', type: 'template', templateName: 'authorizedTemplate', align: 'center' },
+  // "Auditoría" tab — global list of every OP already confirmed
+  // (is_audited=True), independent of whichever OP is loaded in "Orden OP".
+  // Most recently audited first (backend orders by -updated_at).
+  protected auditedOpsResponse = signal<PaginatedResponse<AuditedOpSummary> | null>(null);
+  private auditedOpsPage = 1;
+  private auditedOpsLimit = environment.DEFAULT_PAGE_SIZE;
+
+  protected auditedOpsColumns: TableColumn<AuditedOpSummary>[] = [
+    { field: 'op_type', label: 'Tipo' },
+    { field: 'op_number', label: 'OP' },
+    { field: 'total_ordered_quantity', label: 'Ordenada', align: 'right' },
+    { field: 'total_audited_quantity', label: 'Auditada', align: 'right' },
+    { field: 'matches_total', label: 'Resultado', type: 'template', templateName: 'matchesTotalTemplate', align: 'center' },
+    { field: 'updated_by_username', label: 'Auditada por' },
+    { field: 'updated_at', label: 'Fecha auditoría', type: 'template', templateName: 'auditedAtTemplate' },
   ];
 
-  // Footer totals the currently displayed page — matches_total coloring is
-  // validated per color/row only, the footer is a plain sum.
-  protected auditFooter = computed<AuditRecord[]>(() => {
-    const rows = this.auditRecordsResponse()?.results ?? [];
-    if (!rows.length) return [];
+  protected auditedOpsActions: TableActions = {
+    view: { enabled: false },
+    edit: { enabled: true, title: 'Editar auditoría', iconName: 'pencil', toolTip: 'Editar' },
+    delete: { enabled: true, title: 'Eliminar auditoría', iconName: 'trash', toolTip: 'Eliminar' },
+    create: { enabled: false },
+  };
 
-    return [
-      {
-        ordered_quantity: rows.reduce((sum, r) => sum + r.ordered_quantity, 0),
-        audited_quantity: rows.reduce((sum, r) => sum + r.audited_quantity, 0),
-      } as AuditRecord,
-    ];
+  protected hasAuditRecords = computed(() => this.auditRecordsAll().length > 0);
+
+  // Every color in the OP has an audit entry — even a 0 counts, it just
+  // means the auditor reviewed that color. This gates the "Confirmar"
+  // button: you must review every color before closing out the audit,
+  // whether or not the counts actually match.
+  protected allColorsAudited = computed(() => {
+    const order = this.productionOrder();
+    const records = this.auditRecordsAll();
+    if (!order || records.length === 0) return false;
+    return records.length === order.colors.length;
   });
 
-  protected auditActions: TableActions = {
+  // Global OP indicator (visible next to the tabs, either tab). "approved"
+  // requires EVERY color to individually match — not just the OP-level sum
+  // (matches_total), which can hide one color under-audited offsetting
+  // another over-audited.
+  protected opApprovalStatus = computed<'unaudited' | 'mismatch' | 'approved'>(() => {
+    if (this.auditRecordsAll().length === 0) return 'unaudited';
+    if (!this.allColorsAudited()) return 'mismatch';
+
+    const allColorsMatch = this.auditRecordsAll().every((r) => r.quantities_match);
+    return allColorsMatch ? 'approved' : 'mismatch';
+  });
+
+  protected isConfirmed = computed(() => this.auditRecordsAll().some((r) => r.is_audited));
+
+  // "Orden OP" tab table — row-level edit opens the same per-color audit
+  // modal as the "Auditoría" tab, whether that color has been audited yet or not.
+  protected opTableActions: TableActions = {
     view: { enabled: false },
     edit: { enabled: true, title: 'Editar color', iconName: 'pencil', toolTip: 'Editar' },
     delete: { enabled: false },
     create: { enabled: false },
   };
-
-  protected hasAuditRecords = computed(() => (this.auditRecordsResponse()?.count ?? 0) > 0);
-
-  // "Orden OP" tab table — row-level edit reopens the same per-color audit
-  // modal as the "Auditoría" tab, so it only makes sense once a block exists.
-  protected opTableActions = computed<TableActions>(() => ({
-    view: { enabled: false },
-    edit: { enabled: this.hasAuditRecords(), title: 'Editar color', iconName: 'pencil', toolTip: 'Editar' },
-    delete: { enabled: false },
-    create: { enabled: false },
-  }));
 
   protected override beforeLoad(): void {
     this.activeTab.set('tab1');
@@ -112,9 +126,14 @@ export class StampingAuditory extends BaseProductionOrderPage {
     this.activeTab.set(key);
   }
 
+  override ngOnInit(): void {
+    super.ngOnInit();
+    this.loadAuditedOps();
+  }
+
   goToSearch(): void {
     this.productionOrder.set(null);
-    this.auditRecordsResponse.set(null);
+    this.auditRecordsAll.set([]);
   }
 
   override setDocument(doc: ProductionOrder | null): void {
@@ -126,39 +145,79 @@ export class StampingAuditory extends BaseProductionOrderPage {
     });
     this.location.replaceState(this.router.serializeUrl(tree));
 
-    this.auditPage = 1;
-    this.loadAuditRecords();
+    this.loadAllAuditRecords();
   }
 
-  private loadAuditRecords(): void {
+  private loadAllAuditRecords(): void {
     const order = this.productionOrder();
     if (!order) return;
 
-    const offset = (this.auditPage - 1) * this.auditLimit;
     this.auditRecordService
-      .getAll({
-        limit: this.auditLimit,
-        offset,
-        filters: { op_number: order.documentNumber, op_rowid: order.rowId, op_type: order.documentType },
-      })
-      .subscribe((res) => this.auditRecordsResponse.set(res));
+      .all({ op_number: order.documentNumber, op_rowid: order.rowId, op_type: order.documentType })
+      .subscribe((records) => this.auditRecordsAll.set(records));
   }
 
-  auditPagerHandler(value: { page: number; pageSize: number }): void {
-    this.auditPage = value.page;
-    this.auditLimit = value.pageSize;
-    this.loadAuditRecords();
+  private loadAuditedOps(): void {
+    const offset = (this.auditedOpsPage - 1) * this.auditedOpsLimit;
+    this.auditRecordService
+      .getAuditedOps(this.auditedOpsLimit, offset)
+      .subscribe((res) => this.auditedOpsResponse.set(res));
   }
 
-  editAuditBlock(): void {
-    this.fetchCurrentAuditRecords((order, records) => {
-      this.auditQuantityModal.open(order, records);
+  auditedOpsPagerHandler(value: { page: number; pageSize: number }): void {
+    this.auditedOpsPage = value.page;
+    this.auditedOpsLimit = value.pageSize;
+    this.loadAuditedOps();
+  }
+
+  onAuditedOpAction(event: TableActionEvent<AuditedOpSummary>): void {
+    if (event.type === 'edit') this.editAuditedOp(event.obj);
+    if (event.type === 'delete') this.deleteAuditedOp(event.obj);
+  }
+
+  // Loads that OP into the "Orden OP" tab so its colors can be edited —
+  // reuses the same route-driven load the order searcher already triggers.
+  private editAuditedOp(row: AuditedOpSummary): void {
+    if (row.op_type == null || row.op_number == null) return;
+
+    this.activeTab.set('tab1');
+    this.router.navigate([], {
+      queryParams: { docType: row.op_type, docNumber: row.op_number },
+      queryParamsHandling: 'merge',
     });
   }
 
-  onAuditTableAction(event: TableActionEvent<AuditRecord>): void {
-    if (event.type !== 'edit') return;
-    this.openColorEditModal(event.obj.color);
+  private deleteAuditedOp(row: AuditedOpSummary): void {
+    if (row.op_number == null || row.op_rowid == null || row.op_type == null) return;
+
+    this.dialogService.openConfirm(
+      'Eliminar auditoría',
+      `¿Está seguro de que desea eliminar el bloque de auditoría de la OP ${row.op_number}?`,
+      'Eliminar',
+      () => {
+        this.dialogService.closeConfirm();
+        this.loaderService.showLoader();
+        this.auditRecordService
+          .deleteBulk(row.op_number!, row.op_rowid!, row.op_type!)
+          .pipe(finalize(() => this.loaderService.hideLoader()))
+          .subscribe({
+            next: () => {
+              this.loadAuditedOps();
+
+              // The deleted block might be the one currently loaded in "Orden OP".
+              const current = this.productionOrder();
+              if (current && current.documentNumber === row.op_number && current.documentType === row.op_type) {
+                this.auditRecordsAll.set([]);
+              }
+
+              this.dialogService.openToast('Auditoría eliminada', `Se eliminó el bloque de auditoría de la OP ${row.op_number}.`, 'check');
+            },
+            error: () => {
+              this.dialogService.openToast('No se pudo eliminar', 'Error al eliminar la auditoría.', 'fail');
+            },
+          });
+      },
+    );
   }
 
   onOpTableAction(event: TableActionEvent<OpColorRow>): void {
@@ -167,12 +226,6 @@ export class StampingAuditory extends BaseProductionOrderPage {
   }
 
   private openColorEditModal(color: string): void {
-    this.fetchCurrentAuditRecords((order, records) => {
-      this.auditQuantityModal.open(order, records, color);
-    });
-  }
-
-  private fetchCurrentAuditRecords(onLoaded: (order: ProductionOrder, records: AuditRecord[]) => void): void {
     const order = this.productionOrder();
     if (!order) return;
 
@@ -181,9 +234,9 @@ export class StampingAuditory extends BaseProductionOrderPage {
       .all({ op_number: order.documentNumber, op_rowid: order.rowId, op_type: order.documentType })
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe((records) => {
-        this.editingAuditBlock.set(true);
         this.currentAuditRecords = records;
-        onLoaded(order, records);
+        const existingQuantity = records.find((r) => r.color === color)?.audited_quantity ?? null;
+        this.auditQuantityModal.open(order, color, existingQuantity);
       });
   }
 
@@ -203,8 +256,8 @@ export class StampingAuditory extends BaseProductionOrderPage {
           .pipe(finalize(() => this.loaderService.hideLoader()))
           .subscribe({
             next: () => {
-              this.auditPage = 1;
-              this.loadAuditRecords();
+              this.auditRecordsAll.set([]);
+              this.loadAuditedOps();
               this.dialogService.openToast('Auditoría eliminada', 'Se eliminó el bloque de auditoría de la OP.', 'check');
             },
             error: () => {
@@ -215,50 +268,58 @@ export class StampingAuditory extends BaseProductionOrderPage {
     );
   }
 
-  openAuditQuantityModal(): void {
+  confirmAuditBlock(): void {
     const order = this.productionOrder();
     if (!order) return;
-    this.editingAuditBlock.set(false);
-    this.auditQuantityModal.open(order);
+
+    this.loaderService.showLoader();
+    this.auditRecordService
+      .confirmBulk(order.documentNumber, order.rowId, order.documentType)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: (records) => {
+          this.auditRecordsAll.set(records);
+          this.loadAuditedOps();
+          this.dialogService.openToast('Auditoría confirmada', `Se confirmó la auditoría de la OP ${order.documentNumber}.`, 'check');
+        },
+        error: () => {
+          this.dialogService.openToast('No se pudo confirmar', 'Error al confirmar la auditoría.', 'fail');
+        },
+      });
   }
 
-  onAuditQuantitySaved(rows: AuditedColorQuantity[]): void {
+  onAuditQuantitySaved(row: AuditedColorQuantity): void {
     const order = this.productionOrder();
     if (!order) return;
 
-    const isEdit = this.editingAuditBlock();
-    // A row edit only carries its own color — merge it back into the full
-    // set fetched when the modal was opened so replaceBulk doesn't drop the
-    // other colors (it replaces the whole block, not a single row).
-    const finalRows = isEdit ? this.mergeWithCurrentRecords(rows) : rows;
+    // The modal only carries the edited color — merge it back into the full
+    // set fetched when it was opened so replaceBulk (which replaces the
+    // whole block, not a single row) doesn't drop the other colors. When the
+    // block doesn't exist yet, currentAuditRecords is empty and this just
+    // creates it with the one color.
+    const finalRows = this.mergeWithCurrentRecords(row);
 
     const payload: AuditRecordBulkPayload = {
       op_number: order.documentNumber,
       op_rowid: order.rowId,
       op_type: order.documentType,
-      total_ordered_quantity: finalRows.reduce((sum, row) => sum + row.orderedQty, 0),
-      colors: finalRows.map((row) => ({
-        color: row.color,
-        sku_rowids: row.skuRowIds,
-        ordered_quantity: row.orderedQty,
-        audited_quantity: row.quantity,
+      total_ordered_quantity: finalRows.reduce((sum, r) => sum + r.orderedQty, 0),
+      colors: finalRows.map((r) => ({
+        color: r.color,
+        sku_rowids: r.skuRowIds,
+        ordered_quantity: r.orderedQty,
+        audited_quantity: r.quantity,
       })),
     };
 
-    const request$ = isEdit ? this.auditRecordService.replaceBulk(payload) : this.auditRecordService.createBulk(payload);
-
     this.loaderService.showLoader();
-    request$
+    this.auditRecordService
+      .replaceBulk(payload)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: () => {
-          this.editingAuditBlock.set(false);
-          this.auditPage = 1;
-          this.loadAuditRecords();
-          const message = isEdit
-            ? `Se actualizaron las cantidades de ${rows.length} color(es).`
-            : `Se registraron las cantidades de ${rows.length} color(es).`;
-          this.dialogService.openToast(isEdit ? 'Auditoría actualizada' : 'Auditoría guardada', message, 'check');
+          this.loadAllAuditRecords();
+          this.dialogService.openToast('Auditoría guardada', `Se registró la cantidad auditada de ${row.color}.`, 'check');
         },
         error: () => {
           this.dialogService.openToast('No se pudo guardar', 'Error al guardar la auditoría.', 'fail');
@@ -266,16 +327,15 @@ export class StampingAuditory extends BaseProductionOrderPage {
       });
   }
 
-  private mergeWithCurrentRecords(edited: AuditedColorQuantity[]): AuditedColorQuantity[] {
-    const editedByColor = new Map(edited.map((row) => [row.color, row]));
-    return this.currentAuditRecords.map(
-      (record) =>
-        editedByColor.get(record.color) ?? {
-          color: record.color,
-          quantity: record.audited_quantity,
-          orderedQty: record.ordered_quantity,
-          skuRowIds: record.sku_rowids,
-        },
-    );
+  private mergeWithCurrentRecords(edited: AuditedColorQuantity): AuditedColorQuantity[] {
+    const others = this.currentAuditRecords
+      .filter((r) => r.color !== edited.color)
+      .map((r) => ({
+        color: r.color,
+        quantity: r.audited_quantity,
+        orderedQty: r.ordered_quantity,
+        skuRowIds: r.sku_rowids,
+      }));
+    return [...others, edited];
   }
 }
