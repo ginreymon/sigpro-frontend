@@ -154,6 +154,7 @@ export class StampingRecord {
           });
           this.selectedReferenceSamId.set(null);
           this.selectedAdditionalTimeIds.set([]);
+          this.additionalTimeQuantities.set({});
           this.submitAttempted.set(false);
         });
       }
@@ -182,19 +183,30 @@ export class StampingRecord {
   }
 
   protected toggleAdditionalTime(id: number): void {
+    const willSelect = !this.selectedAdditionalTimeIds().includes(id);
+
     this.selectedAdditionalTimeIds.update((ids) => {
-      const updated = ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id];
+      const updated = willSelect ? [...ids, id] : ids.filter((x) => x !== id);
       this.recordForm.patchValue({ additional_times: updated });
       return updated;
+    });
+
+    // Selecting seeds a count of 1 (matches the backend default); deselecting
+    // drops it so stale counts don't linger if the card is picked again.
+    this.additionalTimeQuantities.update((quantities) => {
+      if (willSelect) return quantities[id] ? quantities : { ...quantities, [id]: 1 };
+      const { [id]: _removed, ...rest } = quantities;
+      return rest;
     });
   }
 
   protected getQuantity(id: number): number {
-    return this.additionalTimeQuantities()[id] ?? 0;
+    return this.additionalTimeQuantities()[id] ?? 1;
   }
 
   protected setQuantity(id: number, value: number): void {
-    this.additionalTimeQuantities.update((quantities) => ({ ...quantities, [id]: value || 0 }));
+    const safeValue = Number.isFinite(value) && value > 0 ? Math.floor(value) : 1;
+    this.additionalTimeQuantities.update((quantities) => ({ ...quantities, [id]: safeValue }));
   }
 
   protected isReferenceSelected(id: number): boolean {
@@ -228,7 +240,7 @@ export class StampingRecord {
       completed_quantity: Number(this.recordForm.value.completed_quantity),
       additional_times: (this.recordForm.value.additional_times as number[]).map((id) => ({
         id,
-        count: 1,
+        count: this.getQuantity(id),
       })),
     };
 
