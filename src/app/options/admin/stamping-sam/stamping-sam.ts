@@ -82,6 +82,13 @@ const TAB_FIELDS: Record<string, string[]> = {
 export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
   protected override entityName: string = 'SAM';
 
+  // Also embedded as a tab inside stamping/machines-config (module 'stamping'),
+  // not just its standalone route under admin — CRUD stays enabled there too.
+  protected override get isAdminModule(): boolean {
+    const moduleUrl = this.routeContext.currentModule?.url;
+    return moduleUrl === 'admin' || moduleUrl === 'stamping';
+  }
+
   protected override tableToolsButtons: TableToolsButtons = {
     filter: { enabled: false },
     columns: { enabled: false },
@@ -125,11 +132,18 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
     // `validateModelForm()` (base-crud-page.ts) calls `updateValueAndValidity({
     // emitEvent: true })` on every control on submit — Angular re-emits
     // `valueChanges` unconditionally from that call, even when the value
-    // didn't change. Without `distinctUntilChanged()`, that spurious emission
-    // re-ran this reset on every Guardar/Actualizar click, wiping
-    // `identification` right before its own validity check and making the
-    // form permanently invalid.
+    // didn't change. `distinctUntilChanged()` alone doesn't cover this:
+    // `prepareFormForAction()` rebuilds modelForm (and re-subscribes here)
+    // on every modal open, so on the FIRST save of an edit session there's no
+    // prior value yet to dedupe against — that first spurious emission still
+    // got through and wiped `identification`/`rowid_item` right before the
+    // form's own values were read for the request. `no_reference` is only
+    // ever user-togglable while creating (disabled during edit — see
+    // actionHandler), so skip the reset whenever it's disabled: any emission
+    // while disabled is necessarily this spurious re-validation echo, not a
+    // real change.
     this.noReferenceSub = this.noReference!.valueChanges.pipe(distinctUntilChanged()).subscribe((requiresReference) => {
+      if (this.noReference?.disabled) return;
       this.rowidItem?.setValue(null);
       this.identification?.setValue(null);
       this.syncRowidItemValidator(requiresReference);

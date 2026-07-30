@@ -12,7 +12,7 @@
         <div class="flex justify-between items-start">
           <div>
             <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-1">MÁQUINA 01</span>
-            <h3 class="text-base font-semibold text-gray-800">TROQUELADORA</h3>
+            <h3 class="text-base font-semibold text-gray-800">AUTOMATICO 01</h3>
           </div>
           <app-ui-badge [intent]="'active'" [label]="'Activo'"></app-ui-badge>
         </div>
@@ -55,7 +55,7 @@
         <div class="flex justify-between items-start">
           <div>
             <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-1">MÁQUINA 02</span>
-            <h3 class="text-base font-semibold text-gray-800">PRENSA HIDRÁULICA</h3>
+            <h3 class="text-base font-semibold text-gray-800">AUTOMATICO 02</h3>
           </div>
           <app-ui-badge [intent]="'paused'" [label]="'Pausado'"></app-ui-badge>
         </div>
@@ -89,49 +89,6 @@
                 <span class="font-medium text-gray-400">0</span>
               </div>
               <app-progress-bar [progress]="0" [max]="300" [color]="'#9ca3af'"></app-progress-bar>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between min-h-45 hover:shadow-md transition-shadow cursor-pointer">
-        <div class="flex justify-between items-start">
-          <div>
-            <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-1">MÁQUINA 03</span>
-            <h3 class="text-base font-semibold text-gray-800">CIZALLA</h3>
-          </div>
-          <app-ui-badge [intent]="'inactive'" [label]="'Inactivo'"></app-ui-badge>
-        </div>
-
-        <div class="mt-2 flex flex-col gap-3">
-          <div>
-            <span class="text-4xl font-semibold text-gray-400">0.00%</span>
-            <div class="mt-1 text-xs text-gray-500">
-              <span>0 / 0 Encomendados</span>
-            </div>
-          </div>
-
-          <div class="space-y-2">
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-400">Completadas</span>
-                <span class="font-medium text-gray-400">0</span>
-              </div>
-              <app-progress-bar [progress]="0" [max]="100" [color]="'#9ca3af'"></app-progress-bar>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-400">Saldos</span>
-                <span class="font-medium text-gray-400">0</span>
-              </div>
-              <app-progress-bar [progress]="0" [max]="100" [color]="'#9ca3af'"></app-progress-bar>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-400">Bajas</span>
-                <span class="font-medium text-gray-400">0</span>
-              </div>
-              <app-progress-bar [progress]="0" [max]="100" [color]="'#9ca3af'"></app-progress-bar>
             </div>
           </div>
         </div>
