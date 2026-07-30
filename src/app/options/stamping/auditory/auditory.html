@@ -47,8 +47,9 @@
           [paginatedResponse]="auditedOpsResponse()"
           [columns]="auditedOpsColumns"
           [actions]="auditedOpsActions"
-          [showSearch]="false"
+          [columnFilter]="true"
           (onPagerChange)="auditedOpsPagerHandler($event)"
+          (onSearch)="auditedOpsSearchHandler($event)"
           (onAction)="onAuditedOpAction($event)">
 
           <ng-template appTableTemplate="matchesTotalTemplate" let-row>

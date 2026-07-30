@@ -47,21 +47,23 @@ export class TableFilterState<T> {
     });
   }
 
-  apply(rows: TableRow<T>[], clientFilterEnabled: boolean): TableRow<T>[] {
-    if (!clientFilterEnabled) return [...rows];
-
+  apply(rows: TableRow<T>[], searchEnabled: boolean, columnFilterEnabled: boolean): TableRow<T>[] {
     let filtered = rows;
 
-    const term = this.currentSearchTerm.toLowerCase().trim();
-    if (term) {
-      filtered = filtered.filter((row) =>
-        Object.values(row.obj as object).some((v) => String(v ?? '').toLowerCase().includes(term)),
-      );
+    if (searchEnabled) {
+      const term = this.currentSearchTerm.toLowerCase().trim();
+      if (term) {
+        filtered = filtered.filter((row) =>
+          Object.values(row.obj as object).some((v) => String(v ?? '').toLowerCase().includes(term)),
+        );
+      }
     }
 
-    for (const [field, values] of this.activeFilters) {
-      if (values.size > 0) {
-        filtered = filtered.filter((row) => values.has((row.obj as any)[field]));
+    if (columnFilterEnabled) {
+      for (const [field, values] of this.activeFilters) {
+        if (values.size > 0) {
+          filtered = filtered.filter((row) => values.has((row.obj as any)[field]));
+        }
       }
     }
 

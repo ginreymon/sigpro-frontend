@@ -49,6 +49,13 @@ export class StampingAuditory extends BaseProductionOrderPage {
   activeTab = signal('tab1');
   tabs = TABS;
 
+  // Set whenever tab1 changes something that the tab2 audited-ops list could
+  // reflect (e.g. editing a color's audited_quantity after the OP was
+  // already confirmed, which changes its Auditada/Resultado columns).
+  // confirmAuditBlock/deleteAuditBlock refresh the list themselves already,
+  // so this flag only needs setting from the color-edit path.
+  private auditedOpsDirty = false;
+
   // Unpaged full set for the loaded OP — feeds the "Orden OP" tab's
   // Auditada/Estado columns, which must see every color regardless of any
   // pager.
@@ -142,6 +149,10 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
   onTabChange(key: string): void {
     this.activeTab.set(key);
+    if (key === 'tab2' && this.auditedOpsDirty) {
+      this.auditedOpsDirty = false;
+      this.loadAuditedOps();
+    }
   }
 
   override ngOnInit(): void {
@@ -342,6 +353,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
       .subscribe({
         next: () => {
           this.loadAllAuditRecords();
+          this.auditedOpsDirty = true;
           this.dialogService.openToast('Auditoría guardada', `Se registró la cantidad auditada de ${row.color}.`, 'check');
         },
         error: () => {

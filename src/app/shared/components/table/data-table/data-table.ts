@@ -65,6 +65,10 @@ export class DataTable<T> {
 
   // Client-side filtering
   @Input() clientFilter: boolean = false;
+  // Per-column dropdown filter (unique values from the currently loaded/rendered
+  // rows only — no backend call). Independent of clientFilter, which also
+  // reroutes the search bar to filter locally instead of emitting onSearch.
+  @Input() columnFilter: boolean = false;
   private filterState = new TableFilterState<T>();
   protected openFilterField: string | null = null;
   protected filterValues: any[] = [];
@@ -185,11 +189,11 @@ export class DataTable<T> {
   }
 
   private applyClientFilters(): void {
-    this._data = this.filterState.apply(this._rawData, this.clientFilter);
+    this._data = this.filterState.apply(this._rawData, this.clientFilter, this.clientFilter || this.columnFilter);
   }
 
   protected isColumnFilterable(col: TableColumn<T>): boolean {
-    return this.clientFilter && !!col.field && col.type !== 'tableActionType' && col.type !== 'index';
+    return (this.clientFilter || this.columnFilter) && !!col.field && col.type !== 'tableActionType' && col.type !== 'index';
   }
 
   protected getFieldString(col: TableColumn<T>): string {
