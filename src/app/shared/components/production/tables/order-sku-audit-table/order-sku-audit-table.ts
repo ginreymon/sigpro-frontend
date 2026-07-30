@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { ProductionOrder } from '../../../../../models/production/production-order';
-import { PaginatedResponse } from '../../../../../common/interfaces/paginated-response';
-import { TableColumn } from '../../../../../common/interfaces/table-column';
-import { TableActions } from '../../../../../common/interfaces/table-actions';
+import { TableActions, TableActionType } from '../../../../../common/interfaces/table-actions';
 import { TableActionEvent } from '../../../../../common/interfaces/table-action-event';
-import { DataTable } from '../../../table/data-table/data-table';
+import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
+import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
+import { TableColumnFilter } from '../../../table/table-column-filter/table-column-filter';
 import { buildColorSizeMatrix } from '../production-orders-table/color-size-matrix';
 
 export interface OpColorRow {
@@ -15,39 +15,98 @@ export interface OpColorRow {
 
 @Component({
   selector: 'app-order-sku-audit-table',
-  imports: [DataTable],
+  imports: [UiIcon, UiTooltip, TableColumnFilter],
   templateUrl: './order-sku-audit-table.html',
 })
 export class OrderSkuAuditTable {
-  protected columns: TableColumn<OpColorRow>[] = [];
-  protected paginatedResponse: PaginatedResponse<OpColorRow> | null = null;
+  @ViewChild(TableColumnFilter) private colorFilterPanel!: TableColumnFilter;
 
-  @Input() actions: Partial<TableActions> = {};
+  protected sizes: string[] = [];
+  protected rows: OpColorRow[] = [];
+
+  private selectedColors = new Set<string>();
+  protected colorFilterOpen = false;
+
+  protected readonly actionKeys: TableActionType[] = ['view', 'edit', 'delete'];
+  protected _actions: TableActions = {
+    view: { enabled: false },
+    edit: { enabled: false },
+    delete: { enabled: false },
+    create: { enabled: false },
+  };
+
+  @Input() set actions(value: Partial<TableActions>) {
+    (Object.keys(this._actions) as TableActionType[]).forEach((key) => {
+      this._actions[key] = { ...this._actions[key], ...value?.[key] };
+    });
+  }
 
   @Input()
   set productionOrder(order: ProductionOrder | null) {
+    this.selectedColors.clear();
+
     if (!order) {
-      this.columns = [];
-      this.paginatedResponse = null;
+      this.sizes = [];
+      this.rows = [];
       return;
     }
 
-    const { sizes, skuColors } = buildColorSizeMatrix(order);
+    const matrix = buildColorSizeMatrix(order);
+    this.sizes = matrix.sizes;
 
-    this.columns = [
-      { field: 'color', label: 'Color SKU' },
-      ...sizes.map((size) => ({ field: size, label: size, align: 'center' as const })),
-      { field: 'total', label: 'Total', align: 'right' as const },
-    ];
-
-    const results: OpColorRow[] = skuColors.map((c) => {
+    this.rows = matrix.skuColors.map((c) => {
       const row: OpColorRow = { color: c.color, total: c.totals[0].orderedQty };
       c.sizes.forEach((s) => (row[s.size] = s.skuRowId !== 0 ? s.orderedQty : ''));
       return row;
     });
-
-    this.paginatedResponse = { count: results.length, next: null, previous: null, results };
   }
 
   @Output() onAction = new EventEmitter<TableActionEvent<OpColorRow>>();
+
+  protected get filteredRows(): OpColorRow[] {
+    if (this.selectedColors.size === 0) return this.rows;
+    return this.rows.filter((r) => this.selectedColors.has(r.color));
+  }
+
+  protected get hasAnyAction(): boolean {
+    return this.actionKeys.some((key) => this._actions[key].enabled);
+  }
+
+  protected get colorFilterValues(): string[] {
+    return [...new Set(this.rows.map((r) => r.color))].sort((a, b) => a.localeCompare(b));
+  }
+
+  protected get isColorFilterActive(): boolean {
+    return this.selectedColors.size > 0;
+  }
+
+  protected readonly isColorChecked = (value: any): boolean => this.selectedColors.has(value);
+
+  protected toggleColorFilterDropdown(event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.colorFilterOpen) {
+      this.colorFilterPanel.close();
+      return;
+    }
+    this.colorFilterOpen = true;
+    this.colorFilterPanel.open(event.currentTarget as HTMLElement);
+  }
+
+  protected toggleColorValue(value: any): void {
+    if (this.selectedColors.has(value)) this.selectedColors.delete(value);
+    else this.selectedColors.add(value);
+  }
+
+  protected clearColorFilter(): void {
+    this.selectedColors.clear();
+    this.colorFilterPanel.close();
+  }
+
+  protected onColorFilterClosed(): void {
+    this.colorFilterOpen = false;
+  }
+
+  protected actionHandler(row: OpColorRow, type: TableActionType): void {
+    this.onAction.emit({ obj: row, type, action: this._actions[type] });
+  }
 }

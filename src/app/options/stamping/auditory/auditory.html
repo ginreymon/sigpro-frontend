@@ -1,7 +1,7 @@
 <app-work-space-layout [headerVisible]="false">
   <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
 
-    <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
+    <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" (tabChange)="onTabChange($event)" />
 
     @if (!productionOrder() && !isLoading()) {
       <app-order-searcher [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)" class="mt-2"></app-order-searcher>

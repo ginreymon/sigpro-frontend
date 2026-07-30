@@ -14,6 +14,9 @@ export interface TabItem {
 export class UiTabs implements OnChanges {
   @Input() tabs: TabItem[] = [];
   @Input() initialTab?: string;
+  // 'underline' — original look, active tab gets a bottom border only.
+  // 'raised' — active tab gets a connected/raised card look (border + white bg).
+  @Input() variant: 'underline' | 'raised' = 'underline';
   @Output() tabChange = new EventEmitter<string>();
 
   activeTab = signal('');
