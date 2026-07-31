@@ -84,6 +84,21 @@ export class OrderSkuAuditTable {
     return this.auditByColor.get(color)?.audited_quantity ?? null;
   }
 
+  // Footer totals — always sum the currently filtered rows (not the full
+  // unfiltered set), so the footer stays consistent with what's on screen
+  // when the Color SKU filter narrows the rows.
+  protected footerSizeTotal(size: string): number {
+    return this.filteredRows.reduce((sum, r) => sum + (Number(r[size]) || 0), 0);
+  }
+
+  protected get footerTotal(): number {
+    return this.filteredRows.reduce((sum, r) => sum + r.total, 0);
+  }
+
+  protected get footerAudited(): number {
+    return this.filteredRows.reduce((sum, r) => sum + (this.auditedQty(r.color) ?? 0), 0);
+  }
+
   // null = no audit record for this color yet (nothing to compare).
   protected matchesTotal(row: OpColorRow): boolean | null {
     const record = this.auditByColor.get(row.color);
