@@ -2,7 +2,7 @@
   <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
 
     <div class="flex items-center justify-between gap-3">
-      <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" (tabChange)="onTabChange($event)" />
+      <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" class="w-full" (tabChange)="onTabChange($event)" />
 
       @if (productionOrder() && activeTab() === 'tab1') {
       <div class="flex items-center gap-2 shrink-0">
