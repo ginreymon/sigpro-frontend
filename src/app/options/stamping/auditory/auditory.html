@@ -89,4 +89,39 @@
   </div>
 </app-work-space-layout>
 
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeAuditedOpDetail()">
+
+  @if (selectedAuditedOp(); as op) {
+  <div class="mb-4 flex items-center justify-between gap-4">
+    <div>
+      <h3 class="text-2xl font-semibold text-slate-900 mb-2">{{ op.op_type }} {{ op.op_number }}</h3>
+      <p class="text-sm text-slate-500 mb-0.5">Ordenada: {{ op.total_ordered_quantity }} · Auditada: {{ op.total_audited_quantity }}</p>
+    </div>
+    <app-ui-badge
+      [intent]="op.matches_total ? 'active' : op.total_audited_quantity > op.total_ordered_quantity ? 'warning' : 'danger'"
+      [label]="op.matches_total ? 'Completo' : op.total_audited_quantity > op.total_ordered_quantity ? 'Sobrante' : 'Faltante'">
+    </app-ui-badge>
+  </div>
+
+  <div class="mt-4 mb-2 divide-y divide-slate-200 border border-slate-200 rounded-lg">
+    @for (record of selectedAuditedOpRecords(); track record.color) {
+    <div class="flex items-center justify-between gap-3 px-4 py-3">
+      <span class="text-sm font-medium text-gray-700">{{ record.color }}</span>
+      <span class="flex items-center gap-4 text-sm">
+        <span class="text-gray-500">Ordenada: {{ record.ordered_quantity }}</span>
+        <span [class]="record.quantities_match ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'">
+          Auditada: {{ record.audited_quantity }}
+        </span>
+      </span>
+    </div>
+    } @empty {
+    <p class="text-sm text-slate-400 px-4 py-3">Sin colores auditados.</p>
+    }
+  </div>
+
+  <app-metadata [rowObject]="op"></app-metadata>
+  }
+
+</app-side-modal-layout>
+
 <app-audit-quantity-modal (onSave)="onAuditQuantitySaved($event)"></app-audit-quantity-modal>

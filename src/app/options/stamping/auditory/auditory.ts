@@ -14,6 +14,8 @@ import { BaseProductionOrderPage } from '../../../common/classes/base-production
 import { ProductionOrder } from '../../../models/production/production-order';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
+import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
+import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { AuditQuantityModal, AuditedColorQuantity } from '../../../shared/components/production/modals/audit-quantity-modal/audit-quantity-modal';
 import { AuditQuantityModalService } from '../../../services/common/audit-quantity-modal-service';
 import { DialogService } from '../../../services/common/dialog-service';
@@ -32,7 +34,7 @@ const TABS: TabItem[] = [
 
 @Component({
   selector: 'app-stamping-auditory',
-  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, OrderSkuAuditTable, OrderSearcher, UiButton, AuditQuantityModal, DataTable, TableTemplate, UiBadge, DatePipe],
+  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, OrderSkuAuditTable, OrderSearcher, UiButton, AuditQuantityModal, DataTable, TableTemplate, UiBadge, DatePipe, SideModalLayout, Metadata],
   templateUrl: './auditory.html',
 })
 export class StampingAuditory extends BaseProductionOrderPage {
@@ -88,11 +90,17 @@ export class StampingAuditory extends BaseProductionOrderPage {
   ];
 
   protected auditedOpsActions: TableActions = {
-    view: { enabled: false },
+    view: { enabled: true, title: 'Detalle auditoría', iconName: 'eye', toolTip: 'Ver detalle' },
     edit: { enabled: false },
     delete: { enabled: true, title: 'Eliminar auditoría', iconName: 'trash', toolTip: 'Eliminar' },
     create: { enabled: false },
   };
+
+  // Side-modal detail for a row in the "Auditoría" tab's audited-ops list —
+  // the per-color breakdown fetched on demand (the list itself only carries
+  // OP-level totals) plus the row's own audit metadata.
+  protected selectedAuditedOp = signal<AuditedOpSummary | null>(null);
+  protected selectedAuditedOpRecords = signal<AuditRecord[]>([]);
 
   protected hasAuditRecords = computed(() => this.auditRecordsAll().length > 0);
 
@@ -219,6 +227,25 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
   onAuditedOpAction(event: TableActionEvent<AuditedOpSummary>): void {
     if (event.type === 'delete') this.deleteAuditedOp(event.obj);
+    if (event.type === 'view') this.viewAuditedOp(event.obj);
+  }
+
+  private viewAuditedOp(row: AuditedOpSummary): void {
+    if (row.op_number == null || row.op_rowid == null || row.op_type == null) return;
+
+    this.loaderService.showLoader();
+    this.auditRecordService
+      .all({ op_number: row.op_number, op_rowid: row.op_rowid, op_type: row.op_type })
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe((records) => {
+        this.selectedAuditedOp.set(row);
+        this.selectedAuditedOpRecords.set(records);
+        this.dialogService.openSideModal('Detalle auditoría', 'Cerrar');
+      });
+  }
+
+  protected closeAuditedOpDetail(): void {
+    this.dialogService.closeModal();
   }
 
   private deleteAuditedOp(row: AuditedOpSummary): void {
