@@ -5,16 +5,19 @@
       <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" class="w-full" (tabChange)="onTabChange($event)" />
 
       @if (productionOrder() && activeTab() === 'tab1') {
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-2 min-w-0 max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <app-ui-badge
+          class="shrink-0"
           [intent]="opApprovalStatus() === 'approved' ? 'active' : opApprovalStatus() === 'surplus' ? 'warning' : 'danger'"
           [label]="opApprovalStatus() === 'approved' ? 'Completo' : opApprovalStatus() === 'surplus' ? 'Sobrante' : 'Faltante'">
         </app-ui-badge>
         <app-ui-badge
+          class="shrink-0"
           [intent]="auditedQuantityPercentage() === 100 ? 'active' : 'danger'"
           [label]="auditedQuantityPercentage() + '%'">
         </app-ui-badge>
         <app-ui-badge
+          class="shrink-0"
           [intent]="isConfirmed() ? 'active' : 'danger'"
           [label]="isConfirmed() ? 'Aprobada' : 'No aprobada'">
         </app-ui-badge>
