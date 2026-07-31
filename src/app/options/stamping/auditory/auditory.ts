@@ -110,13 +110,16 @@ export class StampingAuditory extends BaseProductionOrderPage {
   // Global OP indicator (visible next to the tabs, either tab). "approved"
   // requires EVERY color to individually match — not just the OP-level sum
   // (matches_total), which can hide one color under-audited offsetting
-  // another over-audited.
-  protected opApprovalStatus = computed<'unaudited' | 'mismatch' | 'approved'>(() => {
-    if (this.auditRecordsAll().length === 0) return 'unaudited';
-    if (!this.allColorsAudited()) return 'mismatch';
+  // another over-audited. "surplus" flags when a color was audited above its
+  // ordered quantity, distinct from a plain "incomplete" (still short).
+  protected opApprovalStatus = computed<'unaudited' | 'incomplete' | 'surplus' | 'approved'>(() => {
+    const records = this.auditRecordsAll();
+    if (records.length === 0) return 'unaudited';
+    if (!this.allColorsAudited()) return 'incomplete';
 
-    const allColorsMatch = this.auditRecordsAll().every((r) => r.quantities_match);
-    return allColorsMatch ? 'approved' : 'mismatch';
+    if (records.some((r) => r.audited_quantity > r.ordered_quantity)) return 'surplus';
+    const allColorsMatch = records.every((r) => r.quantities_match);
+    return allColorsMatch ? 'approved' : 'incomplete';
   });
 
   protected isConfirmed = computed(() => this.auditRecordsAll().some((r) => r.is_audited));

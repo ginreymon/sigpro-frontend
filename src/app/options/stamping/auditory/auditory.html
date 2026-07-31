@@ -7,8 +7,8 @@
       @if (productionOrder() && activeTab() === 'tab1') {
       <div class="flex items-center gap-2 shrink-0">
         <app-ui-badge
-          [intent]="opApprovalStatus() === 'approved' ? 'active' : 'danger'"
-          [label]="opApprovalStatus() === 'approved' ? 'Completo' : 'Incompleto'">
+          [intent]="opApprovalStatus() === 'approved' ? 'active' : opApprovalStatus() === 'surplus' ? 'warning' : 'danger'"
+          [label]="opApprovalStatus() === 'approved' ? 'Completo' : opApprovalStatus() === 'surplus' ? 'Sobrante' : 'Faltante'">
         </app-ui-badge>
         <app-ui-badge
           [intent]="auditedQuantityPercentage() === 100 ? 'active' : 'danger'"
@@ -16,7 +16,7 @@
         </app-ui-badge>
         <app-ui-badge
           [intent]="isConfirmed() ? 'active' : 'danger'"
-          [label]="isConfirmed() ? 'Confirmada' : 'No confirmada'">
+          [label]="isConfirmed() ? 'Aprobada' : 'No aprobada'">
         </app-ui-badge>
       </div>
       }
@@ -53,7 +53,10 @@
           (onAction)="onAuditedOpAction($event)">
 
           <ng-template appTableTemplate="matchesTotalTemplate" let-row>
-            <app-ui-badge [active]="row.matches_total" [activeText]="'Completo'" [inactiveText]="'Incompleto'"></app-ui-badge>
+            <app-ui-badge
+              [intent]="row.matches_total ? 'active' : row.total_audited_quantity > row.total_ordered_quantity ? 'warning' : 'danger'"
+              [label]="row.matches_total ? 'Completo' : row.total_audited_quantity > row.total_ordered_quantity ? 'Sobrante' : 'Faltante'">
+            </app-ui-badge>
           </ng-template>
 
           <ng-template appTableTemplate="auditedAtTemplate" let-row>
@@ -77,7 +80,7 @@
         </app-ui-button>
         <app-ui-button (onClick)="confirmAuditBlock()" [disabled]="!allColorsAudited()">
           <app-ui-icon [iconName]="'check'" class="h-5 w-5"></app-ui-icon>
-          Confirmar
+          Aprobar
         </app-ui-button>
         }
       </div>
