@@ -11,7 +11,7 @@ export interface ColorSizeMatrix {
   grandTotal: SizeQtyDetail;
 }
 
-function emptySize(size: string): SizeQtyDetail {
+export function emptySize(size: string): SizeQtyDetail {
   return { size, skuRowId: 0, orderedQty: 0, plannedQty: 0, completedQty: 0, wasteQty: 0, rejectedQty: 0 };
 }
 
@@ -31,7 +31,7 @@ function sortSizes(sizes: SizeQtyDetail[]): SizeQtyDetail[] {
   return [...numberSizes, ...letterSizes];
 }
 
-function sumInto(total: SizeQtyDetail, s: SizeQtyDetail): void {
+export function sumInto(total: SizeQtyDetail, s: SizeQtyDetail): void {
   total.completedQty += s.completedQty;
   total.orderedQty += s.orderedQty;
   total.plannedQty += s.plannedQty;

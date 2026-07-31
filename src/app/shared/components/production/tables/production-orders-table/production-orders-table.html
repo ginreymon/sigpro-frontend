@@ -73,12 +73,12 @@
                 <tr>
                     <td class="px-6 py-3"></td>
 
-                    @for(total of totalBySizes;track total){
+                    @for(total of filteredTotalBySizes;track total.size){
                     <td class="text-center text-gray-900"> {{ total.orderedQty }} </td>
                     }
 
                     <td class="px-6 py-3 text-right font-bold text-gray-900">
-                        {{ grandTotal?.orderedQty }}
+                        {{ filteredGrandTotal.orderedQty }}
                     </td>
                 </tr>
             </tfoot>
@@ -142,7 +142,7 @@
 
         <div class="flex justify-between items-center px-4 py-3 font-semibold text-gray-700 border-t border-gray-300">
             <span>Total</span>
-            <span class="font-bold text-gray-900">{{ grandTotal?.orderedQty }}</span>
+            <span class="font-bold text-gray-900">{{ filteredGrandTotal.orderedQty }}</span>
         </div>
 
     </div>

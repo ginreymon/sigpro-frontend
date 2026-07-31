@@ -14,7 +14,7 @@ import { finalize } from 'rxjs';
 import { UiTooltip } from "../../../../elements/ui-tooltip/ui-tooltip";
 import { UiIcon } from "../../../../elements/ui-icon/ui-icon";
 import { TableColumnFilter } from '../../../table/table-column-filter/table-column-filter';
-import { buildColorSizeMatrix } from './color-size-matrix';
+import { buildColorSizeMatrix, emptySize, sumInto } from './color-size-matrix';
 
 @Component({
   selector: 'app-production-orders-table',
@@ -32,6 +32,38 @@ export class ProductionOrdersTable {
     if (this.selectedColors.size === 0) return this.skuColors;
     return this.skuColors.filter((c) => this.selectedColors.has(c.color));
   }
+  
+  protected filteredTotalBySizes: SizeQtyDetail[] = [];
+  protected filteredGrandTotal: SizeQtyDetail = emptySize('');
+
+  private updateFilteredTotals(): void {
+    if (this.selectedColors.size === 0) {
+      this.filteredTotalBySizes = this.totalBySizes;
+      this.filteredGrandTotal = this.grandTotal ?? emptySize('');
+      return;
+    }
+
+    const unselectedSizes = this.skuColors
+      .filter((c) => !this.selectedColors.has(c.color))
+      .map((c) => c.sizes);
+
+    this.filteredTotalBySizes = this.totalBySizes.map((total, i) => {
+      const result = { ...total };
+      unselectedSizes.forEach((sizes) => {
+        result.orderedQty -= sizes[i].orderedQty;
+        result.completedQty -= sizes[i].completedQty;
+        result.plannedQty -= sizes[i].plannedQty;
+        result.wasteQty -= sizes[i].wasteQty;
+        result.rejectedQty -= sizes[i].rejectedQty;
+      });
+      return result;
+    });
+
+    const grandTotal = emptySize('');
+    this.filteredTotalBySizes.forEach((ts) => sumInto(grandTotal, ts));
+    this.filteredGrandTotal = grandTotal;
+  }
+
 
   protected get colorFilterValues(): string[] {
     return [...new Set(this.skuColors.map((c) => c.color))].sort((a, b) => a.localeCompare(b));
@@ -56,11 +88,13 @@ export class ProductionOrdersTable {
   protected toggleColorValue(value: any): void {
     if (this.selectedColors.has(value)) this.selectedColors.delete(value);
     else this.selectedColors.add(value);
+    this.updateFilteredTotals();
   }
 
   protected clearColorFilter(): void {
     this.selectedColors.clear();
     this.colorFilterPanel.close();
+    this.updateFilteredTotals();
   }
 
   protected onColorFilterClosed(): void {
@@ -89,6 +123,7 @@ export class ProductionOrdersTable {
       this.skuColors = [];
       this.totalBySizes = [];
       this.grandTotal = null;
+      this.updateFilteredTotals();
       return;
     }
 
@@ -97,6 +132,7 @@ export class ProductionOrdersTable {
     this.skuColors = matrix.skuColors;
     this.totalBySizes = matrix.totalBySizes;
     this.grandTotal = matrix.grandTotal;
+    this.updateFilteredTotals();
   }
 
   @Input() currentSession: WorkSession | null = null;
