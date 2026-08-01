@@ -10,7 +10,7 @@ import { SewingSAM } from '../options/admin/sewing-sam/sewing-sam';
 import { AppSettings } from '../options/configuration/app-settings/app-settings';
 import { ModulePanel } from '../options/production/module-panel/module-panel';
 import { OrderDetail } from '../options/production/order-detail/order-detail';
-import { DataExport } from '../options/production/data-export/data-export';
+import { DataExport } from '../shared/pages/data-export/data-export';
 import { TechnicalSheetPage } from '../options/catalog/technical-sheet/technical-sheet';
 import { Processes } from '../options/stamping/processes/processes';
 import { MachineTypes } from '../options/stamping/machine-types/machine-types';
