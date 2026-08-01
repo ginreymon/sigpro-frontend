@@ -12,11 +12,12 @@ import { ModuleEfficiencyStatus } from '../../models/production/module-efficienc
 import { ModuleEfficiencyRow } from '../../models/production/module-efficiency-row';
 
 export interface EfficiencyReportParams {
-  startDate:   string;
-  endDate:     string;
-  moduleId?:   number;
-  shiftId?:    number;
-  employeeId?: number;
+  startDate:     string;
+  endDate:       string;
+  moduleId?:     number;
+  shiftId?:      number;
+  employeeId?:   number;
+  coreModuleId?: number;
 }
 
 @Injectable({
@@ -82,9 +83,10 @@ export class ProductivityService {
     let params = new HttpParams()
       .set('start_date', p.startDate)
       .set('end_date', p.endDate);
-    if (p.moduleId   !== undefined) params = params.set('module_id',   p.moduleId);
-    if (p.shiftId    !== undefined) params = params.set('shift_id',    p.shiftId);
-    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
+    if (p.moduleId     !== undefined) params = params.set('module_id',      p.moduleId);
+    if (p.shiftId      !== undefined) params = params.set('shift_id',       p.shiftId);
+    if (p.employeeId   !== undefined) params = params.set('employee_id',    p.employeeId);
+    if (p.coreModuleId !== undefined) params = params.set('core_module_id', p.coreModuleId);
     return this.http.get<EfficiencyReportRow[]>(`${this.path}/efficiency-report/`, { params });
   }
 
@@ -92,9 +94,10 @@ export class ProductivityService {
     let params = new HttpParams()
       .set('start_date', p.startDate)
       .set('end_date', p.endDate);
-    if (p.moduleId   !== undefined) params = params.set('module_id',   p.moduleId);
-    if (p.shiftId    !== undefined) params = params.set('shift_id',    p.shiftId);
-    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
+    if (p.moduleId     !== undefined) params = params.set('module_id',      p.moduleId);
+    if (p.shiftId      !== undefined) params = params.set('shift_id',       p.shiftId);
+    if (p.employeeId   !== undefined) params = params.set('employee_id',    p.employeeId);
+    if (p.coreModuleId !== undefined) params = params.set('core_module_id', p.coreModuleId);
     return this.http.get(`${this.path}/efficiency-report/export/`, { params, responseType: 'blob' });
   }
 }

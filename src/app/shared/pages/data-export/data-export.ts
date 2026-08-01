@@ -49,7 +49,12 @@ export class DataExport implements OnInit {
   private wslService = inject(WorkSpaceLoaderService);
   private loaderService = inject(LoaderService);
   private productivityService = inject(ProductivityService);
- 
+  private routeContextService = inject(RouteContextService);
+
+  private get coreModuleId(): number | undefined {
+    return this.routeContextService.currentModule?.id;
+  }
+
   filterForm: FormGroup = this.fb.group({
     fecha_inicio: [null, Validators.required],
     fecha_fin: [null, Validators.required],
@@ -93,10 +98,11 @@ export class DataExport implements OnInit {
 
   ngOnInit() {
     this.wslService.start();
+    const scopeParams = this.coreModuleId ? { core_module_id: this.coreModuleId } : undefined;
     forkJoin({
-      modules:    this.moduleService.all(),
-      workShifts: this.workShiftService.all(),
-      employees:  this.employeeService.all(),
+      modules:    this.moduleService.all(scopeParams),
+      workShifts: this.workShiftService.all(scopeParams),
+      employees:  this.employeeService.all(scopeParams),
     })
       .pipe(finalize(() => this.wslService.end()))
       .subscribe(({ modules, workShifts, employees }) => {       
@@ -132,11 +138,12 @@ export class DataExport implements OnInit {
 
     this.loaderService.showLoader();
     this.productivityService.getEfficiencyReport({
-      startDate:  fecha_inicio,
-      endDate:    fecha_fin,
-      moduleId:   modulo_id   ?? undefined,
-      shiftId:    turno_id    ?? undefined,
-      employeeId: empleado_id ?? undefined,
+      startDate:    fecha_inicio,
+      endDate:      fecha_fin,
+      moduleId:     modulo_id   ?? undefined,
+      shiftId:      turno_id    ?? undefined,
+      employeeId:   empleado_id ?? undefined,
+      coreModuleId: this.coreModuleId,
     })
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe(rows => this.efficiencyRows.set(rows));
@@ -147,11 +154,12 @@ export class DataExport implements OnInit {
 
     this.loaderService.showLoader();
     this.productivityService.downloadEfficiencyReport({
-      startDate:  fecha_inicio,
-      endDate:    fecha_fin,
-      moduleId:   modulo_id   ?? undefined,
-      shiftId:    turno_id    ?? undefined,
-      employeeId: empleado_id ?? undefined,
+      startDate:    fecha_inicio,
+      endDate:      fecha_fin,
+      moduleId:     modulo_id   ?? undefined,
+      shiftId:      turno_id    ?? undefined,
+      employeeId:   empleado_id ?? undefined,
+      coreModuleId: this.coreModuleId,
     })
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe(blob => {
