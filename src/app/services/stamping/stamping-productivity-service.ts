@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { EfficiencyPeriod } from '../../models/production/efficiency-period';
 import { ProductivityParams } from '../../models/production/productivity-params';
+import { ModuleEfficiencyStatus } from '../../models/production/module-efficiency-status';
+import { ModuleEfficiencyRow } from '../../models/production/module-efficiency-row';
 
 @Injectable({
   providedIn: 'root',
@@ -22,5 +24,19 @@ export class StampingProductivityService {
     if (p.shiftId !== undefined) params = params.set('shift_id', p.shiftId);
 
     return this.http.get<EfficiencyPeriod>(`${this.path}/efficiency/`, { params });
+  }
+
+  getModuleShiftSummary(coreModuleId?: number): Observable<ModuleEfficiencyStatus[]> {
+    let params = new HttpParams();
+    if (coreModuleId !== undefined) params = params.set('core_module_id', coreModuleId);
+    return this.http.get<ModuleEfficiencyStatus[]>(`${this.path}/module-shift-summary/`, { params });
+  }
+
+  getModuleEfficiency(startDate: string, endDate: string, moduleId?: number): Observable<ModuleEfficiencyRow[]> {
+    let params = new HttpParams()
+      .set('start_date', startDate)
+      .set('end_date', endDate);
+    if (moduleId) params = params.set('module_id', moduleId);
+    return this.http.get<ModuleEfficiencyRow[]>(`${this.path}/module-efficiency/`, { params });
   }
 }

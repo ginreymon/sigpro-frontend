@@ -1,0 +1,60 @@
+<div
+  class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between min-h-45 hover:shadow-md transition-shadow cursor-pointer"
+  (click)="onClick()">
+
+  <div class="flex justify-between items-start">
+    <div>
+      @if (mod.module_id === 0) {
+        <span class="text-xs font-semibold tracking-widest text-brand-400 uppercase block mb-1">
+          RESUMEN GENERAL
+        </span>
+        <h3 [class]="'text-base font-semibold ' + titleClass('text-brand-700')">PLANTA</h3>
+      } @else {
+        <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-1">
+          MÁQUINA {{ padNumber(mod.number) }}
+        </span>
+        <h3 [class]="'text-base font-semibold ' + titleClass('text-gray-800')">{{ (mod.machine_name ?? mod.name) | uppercase }}</h3>
+      }
+    </div>
+    <app-ui-badge [intent]="badgeIntent()" [label]="statusLabel()"></app-ui-badge>
+  </div>
+
+  <div class="mt-2 flex flex-col gap-3">
+    <div>
+      <span [class]="efficiencyClass()">{{ mod.efficiency.toFixed(2) }}%</span>
+      <div class="mt-1 text-xs text-gray-500">
+        <span>{{ mod.employees_snapshot ?? 0 }} / {{ mod.operator_count }} Encomendados</span>
+      </div>      
+    </div>
+
+    <div class="space-y-2">      
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span class="text-gray-400">Completadas</span>
+          <span [class]="statValueClass()">{{ mod.total_completed ?? 0 }}</span>
+        </div>
+        <app-progress-bar
+          [progress]="mod.total_completed ?? 0"
+          [max]="mod.unit_target ?? 0"
+          [color]="barColor()">
+        </app-progress-bar>
+      </div>
+      <div>
+        @if (mod.last_worked_date) {
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-400">Última jornada ({{ formatLastWorkedDate() }})</span>
+            <span class="font-medium text-gray-600">{{ mod.last_worked_efficiency?.toFixed(0) }}%</span>
+          </div>
+          <app-progress-bar
+            [progress]="mod.last_worked_efficiency ?? 0"
+            [max]="100"
+            [color]="'#94a3b8'">
+          </app-progress-bar>
+        } @else {
+          <span class="text-xs text-gray-500">Última jornada: sin datos</span>
+        }
+      </div>
+    </div>
+  </div>
+
+</div>

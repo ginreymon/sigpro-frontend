@@ -33,4 +33,13 @@ export interface ModuleEfficiencyStatus {
   unit_target?: number;
 
   employees_snapshot?: number;
+
+  machine_id?: number;
+  machine_name?: string;
+  machine_type?: string;
+
+  last_worked_date?: string | null;
+  last_worked_total_completed?: number | null;
+  last_worked_efficiency?: number | null;
+  last_worked_productivity?: number | null;
 }

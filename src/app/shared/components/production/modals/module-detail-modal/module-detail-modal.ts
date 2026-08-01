@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild, inject, signal, computed } from '@angular/core';
-import { finalize, switchMap } from 'rxjs';
+import { Observable, finalize, switchMap } from 'rxjs';
 import { DecimalPipe, DatePipe, formatDate, UpperCasePipe } from '@angular/common';
 import { BottomSheetShell } from '../../../layout/bottom-sheet-shell/bottom-sheet-shell';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
@@ -23,6 +23,10 @@ interface BalanceContext {
   title: string;
 }
 
+export interface ModuleEfficiencyService {
+  getModuleEfficiency(startDate: string, endDate: string, moduleId?: number): Observable<ModuleEfficiencyRow[]>;
+}
+
 @Component({
   selector: 'app-module-detail-modal',
   imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe, BalanceSummaryModal],
@@ -34,6 +38,7 @@ export class ModuleDetailModal implements OnChanges {
 
   @Input() visible: boolean = false;
   @Input() module: ModuleEfficiencyStatus | null = null;
+  @Input() service: ModuleEfficiencyService | null = null;
   @Output() onClose = new EventEmitter<void>();
 
   private productivityService = inject(ProductivityService);
@@ -51,7 +56,7 @@ export class ModuleDetailModal implements OnChanges {
   readonly skeletonRows = Array(4).fill(0);
 
   readonly tableActions = computed<Partial<TableActions>>(() => ({
-    view: { enabled: true, title: 'Ver balance', iconName: 'eye', toolTip: 'Ver' },
+    view: { enabled: !this.service, title: 'Ver balance', iconName: 'eye', toolTip: 'Ver' },
     edit: { enabled: !this.moduleId(), title: 'Editar', iconName: 'pencil', toolTip: 'Editar' },
   }));
 
@@ -151,8 +156,10 @@ export class ModuleDetailModal implements OnChanges {
 
     const moduleId = this.module.module_id || undefined;
 
+    const service = this.service ?? this.productivityService;
+
     this.appConfig.load().pipe(
-      switchMap(() => this.productivityService.getModuleEfficiency(
+      switchMap(() => service.getModuleEfficiency(
         value.startDate,
         value.endDate,
         moduleId,

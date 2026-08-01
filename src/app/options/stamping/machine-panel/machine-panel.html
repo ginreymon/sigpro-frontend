@@ -1,101 +1,52 @@
-<app-work-space-layout>
-<app-panel-layout main-content>
+<app-panel-layout [padded]="true">
 
-  <div panel-header class="flex items-center justify-between">
-    <h1 class="text-2xl font-semibold text-gray-800">Estado de troquelado</h1>
+  <div panel-header class="flex flex-col gap-3">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+      <h1 class="text-xl sm:text-3xl font-semibold text-gray-800 mb-3 mt-3">Estado de Estampación</h1>
+
+      <app-efficiency-summary-bar
+        [efficiency]="plantaModule().efficiency"
+        [status]="plantaModule().status"
+        [completed]="plantaModule().total_completed ?? 0"
+        [activeModules]="modules().length ? activeModuleCount() : undefined"
+        [showFilterButton]="true"
+        [filterActive]="showDateFilter()"
+        (filterToggle)="toggleDateFilter()">
+      </app-efficiency-summary-bar>
+    </div>
+
+    @if (showDateFilter()) {
+      <div class="bg-slate-50 border border-gray-200 rounded-lg p-4">
+        <app-date-range-form></app-date-range-form>
+      </div>
+    }
+
   </div>
 
   <div panel-content>
+
     <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
 
-      <div class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between min-h-45 hover:shadow-md transition-shadow cursor-pointer">
-        <div class="flex justify-between items-start">
-          <div>
-            <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-1">MÁQUINA 01</span>
-            <h3 class="text-base font-semibold text-gray-800">AUTOMATICO 01</h3>
-          </div>
-          <app-ui-badge [intent]="'active'" [label]="'Activo'"></app-ui-badge>
+      @if (modules().length === 0) {
+        <div class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col items-center justify-center gap-3 min-h-45 text-gray-300">
+          <app-ui-icon iconName="screwdriverWrench" class="h-12 w-12"></app-ui-icon>
+          <p class="text-sm text-gray-400 italic">No hay máquinas disponibles</p>
         </div>
-
-        <div class="mt-2 flex flex-col gap-3">
-          <div>
-            <span class="text-4xl font-semibold text-green-600">92.50%</span>
-            <div class="mt-1 text-xs text-gray-500">
-              <span>2 / 2 Encomendados</span>
-            </div>
-          </div>
-
-          <div class="space-y-2">
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-400">Completadas</span>
-                <span class="font-medium text-green-600">480</span>
-              </div>
-              <app-progress-bar [progress]="480" [max]="520" [color]="'#16a34a'"></app-progress-bar>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-400">Saldos</span>
-                <span class="font-medium text-amber-500">30</span>
-              </div>
-              <app-progress-bar [progress]="30" [max]="520" [color]="'#f59e0b'"></app-progress-bar>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-400">Bajas</span>
-                <span class="font-medium text-red-500">10</span>
-              </div>
-              <app-progress-bar [progress]="10" [max]="520" [color]="'#ef4444'"></app-progress-bar>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between min-h-45 hover:shadow-md transition-shadow cursor-pointer">
-        <div class="flex justify-between items-start">
-          <div>
-            <span class="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-1">MÁQUINA 02</span>
-            <h3 class="text-base font-semibold text-gray-800">AUTOMATICO 02</h3>
-          </div>
-          <app-ui-badge [intent]="'paused'" [label]="'Pausado'"></app-ui-badge>
-        </div>
-
-        <div class="mt-2 flex flex-col gap-3">
-          <div>
-            <span class="text-4xl font-semibold text-gray-400">0.00%</span>
-            <div class="mt-1 text-xs text-gray-500">
-              <span>0 / 1 Encomendados</span>
-            </div>
-          </div>
-
-          <div class="space-y-2">
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-400">Completadas</span>
-                <span class="font-medium text-gray-400">0</span>
-              </div>
-              <app-progress-bar [progress]="0" [max]="300" [color]="'#9ca3af'"></app-progress-bar>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-400">Saldos</span>
-                <span class="font-medium text-gray-400">0</span>
-              </div>
-              <app-progress-bar [progress]="0" [max]="300" [color]="'#9ca3af'"></app-progress-bar>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-gray-400">Bajas</span>
-                <span class="font-medium text-gray-400">0</span>
-              </div>
-              <app-progress-bar [progress]="0" [max]="300" [color]="'#9ca3af'"></app-progress-bar>
-            </div>
-          </div>
-        </div>
-      </div>
+      } @else {
+        @for (mod of allModules(); track mod.module_id) {
+          <app-stamping-efficiency-card [mod]="mod" (cardClick)="openSheet($event)"></app-stamping-efficiency-card>
+        }
+      }
 
     </div>
   </div>
 
 </app-panel-layout>
-</app-work-space-layout>
+
+<app-module-detail-modal
+  [visible]="sheetVisible()"
+  [module]="selectedModule()"
+  [service]="service"
+  (onClose)="closeSheet()">
+</app-module-detail-modal>
