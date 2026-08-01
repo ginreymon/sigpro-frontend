@@ -76,8 +76,10 @@ export class ModuleDetailModal implements OnChanges {
       { field: 'total_registers' as const, label: 'Registros', align: 'center' as const },
       { type: 'template' as const, label: 'Meta',        templateName: 'unitTargetTemplate',  field: 'unit_target' as const,     align: 'right' as const, footerFormat: '1.0-0' },
       { type: 'template' as const, label: 'Completadas', templateName: 'completedTemplate',   field: 'total_completed' as const, align: 'right' as const, footerFormat: '1.0-0' },
-      { type: 'template' as const, label: 'Saldos',      templateName: 'rejectedTemplate',    field: 'total_rejected' as const,  align: 'right' as const, footerFormat: '1.0-0' },
-      { type: 'template' as const, label: 'Bajas',       templateName: 'scrapTemplate',       field: 'total_scrap' as const,     align: 'right' as const, footerFormat: '1.0-0' },
+      ...(this.service ? [] : [
+        { type: 'template' as const, label: 'Saldos', templateName: 'rejectedTemplate', field: 'total_rejected' as const, align: 'right' as const, footerFormat: '1.0-0' },
+        { type: 'template' as const, label: 'Bajas',  templateName: 'scrapTemplate',    field: 'total_scrap' as const,    align: 'right' as const, footerFormat: '1.0-0' },
+      ]),
       { type: 'template' as const, label: 'Eficiencia',  templateName: 'efficiencyTemplate',  field: 'efficiency' as const,      align: 'right' as const, footerFormat: '1.2-2', footerSuffix: '%' },
     ];
   });
