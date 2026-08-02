@@ -9,7 +9,7 @@ import { ProductionRecord } from '../../models/production/production-record';
 export class ProductionRecordService extends BaseCrudService<ProductionRecord> {
   protected override _endpoint: string = '/production/production-records/';
 
-  getLast(): Observable<ProductionRecord | null> {
-    return this.http.get<ProductionRecord | null>(`${this.endpoint}last/`);
+  getRecent(): Observable<ProductionRecord[]> {
+    return this.http.get<ProductionRecord[]>(`${this.endpoint}recent/`);
   }
 }

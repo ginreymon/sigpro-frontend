@@ -1,23 +1,38 @@
 import { Component, DestroyRef, inject, Input, OnInit, signal } from '@angular/core';
+import { Observable } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { ProductionRecord } from '../../../../../models/production/production-record';
 import { ProductionRecordService } from '../../../../../services/production/production-record-service';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiOptionCard } from '../../../../elements/ui-option-card/ui-option-card';
 
+export interface RecentOpRecord {
+  id: number;
+  op_type: string;
+  op_number: number;
+}
+
+export interface RecentRecordsService {
+  getRecent(): Observable<RecentOpRecord[]>;
+}
+
+const SLOTS = [0, 1, 2] as const;
+
 @Component({
-  selector: 'app-last-record-card',
+  selector: 'app-recent-records-card',
   imports: [UiIcon, UiOptionCard],
-  templateUrl: './last-record-card.html',
+  templateUrl: './recent-records-card.html',
 })
-export class LastRecordCard implements OnInit {
+export class RecentRecordsCard implements OnInit {
   @Input() set trigger(v: unknown) {
     if (v !== undefined && this._initialized) this.load();
   }
+  @Input() service: RecentRecordsService | null = null;
 
-  lastRecord        = signal<ProductionRecord | null>(null);
-  lastRecordLoading = signal(true);
+  readonly slots = SLOTS;
+
+  recentRecords        = signal<RecentOpRecord[]>([]);
+  recentRecordsLoading = signal(true);
 
   private _initialized = false;
   private router = inject(Router);
@@ -30,19 +45,19 @@ export class LastRecordCard implements OnInit {
   }
 
   private load(): void {
-    this.lastRecordLoading.set(true);
-    this.lastRecord.set(null);
-    this.productionRecordService.getLast()
+    const service = this.service ?? this.productionRecordService;
+
+    this.recentRecordsLoading.set(true);
+    this.recentRecords.set([]);
+    service.getRecent()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next:  (record) => { this.lastRecord.set(record); this.lastRecordLoading.set(false); },
-        error: ()       => this.lastRecordLoading.set(false),
+        next:  (records) => { this.recentRecords.set(records); this.recentRecordsLoading.set(false); },
+        error: ()        => this.recentRecordsLoading.set(false),
       });
   }
 
-  navigate(): void {
-    const r = this.lastRecord();
-    if (!r) return;
+  navigate(r: RecentOpRecord): void {
     this.router.navigate([], {
       queryParams:       { docType: r.op_type, docNumber: r.op_number },
       queryParamsHandling: 'merge',

@@ -18,7 +18,7 @@ import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { WorkSessionService } from '../../../services/production/work-session-service';
-import { LastRecordCard } from '../../../shared/components/production/cards/last-record-card/last-record-card';
+import { RecentRecordsCard, RecentRecordsService } from '../../../shared/components/production/cards/recent-records-card/recent-records-card';
 import { ShiftTimeAlert } from '../../../shared/components/production/widgets/shift-time-alert/shift-time-alert';
 import { QuantityModal } from '../../../shared/components/production/modals/quantity-modal/quantity-modal';
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
@@ -45,7 +45,7 @@ import { AppConfigService } from '../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, PauseModal, OrderHeader, LastRecordCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesActions],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, PauseModal, OrderHeader, RecentRecordsCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesActions],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
@@ -64,6 +64,8 @@ export class ShiftCycles extends BaseProductionOrderPage {
   private appConfig = inject(AppConfigService);
   private productionRecordService = inject(ProductionRecordService);
   private stampingRecordService = inject(StampingRecordService);
+  protected recentRecordsService: RecentRecordsService | null =
+    this.config.showStampingRecord ? this.stampingRecordService : null;
   private destroyRef = inject(DestroyRef);
   protected shiftModals = inject(ShiftModalsService);
 
