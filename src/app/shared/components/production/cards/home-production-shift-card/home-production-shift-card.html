@@ -25,7 +25,7 @@
         <div>
             <h4 class="text-slate-500 text-xs">{{ card.title }}</h4>
             <p [class]="getDataClasses(card,'text-2xl')">
-                {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
+                {{ card.data.toString() | uppercase }} {{ card.title.startsWith('Eficiencia') ? '%' : '' }}
             </p>
         </div>
         }

@@ -1,27 +1,27 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { UiIcon } from '../../../../shared/elements/ui-icon/ui-icon';
 import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
-import { HomeShiftCard } from '../../../../shared/components/production/cards/home-shift-card/home-shift-card';
+import { HomeStampingShiftCard } from '../../../../shared/components/production/cards/home-stamping-shift-card/home-stamping-shift-card';
 import { WorkSessionService } from '../../../../services/production/work-session-service';
 import { WorkSession } from '../../../../models/production/work-session';
-import { ShiftNavigationService } from '../../../../services/core/shift-navigation-service';
 
 @Component({
-  selector: 'app-home-dethorn-remover',
-  imports: [UiIcon, UiButton, HomeShiftCard],
-  templateUrl: './home-dethorn-remover.html',
-  styleUrl: './home-dethorn-remover.css',
+  selector: 'app-home-screen-printer',
+  imports: [UiIcon, UiButton, HomeStampingShiftCard],
+  templateUrl: './home-screen-printer.html',
+  styleUrl: './home-screen-printer.css',
 })
-export class HomeDethornRemover implements OnInit {
+export class HomeScreenPrinter implements OnInit {
   readonly hasPendingSession = signal(false);
   readonly activeSession = signal<WorkSession | null>(null);
   readonly isLoading = signal(true);
 
   private workSessionService = inject(WorkSessionService);
-  private shiftNav = inject(ShiftNavigationService);
+  private router = inject(Router);
 
   goToShiftCycles() {
-    this.activeSession() ? this.shiftNav.goToShiftCycles() : this.shiftNav.goToDayOperation();
+    this.router.navigateByUrl(this.activeSession() ? 'stamping/shift-cycles' : 'stamping/day-operation');
   }
 
   ngOnInit(): void {

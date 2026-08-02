@@ -9,6 +9,7 @@ import { AppConfigService } from '../../../../services/core/app-config-service';
 import { ModuleEfficiencyStatus } from '../../../../models/production/module-efficiency-status';
 import { efficiencyTextColor } from '../../../../common/functions/efficiency-color';
 import { computePlantaStats } from '../../../../common/functions/planta-summary';
+import { currentMonthLabel } from '../../../../common/functions/date-utils';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -23,10 +24,14 @@ export class HomeProductionCoordinator {
   private router = inject(Router);
 
   readonly modules = signal<ModuleEfficiencyStatus[]>([]);
+  readonly monthlyEfficiency = signal(0);
+  readonly monthlyCompleted = signal(0);
 
   readonly activeModuleCount = computed(() =>
     this.modules().filter((m) => m.status === 'ACTIVE').length,
   );
+
+  readonly monthLabel = computed(() => currentMonthLabel());
 
   readonly plantaModule = computed(() => {
     const mods = this.modules();
@@ -52,10 +57,30 @@ export class HomeProductionCoordinator {
       ),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe((data) => this.modules.set(data));
+
+    this.loadMonthlyEfficiency();
   }
 
   goToModulePanel(): void {
     this.router.navigateByUrl(environment.MODULE_PANEL_URL);
+  }
+
+  private loadMonthlyEfficiency(): void {
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    const endDate = now.toISOString().slice(0, 10);
+
+    this.productivityService.getModuleEfficiency(startDate, endDate).subscribe({
+      next: (rows) => {
+        // Días sin registros o en cero no cuentan para el promedio.
+        const withData = rows.filter(r => (r.efficiency ?? 0) > 0);
+        const avg = withData.length
+          ? withData.reduce((sum, r) => sum + r.efficiency, 0) / withData.length
+          : 0;
+        this.monthlyEfficiency.set(Math.round(avg * 100) / 100);
+        this.monthlyCompleted.set(rows.reduce((sum, r) => sum + (r.total_completed ?? 0), 0));
+      },
+    });
   }
 
   efficiencyColor(efficiency: number, status: string): string {

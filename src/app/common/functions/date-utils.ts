@@ -61,3 +61,16 @@ export function localTodayStr(): string {
   const d   = String(now.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+
+const MONTH_NAMES_ES = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+];
+
+/**
+ * Current month's name in Spanish, capitalized (e.g. "Agosto").
+ */
+export function currentMonthLabel(): string {
+  const name = MONTH_NAMES_ES[new Date().getMonth()];
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
