@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, Input, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -10,6 +11,7 @@ export interface RecentOpRecord {
   id: number;
   op_type: string;
   op_number: number;
+  updated_at: string;
 }
 
 export interface RecentRecordsService {
@@ -20,7 +22,7 @@ const SLOTS = [0, 1, 2] as const;
 
 @Component({
   selector: 'app-recent-records-card',
-  imports: [UiIcon, UiOptionCard],
+  imports: [UiIcon, UiOptionCard, DatePipe],
   templateUrl: './recent-records-card.html',
 })
 export class RecentRecordsCard implements OnInit {

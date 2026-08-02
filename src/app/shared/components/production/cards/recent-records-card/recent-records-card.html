@@ -21,8 +21,8 @@
             <app-ui-icon [iconName]="'clockRotateLeft'" [class]="'h-4 w-4 ' + (slot === 0 ? 'text-brand-500' : 'text-gray-400')"></app-ui-icon>
           </div>
           <div class="shrink-0 min-w-0">
-            <p class="text-xs text-gray-400">OP</p>
             <p [class]="'text-sm font-semibold truncate ' + (slot === 0 ? 'text-gray-700' : 'text-gray-400')">{{ record.op_type }} {{ record.op_number }}</p>
+            <p class="text-xs text-gray-400">{{ record.updated_at | date:'dd/MM/yyyy' }}</p>
           </div>
         </div>
       </app-ui-option-card>
