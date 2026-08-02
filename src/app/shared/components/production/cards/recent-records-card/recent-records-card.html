@@ -18,11 +18,11 @@
       <app-ui-option-card class="w-40 h-14" (onToggle)="navigate(record)">
         <div class="flex items-center gap-2 h-full">
           <div class="flex items-center justify-center h-8 w-8 rounded-md bg-gray-100 shrink-0">
-            <app-ui-icon [iconName]="'clockRotateLeft'" class="h-4 w-4 text-brand-500"></app-ui-icon>
+            <app-ui-icon [iconName]="'clockRotateLeft'" [class]="'h-4 w-4 ' + (slot === 0 ? 'text-brand-500' : 'text-gray-400')"></app-ui-icon>
           </div>
           <div class="shrink-0 min-w-0">
             <p class="text-xs text-gray-400">OP</p>
-            <p class="text-sm font-semibold text-gray-700 truncate">{{ record.op_type }} {{ record.op_number }}</p>
+            <p [class]="'text-sm font-semibold truncate ' + (slot === 0 ? 'text-gray-700' : 'text-gray-400')">{{ record.op_type }} {{ record.op_number }}</p>
           </div>
         </div>
       </app-ui-option-card>
