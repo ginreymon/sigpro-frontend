@@ -1,5 +1,5 @@
 export const environment = {
-  BASE_API_URL: 'http://localhost:8000/api/v1',
+  BASE_API_URL: 'https://bl82jkhj-8000.use.devtunnels.ms/api/v1',
   ACCESS_TOKEN_NAME: 'access_token',
   REFRESH_TOKEN_NAME: 'refresh_token',
   MENU_NAME: 'menu',

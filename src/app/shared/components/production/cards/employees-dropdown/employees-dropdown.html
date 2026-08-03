@@ -13,8 +13,8 @@
               {{ initials(e) | uppercase }}
             </span>
             <span class="truncate flex-1">
-              {{ displayName(e) }}
               <span class="font-semibold" [class]="e.is_apprentice ? 'text-red-500' : 'text-green-600'">({{ weight(e) }})</span>
+              {{ displayName(e) }}
             </span>
           </div>
         </li>
