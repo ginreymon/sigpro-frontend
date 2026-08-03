@@ -52,12 +52,12 @@ export class StampingRecord {
   protected stampingConfig = SHIFT_CYCLES_CONFIG['stamping'];
 
   protected tabs: TabItem[] = [
-    { key: 'quantities', label: 'Cantidades' },
     { key: 'reference', label: 'Referencia' },
+    { key: 'quantities', label: 'Cantidades' },
     { key: 'additionaltimes', label: 'Tiempos Adicionales' },
   ];
 
-  protected activeTab = signal('quantities');
+  protected activeTab = signal('reference');
   protected isLoadingModalData = signal(false);
   protected submitAttempted = signal(false);
   protected additionalTimes = signal<AdditionalStampingTime[]>([]);
