@@ -14,7 +14,7 @@ import { SamGoalCalculator } from '../../../shared/components/production/widgets
 const TABS: TabItem[] = [
   { key: 'tab1', label: 'Orden OP' },
   { key: 'tab2', label: 'Materiales' },
-  { key: 'tab3', label: 'SAM Confección' },
+  { key: 'tab3', label: 'Calcular Meta' },
 ];
 
 @Component({
