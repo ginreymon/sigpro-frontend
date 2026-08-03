@@ -1,6 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WorkShiftCard } from '../../../../../common/interfaces/work-shift-card';
+import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
 import { WorkSession } from '../../../../../models/production/work-session';
 import { ProductivityService } from '../../../../../services/production/productivity-service';
 import { EfficiencyPeriod } from '../../../../../models/production/efficiency-period';
@@ -96,8 +97,11 @@ export class WorkShiftSummary implements OnInit {
         if (noBackendData && this.ordenProduction && !this.getEffectiveSam()) {
           this.showSamAlert(this.ordenProduction);
         }
-        const samTarget = noBackendData && row?.work_shift_start_utc
-          ? this.calculateSamTarget(s, row.work_shift_start_utc)
+        // Estimado en vivo mientras no hay meta real del backend (sesion/jornada
+        // recien iniciada, aun sin fila en getModuleShiftSummary): se calcula
+        // siempre desde el horario nominal del turno, sin depender de la fila.
+        const samTarget = noBackendData
+          ? this.calculateSamTarget(s, shiftTimeToUtcIso(s.work_shift.start_time))
           : null;
         this.cards.update(cards => cards.map((card) => {
           if (card.title === 'Meta') return { ...card, data: samTarget !== null ? samTarget : Math.round(summary.unit_target ?? 0) };
