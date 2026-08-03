@@ -2,7 +2,7 @@
 <app-work-space-layout [headerVisible]="false">
   <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
 
-    <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
+    <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" (tabChange)="onTabChange($event)" />
 
     @if (!productionOrder() && !isLoading()) {
       <div class="flex flex-col items-center justify-center flex-1 gap-3 text-gray-300 py-6">
