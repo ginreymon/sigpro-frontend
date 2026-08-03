@@ -2,7 +2,8 @@ import { Component, ElementRef, EventEmitter, HostListener, inject, Input, OnIni
 import { Observable } from 'rxjs';
 import { WorkShiftCard } from '../../../../../common/interfaces/work-shift-card';
 import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
-import { WorkSession } from '../../../../../models/production/work-session';
+import { WorkSession, EmployeeSnapshot } from '../../../../../models/production/work-session';
+import { EmployeesDropdown } from '../employees-dropdown/employees-dropdown';
 import { ProductivityService } from '../../../../../services/production/productivity-service';
 import { EfficiencyPeriod } from '../../../../../models/production/efficiency-period';
 import { ModuleEfficiencyStatus } from '../../../../../models/production/module-efficiency-status';
@@ -15,7 +16,7 @@ import { DialogService } from '../../../../../services/common/dialog-service';
 
 @Component({
   selector: 'app-work-shift-summary',
-  imports: [UiIcon, UpperCasePipe],
+  imports: [UiIcon, UpperCasePipe, EmployeesDropdown],
   templateUrl: './work-shift-summary.html',
   styleUrl: './work-shift-summary.css',
 })
@@ -39,7 +40,7 @@ export class WorkShiftSummary implements OnInit {
   // Dropdown de lista de empleados (solo lectura). Cerrado/vacio por defecto:
   // WorkShiftSummary/HomeProductionShiftCard nunca lo abren, solo StampingShiftSummary.
   protected employeesDropdownOpen = signal(false);
-  protected employeesDropdownRows = signal<{ id: number; name: string; isApprentice: boolean }[]>([]);
+  protected employeesDropdownRows = signal<EmployeeSnapshot[]>([]);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {

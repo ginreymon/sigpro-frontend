@@ -17,20 +17,7 @@
       </div>
 
       @if (card.title === 'Encomendados' && employeesDropdownOpen()) {
-        <div class="absolute right-0 z-30 mt-1 w-56 max-w-[80vw] max-h-64 overflow-y-auto rounded-md border border-gray-200 bg-white py-1 text-left shadow-lg">
-          @if (employeesDropdownRows().length) {
-            @for (row of employeesDropdownRows(); track row.id) {
-              <div class="flex items-center justify-between gap-2 px-3 py-1.5 text-xs text-gray-700">
-                <span class="truncate">{{ row.name }}</span>
-                @if (row.isApprentice) {
-                  <span class="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600">Aprendiz</span>
-                }
-              </div>
-            }
-          } @else {
-            <div class="px-3 py-1.5 text-xs text-gray-400">Sin empleados asignados</div>
-          }
-        </div>
+        <app-employees-dropdown [employees]="employeesDropdownRows()" />
       }
     </div>
   }
@@ -59,20 +46,7 @@
         </div>
 
         @if (card.title === 'Encomendados' && employeesDropdownOpen()) {
-          <div class="absolute right-0 top-full z-30 mt-1 w-56 max-w-[80vw] max-h-64 overflow-y-auto rounded-md border border-gray-200 bg-white py-1 text-left shadow-lg">
-            @if (employeesDropdownRows().length) {
-              @for (row of employeesDropdownRows(); track row.id) {
-                <div class="flex items-center justify-between gap-2 px-3 py-1.5 text-xs text-gray-700">
-                  <span class="truncate">{{ row.name }}</span>
-                  @if (row.isApprentice) {
-                    <span class="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600">Aprendiz</span>
-                  }
-                </div>
-              }
-            } @else {
-              <div class="px-3 py-1.5 text-xs text-gray-400">Sin empleados asignados</div>
-            }
-          </div>
+          <app-employees-dropdown [employees]="employeesDropdownRows()" />
         }
       </div>
     }

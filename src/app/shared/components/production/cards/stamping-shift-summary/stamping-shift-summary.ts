@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WorkShiftSummary } from '../work-shift-summary/work-shift-summary';
+import { EmployeesDropdown } from '../employees-dropdown/employees-dropdown';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UpperCasePipe } from '@angular/common';
 import { ModuleEfficiencyStatus } from '../../../../../models/production/module-efficiency-status';
@@ -11,7 +12,7 @@ import { WorkSession } from '../../../../../models/production/work-session';
 
 @Component({
   selector: 'app-stamping-shift-summary',
-  imports: [UiIcon, UpperCasePipe],
+  imports: [UiIcon, UpperCasePipe, EmployeesDropdown],
   templateUrl: '../work-shift-summary/work-shift-summary.html',
   styleUrl: '../work-shift-summary/work-shift-summary.css',
 })
@@ -43,12 +44,7 @@ export class StampingShiftSummary extends WorkShiftSummary {
       this.employeesDropdownOpen.set(false);
       return;
     }
-    const rows = (s.employees_snapshot ?? []).map(e => ({
-      id: e.id,
-      name: `${e.first_name} ${e.last_name1}${e.last_name2 ? ' ' + e.last_name2 : ''}`,
-      isApprentice: !!e.is_apprentice,
-    }));
-    this.employeesDropdownRows.set(rows);
+    this.employeesDropdownRows.set(s.employees_snapshot ?? []);
     this.employeesDropdownOpen.set(true);
   }
 
