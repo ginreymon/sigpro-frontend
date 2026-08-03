@@ -16,9 +16,9 @@
         @if(productionOrder()){
 
             @if(config.showStampingRecord){
-            <app-stamping-shift-summary [session]="currentSession()" [employeesEditable]="!finalizeDay()" [ordenProduction]="productionOrder()" (employeesClick)="openEmployeesSnapshot()"></app-stamping-shift-summary>
+            <app-stamping-shift-summary [session]="currentSession()" [ordenProduction]="productionOrder()"></app-stamping-shift-summary>
             } @else {
-            <app-work-shift-summary [session]="currentSession()" [employeesEditable]="!finalizeDay()" [ordenProduction]="productionOrder()" (employeesClick)="openEmployeesSnapshot()"></app-work-shift-summary>
+            <app-work-shift-summary [session]="currentSession()" [ordenProduction]="productionOrder()"></app-work-shift-summary>
             }
 
             <app-order-header [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>

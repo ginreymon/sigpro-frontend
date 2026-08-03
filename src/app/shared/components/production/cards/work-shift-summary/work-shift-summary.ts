@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, Input, OnInit, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WorkShiftCard } from '../../../../../common/interfaces/work-shift-card';
 import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
@@ -22,9 +22,6 @@ import { DialogService } from '../../../../../services/common/dialog-service';
 })
 export class WorkShiftSummary implements OnInit {
 
-  @Output() employeesClick = new EventEmitter<void>();
-
-  @Input() employeesEditable = false;
   @Input() ordenProduction: ProductionOrder | null = null;
 
   protected productivityService = inject(ProductivityService);
@@ -37,8 +34,7 @@ export class WorkShiftSummary implements OnInit {
   protected pendingSession: WorkSession | null = null;
   private configLoaded = false;
 
-  // Dropdown de lista de empleados (solo lectura). Cerrado/vacio por defecto:
-  // WorkShiftSummary/HomeProductionShiftCard nunca lo abren, solo StampingShiftSummary.
+  // Dropdown de lista de empleados (solo lectura), abierto/cerrado al hacer click en Encomendados.
   protected employeesDropdownOpen = signal(false);
   protected employeesDropdownRows = signal<EmployeeSnapshot[]>([]);
 
@@ -75,11 +71,11 @@ export class WorkShiftSummary implements OnInit {
   protected buildCards(s: WorkSession): void {
     this.cards.set([
       { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.number} ${s.current_module?.name}` },
-      { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} : ${s.work_shift.start_time.slice(0, 8)} - ${s.work_shift.end_time.slice(0, 8)}` },
-      { title: 'Encomendados', iconName: 'user', data: this.formatHeadcount(s), action: () => this.employeesEditable ? this.employeesClick.emit() : null },
+      { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} (${s.work_shift.start_time.slice(0, 5)} - ${s.work_shift.end_time.slice(0, 5)})` },
+      { title: 'Encomendados', iconName: 'user', data: this.formatHeadcount(s), action: () => this.toggleEmployeesDropdown(s) },
       { title: 'Meta', data: '-', thresholds: { green: 0, red: Infinity } },
       { title: 'Acumuladas', data: '-', thresholds: { green: 0, red: Infinity } },
-      { title: 'Bajas/Saldos', data: '-', thresholds: { green: Infinity, red: Infinity } },
+      { title: 'Bajas y saldos ', data: '-', thresholds: { green: Infinity, red: Infinity } },
       { title: 'Eficiencia', data: '-', thresholds: { green: this.appConfig.highEfficiencyLimit, red: this.appConfig.lowEfficiencyLimit } },
     ]);
     this.loadProductivityCards(s);
@@ -120,7 +116,7 @@ export class WorkShiftSummary implements OnInit {
         this.cards.update(cards => cards.map((card) => {
           if (card.title === 'Meta') return { ...card, data: samTarget !== null ? samTarget : Math.round(summary.unit_target ?? 0) };
           if (card.title === 'Acumuladas') return { ...card, data: summary.total_completed ?? 0 };
-          if (card.title === 'Bajas/Saldos') return { ...card, data: (summary.total_rejected ?? 0) + (summary.total_scrap ?? 0) };
+          if (card.title === 'Bajas y saldos ') return { ...card, data: (summary.total_rejected ?? 0) + (summary.total_scrap ?? 0) };
           if (card.title === 'Eficiencia') return { ...card, data: Math.round((summary.efficiency ?? 0) * 100) / 100 };
           return card;
         }));
@@ -153,6 +149,15 @@ export class WorkShiftSummary implements OnInit {
     );
   }
 
+  private toggleEmployeesDropdown(s: WorkSession): void {
+    if (this.employeesDropdownOpen()) {
+      this.employeesDropdownOpen.set(false);
+      return;
+    }
+    this.employeesDropdownRows.set(s.employees_snapshot ?? []);
+    this.employeesDropdownOpen.set(true);
+  }
+
   private formatHeadcount(s: WorkSession): string {
     const head = s.employees_snapshot?.length ?? 0;
     const weighted = s.employees_snapshot?.reduce((sum, e) => sum + (e.is_apprentice ? 0.5 : 1), 0) ?? 0;
@@ -161,7 +166,7 @@ export class WorkShiftSummary implements OnInit {
 
   getActionClasses(card: WorkShiftCard): string {
     const base = 'inline-block rounded transition-colors';
-    const hoverable = card.title === 'Encomendados' && this.employeesEditable;
+    const hoverable = card.title === 'Encomendados';
     return hoverable ? `${base} cursor-pointer hover:text-gray-700 hover:bg-gray-100` : base;
   }
 

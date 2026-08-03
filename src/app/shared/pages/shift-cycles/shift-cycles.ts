@@ -165,16 +165,6 @@ export class ShiftCycles extends BaseProductionOrderPage {
     }
   }
 
-  openEmployeesSnapshot(): void {
-    const snapshot = this.currentSession()?.employees_snapshot ?? [];
-    this.shiftModals.openEmployees({
-      employees: this.context()?.employees ?? [],
-      preselectedIds: snapshot.map(e => e.id),
-      apprenticeIds: snapshot.filter(e => e.is_apprentice).map(e => e.id),
-      apprenticeEditable: true,
-    });
-  }
-
   updateEmployees(data: EmployeesSavedData) {
     const sessionId = this.currentSession()?.id;
     if (!sessionId) return;

@@ -18,4 +18,8 @@ export class EmployeesDropdown {
   protected displayName(e: EmployeeSnapshot): string {
     return `${e.first_name} ${e.last_name1}`;
   }
+
+  protected weight(e: EmployeeSnapshot): number {
+    return e.is_apprentice ? 0.5 : 1;
+  }
 }

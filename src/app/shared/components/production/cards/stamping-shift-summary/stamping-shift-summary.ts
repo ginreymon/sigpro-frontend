@@ -31,21 +31,9 @@ export class StampingShiftSummary extends WorkShiftSummary {
 
   protected override buildCards(s: WorkSession): void {
     super.buildCards(s);
-    this.cards.update(cards => cards
-      .filter(c => c.title !== 'Bajas/Saldos')
-      .map(c => c.title === 'Encomendados' ? { ...c, action: () => this.toggleEmployeesDropdown(s) } : c)
-    );
+    this.cards.update(cards => cards.filter(c => c.title !== 'Bajas y saldos '));
     this.lastSession = s;
     this.loadReferenceSams();
-  }
-
-  private toggleEmployeesDropdown(s: WorkSession): void {
-    if (this.employeesDropdownOpen()) {
-      this.employeesDropdownOpen.set(false);
-      return;
-    }
-    this.employeesDropdownRows.set(s.employees_snapshot ?? []);
-    this.employeesDropdownOpen.set(true);
   }
 
   protected override getEffectiveSam(): number | undefined {
