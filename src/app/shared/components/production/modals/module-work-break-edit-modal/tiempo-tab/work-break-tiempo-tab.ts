@@ -29,6 +29,7 @@ interface BreakTableRow {
   custom_reason: string;
   startLabel: string;
   endLabel: string;
+  durationLabel: string;
   updatedBy: string;
   updatedAtLabel: string;
 }
@@ -74,6 +75,7 @@ export class WorkBreakTiempoTab implements OnChanges {
   readonly columns: TableColumn<BreakTableRow>[] = [
     { field: 'startLabel', label: 'Inicio', align: 'center' },
     { field: 'endLabel', label: 'Fin', align: 'center' },
+    { field: 'durationLabel', label: 'Duración', align: 'center' },
     { field: 'updatedBy', label: 'Editado por' },
     { field: 'updatedAtLabel', label: 'Fecha de edición', align: 'center' },
   ];
@@ -82,8 +84,9 @@ export class WorkBreakTiempoTab implements OnChanges {
     this.breaks().map((b) => ({
       _source: b,
       custom_reason: b.custom_reason || '—',
-      startLabel: this.minutesToClock(b.startMinutes),
-      endLabel: this.minutesToClock(b.endMinutes),
+      startLabel: this.clockAt(b.startMinutes),
+      endLabel: this.clockAt(b.endMinutes),
+      durationLabel: this.minutesToClock(b.endMinutes - b.startMinutes),
       updatedBy: b.updatedBy,
       updatedAtLabel: this.formatDateTime(b.updatedAt),
     })),
@@ -209,6 +212,16 @@ export class WorkBreakTiempoTab implements OnChanges {
     const h = Math.floor(minutes / 60);
     const m = Math.round(minutes % 60);
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+  }
+
+  /** Hora real de reloj (local) correspondiente a un offset del turno, ej. 06:00, no 00:00. */
+  private clockAt(minutes: number): string {
+    const shiftStart = this.shiftStartUtc();
+    if (!shiftStart) return '—';
+    const d = new Date(shiftStart.getTime() + minutes * 60000);
+    const h = d.getHours().toString().padStart(2, '0');
+    const m = d.getMinutes().toString().padStart(2, '0');
+    return `${h}:${m}`;
   }
 
   private formatDateTime(iso: string): string {
