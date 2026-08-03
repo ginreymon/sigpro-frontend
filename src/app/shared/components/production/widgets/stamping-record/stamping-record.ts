@@ -23,6 +23,7 @@ import { StampingReferenceSam } from '../../../../../models/stamping/stamping-re
 import { StampingRecord as StampingRecordPayload } from '../../../../../models/stamping/stamping-record';
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 import { LoaderService } from '../../../../../services/common/loader-service';
+import { AppConfigService } from '../../../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-stamping-record',
@@ -45,6 +46,7 @@ export class StampingRecord {
   private opStampingService = inject(OPStampingService);
   private productionContextService = inject(ProductionContextService);
   private loaderService = inject(LoaderService);
+  private appConfig = inject(AppConfigService);
   private fb = inject(FormBuilder);
 
   protected stampingConfig = SHIFT_CYCLES_CONFIG['stamping'];
@@ -126,6 +128,17 @@ export class StampingRecord {
 
   protected get exceedsMaxError(): { max: number; total: number } | null {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
+  }
+
+  protected get windowRange(): { start: string; end: string } {
+    const now = new Date();
+    const hourStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
+    const nextHour = new Date(hourStart.getTime() + 3600_000);
+    const windowSeconds = this.appConfig.stampingCalibrationWindowSeconds;
+    const start = new Date(nextHour.getTime() - windowSeconds * 1000);
+    const end = new Date(nextHour.getTime() + windowSeconds * 1000);
+    const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return { start: fmt(start), end: fmt(end) };
   }
 
   protected get tabsView(): TabItem[] {
