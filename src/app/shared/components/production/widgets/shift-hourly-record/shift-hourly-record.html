@@ -60,7 +60,7 @@
       }
     } @else {
       @if (activityId) {
-      <app-shift-cycles-actions class="min-w-0 flex-1" [inWindow]="isInWindow()" [config]="config" (onFinalize)="onFinalize.emit()"></app-shift-cycles-actions>
+      <app-shift-cycles-fab [inWindow]="isInWindow()" [config]="config" (onFinalize)="onFinalize.emit()"></app-shift-cycles-fab>
       }
       <app-ui-button class="ml-auto shrink-0" [disabled]="!isInWindow()" (onClick)="register()">
         <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>

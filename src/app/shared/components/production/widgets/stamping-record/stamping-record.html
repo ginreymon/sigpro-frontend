@@ -96,14 +96,12 @@
   </div>
 
   <div box-buttons class="w-full flex flex-row items-center gap-3 border-t border-slate-200 pt-4">
-    <app-shift-cycles-actions
-      class="min-w-0 flex-1"
-      [mode]="'icon'"
+    <app-shift-cycles-fab
       [inWindow]="inWindow"
       [config]="stampingConfig"
       [hiddenActions]="['stampingRecord']"
       (onFinalize)="onFinalize.emit()">
-    </app-shift-cycles-actions>
+    </app-shift-cycles-fab>
 
     <app-ui-button [intent]="'cancel'" class="ml-auto shrink-0" (onClick)="close()">      
       Cancelar

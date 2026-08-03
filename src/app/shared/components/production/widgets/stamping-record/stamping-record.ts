@@ -5,7 +5,7 @@ import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiTabs, TabItem } from '../../../../elements/ui-tabs/ui-tabs';
-import { ShiftCyclesActions } from '../shift-cycles-actions/shift-cycles-actions';
+import { ShiftCyclesFab } from '../shift-cycles-fab/shift-cycles-fab';
 import { Searcher } from '../../../form-controls/searcher/searcher';
 import { UiLabelButton } from '../../../../elements/ui-label-button/ui-label-button';
 import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
@@ -28,7 +28,7 @@ import { LoaderService } from '../../../../../services/common/loader-service';
   selector: 'app-stamping-record',
   standalone: true,
   imports: [
-    BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesActions, Searcher,
+    BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesFab, Searcher,
     AdditionalStampingTimeCard, StampingReferenceCard, StampingQuantityCounter, UiLabelButton,
     ReactiveFormsModule, UiFormField, UiLargeInput, UiErrorMessage,
   ],

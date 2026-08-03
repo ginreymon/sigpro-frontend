@@ -1,0 +1,19 @@
+<button
+  type="button"
+  [class]="'w-8 h-8 rounded-full flex items-center justify-center shadow-md text-white bg-brand hover:bg-brand-hover transition-transform duration-200 shrink-0 ' + (isOpen() ? 'rotate-45' : '')"
+  (click)="toggle()">
+  <app-ui-icon iconName="circlePlus" class="w-6 h-6"></app-ui-icon>
+</button>
+
+<div #menu [style]="menuStyle()" [class.hidden]="!isOpen()" class="flex flex-col gap-2 p-2 rounded-lg bg-white shadow-lg border border-gray-200">
+  @for (action of visibleActions(); track action.key) {
+    <button
+      type="button"
+      [attr.title]="action.tooltip ?? action.label"
+      class="flex items-center gap-2 pl-3 pr-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 whitespace-nowrap cursor-pointer"
+      (click)="run(action)">
+      <app-ui-icon [iconName]="action.icon" class="w-4 h-4"></app-ui-icon>
+      {{ action.label }}
+    </button>
+  }
+</div>

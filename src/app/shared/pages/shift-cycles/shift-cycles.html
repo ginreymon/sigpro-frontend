@@ -29,7 +29,7 @@
 
             <div [class]="'flex flex-row items-center mt-4 gap-3 w-full shrink-0 ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">
                 @if(!shiftModals.shiftHourlyVisible()||finalizeDay()){
-                <app-shift-cycles-actions class="min-w-0 flex-1" [finalizeDay]="finalizeDay()" [mode]="'labeled'" [inWindow]="inWindow()" [config]="config" (onFinalize)="refreshSession()"></app-shift-cycles-actions>
+                <app-shift-cycles-fab [finalizeDay]="finalizeDay()" [inWindow]="inWindow()" [config]="config" (onFinalize)="refreshSession()"></app-shift-cycles-fab>
                 }
 
                 <div class="flex flex-row gap-3 shrink-0 ml-3">

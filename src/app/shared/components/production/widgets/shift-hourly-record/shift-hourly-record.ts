@@ -16,13 +16,13 @@ import { DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
 import { OrderInfoBar } from '../../cards/order-info-bar/order-info-bar';
 import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
-import { ShiftCyclesActions } from "../shift-cycles-actions/shift-cycles-actions";
+import { ShiftCyclesFab } from "../shift-cycles-fab/shift-cycles-fab";
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 
 @Component({
   selector: 'app-shift-hourly-record',
   standalone: true,
-  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, DatePipe, OrderInfoBar, UiTooltip, ShiftCyclesActions],
+  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, DatePipe, OrderInfoBar, UiTooltip, ShiftCyclesFab],
   templateUrl: './shift-hourly-record.html',
 })
 export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
