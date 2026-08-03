@@ -18,6 +18,7 @@ import { OrderInfoBar } from '../../cards/order-info-bar/order-info-bar';
 import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
 import { ShiftCyclesFab } from "../shift-cycles-fab/shift-cycles-fab";
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
+import { isWithinHourlyWindow } from '../../../../../common/functions/hourly-window';
 
 @Component({
   selector: 'app-shift-hourly-record',
@@ -190,12 +191,7 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   }
 
   private computeInWindow(): boolean {
-    const now = new Date();
-    const currentHourStart = this.getHourStart();
-    const nextHour = new Date(currentHourStart.getTime() + 3600_000);
-    const remainingSeconds = Math.floor((nextHour.getTime() - now.getTime()) / 1000);
-    const elapsedInHour = Math.floor((now.getTime() - currentHourStart.getTime()) / 1000);
-    return (remainingSeconds <= this.windowSeconds && remainingSeconds > 0) || elapsedInHour <= this.windowSeconds;
+    return isWithinHourlyWindow(this.windowSeconds);
   }
 
   private isAlreadyRegisteredInCurrentWindow(): boolean {
@@ -222,10 +218,8 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   private tick(): void {
     const now = new Date();
     const currentHourStart = this.getHourStart();
-    const nextHour = new Date(currentHourStart.getTime() + 3600_000);
-    const remainingSeconds = Math.floor((nextHour.getTime() - now.getTime()) / 1000);
     const elapsedInHour = Math.floor((now.getTime() - currentHourStart.getTime()) / 1000);
-    const inWindow = (remainingSeconds <= this.windowSeconds && remainingSeconds > 0) || elapsedInHour <= this.windowSeconds;
+    const inWindow = isWithinHourlyWindow(this.windowSeconds, now);
 
     if (currentHourStart.getTime() !== this.hourStart().getTime()) {
       this.hourStart.set(currentHourStart);

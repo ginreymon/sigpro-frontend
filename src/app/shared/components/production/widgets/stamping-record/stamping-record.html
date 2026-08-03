@@ -107,7 +107,7 @@
       Cancelar
     </app-ui-button>
 
-    <app-ui-button class="shrink-0" (onClick)="register()">    
+    <app-ui-button class="shrink-0" [disabled]="!inWindow" (onClick)="register()">
       Guardar
     </app-ui-button>
   </div>

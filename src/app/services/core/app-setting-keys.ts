@@ -5,6 +5,7 @@ export const AppSettingKey = {
   SHOW_HOURLY:         'SHOW_HOURLY',
   SHIFT_HOURLY_WINDOW: 'S_H_WINDOW',
   HOURLY_KEEP_OPEN:    'S_H_KEEP_OPEN',
+  STAMPING_CALIBRATION_WINDOW: 'STAMPING_CAL_WINDOW',
 } as const;
 
 export type AppSettingKey = (typeof AppSettingKey)[keyof typeof AppSettingKey];

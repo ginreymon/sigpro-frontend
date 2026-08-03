@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { ProductionOrdersTable } from '../../../shared/components/production/tables/production-orders-table/production-orders-table';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { finalize } from 'rxjs';
+import { finalize, interval } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/production/widgets/order-searcher/order-searcher';
 import { ProductionOrder } from '../../../models/production/production-order';
@@ -42,6 +42,7 @@ import { RouteContextService } from '../../../services/core/route-context-servic
 import { ShiftCyclesConfig } from '../../../common/interfaces/shift-cycles-config';
 import { SHIFT_CYCLES_CONFIG } from '../../../common/const/shift-cycles-config';
 import { AppConfigService } from '../../../services/core/app-config-service';
+import { isWithinHourlyWindow } from '../../../common/functions/hourly-window';
 
 @Component({
   selector: 'app-shift-cycles',
@@ -92,7 +93,10 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
   override ngOnInit(): void {
     this.loaderService.showLoader();
-    this.appConfig.load().subscribe(() => super.ngOnInit());
+    this.appConfig.load().subscribe(() => {
+      super.ngOnInit();
+      this.startStampingWindowWatch();
+    });
     this.shiftModals.employeesSaved$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => this.updateEmployees(data));
@@ -104,6 +108,18 @@ export class ShiftCycles extends BaseProductionOrderPage {
   protected override beforeLoad(): void {
     this.hasCheckedActiveRecord = false;
     this.activeRecord = null;
+  }
+
+  // app-shift-hourly-record (showHourlyRecord) es quien alimenta `inWindow` en producción.
+  // En estampación ese widget está deshabilitado por config, así que aquí se calcula
+  // directamente con la misma ventana horaria, usando la calibración propia de estampación.
+  private startStampingWindowWatch(): void {
+    if (this.config.showHourlyRecord) return;
+
+    const refresh = () => this.inWindow.set(isWithinHourlyWindow(this.appConfig.stampingCalibrationWindowSeconds));
+    refresh();
+
+    interval(1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(refresh);
   }
 
   protected override onContextLoaded(context: ProductionContext): void {

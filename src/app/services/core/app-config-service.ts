@@ -64,4 +64,8 @@ export class AppConfigService {
   get shiftHourlyKeepOpenOnRegister(): boolean {
     return this.get(AppSettingKey.HOURLY_KEEP_OPEN) === 'true';
   }
+
+  get stampingCalibrationWindowSeconds(): number {
+    return this.getNumber(AppSettingKey.STAMPING_CALIBRATION_WINDOW, 5) * 60;
+  }
 }

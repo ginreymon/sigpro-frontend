@@ -224,6 +224,8 @@ export class StampingRecord {
   }
 
   protected register(): void {
+    if (!this.inWindow) return;
+
     this.submitAttempted.set(true);
 
     if (!this.validateRecordForm()) return;
