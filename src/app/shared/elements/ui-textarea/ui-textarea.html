@@ -1,0 +1,5 @@
+<textarea
+    [id]="id" [name]="id"
+    [class]="`w-full px-4 py-2 gap-2 border text-sm outline-none transition-all duration-200 focus:ring-2 rounded resize-none ${invalid?'border-red-500 focus:border-red-500 focus:ring-red-200':'border-gray-300 focus:border-brand-500 focus:ring-brand-200'} ${className}`"
+    [placeholder]="placeholder" [value]="value" [rows]="rows" [disabled]="disabled"
+    (input)="handleInput($event)" (blur)="onTouched()"></textarea>

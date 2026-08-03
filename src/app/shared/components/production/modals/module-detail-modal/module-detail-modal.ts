@@ -15,6 +15,7 @@ import { TableActions } from '../../../../../common/interfaces/table-actions';
 import { TableActionEvent } from '../../../../../common/interfaces/table-action-event';
 import { efficiencyTextColor } from '../../../../../common/functions/efficiency-color';
 import { BalanceSummaryModal } from '../balance-summary-modal/balance-summary-modal';
+import { ModuleWorkBreakEditModal } from '../module-work-break-edit-modal/module-work-break-edit-modal';
 
 interface BalanceContext {
   startDate: string;
@@ -29,7 +30,7 @@ export interface ModuleEfficiencyService {
 
 @Component({
   selector: 'app-module-detail-modal',
-  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe, BalanceSummaryModal],
+  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe, BalanceSummaryModal, ModuleWorkBreakEditModal],
   templateUrl: './module-detail-modal.html',
 })
 export class ModuleDetailModal implements OnChanges {
