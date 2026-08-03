@@ -2,7 +2,7 @@
 
 <div class="hidden md:flex items-start bg-gray-200 text-gray-700 border border-gray-200 rounded-md px-3 py-1.5 mb-2 flex-row justify-between">
   @for (card of cards(); track card.title) {
-    <div class="px-2">
+    <div class="px-2 relative">
       <h3 class="text-slate-500 text-xs">{{ card.title }}</h3>
 
       <div [class]="getActionClasses(card)" (click)="card.action?.()">
@@ -15,6 +15,23 @@
           {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
         </span>
       </div>
+
+      @if (card.title === 'Encomendados' && employeesDropdownOpen()) {
+        <div class="absolute right-0 z-30 mt-1 w-56 max-w-[80vw] max-h-64 overflow-y-auto rounded-md border border-gray-200 bg-white py-1 text-left shadow-lg">
+          @if (employeesDropdownRows().length) {
+            @for (row of employeesDropdownRows(); track row.id) {
+              <div class="flex items-center justify-between gap-2 px-3 py-1.5 text-xs text-gray-700">
+                <span class="truncate">{{ row.name }}</span>
+                @if (row.isApprentice) {
+                  <span class="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600">Aprendiz</span>
+                }
+              </div>
+            }
+          } @else {
+            <div class="px-3 py-1.5 text-xs text-gray-400">Sin empleados asignados</div>
+          }
+        </div>
+      }
     </div>
   }
 </div>
@@ -27,7 +44,7 @@
 
   <div class="px-3 pb-2 pt-1 border-t border-gray-300 divide-y divide-gray-300">
     @for (card of cards(); track card.title) {
-      <div class="py-2 flex flex-row justify-between items-center gap-3">
+      <div class="py-2 flex flex-row justify-between items-center gap-3 relative">
         <h3 class="text-slate-500 text-xs">{{ card.title }}</h3>
 
         <div [class]="getActionClasses(card)" (click)="card.action?.()">
@@ -40,6 +57,23 @@
             {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
           </span>
         </div>
+
+        @if (card.title === 'Encomendados' && employeesDropdownOpen()) {
+          <div class="absolute right-0 top-full z-30 mt-1 w-56 max-w-[80vw] max-h-64 overflow-y-auto rounded-md border border-gray-200 bg-white py-1 text-left shadow-lg">
+            @if (employeesDropdownRows().length) {
+              @for (row of employeesDropdownRows(); track row.id) {
+                <div class="flex items-center justify-between gap-2 px-3 py-1.5 text-xs text-gray-700">
+                  <span class="truncate">{{ row.name }}</span>
+                  @if (row.isApprentice) {
+                    <span class="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600">Aprendiz</span>
+                  }
+                </div>
+              }
+            } @else {
+              <div class="px-3 py-1.5 text-xs text-gray-400">Sin empleados asignados</div>
+            }
+          </div>
+        }
       </div>
     }
   </div>

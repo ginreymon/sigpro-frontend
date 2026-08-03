@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WorkShiftCard } from '../../../../../common/interfaces/work-shift-card';
 import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
@@ -30,10 +30,23 @@ export class WorkShiftSummary implements OnInit {
   protected appConfig = inject(AppConfigService);
   private contextService = inject(ProductionContextService);
   private dialogService = inject(DialogService);
+  private elementRef = inject(ElementRef<HTMLElement>);
 
   cards = signal<WorkShiftCard[]>([]);
   protected pendingSession: WorkSession | null = null;
   private configLoaded = false;
+
+  // Dropdown de lista de empleados (solo lectura). Cerrado/vacio por defecto:
+  // WorkShiftSummary/HomeProductionShiftCard nunca lo abren, solo StampingShiftSummary.
+  protected employeesDropdownOpen = signal(false);
+  protected employeesDropdownRows = signal<{ id: number; name: string; isApprentice: boolean }[]>([]);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.employeesDropdownOpen()) return;
+    if (this.elementRef.nativeElement.contains(event.target as Node)) return;
+    this.employeesDropdownOpen.set(false);
+  }
 
   ngOnInit(): void {
     this.appConfig.load().subscribe(() => {
