@@ -1,11 +1,10 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WorkShiftCard } from '../../../../../common/interfaces/work-shift-card';
-import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
 import { WorkSession } from '../../../../../models/production/work-session';
 import { ProductivityService } from '../../../../../services/production/productivity-service';
-import { ProductivityParams } from '../../../../../models/production/productivity-params';
 import { EfficiencyPeriod } from '../../../../../models/production/efficiency-period';
+import { ModuleEfficiencyStatus } from '../../../../../models/production/module-efficiency-status';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UpperCasePipe } from '@angular/common';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
@@ -72,24 +71,34 @@ export class WorkShiftSummary implements OnInit {
   }
 
   protected loadProductivityCards(s: WorkSession): void {
-    const startUtc = shiftTimeToUtcIso(s.work_shift.start_time);
-    const endUtc   = new Date(new Date(startUtc).getTime() + 24 * 60 * 60 * 1000).toISOString();
+    const moduleId = s.current_module?.id;
 
-    const params: ProductivityParams = {
-      startDate: startUtc,
-      endDate:   endUtc,
-      moduleId:  s.current_module?.id,
-      shiftId:   s.work_shift.id,
-    };
+    this.getModuleSummary().subscribe({
+      next: (rows) => {
+        const row = rows.find(r => r.module_id === moduleId);
+        const summary: EfficiencyPeriod = {
+          period_start:    row?.period_start ?? '',
+          period_end:      row?.period_end ?? '',
+          module_id:       row?.module_id ?? moduleId ?? 0,
+          shift_id:        row?.shift_id ?? s.work_shift.id,
+          total_ordered:   row?.total_ordered ?? 0,
+          total_planned:   row?.total_planned ?? 0,
+          total_completed: row?.total_completed ?? 0,
+          total_scrap:     row?.total_scrap ?? 0,
+          total_rejected:  row?.total_rejected ?? 0,
+          total_produced:  row?.total_produced ?? 0,
+          unit_target:     row?.unit_target ?? 0,
+          efficiency:      row?.efficiency ?? 0,
+        };
 
-    this.getEfficiency(params).subscribe({
-      next: (summary) => {
         this.contextService.setEfficiency(summary);
         const noBackendData = !summary.unit_target && !summary.efficiency;
         if (noBackendData && this.ordenProduction && !this.getEffectiveSam()) {
           this.showSamAlert(this.ordenProduction);
         }
-        const samTarget = noBackendData ? this.calculateSamTarget(s, startUtc) : null;
+        const samTarget = noBackendData && row?.work_shift_start_utc
+          ? this.calculateSamTarget(s, row.work_shift_start_utc)
+          : null;
         this.cards.update(cards => cards.map((card) => {
           if (card.title === 'Meta') return { ...card, data: samTarget !== null ? samTarget : Math.round(summary.unit_target ?? 0) };
           if (card.title === 'Acumuladas') return { ...card, data: summary.total_completed ?? 0 };
@@ -101,8 +110,8 @@ export class WorkShiftSummary implements OnInit {
     });
   }
 
-  protected getEfficiency(params: ProductivityParams): Observable<EfficiencyPeriod> {
-    return this.productivityService.getEfficiencyPeriod(params);
+  protected getModuleSummary(): Observable<ModuleEfficiencyStatus[]> {
+    return this.productivityService.getModuleShiftSummary();
   }
 
   protected getEffectiveSam(): number | undefined {

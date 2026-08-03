@@ -3,8 +3,7 @@ import { Observable } from 'rxjs';
 import { WorkShiftSummary } from '../work-shift-summary/work-shift-summary';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UpperCasePipe } from '@angular/common';
-import { ProductivityParams } from '../../../../../models/production/productivity-params';
-import { EfficiencyPeriod } from '../../../../../models/production/efficiency-period';
+import { ModuleEfficiencyStatus } from '../../../../../models/production/module-efficiency-status';
 import { StampingProductivityService } from '../../../../../services/stamping/stamping-productivity-service';
 import { OPStampingService } from '../../../../../services/stamping/op-stamping-service';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
@@ -25,8 +24,8 @@ export class StampingShiftSummary extends WorkShiftSummary {
   private maxReferenceSam: number | undefined;
   private lastSession: WorkSession | null = null;
 
-  protected override getEfficiency(params: ProductivityParams): Observable<EfficiencyPeriod> {
-    return this.stampingProductivityService.getEfficiencyPeriod(params);
+  protected override getModuleSummary(): Observable<ModuleEfficiencyStatus[]> {
+    return this.stampingProductivityService.getModuleShiftSummary();
   }
 
   protected override buildCards(s: WorkSession): void {
