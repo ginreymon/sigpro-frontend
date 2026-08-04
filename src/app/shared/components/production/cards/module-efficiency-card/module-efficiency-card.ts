@@ -38,6 +38,7 @@ export class ModuleEfficiencyCard {
   private appConfig = inject(AppConfigService);
 
   @Input({ required: true }) mod!: ModuleEfficiencyStatus;
+  @Input() emptyLabel?: string;
   @Output() cardClick = new EventEmitter<ModuleEfficiencyStatus>();
 
   onClick(): void {

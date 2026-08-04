@@ -3,7 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, of } from 'rxjs';
 import { catchError, finalize, startWith, switchMap, take } from 'rxjs/operators';
 import { ModuleDetailModal } from '../../../shared/components/production/modals/module-detail-modal/module-detail-modal';
-import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { ProductivityService } from '../../../services/production/productivity-service';
 import { ModuleEfficiencyStatus } from '../../../models/production/module-efficiency-status';
 import { AppConfigService } from '../../../services/core/app-config-service';
@@ -17,7 +16,7 @@ import { ModuleEfficiencyCard } from '../../../shared/components/production/card
 
 @Component({
   selector: 'app-module-panel',
-  imports: [ModuleDetailModal, UiIcon, EfficiencySummaryBar, PanelLayout, DateRangeForm, ModuleEfficiencyCard],
+  imports: [ModuleDetailModal, EfficiencySummaryBar, PanelLayout, DateRangeForm, ModuleEfficiencyCard],
   templateUrl: './module-panel.html',
 })
 export class ModulePanel {

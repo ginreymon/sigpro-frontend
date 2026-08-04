@@ -29,10 +29,7 @@
     <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
 
       @if (modules().length === 0) {
-        <div class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col items-center justify-center gap-3 min-h-45 text-gray-300">
-          <app-ui-icon iconName="screwdriverWrench" class="h-12 w-12"></app-ui-icon>
-          <p class="text-sm text-gray-400 italic">No hay máquinas disponibles</p>
-        </div>
+        <app-stamping-efficiency-card [mod]="plantaModule()" (cardClick)="openSheet($event)"></app-stamping-efficiency-card>
       } @else {
         @for (mod of allModules(); track mod.module_id) {
           <app-stamping-efficiency-card [mod]="mod" (cardClick)="openSheet($event)"></app-stamping-efficiency-card>
