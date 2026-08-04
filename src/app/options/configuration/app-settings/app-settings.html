@@ -14,7 +14,7 @@
             </ng-template>
 
             <ng-template appTableTemplate="dataTypeTemplate" let-row>
-                {{ getDataTypeLabel(row.data_type) }}
+                {{ getDataTypeLabel(row.data_type_code) }}
             </ng-template>
 
             <ng-template appTableTemplate="statusTemplate" let-row>
@@ -33,13 +33,13 @@
         </app-char-square>
         <div>
             <h3 class="text-2xl font-semibold text-slate-900">{{ rowObject.name }}</h3>
-            <p class="text-sm text-slate-500">Tipo: {{ rowObject.data_type }}</p>
+            <p class="text-sm text-slate-500">Tipo: {{ getDataTypeLabel(rowObject.data_type_code) }}</p>
         </div>
     </div>
 
     <div class="mt-4 border-t border-slate-200 pt-4 space-y-2 text-sm">
         <p><strong>Valor:</strong> {{ rowObject.value }}</p>
-        <p><strong>Tipo de dato:</strong> {{ rowObject.data_type }}</p>
+        <p><strong>Tipo de dato:</strong> {{ getDataTypeLabel(rowObject.data_type_code) }}</p>
         <p><strong>Descripción:</strong> {{ rowObject.description || 'Sin descripción' }}</p>
         <p><strong>Estado activo:</strong> {{ rowObject.is_active ? 'Sí' : 'No' }}</p>
     </div>

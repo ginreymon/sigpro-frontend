@@ -57,8 +57,8 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
     { label: 'JSON', value: 'JSON' },
   ];
 
-  getDataTypeLabel(value: string): string {
-    return this.dataTypes.find((d) => d.value === value)?.label ?? value;
+  getDataTypeLabel(value: string | undefined): string {
+    return this.dataTypes.find((d) => d.value === value)?.label ?? value ?? '-';
   }
 
   constructor(private appSettingService: AppSettingService) {
@@ -103,7 +103,7 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
   protected override actionHandler(event: TableActionEvent<AppSetting>): void {
     super.actionHandler(event);
     if (event.type === 'edit') {
-      this.modelForm.patchValue(event.obj);
+      this.modelForm.patchValue({ ...event.obj, data_type: event.obj.data_type_code });
       this.name?.disable();
       this.dataType?.disable();
       this.isActive?.disable();
