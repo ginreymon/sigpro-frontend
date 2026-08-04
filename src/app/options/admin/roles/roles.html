@@ -8,10 +8,6 @@
                 {{ row.options?.length ?? 0 }}
             </ng-template>
 
-            <ng-template appTableTemplate="activeTemplate" let-row>
-                <app-ui-badge [active]="row.has_users" [activeText]="'Sí'" [inactiveText]="'No'"></app-ui-badge>
-            </ng-template>
-
         </app-data-table>
     </div>
 </app-work-space-layout>
