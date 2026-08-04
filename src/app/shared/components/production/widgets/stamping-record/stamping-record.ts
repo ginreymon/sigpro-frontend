@@ -130,6 +130,16 @@ export class StampingRecord {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
   }
 
+  protected isOrderCompleted = computed(() => {
+    const detail = this.orderDetail();
+    return !!detail && Number(detail.orderedQty) > 0 && Number(detail.pendingQty) <= 0;
+  });
+
+  protected get orderLabel(): string {
+    const order = this.productionContextService.snapshot?.order;
+    return order ? `${order.documentType} ${order.documentNumber}` : '';
+  }
+
   protected get windowRange(): { start: string; end: string } {
     const now = new Date();
     const hourStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
@@ -142,7 +152,10 @@ export class StampingRecord {
   }
 
   protected get tabsView(): TabItem[] {
-    return this.tabs.map((tab) => ({ ...tab, hasError: this.tabHasError(tab.key) }));
+    const tabs = this.isOrderCompleted()
+      ? this.tabs.filter((tab) => tab.key === 'quantities')
+      : this.tabs;
+    return tabs.map((tab) => ({ ...tab, hasError: this.tabHasError(tab.key) }));
   }
 
   private tabHasError(key: string): boolean {
@@ -175,6 +188,11 @@ export class StampingRecord {
     effect(() => {
       if (this.showOnlySelectedAdditionalTimes() && this.selectedAdditionalTimeIds().length === 0) {
         untracked(() => this.showOnlySelectedAdditionalTimes.set(false));
+      }
+    });
+    effect(() => {
+      if (this.isOrderCompleted()) {
+        untracked(() => this.activeTab.set('quantities'));
       }
     });
   }
