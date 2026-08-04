@@ -29,7 +29,11 @@
     <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
 
       @if (modules().length === 0) {
-        <app-stamping-efficiency-card [mod]="plantaModule()" (cardClick)="openSheet($event)"></app-stamping-efficiency-card>
+        <app-stamping-efficiency-card
+          [mod]="plantaModule()"
+          [emptyLabel]="'SIN DATOS'"         
+          (cardClick)="openSheet($event)">
+        </app-stamping-efficiency-card>
       } @else {
         @for (mod of allModules(); track mod.module_id) {
           <app-stamping-efficiency-card [mod]="mod" (cardClick)="openSheet($event)"></app-stamping-efficiency-card>
