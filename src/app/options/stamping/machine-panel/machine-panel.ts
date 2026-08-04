@@ -39,8 +39,8 @@ export class MachinePanel {
     const { active, paused, relevant, status, efficiency } = computePlantaStats(mods);
     const ref = active[0] ?? paused[0] ?? mods[0];
 
-    // Planta inactiva: la barra de Completadas muestra la cantidad del día de
-    // todos los módulos en vez de 0, igual que la eficiencia.
+    // Planta inactiva: Completadas, Encomendados y sus barras muestran los
+    // valores del día de todos los módulos en vez de 0, igual que la eficiencia.
     const completedSource = relevant.length ? relevant : mods;
 
     // Última jornada: promedio de last_worked_efficiency de los módulos que
@@ -70,8 +70,8 @@ export class MachinePanel {
       period_end: '',
       shift_id: 0,
       efficiency,
-      operator_count:     relevant.reduce((s, m) => s + (m.operator_count     ?? 0), 0),
-      employees_snapshot: relevant.reduce((s, m) => s + (m.employees_snapshot ?? 0), 0),
+      operator_count:     completedSource.reduce((s, m) => s + (m.operator_count     ?? 0), 0),
+      employees_snapshot: completedSource.reduce((s, m) => s + (m.employees_snapshot ?? 0), 0),
       total_completed:    completedSource.reduce((s, m) => s + (m.total_completed ?? 0), 0),
       total_rejected:     relevant.reduce((s, m) => s + (m.total_rejected     ?? 0), 0),
       total_scrap:        relevant.reduce((s, m) => s + (m.total_scrap        ?? 0), 0),
