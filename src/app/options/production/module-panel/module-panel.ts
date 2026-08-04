@@ -75,6 +75,14 @@ export class ModulePanel {
     this.modules().filter((m) => m.status === 'ACTIVE').length,
   );
 
+  // Planta inactiva: muestra la cantidad total de módulos con los que se
+  // calcularon Completadas/Eficiencia, en vez del conteo de activos (0).
+  readonly plantaModuleCount = computed(() => {
+    const mods = this.modules();
+    if (!mods.length) return undefined;
+    return this.plantaModule().status === 'INACTIVE' ? mods.length : this.activeModuleCount();
+  });
+
   readonly allModules = computed<ModuleEfficiencyStatus[]>(() =>
     this.modules().length ? [this.plantaModule(), ...this.modules()] : [],
   );

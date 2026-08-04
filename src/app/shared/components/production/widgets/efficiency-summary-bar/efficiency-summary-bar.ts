@@ -33,6 +33,6 @@ export class EfficiencySummaryBar {
   }
 
   modulesColor(): string {
-    return (this.activeModules ?? 0) > 0 ? 'text-green-600' : 'text-gray-400';
+    return this.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-400';
   }
 }

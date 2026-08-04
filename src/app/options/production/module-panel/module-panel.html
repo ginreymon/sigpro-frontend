@@ -9,7 +9,7 @@
         [efficiency]="plantaModule().efficiency"
         [status]="plantaModule().status"
         [completed]="plantaModule().total_completed ?? 0"
-        [activeModules]="modules().length ? activeModuleCount() : undefined"
+        [activeModules]="plantaModuleCount()"
         [showFilterButton]="true"
         [filterActive]="showDateFilter()"
         (filterToggle)="toggleDateFilter()">
