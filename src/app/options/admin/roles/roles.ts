@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { Role } from '../../../models/user/role';
@@ -7,14 +8,14 @@ import { DataTable } from '../../../shared/components/table/data-table/data-tabl
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
-import { OptionsService } from '../../../services/core/options-service';
+import { MenuModuleService } from '../../../services/core/menu-module-service';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
-import { Option } from '../../../models/core/option';
+import { Module } from '../../../models/core/module';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
-import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
+import { UiAccordionItem } from '../../../shared/elements/ui-accordion-item/ui-accordion-item';
 import { minArrayLength } from '../../../common/functions/min-array-length';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/widgets/char-square/char-square";
@@ -35,7 +36,7 @@ import { TitleCasePipe } from '@angular/common';
     UiErrorMessage,
     UiOptionCard,
     UiBadge,
-    UiIcon,
+    UiAccordionItem,
     CharSquare,
     Metadata,
     TitleCasePipe
@@ -45,20 +46,31 @@ import { TitleCasePipe } from '@angular/common';
 })
 export class Roles extends BaseCrudPage<Role> {
   protected override entityName: string = 'rol';
-  options = signal<Option[]>([]);
+  modules = signal<Module[]>([]);
   expandedOptionIds = signal<Set<number>>(new Set());
 
-  constructor(private roleService: RoleService, private optionService: OptionsService) {
+  constructor(private roleService: RoleService, private moduleService: MenuModuleService) {
     super(roleService);
-    this.loadList(this.optionService, this.options, true);
+    this.loadModules();
+  }
+
+  private loadModules(): void {
+    this.wslService.start();
+    this.moduleService
+      .withOptions()
+      .pipe(finalize(() => this.wslService.end()))
+      .subscribe((modules) => this.modules.set(modules));
   }
 
   protected override get columns(): TableColumn<Role>[] {
     return [{ field: 'name', label: 'Nombre' }];
   }
 
+  expandedModuleIds = signal<Set<number>>(new Set());
+
   protected override closeModelForm(): void {
     this.expandedOptionIds.set(new Set());
+    this.expandedModuleIds.set(new Set());
     super.closeModelForm();
   }
 
@@ -74,6 +86,25 @@ export class Roles extends BaseCrudPage<Role> {
       expanded.add(id);
     }
     this.expandedOptionIds.set(expanded);
+  }
+
+  isModuleExpanded(id: number): boolean {
+    return this.expandedModuleIds().has(id);
+  }
+
+  toggleModuleExpanded(id: number): void {
+    const expanded = new Set(this.expandedModuleIds());
+    if (expanded.has(id)) {
+      expanded.delete(id);
+    } else {
+      expanded.add(id);
+    }
+    this.expandedModuleIds.set(expanded);
+  }
+
+  selectedOptionCount(module: Module): number {
+    const selected: number[] = this.optionIds?.value ?? [];
+    return (module.options ?? []).filter((o) => selected.includes(o.id)).length;
   }
 
   protected override initializeModelForm(): void {

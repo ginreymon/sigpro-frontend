@@ -1,0 +1,18 @@
+<div>
+
+  <button type="button" (click)="toggle.emit()"
+    class="w-full flex items-center gap-3 px-4 py-3 text-left cursor-pointer">
+
+    <ng-content select="[accordion-header]"></ng-content>
+
+    <app-ui-icon [iconName]="expanded ? 'angleUp' : 'angleDown'" [class]="'h-4 w-4 text-gray-400 shrink-0'"></app-ui-icon>
+
+  </button>
+
+  @if (expanded) {
+  <div class="px-4 pb-4">
+    <ng-content select="[accordion-body]"></ng-content>
+  </div>
+  }
+
+</div>

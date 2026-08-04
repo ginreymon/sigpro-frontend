@@ -27,11 +27,9 @@
 
     @for(option of rowObject.options; track option.id){
 
-    <div>
+    <app-ui-accordion-item [expanded]="isOptionExpanded(option.id)" (toggle)="toggleOptionExpanded(option.id)">
 
-      <button type="button" (click)="toggleOptionExpanded(option.id)"
-        class="w-full flex items-center gap-3 px-4 py-3 text-left cursor-pointer">
-
+      <ng-container accordion-header>
         <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="option.state" [class.bg-gray-300]="!option.state"></span>
 
         <div class="min-w-0 flex-1">
@@ -40,24 +38,17 @@
         </div>
 
         <app-ui-badge [active]="option.state"></app-ui-badge>
+      </ng-container>
 
-        <app-ui-icon [iconName]="isOptionExpanded(option.id) ? 'angleUp' : 'angleDown'" [class]="'h-4 w-4 text-gray-400 shrink-0'"></app-ui-icon>
-
-      </button>
-
-      @if(isOptionExpanded(option.id)){
-      <div class="px-4 pb-4">
-        <div class="bg-slate-50 rounded-lg p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
-          <p> <strong>Título:</strong> {{ option.title | titlecase }} </p>
-          <p> <strong>Orden:</strong> {{ option.order }} </p>
-          <p> <strong>Visible en menú:</strong> {{ option.visible ? 'Sí' : 'No' }} </p>
-          <p class="col-span-2 break-all"> <strong>URL:</strong> {{ option.url || '—' }} </p>
-          <p class="col-span-2"> <strong>Ubicación:</strong> {{ rowObject.name | titlecase }} > {{ option.name | titlecase }} </p>
-        </div>
+      <div accordion-body class="bg-slate-50 rounded-lg p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
+        <p> <strong>Título:</strong> {{ option.title | titlecase }} </p>
+        <p> <strong>Orden:</strong> {{ option.order }} </p>
+        <p> <strong>Visible en menú:</strong> {{ option.visible ? 'Sí' : 'No' }} </p>
+        <p class="col-span-2 break-all"> <strong>URL:</strong> {{ option.url || '—' }} </p>
+        <p class="col-span-2"> <strong>Ubicación:</strong> {{ rowObject.name | titlecase }} > {{ option.name | titlecase }} </p>
       </div>
-      }
 
-    </div>
+    </app-ui-accordion-item>
 
     }
   </div>
@@ -75,22 +66,41 @@
         <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
       </app-ui-form-field>
       
-      <app-ui-form-field [label]="'Opciones'" [controlName]="'option_ids'">        
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 items-stretch overflow-y-auto max-h-[45vh] py-2">
-  
-            @for (option of options(); track option.id) {
-              <app-ui-option-card (onToggle)="toggleOption(option.id)" [selected]="isSelected(option.id)">
-                <div class="font-medium text-sm">
-                  {{ option.title | titlecase }}
+      <app-ui-form-field [label]="'Opciones'" [controlName]="'option_ids'">
+          <div class="divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-y-auto max-h-[45vh]">
+
+            @for (module of modules(); track module.id) {
+              <app-ui-accordion-item [expanded]="isModuleExpanded(module.id)" (toggle)="toggleModuleExpanded(module.id)">
+
+                <ng-container accordion-header>
+                  <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="module.state" [class.bg-gray-300]="!module.state"></span>
+
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium text-gray-700 truncate">{{ module.name | titlecase }}</p>
+                    <p class="text-xs text-slate-500 truncate">{{ (module.options ?? []).length }} opciones en total</p>
+                  </div>
+
+                  <app-ui-badge intent="default" [label]="selectedOptionCount(module) + '/' + (module.options ?? []).length + ' seleccionadas'"></app-ui-badge>
+                </ng-container>
+
+                <div accordion-body class="grid grid-cols-2 md:grid-cols-3 gap-3 items-stretch">
+                  @for (option of module.options; track option.id) {
+                    <app-ui-option-card (onToggle)="toggleOption(option.id)" [selected]="isSelected(option.id)">
+                      <div class="font-medium text-sm">
+                        {{ option.title | titlecase }}
+                      </div>
+                      <div class="text-xs text-gray-500">
+                        {{ option.description || 'Sin descripción' }}
+                      </div>
+                    </app-ui-option-card>
+                  }
                 </div>
-                <div class="text-xs text-gray-500">
-                  {{ option.description || 'Sin descripción' }}
-                </div>
-              </app-ui-option-card>           
+
+              </app-ui-accordion-item>
             }
-  
-          </div>         
-      </app-ui-form-field>     
+
+          </div>
+      </app-ui-form-field>
 
       @if(errorMessage()){
         <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
