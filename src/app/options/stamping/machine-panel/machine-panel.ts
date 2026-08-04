@@ -39,6 +39,18 @@ export class MachinePanel {
     const { active, paused, relevant, status, efficiency } = computePlantaStats(mods);
     const ref = active[0] ?? paused[0] ?? mods[0];
 
+    // Planta inactiva: la barra de Completadas muestra la cantidad del día de
+    // todos los módulos en vez de 0, igual que la eficiencia.
+    const completedSource = relevant.length ? relevant : mods;
+
+    // Última jornada: promedio de last_worked_efficiency de los módulos que
+    // sí lo retornan (no todos lo tienen, p.ej. si nunca tuvieron jornada previa).
+    const withLastWorked = mods.filter(m => m.last_worked_efficiency != null);
+    const lastWorkedEfficiency = withLastWorked.length
+      ? withLastWorked.reduce((s, m) => s + (m.last_worked_efficiency ?? 0), 0) / withLastWorked.length
+      : null;
+    const lastWorkedDate = withLastWorked[0]?.last_worked_date ?? null;
+
     return {
       module_id: 0,
       number: 0,
@@ -60,13 +72,15 @@ export class MachinePanel {
       efficiency,
       operator_count:     relevant.reduce((s, m) => s + (m.operator_count     ?? 0), 0),
       employees_snapshot: relevant.reduce((s, m) => s + (m.employees_snapshot ?? 0), 0),
-      total_completed:    relevant.reduce((s, m) => s + (m.total_completed    ?? 0), 0),
+      total_completed:    completedSource.reduce((s, m) => s + (m.total_completed ?? 0), 0),
       total_rejected:     relevant.reduce((s, m) => s + (m.total_rejected     ?? 0), 0),
       total_scrap:        relevant.reduce((s, m) => s + (m.total_scrap        ?? 0), 0),
-      unit_target:        relevant.reduce((s, m) => s + (m.unit_target        ?? 0), 0),
+      unit_target:        completedSource.reduce((s, m) => s + (m.unit_target ?? 0), 0),
       total_ordered:      relevant.reduce((s, m) => s + (m.total_ordered      ?? 0), 0),
       total_planned:      relevant.reduce((s, m) => s + (m.total_planned      ?? 0), 0),
       total_produced:     relevant.reduce((s, m) => s + (m.total_produced     ?? 0), 0),
+      last_worked_date:       lastWorkedDate,
+      last_worked_efficiency: lastWorkedEfficiency,
     };
   });
 
