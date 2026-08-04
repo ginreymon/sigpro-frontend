@@ -51,15 +51,16 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
           () => {
             this.dialogService.openToast('Eliminado', `${label} fue eliminado correctamente.`, 'check');
           },
-          () => {
-            this.dialogService.openToast('Aviso', `${label} no pudo ser eliminado.`, 'fail');
+          (err) => {
+            const detail = err?.error?.detail;
+            this.dialogService.openToast('Aviso', detail || `${label} no pudo ser eliminado.`, 'fail');
           }
         );
       });
     }
   }
 
-  protected deleteHandler(id: number, callback?: () => void, errorCallback?: () => void) {
+  protected deleteHandler(id: number, callback?: () => void, errorCallback?: (err?: any) => void) {
     this.crudService.delete(id).subscribe({
       next: () => {
         const current = this.paginatedResponse();
@@ -76,7 +77,7 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
 
         callback?.();
       },
-      error: (err) => errorCallback?.(),
+      error: (err) => errorCallback?.(err),
     },
     );
   }
