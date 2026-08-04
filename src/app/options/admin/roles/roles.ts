@@ -69,6 +69,7 @@ export class Roles extends BaseCrudPage<Role> {
       { field: 'name', label: 'Nombre' },
       { type: 'template', label: 'Opciones/Páginas', templateName: 'optionsCountTemplate' },
       { field: 'user_count', label: 'Usuarios' },
+      { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
   }
 
