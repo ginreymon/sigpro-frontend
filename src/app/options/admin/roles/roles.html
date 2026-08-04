@@ -2,7 +2,16 @@
     <div main-content class="h-full">
         <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
             (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
-            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">    
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+
+            <ng-template appTableTemplate="optionsCountTemplate" let-row>
+                {{ row.options?.length ?? 0 }}
+            </ng-template>
+
+            <ng-template appTableTemplate="activeTemplate" let-row>
+                <app-ui-badge [active]="row.has_users" [activeText]="'Sí'" [inactiveText]="'No'"></app-ui-badge>
+            </ng-template>
+
         </app-data-table>
     </div>
 </app-work-space-layout>

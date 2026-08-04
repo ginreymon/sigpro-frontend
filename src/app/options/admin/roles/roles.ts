@@ -16,6 +16,7 @@ import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-err
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { UiAccordionItem } from '../../../shared/elements/ui-accordion-item/ui-accordion-item';
+import { TableTemplate } from '../../../directives/table-template';
 import { minArrayLength } from '../../../common/functions/min-array-length';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/widgets/char-square/char-square";
@@ -37,6 +38,7 @@ import { TitleCasePipe } from '@angular/common';
     UiOptionCard,
     UiBadge,
     UiAccordionItem,
+    TableTemplate,
     CharSquare,
     Metadata,
     TitleCasePipe
@@ -63,7 +65,11 @@ export class Roles extends BaseCrudPage<Role> {
   }
 
   protected override get columns(): TableColumn<Role>[] {
-    return [{ field: 'name', label: 'Nombre' }];
+    return [
+      { field: 'name', label: 'Nombre' },
+      { type: 'template', label: 'Opciones/Páginas', templateName: 'optionsCountTemplate' },
+      { type: 'template', label: 'Activo', templateName: 'activeTemplate' },
+    ];
   }
 
   expandedModuleIds = signal<Set<number>>(new Set());
