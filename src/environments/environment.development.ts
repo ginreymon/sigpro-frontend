@@ -6,4 +6,5 @@ export const environment = {
   DEFAULT_PAGE_SIZE: 20,
   ORDER_DETAIL: 'production/order-detail',
   MODULE_PANEL_URL: 'production/module-panel',
+  MACHINE_PANEL_URL: 'stamping/machine-panel',
 };
