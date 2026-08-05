@@ -32,12 +32,23 @@ export abstract class HomeCoordinatorBase {
     const { active, paused, relevant, status, efficiency } = computePlantaStats(mods);
     const ref = active[0] ?? paused[0] ?? mods[0];
 
+    // Planta inactiva: Completadas usa todos los módulos en vez de 0, igual que la eficiencia.
+    const source = relevant.length ? relevant : mods;
+
     return {
       status,
       location: ref?.location ?? '',
       efficiency,
-      total_completed: relevant.reduce((s, m) => s + (m.total_completed ?? 0), 0),
+      total_completed: source.reduce((s, m) => s + (m.total_completed ?? 0), 0),
     };
+  });
+
+  // Planta inactiva: muestra la cantidad total de módulos con los que se
+  // calcularon Completadas/Eficiencia, en vez del conteo de activos (0).
+  readonly plantaModuleCount = computed(() => {
+    const mods = this.modules();
+    if (!mods.length) return undefined;
+    return this.plantaModule().status === 'INACTIVE' ? mods.length : this.activeModuleCount();
   });
 
   protected initCoordinator(): void {
