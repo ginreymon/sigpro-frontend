@@ -11,12 +11,15 @@ import { LoaderService } from '../../../services/common/loader-service';
 import { EfficiencySummaryBar } from '../../../shared/components/production/widgets/efficiency-summary-bar/efficiency-summary-bar';
 import { PanelLayout } from '../../../shared/components/layout/panel-layout/panel-layout';
 import { RouteContextService } from '../../../services/core/route-context-service';
-import { DateRangeForm } from '../../../shared/components/form-controls/date-range-form/date-range-form';
+import { DateRangeForm, DateRangeValue } from '../../../shared/components/form-controls/date-range-form/date-range-form';
 import { ModuleEfficiencyCard } from '../../../shared/components/production/cards/module-efficiency-card/module-efficiency-card';
+import { RangeEfficiencyCard } from '../../../shared/components/production/cards/range-efficiency-card/range-efficiency-card';
+import { ModuleEfficiencyRow } from '../../../models/production/module-efficiency-row';
+import { ModuleEfficiencySummary } from '../../../common/interfaces/module-efficiency-summary';
 
 @Component({
   selector: 'app-module-panel',
-  imports: [ModuleDetailModal, EfficiencySummaryBar, PanelLayout, DateRangeForm, ModuleEfficiencyCard],
+  imports: [ModuleDetailModal, EfficiencySummaryBar, PanelLayout, DateRangeForm, ModuleEfficiencyCard, RangeEfficiencyCard],
   templateUrl: './module-panel.html',
 })
 export class ModulePanel {
@@ -30,6 +33,10 @@ export class ModulePanel {
   sheetVisible = signal(false);
   showDateFilter = signal(false);
   readonly modules = signal<ModuleEfficiencyStatus[]>([]);
+
+  rangeLoading = signal(false);
+  rangeSearched = signal(false);
+  rangeRows = signal<ModuleEfficiencyRow[]>([]);
 
   readonly plantaModule = computed<ModuleEfficiencyStatus>(() => {
     const mods = this.modules();
@@ -87,6 +94,64 @@ export class ModulePanel {
     this.modules().length ? [this.plantaModule(), ...this.modules()] : [],
   );
 
+  // Cards informativas del rango consultado en el formulario de fecha: mismo
+  // agrupamiento/promedio (efficiency>0 no cuenta para el 0) que usa
+  // ModuleDetailModal.tableFooter para "RESUMEN · PLANTA GENERAL"/"RESUMEN · MÓDULO".
+  private buildRangeSummary(
+    rows: ModuleEfficiencyRow[],
+    moduleId: number,
+    number: number,
+    name: string,
+    operatorCount: number,
+  ): ModuleEfficiencySummary {
+    const withEff = rows.filter(r => r.efficiency > 0);
+    const efficiency = withEff.length
+      ? withEff.reduce((s, r) => s + r.efficiency, 0) / withEff.length
+      : 0;
+    const sum = (field: keyof ModuleEfficiencyRow) =>
+      rows.reduce((s, r) => s + ((r[field] as number) ?? 0), 0);
+
+    return {
+      moduleId,
+      number,
+      name,
+      operatorCount,
+      efficiency: Math.round(efficiency * 100) / 100,
+      totalCompleted: sum('total_completed'),
+      totalRejected: sum('total_rejected'),
+      totalScrap: sum('total_scrap'),
+      unitTarget: Math.round(sum('unit_target')),
+    };
+  }
+
+  readonly rangeModuleSummaries = computed<ModuleEfficiencySummary[]>(() => {
+    const byModule = new Map<number, ModuleEfficiencyRow[]>();
+    for (const row of this.rangeRows()) {
+      const list = byModule.get(row.module_id) ?? [];
+      list.push(row);
+      byModule.set(row.module_id, list);
+    }
+    return [...byModule.values()].map(moduleRows => this.buildRangeSummary(
+      moduleRows,
+      moduleRows[0].module_id,
+      moduleRows[0].module_number,
+      moduleRows[0].module_name,
+      moduleRows[0].module_operator_count,
+    ));
+  });
+
+  readonly rangePlantaSummary = computed<ModuleEfficiencySummary | null>(() => {
+    const rows = this.rangeRows();
+    if (!rows.length) return null;
+    const operatorCount = this.rangeModuleSummaries().reduce((s, m) => s + m.operatorCount, 0);
+    return this.buildRangeSummary(rows, 0, 0, 'PLANTA', operatorCount);
+  });
+
+  readonly rangeAllSummaries = computed<ModuleEfficiencySummary[]>(() => {
+    const planta = this.rangePlantaSummary();
+    return planta ? [planta, ...this.rangeModuleSummaries()] : [];
+  });
+
   constructor() {
     const coreModuleId = this.routeContextService.currentModule?.id;
 
@@ -114,6 +179,22 @@ export class ModulePanel {
   }
 
   toggleDateFilter(): void {
-    this.showDateFilter.update((v) => !v);
+    const next = !this.showDateFilter();
+    this.showDateFilter.set(next);
+
+    if (!next) {
+      this.rangeSearched.set(false);
+      this.rangeLoading.set(false);
+      this.rangeRows.set([]);
+    }
+  }
+
+  onRangeSearch(value: DateRangeValue): void {
+    this.rangeLoading.set(true);
+    this.rangeSearched.set(true);
+
+    this.productivityService.getModuleEfficiency(value.startDate, value.endDate).pipe(
+      finalize(() => this.rangeLoading.set(false)),
+    ).subscribe({ next: (rows) => this.rangeRows.set(rows) });
   }
 }

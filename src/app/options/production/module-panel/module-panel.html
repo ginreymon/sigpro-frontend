@@ -18,7 +18,7 @@
 
     @if (showDateFilter()) {
       <div class="bg-slate-50 border border-gray-200 rounded-lg p-4">
-        <app-date-range-form></app-date-range-form>
+        <app-date-range-form (onSearch)="onRangeSearch($event)"></app-date-range-form>
       </div>
     }
 
@@ -26,21 +26,45 @@
 
   <div panel-content>
 
-    <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
+    @if (rangeSearched()) {
 
-      @if (modules().length === 0) {
-        <app-module-efficiency-card
-          [mod]="plantaModule()"
-          [emptyLabel]="'SIN DATOS'"
-          (cardClick)="openSheet($event)">
-        </app-module-efficiency-card>
+      @if (rangeLoading()) {
+        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
+          @for (skeleton of [1, 2, 3]; track skeleton) {
+            <div class="h-56 skeleton rounded-xl"></div>
+          }
+        </div>
+      } @else if (rangeAllSummaries().length === 0) {
+        <div class="flex flex-col items-center justify-center gap-3 text-gray-300 py-12">
+          <p class="text-sm text-gray-400">Sin registros para el período seleccionado</p>
+        </div>
       } @else {
-        @for (mod of allModules(); track mod.module_id) {
-          <app-module-efficiency-card [mod]="mod" (cardClick)="openSheet($event)"></app-module-efficiency-card>
-        }
+        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
+          @for (summary of rangeAllSummaries(); track summary.moduleId) {
+            <app-range-efficiency-card [summary]="summary"></app-range-efficiency-card>
+          }
+        </div>
       }
 
-    </div>
+    } @else {
+
+      <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
+
+        @if (modules().length === 0) {
+          <app-module-efficiency-card
+            [mod]="plantaModule()"
+            [emptyLabel]="'SIN DATOS'"
+            (cardClick)="openSheet($event)">
+          </app-module-efficiency-card>
+        } @else {
+          @for (mod of allModules(); track mod.module_id) {
+            <app-module-efficiency-card [mod]="mod" (cardClick)="openSheet($event)"></app-module-efficiency-card>
+          }
+        }
+
+      </div>
+
+    }
   </div>
 
 </app-panel-layout>
