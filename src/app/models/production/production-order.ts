@@ -9,6 +9,7 @@ import { OperationCenter } from './operation-center';
 export interface ProductionOrder extends BaseDocument, BaseProduct, AuditInfo {
   planId: string;
   sam?: number;
+  statusInfo?: { state: number; name: string };
   operationCenters: OperationCenter[];
   classification: ProductClassification;
   components: Component[];
