@@ -26,7 +26,7 @@
 
   <div panel-content>
 
-    @if (rangeSearched()) {
+    @if (showDateFilter()) {
 
       @if (rangeLoading()) {
         <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
@@ -34,15 +34,19 @@
             <div class="h-56 skeleton rounded-xl"></div>
           }
         </div>
-      } @else if (rangeAllSummaries().length === 0) {
+      } @else if (rangeSearched() && rangeAllSummaries().length === 0) {
         <div class="flex flex-col items-center justify-center gap-3 text-gray-300 py-12">
           <p class="text-sm text-gray-400">Sin registros para el período seleccionado</p>
         </div>
-      } @else {
+      } @else if (rangeSearched()) {
         <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
           @for (summary of rangeAllSummaries(); track summary.moduleId) {
             <app-range-efficiency-card [summary]="summary"></app-range-efficiency-card>
           }
+        </div>
+      } @else {
+        <div class="flex flex-col items-center justify-center gap-3 text-gray-300 py-12">
+          <p class="text-sm text-gray-400">Selecciona un rango de fechas para consultar</p>
         </div>
       }
 
