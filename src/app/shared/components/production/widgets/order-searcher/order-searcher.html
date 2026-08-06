@@ -41,15 +41,15 @@
         }
 
         @if(traceabilityMode && results().length){
-        <div class="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto p-0.5">
+        <div class="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-36 overflow-y-auto p-3 bg-gray-100 rounded-md border border-gray-200">
             @for(order of results(); track order.rowId){
             <app-ui-option-card [obj]="order" (onToggle)="selectResult($event)">
                 <div class="flex items-center justify-between gap-2">
                     <p class="text-sm font-semibold text-gray-900 truncate">{{ order.documentType }} {{ order.documentNumber }}</p>
                     <app-ui-badge
                         class="shrink-0"
-                        [intent]="order.cutAudit?.isAudited && order.cutAudit?.quantitiesMatch ? 'active' : 'inactive'"
-                        [label]="order.cutAudit?.isAudited && order.cutAudit?.quantitiesMatch ? 'Auditada en corte' : 'Sin auditar'">
+                        [intent]="order.stampingAudit?.isAudited && order.stampingAudit?.quantitiesMatch ? 'active' : 'inactive'"
+                        [label]="order.stampingAudit?.isAudited && order.stampingAudit?.quantitiesMatch ? 'Auditada (Estampación)' : 'Sin auditar (Estampación)'">
                     </app-ui-badge>
                 </div>
             </app-ui-option-card>

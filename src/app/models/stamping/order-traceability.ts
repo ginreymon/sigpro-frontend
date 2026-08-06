@@ -1,4 +1,4 @@
-export interface OrderTraceabilityCutAudit {
+export interface OrderTraceabilityStampingAudit {
   isAudited: boolean;
   orderedQty: number;
   auditedQty: number;
@@ -33,6 +33,6 @@ export interface OrderTraceability {
   completedQty: number;
   wasteQty: number;
   rejectedQty: number;
-  cutAudit: OrderTraceabilityCutAudit | null;
+  stampingAudit: OrderTraceabilityStampingAudit | null;
   tracking: OrderTraceabilityTracking[];
 }
