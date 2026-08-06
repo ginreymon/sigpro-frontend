@@ -17,9 +17,9 @@ export class ProductionOrderService {
 
   constructor(private http: HttpClient) {}
 
-  getOrder(po: Partial<ProductionOrder>, flat?: boolean): Observable<ProductionOrder | ProductionItem[]> {
+  getOrder(po: Partial<ProductionOrder>, detail?: boolean): Observable<ProductionOrder | ProductionItem[]> {
     const params = new HttpParams().set('type', po.documentType!).set('number', po.documentNumber!);
-    return this.http.get<any>(`${this.path}/production-orders/${flat ? 'flat/' : ''}`, { params });
+    return this.http.get<any>(`${this.path}/production-orders/${detail ? 'detail/' : ''}`, { params });
   }
 
   getComponents(po: Partial<ProductionOrder>): Observable<Component[]> {
