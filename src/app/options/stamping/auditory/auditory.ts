@@ -112,7 +112,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
     const order = this.productionOrder();
     const records = this.auditRecordsAll();
     if (!order || records.length === 0) return false;
-    return records.length === order.colors.length;
+    return records.length === order.colorRows.length;
   });
 
   // Global OP indicator (visible next to the tabs, either tab). "approved"
@@ -137,7 +137,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
   // color-count ratio: a color with 0 entered still counts as 0 toward the
   // numerator here, and colors with no entry yet at all also contribute 0.
   protected auditedQuantityPercentage = computed(() => {
-    const colors = this.productionOrder()?.colors ?? [];
+    const colors = this.productionOrder()?.colorRows ?? [];
     const totalOrdered = colors.reduce((sum, c) => sum + (Number(c.totals?.[0]?.orderedQty) || 0), 0);
     if (totalOrdered === 0) return 0;
 

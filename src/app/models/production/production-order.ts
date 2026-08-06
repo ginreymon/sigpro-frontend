@@ -9,5 +9,5 @@ export interface ProductionOrder extends BaseDocument, BaseProduct, AuditInfo {
   sam?: number;
   statusInfo?: { state: number; name: string };
   classification: ProductClassification;
-  colors: ColorDetail[];
+  colorRows: ColorDetail[];
 }

@@ -42,7 +42,7 @@ export class AuditQuantityModal {
     const order = this.productionOrder();
     const color = this.aqms.color();
     if (!order || !color) return null;
-    const match = order.colors.find((c) => c.color === color);
+    const match = order.colorRows.find((c) => c.color === color);
     if (!match) return null;
     return {
       color: match.color,

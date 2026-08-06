@@ -44,7 +44,7 @@ export function sumInto(total: SizeQtyDetail, s: SizeQtyDetail): void {
 export function buildColorSizeMatrix(order: ProductionOrder): ColorSizeMatrix {
   const sizeSet = new Set<string>();
 
-  let skuColors = [...order.colors]
+  let skuColors = [...order.colorRows]
     .sort((a, b) => a.color.localeCompare(b.color))
     .map((c) => {
       const sizes = sortSizes(c.sizes);
