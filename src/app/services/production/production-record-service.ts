@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 import { BaseCrudService } from '../common/base-crud-service';
 import { ProductionRecord } from '../../models/production/production-record';
 
@@ -9,7 +10,8 @@ import { ProductionRecord } from '../../models/production/production-record';
 export class ProductionRecordService extends BaseCrudService<ProductionRecord> {
   protected override _endpoint: string = '/production/production-records/';
 
-  getRecent(): Observable<ProductionRecord[]> {
-    return this.http.get<ProductionRecord[]>(`${this.endpoint}recent/`);
+  getRecent(limit?: number): Observable<ProductionRecord[]> {
+    const params = limit ? new HttpParams().set('limit', limit) : undefined;
+    return this.http.get<ProductionRecord[]>(`${this.endpoint}recent/`, { params });
   }
 }

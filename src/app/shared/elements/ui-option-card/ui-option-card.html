@@ -1,4 +1,4 @@
-<div [class]="`h-full  border rounded-lg p-3 mx-0.5 ${disabled?'':'cursor-pointer transition-all duration-200 hover:border-brand-300'} ${selected ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-200' : 'border-gray-300'}`"
+<div [class]="`h-full border rounded-lg p-3 ${disabled?'':'cursor-pointer transition-all duration-200 hover:border-brand-300'} ${selected ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-200' : 'border-gray-300'}`"
     (click)="toggleHandler()">
     <ng-content></ng-content>
 </div>

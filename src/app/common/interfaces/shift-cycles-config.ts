@@ -10,4 +10,5 @@ export interface ShiftCyclesConfig {
   showMaterialsAction: boolean;
   showLastDeliveryAction: boolean;
   showChangeOpAction: boolean;
+  searchByNumberOnly: boolean;
 }

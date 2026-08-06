@@ -12,6 +12,7 @@ const DEFAULT_CONFIG: ShiftCyclesConfig = {
   showMaterialsAction: true,
   showLastDeliveryAction: true,
   showChangeOpAction: true,
+  searchByNumberOnly: false,
 };
 
 export const SHIFT_CYCLES_CONFIG: Record<string, ShiftCyclesConfig> = {
@@ -23,5 +24,6 @@ export const SHIFT_CYCLES_CONFIG: Record<string, ShiftCyclesConfig> = {
     showStampingRecord: true,
     showMaterialsAction: false,
     showBalanceSheet: false,
+    searchByNumberOnly: true,
   },
 };
