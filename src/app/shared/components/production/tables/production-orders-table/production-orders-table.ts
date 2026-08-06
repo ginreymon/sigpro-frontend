@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
 import { ProductionOrder } from '../../../../../models/production/production-order';
-import { ColorDetail } from '../../../../../models/production/color-detail';
-import { SizeQtyDetail } from '../../../../../models/production/size-detail';
+import { ColorRowDetail } from '../../../../../models/production/color-row-detail';
+import { SkuDetail } from '../../../../../models/production/sku-detail';
 import { UiTableButton } from '../../../../elements/ui-table-button/ui-table-button';
 import { UiTooltipFixed } from '../../../../elements/ui-tooltip-fixed/ui-tooltip-fixed';
 import { WorkSession } from '../../../../../models/production/work-session';
@@ -28,13 +28,13 @@ export class ProductionOrdersTable {
   private selectedColors = new Set<string>();
   protected colorFilterOpen = false;
 
-  protected get filteredSkuColors(): ColorDetail[] {
+  protected get filteredSkuColors(): ColorRowDetail[] {
     if (this.selectedColors.size === 0) return this.skuColors;
     return this.skuColors.filter((c) => this.selectedColors.has(c.color));
   }
   
-  protected filteredTotalBySizes: SizeQtyDetail[] = [];
-  protected filteredGrandTotal: SizeQtyDetail = emptySize('');
+  protected filteredTotalBySizes: SkuDetail[] = [];
+  protected filteredGrandTotal: SkuDetail = emptySize('');
 
   private updateFilteredTotals(): void {
     if (this.selectedColors.size === 0) {
@@ -45,7 +45,7 @@ export class ProductionOrdersTable {
 
     const unselectedSizes = this.skuColors
       .filter((c) => !this.selectedColors.has(c.color))
-      .map((c) => c.sizes);
+      .map((c) => c.skus);
 
     this.filteredTotalBySizes = this.totalBySizes.map((total, i) => {
       const result = { ...total };
@@ -102,9 +102,9 @@ export class ProductionOrdersTable {
   }
   private _productionOrder: ProductionOrder | null = null;
   sizes: string[] = [];
-  skuColors: ColorDetail[] = [];
-  totalBySizes: SizeQtyDetail[] = [];
-  grandTotal: SizeQtyDetail | null = null;
+  skuColors: ColorRowDetail[] = [];
+  totalBySizes: SkuDetail[] = [];
+  grandTotal: SkuDetail | null = null;
   dialogService = inject(DialogService);
   poService = inject(ProductionOrderService);
 

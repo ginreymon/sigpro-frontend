@@ -46,8 +46,8 @@ export class AuditQuantityModal {
     if (!match) return null;
     return {
       color: match.color,
-      total: Number(match.totals?.[0]?.orderedQty) || 0,
-      skuRowIds: match.sizes.map((s) => s.skuRowId),
+      total: Number(match.totals?.orderedQty) || 0,
+      skuRowIds: match.skus.map((s) => s.skuRowId),
     };
   });
 

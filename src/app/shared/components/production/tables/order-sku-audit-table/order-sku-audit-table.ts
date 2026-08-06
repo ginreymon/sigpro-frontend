@@ -63,8 +63,8 @@ export class OrderSkuAuditTable {
     this.sizes = matrix.sizes;
 
     this.rows = matrix.skuColors.map((c) => {
-      const row: OpColorRow = { color: c.color, total: c.totals[0].orderedQty };
-      c.sizes.forEach((s) => (row[s.size] = s.skuRowId !== 0 ? s.orderedQty : ''));
+      const row: OpColorRow = { color: c.color, total: c.totals.orderedQty };
+      c.skus.forEach((s) => (row[s.size] = s.skuRowId !== 0 ? s.orderedQty : ''));
       return row;
     });
   }

@@ -40,7 +40,7 @@
 
                     <td class="px-6 py-3 font-medium">{{ skuColor.color }}</td>
 
-                    @for(size of skuColor.sizes; track size){
+                    @for(size of skuColor.skus; track size){
                     <td class="text-center">
                         @if(!readOnly && size.skuRowId != 0){
                         <app-ui-table-button [intent]="getButtonIntent(size)" (onClick)="selectSKU(productionOrder.documentType, productionOrder.documentNumber, size.skuRowId)">
@@ -62,7 +62,7 @@
                     }
 
                     <td class="px-6 py-3 text-right font-semibold">
-                        {{ skuColor.totals[0].orderedQty }}
+                        {{ skuColor.totals.orderedQty }}
                     </td>
 
                 </tr>
@@ -109,11 +109,11 @@
                         <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4 text-gray-400 transition-transform group-open:rotate-90'"></app-ui-icon>
                         {{ skuColor.color }}
                     </span>
-                    <span class="font-semibold">{{ skuColor.totals[0].orderedQty }}</span>
+                    <span class="font-semibold">{{ skuColor.totals.orderedQty }}</span>
                 </summary>
 
                 <div class="pl-10 pr-4 divide-y divide-gray-200 bg-gray-50">
-                    @for(size of skuColor.sizes; track size){
+                    @for(size of skuColor.skus; track size){
                     <div class="flex justify-between items-center text-sm min-h-11 py-1.5">
                         <span class="text-gray-700 bg-gray-100 px-4 w-14 inline-flex justify-center items-center rounded-full text-xs font-semibold py-1">
                             {{ size.size }}

@@ -138,7 +138,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
   // numerator here, and colors with no entry yet at all also contribute 0.
   protected auditedQuantityPercentage = computed(() => {
     const colors = this.productionOrder()?.colorRows ?? [];
-    const totalOrdered = colors.reduce((sum, c) => sum + (Number(c.totals?.[0]?.orderedQty) || 0), 0);
+    const totalOrdered = colors.reduce((sum, c) => sum + (Number(c.totals?.orderedQty) || 0), 0);
     if (totalOrdered === 0) return 0;
 
     const totalAudited = this.auditRecordsAll().reduce((sum, r) => sum + r.audited_quantity, 0);

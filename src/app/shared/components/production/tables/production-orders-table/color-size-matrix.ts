@@ -1,21 +1,21 @@
 import { ProductionOrder } from '../../../../../models/production/production-order';
-import { ColorDetail } from '../../../../../models/production/color-detail';
-import { SizeQtyDetail } from '../../../../../models/production/size-detail';
+import { ColorRowDetail } from '../../../../../models/production/color-row-detail';
+import { SkuDetail } from '../../../../../models/production/sku-detail';
 
 const SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
 export interface ColorSizeMatrix {
   sizes: string[];
-  skuColors: ColorDetail[];
-  totalBySizes: SizeQtyDetail[];
-  grandTotal: SizeQtyDetail;
+  skuColors: ColorRowDetail[];
+  totalBySizes: SkuDetail[];
+  grandTotal: SkuDetail;
 }
 
-export function emptySize(size: string): SizeQtyDetail {
+export function emptySize(size: string): SkuDetail {
   return { size, skuRowId: 0, orderedQty: 0, plannedQty: 0, completedQty: 0, wasteQty: 0, rejectedQty: 0 };
 }
 
-function sortSizes(sizes: SizeQtyDetail[]): SizeQtyDetail[] {
+function sortSizes(sizes: SkuDetail[]): SkuDetail[] {
   const numberSizes = sizes
     .filter((s) => !isNaN(Number(s.size)))
     .sort((a, b) => Number(a.size) - Number(b.size));
@@ -31,7 +31,7 @@ function sortSizes(sizes: SizeQtyDetail[]): SizeQtyDetail[] {
   return [...numberSizes, ...letterSizes];
 }
 
-export function sumInto(total: SizeQtyDetail, s: SizeQtyDetail): void {
+export function sumInto(total: SkuDetail, s: SkuDetail): void {
   total.completedQty += s.completedQty;
   total.orderedQty += s.orderedQty;
   total.plannedQty += s.plannedQty;
@@ -47,9 +47,9 @@ export function buildColorSizeMatrix(order: ProductionOrder): ColorSizeMatrix {
   let skuColors = [...order.colorRows]
     .sort((a, b) => a.color.localeCompare(b.color))
     .map((c) => {
-      const sizes = sortSizes(c.sizes);
+      const sizes = sortSizes(c.skus);
       sizes.forEach((s) => sizeSet.add(s.size));
-      return { ...c, sizes };
+      return { ...c, skus: sizes };
     });
 
   const numberSizes = Array.from(sizeSet)
@@ -63,12 +63,12 @@ export function buildColorSizeMatrix(order: ProductionOrder): ColorSizeMatrix {
   const sizes = [...numberSizes, ...letterSizes];
 
   skuColors = skuColors.map((c) => {
-    const sizeMap = new Map(c.sizes.map((s) => [s.size, s]));
-    return { ...c, sizes: sizes.map((size) => sizeMap.get(size) ?? emptySize(size)) };
+    const sizeMap = new Map(c.skus.map((s) => [s.size, s]));
+    return { ...c, skus: sizes.map((size) => sizeMap.get(size) ?? emptySize(size)) };
   });
 
-  const totalsMap = new Map<string, SizeQtyDetail>(sizes.map((s) => [s, emptySize(s)]));
-  skuColors.forEach((c) => c.sizes.forEach((s) => {
+  const totalsMap = new Map<string, SkuDetail>(sizes.map((s) => [s, emptySize(s)]));
+  skuColors.forEach((c) => c.skus.forEach((s) => {
     const total = totalsMap.get(s.size);
     if (total) sumInto(total, s);
   }));
