@@ -15,7 +15,7 @@ export class OPStampingService {
 
   getOrderDetail(docType: string, docNumber: number): Observable<StampingOrderDetail> {
     const params = new HttpParams().set('type', docType).set('number', docNumber);
-    return this.http.get<StampingOrderDetail>(`${this.path}/stamping-orders/flat/`, { params });
+    return this.http.get<StampingOrderDetail>(`${this.path}/stamping-orders/detail/`, { params });
   }
 
   getTraceability(docNumber: number, docType?: string | null): Observable<OrderTraceability[]> {
