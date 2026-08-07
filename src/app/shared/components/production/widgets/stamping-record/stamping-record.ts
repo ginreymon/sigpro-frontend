@@ -101,7 +101,9 @@ export class StampingRecord {
 
   protected filteredReferences = computed(() => {
     const q = this.referencesSearchText().toLowerCase().trim();
-    const list = this.referenceSams();
+    // Un SAM ya completo (sin pendiente) no se puede seguir registrando —
+    // se quita de la lista de selección en vez de mostrarlo inactivo.
+    const list = this.referenceSams().filter((item) => Number(item.pending_qty) > 0);
     if (!q) return list;
     return list.filter(
       (item) =>
