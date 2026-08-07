@@ -1,7 +1,7 @@
 <div class="fixed inset-0 flex items-center justify-center overflow-x-hidden overflow-y-auto transition-all duration-300 cursor-default" [ngClass]="zClass"
      [class]="transparent ? 'bg-transparent cursor-pointer' : 'bg-black/50 bg-opacity-10'"
      (click)="transparent && onRestoreClick.emit()">
-    <div [class]="`bg-white px-3 sm:px-6 py-3 sm:py-6 rounded-lg shadow-xl w-full max-h-[90vh] flex flex-col mx-4 transition-opacity duration-300 ${classNames ? classNames : 'max-w-xl'}`"
+    <div [class]="`bg-white px-3 sm:px-6 py-3 sm:py-6 rounded-lg shadow-xl w-full max-h-[90vh] flex flex-col mx-2 sm:mx-4 transition-opacity duration-300 ${classNames ? classNames : 'max-w-xl'}`"
          [class.opacity-20]="transparent">
 
         @if(title){
