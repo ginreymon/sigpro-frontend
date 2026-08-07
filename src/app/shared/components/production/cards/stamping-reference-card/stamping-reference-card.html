@@ -3,9 +3,7 @@
     <div class="min-w-0">
       <div class="flex flex-row justify-start gap-2 items-center mb-1">
         <app-ui-icon [iconName]="'tag'" class="h-4 w-4"></app-ui-icon>
-        <p class="font-medium text-sm">
-          <strong>{{ item.identification }}</strong>
-        </p>
+        <p class="font-semibold text-sm"> {{ item.identification }} </p>
       </div>
       @if (item.machine_type_name) {
         <p class="text-xs"><strong>Tipo de Máquina</strong> {{ item.machine_type_name }}</p>
