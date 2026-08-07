@@ -25,8 +25,11 @@ export interface StampingReferenceSam extends TimeAuditEntity, UserAuditEntity, 
   inks?: number | null;
   prints?: number | null;
   pieces_per_board?: number | null;
-  layout_form?: string | null;
+  layout_form?: number | null;
+  layout_form_name?: string | null;
   pre_dried?: number | null;
   sam: string;
   tasks_per_hour: number;
+  stamped_qty?: number;
+  pending_qty?: number;
 }
