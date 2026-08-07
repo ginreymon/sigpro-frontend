@@ -114,12 +114,20 @@ export class StampingRecord {
     return Number(this.orderDetail()?.orderedQty) || 0;
   }
 
+  // El pendiente/estampado se valida por SAM seleccionado, no por el total del OP:
+  // cada SAM (según el módulo que estampó) es un proceso independiente sobre la
+  // misma OP y no debe compartir avance con otro SAM.
+  protected get selectedReferenceSam(): StampingReferenceSam | null {
+    const id = this.selectedReferenceSamId();
+    return this.referenceSams().find((sam) => sam.id === id) ?? null;
+  }
+
   protected get totalPendingQuantity(): number {
-    return Number(this.orderDetail()?.pendingQty) || 0;
+    return Number(this.selectedReferenceSam?.pending_qty) || 0;
   }
 
   protected get totalStampedQuantity(): number {
-    return Number(this.orderDetail()?.stampedQty) || 0;
+    return Number(this.selectedReferenceSam?.stamped_qty) || 0;
   }
 
   protected get newCompletedQty(): number {
@@ -130,9 +138,13 @@ export class StampingRecord {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
   }
 
+  // Completada solo si TODOS los SAM de la OP ya no tienen pendiente — cada
+  // SAM es un proceso independiente, así que uno solo no basta para cerrar la OP.
   protected isOrderCompleted = computed(() => {
     const detail = this.orderDetail();
-    return !!detail && Number(detail.orderedQty) > 0 && Number(detail.pendingQty) <= 0;
+    const sams = detail?.referenceSams ?? [];
+    if (!detail || Number(detail.orderedQty) <= 0 || sams.length === 0) return false;
+    return sams.every((sam) => Number(sam.pending_qty) <= 0);
   });
 
   protected get orderLabel(): string {

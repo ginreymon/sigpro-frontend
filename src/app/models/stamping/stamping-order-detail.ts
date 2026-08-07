@@ -14,8 +14,6 @@ export interface StampingOrderDetail {
   status: number;
   documentId: string;
   orderedQty: number;
-  stampedQty: number;
-  pendingQty: number;
   operationCenters: OperationCenter[];
   referenceSams: StampingReferenceSam[];
 }
