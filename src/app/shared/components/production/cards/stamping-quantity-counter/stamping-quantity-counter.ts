@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { ProgressBar } from '../../../widgets/progress-bar/progress-bar';
-import { StampingOrderDetail } from '../../../../../models/stamping/stamping-order-detail';
 
 @Component({
   selector: 'app-stamping-quantity-counter',
@@ -9,18 +8,18 @@ import { StampingOrderDetail } from '../../../../../models/stamping/stamping-ord
   templateUrl: './stamping-quantity-counter.html',
 })
 export class StampingQuantityCounter {
-  @Input() orderDetail: StampingOrderDetail | null = null;
+  // Recibe el avance del SAM seleccionado, no el total del OP: cada SAM
+  // (según el módulo que estampó) es un proceso independiente sobre la
+  // misma OP y no comparte avance con otro SAM.
+  @Input() orderedQty: number | null = null;
+  @Input() stampedQtyBase = 0;
   @Input() newCompletedQty = 0;
 
-  get orderedQty(): number {
-    return Number(this.orderDetail?.orderedQty) || 0;
-  }
-
   get stampedQty(): number {
-    return (Number(this.orderDetail?.stampedQty) || 0) + this.newCompletedQty;
+    return this.stampedQtyBase + this.newCompletedQty;
   }
 
   get toDo(): number {
-    return Math.max(0, this.orderedQty - this.stampedQty);
+    return Math.max(0, (this.orderedQty ?? 0) - this.stampedQty);
   }
 }

@@ -70,8 +70,8 @@ export class WorkShiftSummary implements OnInit {
 
   protected buildCards(s: WorkSession): void {
     this.cards.set([
-      { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.number} ${s.current_module?.name}` },
-      { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.name} (${s.work_shift.start_time.slice(0, 5)} - ${s.work_shift.end_time.slice(0, 5)})` },
+      { title: 'Módulo', iconName: 'screwdriverWrench', data: `${s.current_module?.name}` },
+      { title: 'Turno', iconName: 'alarmClock', data: `${s.work_shift.start_time.slice(0, 5)} - ${s.work_shift.end_time.slice(0, 5)}` },
       { title: 'Encomendados', iconName: 'user', data: this.formatHeadcount(s), action: () => this.toggleEmployeesDropdown(s) },
       { title: 'Meta', data: '-', thresholds: { green: 0, red: Infinity } },
       { title: 'Acumuladas', data: '-', thresholds: { green: 0, red: Infinity } },
