@@ -1,6 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
 import { ModuleDetailModal } from '../../../shared/components/production/modals/module-detail-modal/module-detail-modal';
-import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
 import { StampingProductivityService } from '../../../services/stamping/stamping-productivity-service';
 import { ModuleEfficiencyStatus } from '../../../models/production/module-efficiency-status';
 import { computePlantaStats } from '../../../common/functions/planta-summary';
@@ -13,7 +12,7 @@ import { ModuleRangePanelBase } from '../../../common/classes/module-range-panel
 
 @Component({
   selector: 'app-machine-panel',
-  imports: [ModuleDetailModal, UiIcon, EfficiencySummaryBar, PanelLayout, DateRangeForm, StampingEfficiencyCard, RangeEfficiencyCard],
+  imports: [ModuleDetailModal, EfficiencySummaryBar, PanelLayout, DateRangeForm, StampingEfficiencyCard, RangeEfficiencyCard],
   templateUrl: './machine-panel.html',
 })
 export class MachinePanel extends ModuleRangePanelBase {
