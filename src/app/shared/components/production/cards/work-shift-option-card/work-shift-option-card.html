@@ -7,5 +7,5 @@
   </div>
   <p class="text-xs text-gray-500"><strong>Inicio:</strong> {{ shift.start_time }}</p>
   <p class="text-xs text-gray-500"><strong>Fin:</strong> {{ shift.end_time }}</p>
-  <p class="text-xs text-gray-500"><strong>Ubicación</strong> {{ shift.location?.name ?? '' | titlecase | ellipsis:25 }}</p>
+  <p class="text-xs text-gray-500"><strong>Ubicación:</strong> {{ shift.location?.name ?? '' | titlecase | ellipsis:25 }}</p>
 </app-ui-option-card>
