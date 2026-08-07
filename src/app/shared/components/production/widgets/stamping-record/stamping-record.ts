@@ -122,6 +122,10 @@ export class StampingRecord {
     return this.referenceSams().find((sam) => sam.id === id) ?? null;
   }
 
+  protected get hasSelectedReference(): boolean {
+    return !!this.selectedReferenceSam;
+  }
+
   protected get totalPendingQuantity(): number {
     return Number(this.selectedReferenceSam?.pending_qty) || 0;
   }
@@ -259,7 +263,7 @@ export class StampingRecord {
   protected selectReference(id: number): void {
     const newId = this.selectedReferenceSamId() === id ? null : id;
     this.selectedReferenceSamId.set(newId);
-    this.recordForm.patchValue({ stamping_reference_sam: newId });
+    this.recordForm.patchValue({ stamping_reference_sam: newId, completed_quantity: null });
   }
 
   protected close(): void {
