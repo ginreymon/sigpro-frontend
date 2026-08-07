@@ -72,15 +72,25 @@
 }
 
 @if(config.showBalanceSheet){
-<app-balance-modal
-  [visible]="shiftModals.activeModal() === 'balance'"
-  [currentSession]="shiftModals.balanceData()?.currentSession ?? null"
-  [shiftEndTime]="shiftModals.balanceData()?.shiftEndTime ?? null"
-  [enable]="inWindow() || finalizeDay()"
-  [reloadTrigger]="shiftModals.reloadBalanceTrigger()"
-  (onClose)="shiftModals.close()"
-  (onEditRecord)="handleEditRecord($event)"
-></app-balance-modal>
+  @if(config.showStampingRecord){
+  <app-stamping-balance-modal
+    [visible]="shiftModals.activeModal() === 'balance'"
+    [currentSession]="shiftModals.balanceData()?.currentSession ?? null"
+    [shiftEndTime]="shiftModals.balanceData()?.shiftEndTime ?? null"
+    [reloadTrigger]="shiftModals.reloadBalanceTrigger()"
+    (onClose)="shiftModals.close()"
+  ></app-stamping-balance-modal>
+  } @else {
+  <app-balance-modal
+    [visible]="shiftModals.activeModal() === 'balance'"
+    [currentSession]="shiftModals.balanceData()?.currentSession ?? null"
+    [shiftEndTime]="shiftModals.balanceData()?.shiftEndTime ?? null"
+    [enable]="inWindow() || finalizeDay()"
+    [reloadTrigger]="shiftModals.reloadBalanceTrigger()"
+    (onClose)="shiftModals.close()"
+    (onEditRecord)="handleEditRecord($event)"
+  ></app-balance-modal>
+  }
 }
 
 @if(config.showPauseModal){

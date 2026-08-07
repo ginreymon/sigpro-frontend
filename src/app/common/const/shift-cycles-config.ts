@@ -23,7 +23,6 @@ export const SHIFT_CYCLES_CONFIG: Record<string, ShiftCyclesConfig> = {
     readOnlyOrdersTable: true,
     showStampingRecord: true,
     showMaterialsAction: false,
-    showBalanceSheet: false,
     searchByNumberOnly: true,
   },
 };

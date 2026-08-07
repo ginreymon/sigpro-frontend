@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { EfficiencyPeriod } from '../../models/production/efficiency-period';
 import { ProductivityParams } from '../../models/production/productivity-params';
 import { ModuleEfficiencyStatus } from '../../models/production/module-efficiency-status';
 import { ModuleEfficiencyRow } from '../../models/production/module-efficiency-row';
+import { StampingProductivitySummaryRow } from '../../models/stamping/stamping-productivity-summary-row';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +27,20 @@ export class StampingProductivityService {
     if (p.shiftId !== undefined) params = params.set('shift_id', p.shiftId);
 
     return this.http.get<EfficiencyPeriod>(`${this.path}/efficiency/`, { params });
+  }
+
+  getShiftSummary(p: ProductivityParams): Observable<PaginatedResponse<StampingProductivitySummaryRow>> {
+    let params = new HttpParams()
+      .set('start_date', p.startDate)
+      .set('end_date', p.endDate)
+      .set('client_now', p.clientNow ?? new Date().toISOString())
+      .set('shift_id', p.shiftId!)
+      .set('module_id', p.moduleId!);
+    if (p.employeeId !== undefined) params = params.set('employee_id', p.employeeId);
+
+    return this.http.get<StampingProductivitySummaryRow[]>(`${this.path}/shift-summary/`, { params }).pipe(
+      map(results => ({ count: results.length, next: null, previous: null, results }))
+    );
   }
 
   getModuleShiftSummary(coreModuleId?: number): Observable<ModuleEfficiencyStatus[]> {

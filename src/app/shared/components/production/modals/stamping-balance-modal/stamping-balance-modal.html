@@ -1,0 +1,96 @@
+<app-bottom-sheet-shell
+  [visible]="visible()"
+  [title]="moduleTitle()"
+  [fullscreen]="false"
+  (onClose)="close()">
+
+  @if (isLoading()) {
+    <div class="space-y-3">
+      <div class="h-7 skeleton rounded w-3/3 mb-2"></div>
+      @for (row of skeletonRows; track $index) {
+        <div class="flex gap-3">
+          <div class="h-6 skeleton rounded w-full"></div>
+        </div>
+      }
+    </div>
+  } @else if (!paginatedResponse()?.results?.length && !hasSearched()) {
+    <div class="flex flex-col items-center justify-center h-full gap-3 text-gray-300 py-6">
+      <app-ui-icon [iconName]="'chartArea'" class="h-12 w-12"></app-ui-icon>
+      <p class="text-sm text-gray-400">Sin registros para el período</p>
+    </div>
+  } @else {
+    <app-data-table
+      [paginatedResponse]="paginatedResponse()"
+      [columns]="columns"
+      [actions]="actions"
+      [showPager]="false"
+      (onSearch)="onSearch($event)">
+
+      <ng-template appTableTemplate="cantidadesTemplate" let-row>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
+          <span class="text-slate-400">Ord.</span>
+          <span class="font-semibold text-slate-700 text-right">{{ row.total_ordered }}</span>
+          <span class="text-slate-400">Comp.</span>
+          <span class="font-semibold text-green-600 text-right">{{ row.total_completed }}</span>
+        </div>
+      </ng-template>
+
+      <ng-template appTableTemplate="ultimoRegistroTemplate" let-row>
+        @if (row.last_record_end) {
+          <span [class]="'font-medium ' + (isLate(row.last_record_end) ? 'text-red-600' : 'text-slate-700')">
+            {{ toLocalDate(row.last_record_end) | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        } @else {
+          <span class="text-slate-400 text-xs">—</span>
+        }
+      </ng-template>
+
+      <ng-template appTableTemplate="createUserTemplate" let-row>
+        <app-ui-label-button [classNames]="'w-28'" (onClick)="openDetail(row)" [intent]="'accept'">
+          Ver detalle
+        </app-ui-label-button>
+      </ng-template>
+
+    </app-data-table>
+  }
+
+</app-bottom-sheet-shell>
+
+<app-bottom-sheet-shell
+  [visible]="!!selectedRow()"
+  [title]="detailTitle()"
+  [fullscreen]="false"
+  (onClose)="closeDetail()">
+
+  @if (selectedRow()?.records_detail?.length) {
+    <app-data-table
+      [paginatedResponse]="{ count: detailResults().length, next: null, previous: null, results: detailResults() }"
+      [columns]="detailColumns"
+      [actions]="{}"
+      [showPager]="false"
+      (onSearch)="onDetailSearch($event)">
+
+      <ng-template appTableTemplate="detailEndTemplate" let-row>
+        @if (row.record_end) {
+          <span [class]="'font-medium ' + (isLate(row.record_end) ? 'text-red-600' : 'text-slate-700')">
+            {{ toLocalDate(row.record_end) | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        } @else {
+          <span class="text-slate-400 text-xs">—</span>
+        }
+      </ng-template>
+
+      <ng-template appTableTemplate="detailCompTemplate" let-row>
+        <span class="font-semibold text-green-600">{{ row.completed_quantity }}</span>
+      </ng-template>
+
+      <ng-template appTableTemplate="detailBreakTemplate" let-row>
+        <span class="font-semibold text-slate-600">{{ (row.break_seconds / 60) | number:'1.0-2' }}</span>
+      </ng-template>
+
+    </app-data-table>
+  } @else {
+    <p class="text-sm text-gray-400 py-6 text-center">Sin registros de detalle</p>
+  }
+
+</app-bottom-sheet-shell>

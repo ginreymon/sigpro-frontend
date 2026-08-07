@@ -12,6 +12,7 @@ import { WorkShiftSummary } from '../../../shared/components/production/cards/wo
 import { StampingShiftSummary } from '../../../shared/components/production/cards/stamping-shift-summary/stamping-shift-summary';
 import { EmployeesModal } from '../../../shared/components/production/modals/employees-modal/employees-modal';
 import { BalanceModal } from '../../../shared/components/production/modals/balance-modal/balance-modal';
+import { StampingBalanceModal } from '../../../shared/components/production/modals/stamping-balance-modal/stamping-balance-modal';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
@@ -46,7 +47,7 @@ import { isWithinHourlyWindow } from '../../../common/functions/hourly-window';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, PauseModal, OrderHeader, RecentRecordsCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesFab],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader, RecentRecordsCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesFab],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
