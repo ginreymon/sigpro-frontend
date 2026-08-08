@@ -31,10 +31,8 @@ export interface StampingQuantityModalSave {
   selector: 'app-stamping-quantity-modal',
   standalone: true,
   imports: [
-    BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, UiErrorMessage, UiIcon,
-    Searcher, UiLabelButton, AdditionalStampingTimeCard, StampingQuantityCounter,
-    UiTabs
-],
+    BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, UiErrorMessage,  StampingQuantityCounter, UiTabs
+  ],
   templateUrl: './stamping-quantity-modal.html',
 })
 export class StampingQuantityModal {
