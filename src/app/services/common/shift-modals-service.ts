@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Employee } from '../../models/production/employee';
 import { WorkBreakRecord } from '../../models/production/work-break-record';
 import { WorkSession } from '../../models/production/work-session';
@@ -37,8 +37,13 @@ export class ShiftModalsService {
   readonly employeesSaved$ = new Subject<EmployeesSavedData>();
   readonly pauseSaved$ = new Subject<WorkBreakRecord>();
 
-  /** Command bus: true = open, false = close, null = no override */
-  readonly shiftHourlyOpen$ = new BehaviorSubject<boolean | null>(null);
+  /**
+   * Set by `openShiftHourlyRecord()`, consumed by the *next* ShiftHourlyRecord
+   * instance's `ngOnInit`. Survives the destroy/recreate cycle that `reloadOrder()`
+   * triggers on every save (productionOrder briefly goes null), unlike a live
+   * subscription which the old instance would consume before being destroyed.
+   */
+  readonly pendingHourlyOpen = signal(false);
 
   /** Global readable state of ShiftHourlyRecord visibility */
   readonly shiftHourlyVisible = signal(false);
@@ -84,7 +89,13 @@ export class ShiftModalsService {
   }
 
   openShiftHourlyRecord(): void {
-    this.shiftHourlyOpen$.next(true);
+    this.pendingHourlyOpen.set(true);
+  }
+
+  consumeHourlyOpen(): boolean {
+    const pending = this.pendingHourlyOpen();
+    if (pending) this.pendingHourlyOpen.set(false);
+    return pending;
   }
 
   setShiftHourlyVisible(visible: boolean): void {

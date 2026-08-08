@@ -87,18 +87,16 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
       this.settingEnabled = this.appConfig.showShiftHourlyComponent;
       this.windowSeconds = this.appConfig.shiftHourlyWindowSeconds;
       this.keepOpenOnRegister = this.appConfig.shiftHourlyKeepOpenOnRegister;
+      const forceOpen = this.keepOpenOnRegister && this.shiftModals.consumeHourlyOpen();
       if (this.activeBreak) {
         this.isPaused.set(true);
         this.currentBreak.set(this.activeBreak);
       }
-      if (this.enabled && this.settingEnabled) this.startTimer();
+      if (this.enabled && this.settingEnabled) this.startTimer(forceOpen);
     });
     this.shiftModals.pauseSaved$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(record => this.onPause(record));
-    this.shiftModals.shiftHourlyOpen$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(command => this.onShiftHourlyOpenCommand(command));
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -164,28 +162,20 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.resume();
   }
 
-  private onShiftHourlyOpenCommand(command: boolean | null): void {
-    if (command !== true) return;
-    this.shiftModals.shiftHourlyOpen$.next(null);
-    if (!this.keepOpenOnRegister) return;
-    this.registeredThisWindow = false;
-    this.isOpen.set(true);
-  }
-
   private getHourStart(): Date {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
   }
 
-  private startTimer(): void {
+  private startTimer(forceOpen = false): void {
     this.stopTimer();
     this.hourStart.set(this.getHourStart());
     this.serverNow.set(new Date());
     const alreadyRegistered = this.isAlreadyRegisteredInCurrentWindow();
     const currentlyInWindow = this.computeInWindow();
-    this.registeredThisWindow = alreadyRegistered && currentlyInWindow;
+    this.registeredThisWindow = !forceOpen && alreadyRegistered && currentlyInWindow;
     this.wasInWindow = currentlyInWindow;
-    this.isOpen.set(this.isPaused() || !(currentlyInWindow && alreadyRegistered));
+    this.isOpen.set(forceOpen || this.isPaused() || !(currentlyInWindow && alreadyRegistered));
     this.tick();
     this.intervalId = setInterval(() => this.tick(), 1000);
   }
