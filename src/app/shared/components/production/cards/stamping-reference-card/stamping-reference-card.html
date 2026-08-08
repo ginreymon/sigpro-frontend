@@ -18,7 +18,7 @@
   <div class="flex justify-between items-center mt-1">
     <span class="text-xs text-gray-500 whitespace-nowrap"> <strong>Tarea/hora:</strong> {{ item.tasks_per_hour | number:'1.0-0' }}</span>
     @if(isInProgress){ 
-      <span class="text-xs font-semibold text-red-500">Por completar</span>
+      <span class="text-xs font-semibold text-red-500">Por Completar ({{ item.pending_qty }})</span>
     }
   </div>
 </app-ui-option-card>

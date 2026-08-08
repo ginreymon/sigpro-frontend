@@ -2,12 +2,11 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { UiOptionCard } from '../../../../elements/ui-option-card/ui-option-card';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
-import { UiBadge } from '../../../../elements/ui-badge/ui-badge';
 import { StampingReferenceSam } from '../../../../../models/stamping/stamping-reference-sam';
 
 @Component({
   selector: 'app-stamping-reference-card',
-  imports: [UiOptionCard, UiIcon, UiBadge, DecimalPipe],
+  imports: [UiOptionCard, UiIcon, DecimalPipe],
   templateUrl: './stamping-reference-card.html',
 })
 export class StampingReferenceCard {

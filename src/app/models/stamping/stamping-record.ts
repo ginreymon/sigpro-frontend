@@ -15,4 +15,7 @@ export interface StampingRecord extends AuditEntity {
   end_time: string | null;
 
   additional_times?: { id: number; count: number }[];
+  // Solo lectura: espejo de additional_times, sirve para precargar la
+  // selección actual al editar (additional_times es write_only en backend).
+  additional_times_detail?: { id: number; count: number }[];
 }

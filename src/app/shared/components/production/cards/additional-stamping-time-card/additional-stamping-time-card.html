@@ -5,9 +5,9 @@
         <app-ui-icon [iconName]="'hammer'" class="h-4 w-4"></app-ui-icon>
         <p class="font-semibold text-sm"> {{ item?.process ?? '' | titlecase }} </p>
       </div>
-      <p class="text-xs"><strong>Código</strong> {{ item?.engineering_code }}</p>
+      <p class="text-xs"><strong>Código:</strong> {{ item?.engineering_code }}</p>
       @if (item?.machine_name ?? item?.machine_type_name; as machineLabel) {
-        <p class="text-xs"><strong>Máquina</strong> {{ machineLabel }}</p>
+        <p class="text-xs"><strong>Máquina:</strong> {{ machineLabel }}</p>
       }
     </div>
     @if(item?.standard_time){

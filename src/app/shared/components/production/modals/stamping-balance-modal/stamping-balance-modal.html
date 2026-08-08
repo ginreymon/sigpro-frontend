@@ -88,6 +88,12 @@
         <span class="font-semibold text-slate-600">{{ (row.break_seconds / 60) | number:'1.0-2' }}</span>
       </ng-template>
 
+      <ng-template appTableTemplate="detailActionTemplate" let-row>
+        <app-ui-label-button [classNames]="'w-28'" (onClick)="updateRecords(row)" [intent]="'accept'">
+          Modificar
+        </app-ui-label-button>
+      </ng-template>
+
     </app-data-table>
   } @else {
     <p class="text-sm text-gray-400 py-6 text-center">Sin registros de detalle</p>

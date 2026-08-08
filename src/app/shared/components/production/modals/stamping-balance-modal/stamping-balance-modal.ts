@@ -16,6 +16,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
 import { UiLabelButton } from '../../../../elements/ui-label-button/ui-label-button';
+import { DialogService } from '../../../../../services/common/dialog-service';
 
 @Component({
   selector: 'app-stamping-balance-modal',
@@ -27,7 +28,9 @@ export class StampingBalanceModal {
   visible = input<boolean>(false);
   reloadTrigger = input<number>(0);
   @Input() shiftEndTime: string | null = null;
+  @Input() enable = true;
   @Output() onClose = new EventEmitter<void>();
+  @Output() onEditRecord = new EventEmitter<StampingRecordContext>();
   currentSession = input<WorkSession | null>(null);
 
   isLoading = signal(false);
@@ -40,8 +43,6 @@ export class StampingBalanceModal {
   readonly skeletonRows = Array(5).fill(0);
   readonly actions: Partial<TableActions> = {};
 
-  // Sin acción de edición: a diferencia de producción, no existe un flujo de
-  // modificar un registro de estampación ya guardado desde este balance.
   readonly detailColumns: TableColumn<StampingRecordContext>[] = [
     { type: 'template', label: 'Hora Registro', templateName: 'detailEndTemplate' },
     { field: 'ordered_quantity',                 label: 'Ord.' },
@@ -49,6 +50,7 @@ export class StampingBalanceModal {
     { field: 'employee_count',                   label: 'Operarios' },
     { field: 'sam',                               label: 'SAM' },
     { type: 'template', label: 'Pausa (min)',    templateName: 'detailBreakTemplate' },
+    { type: 'template', label: '',                templateName: 'detailActionTemplate', align: 'right' },
   ];
 
   readonly columns: TableColumn<StampingProductivitySummaryRow>[] = [
@@ -63,6 +65,7 @@ export class StampingBalanceModal {
   constructor(
     private productivityService: StampingProductivityService,
     private appConfig: AppConfigService,
+    private dialogService: DialogService,
   ) {
     effect(() => {
       const session = this.currentSession();
@@ -172,6 +175,14 @@ export class StampingBalanceModal {
     this.selectedRow.set(null);
     this.detailResults.set([]);
     this.allDetailResults = [];
+  }
+
+  updateRecords(record: StampingRecordContext): void {
+    if (!this.enable) {
+      this.dialogService.openToast('Fuera de la ventana', 'Solo se pueden modificar los registros dentro de la ventana de tiempo o durante la última entrega.', 'fail');
+      return;
+    }
+    this.onEditRecord.emit(record);
   }
 
   onDetailSearch(query: string): void {

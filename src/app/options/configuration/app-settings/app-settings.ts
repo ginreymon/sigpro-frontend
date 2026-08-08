@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { TitleCasePipe } from '@angular/common';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { AppSetting } from '../../../models/core/app-setting';
 import { AppSettingService } from '../../../services/core/app-setting-service';

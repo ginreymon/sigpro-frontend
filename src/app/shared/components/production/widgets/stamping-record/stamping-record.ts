@@ -24,6 +24,7 @@ import { StampingRecord as StampingRecordPayload } from '../../../../../models/s
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 import { LoaderService } from '../../../../../services/common/loader-service';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
+import { filterByMachine, filterByMachineType } from '../../../../../common/functions/additional-time-filters';
 
 @Component({
   selector: 'app-stamping-record',
@@ -338,27 +339,21 @@ export class StampingRecord {
       }))
       .subscribe({
         next: ({ additionalTimes, orderDetail }) => {
-          this.additionalTimes.set(this.filterByMachine(this.filterByMachineType(additionalTimes)));
+          const moduleMachineTypeId = this.moduleMachineTypeId();
+          const moduleMachineId = this.moduleMachineId();
+          this.additionalTimes.set(filterByMachine(filterByMachineType(additionalTimes, moduleMachineTypeId), moduleMachineId));
           this.orderDetail.set(orderDetail);
-          const references = this.filterByMachineType(orderDetail?.referenceSams ?? []);
+          const references = filterByMachineType(orderDetail?.referenceSams ?? [], moduleMachineTypeId);
           this.referenceSams.set(references);
         },
       });
   }
 
-  // Referencias SAM y tiempos adicionales se filtran primero por tipo de máquina del módulo activo.
-  private filterByMachineType<T extends { machine_type?: number | null }>(items: T[]): T[] {
-    const moduleMachineTypeId =
-      this.productionContextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
-    if (!moduleMachineTypeId) return items;
-    return items.filter((item) => item.machine_type == null || item.machine_type === moduleMachineTypeId);
+  private moduleMachineTypeId(): number | null {
+    return this.productionContextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
   }
 
-  // Tiempos adicionales además se acotan por máquina específica (machine es opcional en el
-  // modelo — sin máquina asignada, el tiempo aplica a cualquier unidad del tipo ya filtrado).
-  private filterByMachine<T extends { machine?: number | null }>(items: T[]): T[] {
-    const moduleMachineId = this.productionContextService.snapshot?.session?.current_module?.machine?.id ?? null;
-    if (!moduleMachineId) return items;
-    return items.filter((item) => item.machine == null || item.machine === moduleMachineId);
+  private moduleMachineId(): number | null {
+    return this.productionContextService.snapshot?.session?.current_module?.machine?.id ?? null;
   }
 }

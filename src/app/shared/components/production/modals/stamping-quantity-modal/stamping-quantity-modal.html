@@ -1,0 +1,43 @@
+@if(visible()){
+<app-box-layout [title]="'Editar registro de estampación'" [classNames]="'max-w-md'">
+
+    <div box-content class="flex flex-col justify-center items-center">
+        
+        <app-ui-tabs class="w-full border-t border-slate-200 mt-4" [tabs]="tabsView" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
+         
+        <form id="stampingQuantityForm" class="w-full mt-2" [formGroup]="recordForm">
+            <fieldset>
+                <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Completadas'">
+                    <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + maxAvailable" [hasAddon]="true">
+                        <span right-addon>Máx: {{ maxAvailable }}</span>
+                    </app-ui-large-input>
+                </app-ui-form-field>
+            </fieldset>
+
+            @if(exceedsMaxError){
+            <app-ui-error-message>
+                La cantidad ({{ exceedsMaxError.total }}) supera el máximo disponible ({{ exceedsMaxError.max }}).
+            </app-ui-error-message>
+            }
+        </form>
+
+        <app-stamping-quantity-counter class="w-full"
+            [orderedQty]="orderedQtyForSam"
+            [stampedQtyBase]="stampedQtyBaseForSam"
+            [newCompletedQty]="newCompletedQty">
+        </app-stamping-quantity-counter>
+ 
+    </div>
+
+    <div box-buttons class="flex flex-row gap-3">
+        <app-ui-button [intent]="'cancel'" [disabled]="isSubmitting()" (onClick)="cancel()">
+            Cancelar
+        </app-ui-button>
+
+        <app-ui-button [disabled]="recordForm.invalid || isSubmitting() || !enable" (onClick)="save()">
+            Guardar
+        </app-ui-button>
+    </div>
+
+</app-box-layout>
+}
