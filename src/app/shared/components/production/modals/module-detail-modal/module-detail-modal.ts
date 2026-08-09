@@ -17,6 +17,7 @@ import { efficiencyTextColor } from '../../../../../common/functions/efficiency-
 import { BalanceSummaryModal } from '../balance-summary-modal/balance-summary-modal';
 import { ModuleWorkBreakEditModal } from '../module-work-break-edit-modal/module-work-break-edit-modal';
 import { UiBadge } from '../../../../elements/ui-badge/ui-badge';
+import { DialogService } from '../../../../../services/common/dialog-service';
 
 interface BalanceContext {
   startDate: string;
@@ -45,6 +46,7 @@ export class ModuleDetailModal implements OnChanges {
 
   private productivityService = inject(ProductivityService);
   private appConfig = inject(AppConfigService);
+  private dialogService = inject(DialogService);
 
   isLoading = signal(false);
   hasSearched = signal(false);
@@ -178,7 +180,33 @@ export class ModuleDetailModal implements OnChanges {
   }
 
   openEdit(row: ModuleEfficiencyRow): void {
+    if (!this.canEdit(row)) {
+      this.dialogService.openToast(
+        'No se puede editar',
+        'Ya no se puede editar porque ya se cerró la jornada o el módulo.',
+        'fail',
+      );
+      return;
+    }
     this.editRow.set(row);
+  }
+
+  private canEdit(row: ModuleEfficiencyRow): boolean {
+    if (row.ended_at !== null) return false;
+
+    const start = this.toLocalDate(row.shift_start_utc);
+    if (!start) return false;
+
+    const now = new Date();
+    return start.getFullYear() === now.getFullYear()
+      && start.getMonth() === now.getMonth()
+      && start.getDate() === now.getDate();
+  }
+
+  private toLocalDate(value: string | null): Date | null {
+    if (!value) return null;
+    const iso = value.endsWith('Z') || value.includes('+') ? value : value + 'Z';
+    return new Date(iso);
   }
 
   closeEdit(): void {
