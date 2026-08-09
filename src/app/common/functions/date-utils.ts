@@ -74,3 +74,13 @@ export function currentMonthLabel(): string {
   const name = MONTH_NAMES_ES[new Date().getMonth()];
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
+
+/**
+ * Date range from the 1st of the current month through today (YYYY-MM-DD, local time).
+ */
+export function currentMonthRange(): { startDate: string; endDate: string } {
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+  const endDate = now.toISOString().slice(0, 10);
+  return { startDate, endDate };
+}

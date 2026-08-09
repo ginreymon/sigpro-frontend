@@ -7,7 +7,8 @@ import { AppConfigService } from '../../services/core/app-config-service';
 import { ModuleEfficiencyStatus } from '../../models/production/module-efficiency-status';
 import { efficiencyTextColor } from '../functions/efficiency-color';
 import { computePlantaStats } from '../functions/planta-summary';
-import { currentMonthLabel } from '../functions/date-utils';
+import { currentMonthLabel, currentMonthRange } from '../functions/date-utils';
+import { aggregateMonthlyEfficiency } from '../functions/module-efficiency-aggregate';
 import { ModuleProductivityService } from '../interfaces/module-productivity-service';
 
 export abstract class HomeCoordinatorBase {
@@ -69,19 +70,13 @@ export abstract class HomeCoordinatorBase {
   abstract goToPanel(): void;
 
   private loadMonthlyEfficiency(): void {
-    const now = new Date();
-    const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-    const endDate = now.toISOString().slice(0, 10);
+    const { startDate, endDate } = currentMonthRange();
 
     this.productivityService.getModuleEfficiency(startDate, endDate).subscribe({
       next: (rows) => {
-        // Días sin registros o en cero no cuentan para el promedio.
-        const withData = rows.filter(r => (r.efficiency ?? 0) > 0);
-        const avg = withData.length
-          ? withData.reduce((sum, r) => sum + r.efficiency, 0) / withData.length
-          : 0;
-        this.monthlyEfficiency.set(Math.round(avg * 100) / 100);
-        this.monthlyCompleted.set(rows.reduce((sum, r) => sum + (r.total_completed ?? 0), 0));
+        const { efficiency, completed } = aggregateMonthlyEfficiency(rows);
+        this.monthlyEfficiency.set(efficiency);
+        this.monthlyCompleted.set(completed);
       },
     });
   }

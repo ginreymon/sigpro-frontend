@@ -1,0 +1,29 @@
+<div class="flex flex-col items-center gap-1.5">
+  <div class="relative" [style.width.px]="diameter()" [style.height.px]="diameter()">
+    <svg [attr.width]="diameter()" [attr.height]="diameter()" [attr.viewBox]="'0 0 ' + diameter() + ' ' + diameter()" class="-rotate-90">
+      <circle
+        [attr.cx]="diameter() / 2"
+        [attr.cy]="diameter() / 2"
+        [attr.r]="radius()"
+        fill="none"
+        [attr.stroke-width]="strokeWidth()"
+        class="stroke-gray-200">
+      </circle>
+      <circle
+        [attr.cx]="diameter() / 2"
+        [attr.cy]="diameter() / 2"
+        [attr.r]="radius()"
+        fill="none"
+        [attr.stroke-width]="strokeWidth()"
+        stroke-linecap="round"
+        [attr.stroke-dasharray]="circumference()"
+        [attr.stroke-dashoffset]="dashOffset()"
+        [class]="ringColor() + ' transition-all duration-500 ease-out'">
+      </circle>
+    </svg>
+    <div class="absolute inset-0 flex items-center justify-center">
+      <span [class]="'font-bold ' + textSizeClass() + ' ' + textColor()">{{ percentageLabel() }}%</span>
+    </div>
+  </div>
+  <span class="text-xs font-semibold tracking-tight text-gray-400 uppercase lg:text-xs lg:tracking-widest">{{ monthLabel() }}</span>
+</div>

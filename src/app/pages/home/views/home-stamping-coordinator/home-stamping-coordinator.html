@@ -2,7 +2,7 @@
 
   <!-- Card 1 -->
   <div class="bg-white border border-gray-200 rounded-lg p-5 flex flex-col gap-3 hover:shadow-md transition-shadow cursor-pointer" (click)="goToPanel()">
-    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Eficiencia hoy</span>
+    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Eficiencia{{ plantaModule().status === 'ACTIVE' ? ' hoy' : '' }}</span>
     <app-efficiency-summary-bar
       [efficiency]="plantaModule().efficiency"
       [status]="plantaModule().status"
