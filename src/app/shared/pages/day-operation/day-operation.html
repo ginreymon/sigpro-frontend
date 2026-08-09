@@ -1,5 +1,9 @@
 @if(currentSession()?.editing_finalized){
-<app-finalize-shift-message (onClose)="closeSession()"></app-finalize-shift-message>
+<app-work-space-layout [headerVisible]="false">
+    <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
+        <app-finalize-shift-message (onClose)="closeSession()"></app-finalize-shift-message>
+    </div>
+</app-work-space-layout>
 }
 @else {
 <app-work-space-layout [sideContentVisible]="true" [mainTabLabel]="'Jornada'" [asideTabLabel]="'Encomendados'">
