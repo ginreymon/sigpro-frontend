@@ -88,6 +88,11 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
   protected finalizeDay = computed(() => !!this.currentSession()?.editing_finalized);
 
+  protected isDocStatusValid = computed(() => {
+    const docStatus = this.productionOrder()?.docStatus;
+    return docStatus === 1 || docStatus === 2;
+  });
+
   protected preselectedIds = computed(() =>
     this.currentSession()?.employees_snapshot?.map(e => e.id) ?? []
   );
