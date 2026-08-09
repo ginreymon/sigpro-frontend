@@ -48,7 +48,7 @@ export class EmployeePicker {
         e.first_name.toLowerCase().includes(q) ||
         e.last_name1.toLowerCase().includes(q) ||
         (e.last_name2?.toLowerCase() ?? '').includes(q) ||
-        e.id_number.includes(q),
+        (e.id_number ?? '').includes(q),
     );
   });
 

@@ -153,9 +153,35 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
 
   get assignedEmployees(): Employee[] {
     const ids: number[] = this.employeeIds?.value ?? [];
+    const moduleEmployees = this.selectedModule?.employees ?? [];
     return ids
-      .map((id) => this.employees().find((e) => e.id === id))
+      .map(
+        (id) =>
+          this.employees().find((e) => e.id === id) ??
+          this.toEmployeeStub(moduleEmployees.find((e) => e.id === id)),
+      )
       .filter((e): e is Employee => e !== undefined);
+  }
+
+  // Módulo puede traer empleados fuera del catálogo scoped por cost_center (ver EmployeeLocalViewSet.get_queryset);
+  // sin este stub el picker los pierde silenciosamente aunque sigan en employee_ids.
+  private toEmployeeStub(partial?: Partial<Employee>): Employee | undefined {
+    if (!partial) return undefined;
+    return {
+      id_number: '',
+      has_account: false,
+      username: null,
+      user_id: null,
+      groups: [],
+      is_account_active: false,
+      company_name: null,
+      contract_status: null,
+      cost_center_rowid: null,
+      cost_center_description: null,
+      cost_group_id: null,
+      cost_group_description: null,
+      ...partial,
+    } as unknown as Employee;
   }
 
   deleteEmployee(_id: number) {
