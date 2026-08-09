@@ -278,7 +278,6 @@ export class ShiftCycles extends BaseProductionOrderPage {
   }
 
   handleEditRecord({ sku, record }: { sku: SkuTaskDetail; record: ProductionRecordContext }): void {
-    this.shiftModals.close();
     this.selectedSKU.set(sku);
     this.qms.openForEdit(record);
   }
