@@ -163,6 +163,20 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
       .filter((e): e is Employee => e !== undefined);
   }
 
+  // Mismo fallback que assignedEmployees: el módulo puede traer empleados fuera del
+  // catálogo scoped por cost_center (ver EmployeeLocalViewSet.get_queryset), y sin
+  // esto el modal los pierde silenciosamente aunque sigan en employee_ids.
+  get modalEmployees(): Employee[] {
+    const base = this.employees();
+    const baseIds = new Set(base.map((e) => e.id));
+    const moduleEmployees = this.selectedModule?.employees ?? [];
+    const extras = moduleEmployees
+      .filter((e) => !baseIds.has(e.id))
+      .map((e) => this.toEmployeeStub(e))
+      .filter((e): e is Employee => e !== undefined);
+    return [...base, ...extras];
+  }
+
   // Módulo puede traer empleados fuera del catálogo scoped por cost_center (ver EmployeeLocalViewSet.get_queryset);
   // sin este stub el picker los pierde silenciosamente aunque sigan en employee_ids.
   private toEmployeeStub(partial?: Partial<Employee>): Employee | undefined {
