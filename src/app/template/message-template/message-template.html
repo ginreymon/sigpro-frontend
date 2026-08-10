@@ -12,12 +12,12 @@
     }
 
     <div class="relative z-10 w-40 h-40 md:w-48 md:h-48 mb-8 message-template-float">
-      <div class="absolute inset-0 rounded-full border-8 border-dashed border-brand-100 dark:border-brand-900/40 message-template-spin"></div>
-      <div class="absolute inset-6 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center">
-        <app-ui-icon [iconName]="illustrationIcon" [class]="'w-14 h-14 text-brand'"></app-ui-icon>
+      <div class="absolute inset-0 rounded-full border-8 border-dashed border-brand-100 dark:border-white dark:border-brand-900/40 message-template-spin"></div>
+      <div class="absolute inset-6 rounded-full bg-white dark:bg-slate-100 shadow-xl border border-slate-200 dark:border-slate-500 flex items-center justify-center">
+        <app-ui-icon [iconName]="illustrationIcon" [class]="'w-14 h-14 text-brand dark:text-white!'"></app-ui-icon>
       </div>
       @if (badgeLabel) {
-      <div class="absolute -bottom-2 right-2 bg-brand text-white px-3 py-1 rounded-full text-[11px] font-bold shadow-lg flex items-center gap-1.5 whitespace-nowrap">
+      <div class="absolute -bottom-2 right-2 bg-brand text-white dark:bg-white dark:text-brand px-3 py-1 rounded-full text-[11px] font-bold shadow-lg flex items-center gap-1.5 whitespace-nowrap">
         @if (badgeIcon) {
         <app-ui-icon [iconName]="badgeIcon" [class]="'w-3.5 h-3.5'"></app-ui-icon>
         }
