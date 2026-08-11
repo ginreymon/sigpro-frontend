@@ -51,7 +51,7 @@ const TABS: TabItem[] = [
 
 const TAB_FIELDS: Record<string, string[]> = {
   identification: ['no_reference', 'rowid_item', 'identification'],
-  production: ['location', 'machine_type', 'piece', 'people_count', 'stamped_pieces', 'pieces_per_board', 'fabric_type'],
+  production: ['location', 'machine_type', 'piece', 'task_people_count', 'stamped_pieces', 'pieces_per_board', 'fabric_type'],
   process: ['stamp_type_description', 'technique', 'frames', 'inks', 'prints', 'layout_form', 'pre_dried'],
   sam: ['sam', 'is_active'],
 };
@@ -220,7 +220,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
       { field: 'identification', label: 'Identificación' },
       { type: 'template', label: 'Referencia', templateName: 'referenceTemplate' },
       { field: 'machine_type_name', label: 'Tipo de Máquina' },
-      { type: 'template', label: 'Tarea/Hora', templateName: 'tasksPerHourTemplate', align: 'center' },
+      { type: 'template', label: 'Tarea por hora', templateName: 'tasksPerHourTemplate', align: 'center' },
       { type: 'template', label: 'SAM', templateName: 'samTemplate', align: 'center' },
     ];
   }
@@ -231,7 +231,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
       rowid_item: [null, [Validators.required]],
       identification: [null, [Validators.required, Validators.minLength(2)]],
       machine_type: [null, [Validators.required]],
-      people_count: [null, [Validators.required, Validators.min(1)]],
+      task_people_count: [null, [Validators.required, Validators.min(1)]],
       piece: [null, [Validators.required]],
       stamped_pieces: [null, [Validators.required, Validators.min(1)]],
       sam: [null, [Validators.required, Validators.min(0.0001)]],
@@ -254,7 +254,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
   get rowidItem() { return this.modelForm.get('rowid_item'); }
   get identification() { return this.modelForm.get('identification'); }
   get machineType() { return this.modelForm.get('machine_type'); }
-  get peopleCount() { return this.modelForm.get('people_count'); }
+  get taskPeopleCount() { return this.modelForm.get('task_people_count'); }
   get piece() { return this.modelForm.get('piece'); }
   get stampedPieces() { return this.modelForm.get('stamped_pieces'); }
   get location() { return this.modelForm.get('location'); }
