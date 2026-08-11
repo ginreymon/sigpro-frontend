@@ -9,7 +9,7 @@
             </ng-template>
 
             <ng-template appTableTemplate="tasksPerHourTemplate" let-row>
-                {{ row.task_per_hour ?? '—' }}
+                {{ row.tasks_per_hour ?? '—' }}
             </ng-template>
 
             <ng-template appTableTemplate="samTemplate" let-row>
@@ -162,7 +162,7 @@
 
                 <div class="mb-2">
                     <label class="block text-sm font-medium text-slate-700 mb-1">Tareas por hora</label>
-                    <p class="text-sm text-slate-600">{{ calcTasksPerHour(sam?.value) ?? '—' }}</p>
+                    <p class="text-sm text-slate-600">{{ calcTasksPerHour(sam?.value, taskPeopleCount?.value) ?? '—' }}</p>
                 </div>
 
                 @if(actionType == 'edit'){
