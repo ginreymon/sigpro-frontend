@@ -6,14 +6,10 @@ import { HomeStampingCoordinator } from '../pages/home/views/home-stamping-coord
 import { HomeEngineer } from '../pages/home/views/home-engineer/home-engineer';
 import { HomeScreenPrinter } from '../pages/home/views/home-screen-printer/home-screen-printer';
 
-// Keys must match component keys in the HOME_ROLE_BASED_VIEWS AppSetting JSON.
-// JSON structure: { "ComponentKey": [groupId1, groupId2] }
+// Keys must match core.HomeView.key rows (assigned per role via core.RoleHomeView).
 // Add a new entry here when a new role needs its own home view.
-// NOTE: "HomeDethornRemover" key kept as-is (matches the DB config value) even
-// though the component/class was renamed to HomeThreadTrimmer — the map key is
-// an opaque identifier stored in core_app_setting, not tied to the class name.
 export const homeComponentMap: Record<string, Type<any>> = {
-  "HomeDethornRemover": HomeThreadTrimmer,
+  "HomeThreadTrimmer": HomeThreadTrimmer,
   "HomeProductionCoordinator": HomeProductionCoordinator,
   "HomeStampingCoordinator": HomeStampingCoordinator,
   "HomeEngineer": HomeEngineer,
