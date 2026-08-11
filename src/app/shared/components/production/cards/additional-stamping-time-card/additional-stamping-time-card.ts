@@ -12,5 +12,15 @@ import { AdditionalStampingTime } from '../../../../../models/stamping/additiona
 export class AdditionalStampingTimeCard {
   @Input() item: AdditionalStampingTime | null = null;
   @Input() selected = false;
+  @Input() quantity = 1;
   @Output() onToggle = new EventEmitter<void>();
+
+  protected get hasInvalidQuantity(): boolean {
+    return this.quantity <= 0;
+  }
+
+  protected get displayedTime(): number | null {
+    if (this.item?.standard_time == null || this.hasInvalidQuantity) return null;
+    return Math.round(Number(this.item.standard_time) * this.quantity * 100) / 100;
+  }
 }

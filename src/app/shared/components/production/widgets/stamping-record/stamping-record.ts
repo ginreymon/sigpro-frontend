@@ -183,7 +183,12 @@ export class StampingRecord {
     if (key === 'quantities') {
       return this.recordForm.get('completed_quantity')?.invalid || !!this.exceedsMaxError;
     }
+    if (key === 'additionaltimes') return this.hasInvalidAdditionalTimeQuantity;
     return false;
+  }
+
+  private get hasInvalidAdditionalTimeQuantity(): boolean {
+    return this.selectedAdditionalTimeIds().some((id) => this.getQuantity(id) <= 0);
   }
 
   constructor() {
@@ -255,7 +260,7 @@ export class StampingRecord {
   }
 
   protected setQuantity(id: number, value: number): void {
-    const safeValue = Number.isFinite(value) && value > 0 ? Math.floor(value) : 1;
+    const safeValue = Number.isFinite(value) ? Math.floor(value) : 0;
     this.additionalTimeQuantities.update((quantities) => ({ ...quantities, [id]: safeValue }));
   }
 
@@ -279,6 +284,7 @@ export class StampingRecord {
     this.submitAttempted.set(true);
 
     if (!this.validateRecordForm()) return;
+    if (this.hasInvalidAdditionalTimeQuantity) return;
 
     const order = this.productionContextService.snapshot?.order;
     if (!order) return;

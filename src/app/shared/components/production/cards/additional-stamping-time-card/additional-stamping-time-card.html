@@ -10,8 +10,10 @@
         <p class="text-xs"><strong>Máquina:</strong> {{ machineLabel }}</p>
       }
     </div>
-    @if(item?.standard_time){
-    <span class="text-xs font-semibold text-green-600 whitespace-nowrap shrink-0"> {{ item?.standard_time }} min </span>
+    @if(hasInvalidQuantity){
+    <span class="text-xs font-semibold text-red-600 whitespace-nowrap shrink-0"> Cantidad inválida </span>
+    } @else if(displayedTime){
+    <span class="text-xs font-semibold text-green-600 whitespace-nowrap shrink-0"> {{ displayedTime }} min </span>
     }
   </div>
 
