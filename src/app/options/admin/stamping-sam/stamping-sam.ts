@@ -23,7 +23,6 @@ import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
 import { SamTargetCalculator } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator';
 import { SamTargetCalculatorPanel } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator-panel';
 import { SamCalculatorStateService } from '../../../shared/components/production/widgets/sam-target-calculator/sam-calculator-state';
-import { calcSamTarget } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-formula';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { Reference } from '../../../models/catalog/reference';
 import { ReferencesService } from '../../../services/catalog/references-service';
@@ -112,11 +111,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
   onTabChange(key: string): void {
     this.activeTab.set(key);
   }
-
-  protected calcTasksPerHour(sam: string | number | null): string | null {
-    return calcSamTarget(sam, 60, 1);
-  }
-
+ 
   get tabsView(): TabItem[] {
     return this.tabs.map((tab) => ({ ...tab, hasError: this.tabHasError(tab.key) }));
   }
