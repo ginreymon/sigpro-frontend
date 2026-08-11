@@ -18,6 +18,7 @@ import { Machines } from '../options/stamping/machines/machines';
 import { StampingSam } from '../options/admin/stamping-sam/stamping-sam';
 import { AdditionalTimes } from '../options/stamping/additional-times/additional-times';
 import { MachinesConfig } from '../options/stamping/machines-config/machines-config';
+import { SewingConfig } from '../options/production/sewing-config/sewing-config';
 import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
 import { StampingAuditory } from '../options/stamping/auditory/auditory';
 
@@ -36,6 +37,7 @@ export const componentMap: Record<string, Type<any>> = {
   'production/shift-cycles': ShiftCycles,
   'production/data-export': DataExport,
   'production/module-panel': ModulePanel,
+  'production/sewing-config': SewingConfig,
   'production/order-detail': OrderDetail,
   'catalog/technical-sheet': TechnicalSheetPage,
   'stamping/processes': Processes,
