@@ -9,6 +9,9 @@ import { SideModalLayout } from '../../../shared/components/layout/side-modal-la
 import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { MenuModuleService } from '../../../services/core/menu-module-service';
+import { HomeViewService } from '../../../services/core/home-view-service';
+import { HomeView } from '../../../models/core/home-view';
+import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Module } from '../../../models/core/module';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
@@ -41,7 +44,8 @@ import { TitleCasePipe } from '@angular/common';
     TableTemplate,
     CharSquare,
     Metadata,
-    TitleCasePipe
+    TitleCasePipe,
+    UiSelect
   ],
   templateUrl: './roles.html',
   styleUrl: './roles.css',
@@ -49,11 +53,17 @@ import { TitleCasePipe } from '@angular/common';
 export class Roles extends BaseCrudPage<Role> {
   protected override entityName: string = 'rol';
   modules = signal<Module[]>([]);
+  homeViews = signal<HomeView[]>([]);
   expandedOptionIds = signal<Set<number>>(new Set());
 
-  constructor(private roleService: RoleService, private moduleService: MenuModuleService) {
+  constructor(
+    private roleService: RoleService,
+    private moduleService: MenuModuleService,
+    private homeViewService: HomeViewService,
+  ) {
     super(roleService);
     this.loadModules();
+    this.loadHomeViews();
   }
 
   private loadModules(): void {
@@ -64,10 +74,15 @@ export class Roles extends BaseCrudPage<Role> {
       .subscribe((modules) => this.modules.set(modules));
   }
 
+  private loadHomeViews(): void {
+    this.homeViewService.all({ is_active: 1 }).subscribe((homeViews) => this.homeViews.set(homeViews));
+  }
+
   protected override get columns(): TableColumn<Role>[] {
     return [
       { field: 'name', label: 'Nombre' },
       { type: 'template', label: 'Opciones/Páginas', templateName: 'optionsCountTemplate' },
+      { type: 'template', label: 'Vista de inicio', templateName: 'homeViewTemplate' },
       { field: 'user_count', label: 'Usuarios' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
@@ -118,6 +133,7 @@ export class Roles extends BaseCrudPage<Role> {
     this.modelForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       option_ids: this.fb.control<number[]>([], [minArrayLength(1)]),
+      home_view_id: this.fb.control<number | null>(null),
     });
   }
 
@@ -129,6 +145,7 @@ export class Roles extends BaseCrudPage<Role> {
         return op.id;
       });
       this.optionIds?.setValue([...ids]);
+      this.homeViewId?.setValue(event.obj.home_view ?? null);
     }
   }
 
@@ -138,6 +155,10 @@ export class Roles extends BaseCrudPage<Role> {
 
   get optionIds() {
     return this.modelForm?.get('option_ids');
+  }
+
+  get homeViewId() {
+    return this.modelForm?.get('home_view_id');
   }
 
   toggleOption(id: number) {

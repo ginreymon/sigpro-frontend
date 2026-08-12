@@ -8,6 +8,10 @@
                 {{ row.options?.length ?? 0 }}
             </ng-template>
 
+            <ng-template appTableTemplate="homeViewTemplate" let-row>
+                {{ row.home_view_label || '—' }}
+            </ng-template>
+
             <ng-template appTableTemplate="statusTemplate" let-row>
                 <app-ui-badge [active]="row.user_count > 0"></app-ui-badge>
             </ng-template>
@@ -74,7 +78,13 @@
       <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
         <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
       </app-ui-form-field>
-      
+
+      <app-ui-form-field [controlName]="'home_view_id'" [label]="'Vista de inicio'">
+        <app-ui-select [className]="'w-full'" formControlName="home_view_id" [id]="'home_view_id'" [control]="homeViewId"
+          [items]="homeViews()" [key]="'label'" [keyValue]="'id'" [showDefaultOption]="true"
+          [placeholder]="'Sin vista asignada'"></app-ui-select>
+      </app-ui-form-field>
+
       <app-ui-form-field [label]="'Opciones'" [controlName]="'option_ids'">
           <div class="divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-y-auto max-h-[45vh]">
 

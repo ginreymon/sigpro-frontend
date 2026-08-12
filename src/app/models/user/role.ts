@@ -6,4 +6,6 @@ export interface Role extends Group {
   permissions: Permission[];
   option_ids: number[];
   options: Option[];
+  home_view?: number | null;
+  home_view_label?: string | null;
 }
