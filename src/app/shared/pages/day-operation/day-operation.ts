@@ -30,6 +30,7 @@ import { FinalizeShiftMessage } from '../../components/production/widgets/finali
 import { DayOperationConfig } from '../../../common/interfaces/day-operation-config';
 import { DAY_OPERATION_CONFIG } from '../../../common/const/day-operation-config';
 import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
+import { closeWorkSessionAndExit } from '../../../common/functions/close-work-session';
 
 const DEFAULT_CONFIG: DayOperationConfig = DAY_OPERATION_CONFIG['production'];
 
@@ -297,16 +298,13 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   closeSession() {
-    this.loaderService.showLoader();
-    this.workSessionService
-      .closeSession(this.currentSession()?.id!)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe({
-        next: () => {
-          this.currentSession.set(null);
-          this.router.navigateByUrl('/');
-        },
-      });
+    closeWorkSessionAndExit(
+      this.workSessionService,
+      this.loaderService,
+      this.router,
+      this.currentSession()?.id!,
+      this.currentSession,
+    );
   }
 
   switchEdit() {

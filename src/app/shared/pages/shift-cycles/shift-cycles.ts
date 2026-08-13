@@ -44,6 +44,7 @@ import { ShiftCyclesConfig } from '../../../common/interfaces/shift-cycles-confi
 import { SHIFT_CYCLES_CONFIG } from '../../../common/const/shift-cycles-config';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { isWithinHourlyWindow } from '../../../common/functions/hourly-window';
+import { closeWorkSessionAndExit } from '../../../common/functions/close-work-session';
 
 @Component({
   selector: 'app-shift-cycles',
@@ -312,15 +313,12 @@ export class ShiftCycles extends BaseProductionOrderPage {
   }
 
   closeSession() {
-    this.loaderService.showLoader();
-    this.workSessionService
-      .closeSession(this.currentSession()?.id!)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe({
-        next: () => {
-          this.currentSession.set(null);
-          this.router.navigateByUrl('/');
-        },
-      });
+    closeWorkSessionAndExit(
+      this.workSessionService,
+      this.loaderService,
+      this.router,
+      this.currentSession()?.id!,
+      this.currentSession,
+    );
   }
 }
