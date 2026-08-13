@@ -6,9 +6,9 @@ import { StampingSam } from '../../admin/stamping-sam/stamping-sam';
 import { AdditionalTimes } from '../additional-times/additional-times';
 
 const TABS: TabItem[] = [
-  { key: 'machines', label: 'Máquinas' },
   { key: 'stamping-sam', label: 'SAM Estampación' },
   { key: 'additional-times', label: 'Tiempos Adicionales' },
+  { key: 'machines', label: 'Máquinas' },
 ];
 
 @Component({
@@ -19,7 +19,7 @@ const TABS: TabItem[] = [
 })
 export class MachinesConfig {
   protected tabs = TABS;
-  protected activeTab = signal('machines');
+  protected activeTab = signal('stamping-sam');
 
   protected onTabChange(key: string): void {
     this.activeTab.set(key);
