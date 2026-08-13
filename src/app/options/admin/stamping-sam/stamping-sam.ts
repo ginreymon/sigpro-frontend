@@ -224,6 +224,8 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
       { field: 'identification', label: 'Identificación' },
       { type: 'template', label: 'Referencia', templateName: 'referenceTemplate' },
       { field: 'machine_type_name', label: 'Tipo de Máquina' },
+      { field: 'stamped_pieces', label: 'Piezas Estampadas', align: 'center' },
+      { field: 'task_people_count', label: 'Personas por Tarea', align: 'center' },
       { type: 'template', label: 'Tarea por hora', templateName: 'tasksPerHourTemplate', align: 'center' },
       { type: 'template', label: 'SAM', templateName: 'samTemplate', align: 'center' },
     ];
