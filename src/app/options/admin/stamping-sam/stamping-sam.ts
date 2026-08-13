@@ -43,14 +43,14 @@ import { StampingLayoutForm } from '../../../models/stamping/stamping-layout-for
 import { StampingLayoutFormService } from '../../../services/stamping/stamping-layout-form-service';
 
 const TABS: TabItem[] = [
-  { key: 'identification', label: 'Identificación' },
+  { key: 'identification', label: 'Código' },
   { key: 'production', label: 'Producción' },
   { key: 'sam', label: 'SAM' },
   { key: 'process', label: 'Proceso' },
 ];
 
 const TAB_FIELDS: Record<string, string[]> = {
-  identification: ['no_reference', 'rowid_item', 'identification'],
+  identification: ['no_reference', 'rowid_item', 'reference_code'],
   production: ['location', 'machine_type', 'piece', 'task_people_count', 'stamped_pieces', 'pieces_per_board', 'fabric_type'],
   process: ['stamp_type_description', 'technique', 'frames', 'inks', 'prints', 'layout_form', 'pre_dried'],
   sam: ['sam', 'is_active'],
@@ -143,7 +143,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
     // `prepareFormForAction()` rebuilds modelForm (and re-subscribes here)
     // on every modal open, so on the FIRST save of an edit session there's no
     // prior value yet to dedupe against — that first spurious emission still
-    // got through and wiped `identification`/`rowid_item` right before the
+    // got through and wiped `reference_code`/`rowid_item` right before the
     // form's own values were read for the request. `no_reference` is only
     // ever user-togglable while creating (disabled during edit — see
     // actionHandler), so skip the reset whenever it's disabled: any emission
@@ -152,7 +152,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
     this.noReferenceSub = this.noReference!.valueChanges.pipe(distinctUntilChanged()).subscribe((requiresReference) => {
       if (this.noReference?.disabled) return;
       this.rowidItem?.setValue(null);
-      this.identification?.setValue(null);
+      this.referenceCode?.setValue(null);
       this.syncRowidItemValidator(requiresReference);
     });
   }
@@ -215,13 +215,13 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
     if (!event.value) return;
     this.modelForm.patchValue({
       rowid_item: event.value.rowid_item,
-      identification: event.value.reference,
+      reference_code: event.value.reference,
     });
   }
 
   protected override get columns(): TableColumn<StampingReferenceSam>[] {
     return [
-      { field: 'identification', label: 'Identificación' },
+      { field: 'reference_code', label: 'Código' },
       { type: 'template', label: 'Referencia', templateName: 'referenceTemplate' },
       { field: 'machine_type_name', label: 'Tipo de Máquina' },
       { field: 'stamped_pieces', label: 'Piezas Estampadas', align: 'center' },
@@ -235,7 +235,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
     this.modelForm = this.fb.group({
       no_reference: [true],
       rowid_item: [null, [Validators.required]],
-      identification: [null, [Validators.required, Validators.minLength(2)]],
+      reference_code: [null, [Validators.required, Validators.minLength(2)]],
       machine_type: [null, [Validators.required]],
       task_people_count: [null, [Validators.required, Validators.min(1)]],
       piece: [null, [Validators.required]],
@@ -258,7 +258,7 @@ export class StampingSam extends AdminOnlyCrudPage<StampingReferenceSam> {
 
   get noReference() { return this.modelForm.get('no_reference'); }
   get rowidItem() { return this.modelForm.get('rowid_item'); }
-  get identification() { return this.modelForm.get('identification'); }
+  get referenceCode() { return this.modelForm.get('reference_code'); }
   get machineType() { return this.modelForm.get('machine_type'); }
   get taskPeopleCount() { return this.modelForm.get('task_people_count'); }
   get piece() { return this.modelForm.get('piece'); }

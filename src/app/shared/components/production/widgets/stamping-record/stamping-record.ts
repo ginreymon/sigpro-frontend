@@ -108,7 +108,7 @@ export class StampingRecord {
     if (!q) return list;
     return list.filter(
       (item) =>
-        item.identification.toLowerCase().includes(q) ||
+        item.reference_code.toLowerCase().includes(q) ||
         (item.machine_type_name ?? '').toLowerCase().includes(q),
     );
   });
