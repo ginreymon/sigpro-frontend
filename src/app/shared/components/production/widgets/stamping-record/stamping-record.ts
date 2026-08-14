@@ -187,7 +187,21 @@ export class StampingRecord {
     return false;
   }
 
-  private get hasInvalidAdditionalTimeQuantity(): boolean {
+  private readonly tabControlNames: Record<string, string[]> = {
+    reference: ['stamping_reference_sam'],
+    quantities: ['completed_quantity'],
+    additionaltimes: [],
+  };
+
+  protected get currentTabIndex(): number {
+    return this.tabsView.findIndex((tab) => tab.key === this.activeTab());
+  }
+
+  protected get isLastTab(): boolean {
+    return this.currentTabIndex === this.tabsView.length - 1;
+  }
+
+  protected get hasInvalidAdditionalTimeQuantity(): boolean {
     return this.selectedAdditionalTimeIds().some((id) => this.getQuantity(id) <= 0);
   }
 
@@ -223,6 +237,24 @@ export class StampingRecord {
 
   protected onTabChange(key: string): void {
     this.activeTab.set(key);
+  }
+
+  protected goToNextTab(): void {
+    const key = this.activeTab();
+    this.submitAttempted.set(true);
+    this.markTabControlsTouched(key);
+    if (this.tabHasError(key)) return;
+
+    const next = this.tabsView[this.currentTabIndex + 1];
+    if (next) this.activeTab.set(next.key);
+  }
+
+  private markTabControlsTouched(key: string): void {
+    (this.tabControlNames[key] ?? []).forEach((name) => {
+      const control = this.recordForm.get(name);
+      control?.markAsTouched();
+      control?.updateValueAndValidity({ onlySelf: true, emitEvent: true });
+    });
   }
 
   protected searchAdditionalTimes(text: string): void {
