@@ -46,7 +46,7 @@ import { PaginatedResponse } from '../../../common/interfaces/paginated-response
   styleUrl: './restricted-work-time.css',
 })
 export class RestrictedWorkTime extends BaseCrudPage<EmployeeContinuousWorkLimit> {
-  protected override entityName: string = 'Restricción de horario';
+  protected override entityName: string = 'Restricción';
   employees = signal<Employee[]>([]);
 
   constructor(

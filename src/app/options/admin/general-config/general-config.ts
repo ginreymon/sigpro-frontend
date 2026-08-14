@@ -10,7 +10,7 @@ const TABS: TabItem[] = [
   { key: 'modules', label: 'Módulos' },
   { key: 'work-shifts', label: 'Turnos' },
   { key: 'work-breaks', label: 'Pausas' },
-  { key: 'restricted-work-time', label: 'Restricción de horario' },
+  { key: 'restricted-work-time', label: 'Restricciones' },
 ];
 
 @Component({
