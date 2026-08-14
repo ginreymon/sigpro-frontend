@@ -31,5 +31,8 @@ export interface StampingReferenceSam extends TimeAuditEntity, UserAuditEntity, 
   sam: string;
   tasks_per_hour: number;
   stamped_qty?: number;
+  // (orderedQty * stamped_pieces) - stamped_qty — remanente en piezas
+  // físicas, usado para validar cantidad máxima, detectar OP completada y
+  // ocultar SAM terminados.
   pending_qty?: number;
 }
