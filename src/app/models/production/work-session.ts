@@ -4,8 +4,9 @@ import { Module } from './module';
 import { WorkSessionActivity } from './work-session-activity';
 import { WorkShift } from './work-shift';
 
-export interface EmployeeSnapshot extends Employee { 
+export interface EmployeeSnapshot extends Employee {
   is_apprentice: boolean;
+  worked_minutes_per_hour?: number | null;
 }
 
 export interface WorkSession extends AuditEntity {

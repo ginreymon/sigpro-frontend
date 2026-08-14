@@ -2,6 +2,7 @@ import { Component, ElementRef, HostListener, inject, Input, OnInit, signal } fr
 import { Observable } from 'rxjs';
 import { WorkShiftCard } from '../../../../../common/interfaces/work-shift-card';
 import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
+import { employeeWeight } from '../../../../../common/functions/employee-weight';
 import { WorkSession, EmployeeSnapshot } from '../../../../../models/production/work-session';
 import { EmployeesDropdown } from '../employees-dropdown/employees-dropdown';
 import { ProductivityService } from '../../../../../services/production/productivity-service';
@@ -135,7 +136,7 @@ export class WorkShiftSummary implements OnInit {
   protected calculateSamTarget(s: WorkSession, startUtc: string): number | string {
     const sam = this.getEffectiveSam();
     if (!sam) return 0;
-    const weighted = s.employees_snapshot?.reduce((sum, e) => sum + (e.is_apprentice ? 0.5 : 1), 0) ?? 0;
+    const weighted = s.employees_snapshot?.reduce((sum, e) => sum + employeeWeight(e), 0) ?? 0;
     const elapsedMinutes = (Date.now() - new Date(startUtc).getTime()) / 60000;
     return Math.round((elapsedMinutes * weighted) / sam);
   }
@@ -160,7 +161,7 @@ export class WorkShiftSummary implements OnInit {
 
   private formatHeadcount(s: WorkSession): string {
     const head = s.employees_snapshot?.length ?? 0;
-    const weighted = s.employees_snapshot?.reduce((sum, e) => sum + (e.is_apprentice ? 0.5 : 1), 0) ?? 0;
+    const weighted = s.employees_snapshot?.reduce((sum, e) => sum + employeeWeight(e), 0) ?? 0;
     return weighted !== head ? `${head} (${weighted})` : `${head}`;
   }
 

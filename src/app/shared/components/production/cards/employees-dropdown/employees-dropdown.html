@@ -9,11 +9,11 @@
         <li class="rounded-md transition-all duration-200">
           <div class="flex items-center gap-2 w-full p-2 rounded-lg">
             <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold"
-            [class]="e.is_apprentice? 'bg-red-100 text-red-600':'bg-green-100 text-green-600'">
+            [class]="badgeClass(e)">
               {{ initials(e) | uppercase }}
             </span>
             <span class="truncate flex-1">
-              <span class="font-semibold" [class]="e.is_apprentice ? 'text-red-500' : 'text-green-600'">({{ weight(e) }})</span>
+              <span class="font-semibold" [class]="weightClass(e)">({{ weight(e) }})</span>
               {{ displayName(e) }}
             </span>
           </div>
