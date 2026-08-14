@@ -24,6 +24,7 @@ import { CharSquare } from "../../../shared/components/widgets/char-square/char-
 import { Metadata } from "../../../shared/components/widgets/metadata/metadata";
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
+import { UiInfoPanel } from '../../../shared/elements/ui-info-panel/ui-info-panel';
 
 @Component({
   selector: 'app-work-shifts',
@@ -42,8 +43,9 @@ import { TitleCasePipe } from '@angular/common';
     TableTemplate,
     UiCheckbox,
     CharSquare,
-    Metadata, 
-    TitleCasePipe   
+    Metadata,
+    TitleCasePipe,
+    UiInfoPanel,
 ],
   templateUrl: './work-shifts.html',
   styleUrl: './work-shifts.css',

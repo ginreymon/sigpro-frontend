@@ -23,10 +23,11 @@ import { Metadata } from "../../../shared/components/widgets/metadata/metadata";
 import { SamTargetCalculator } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator';
 import { SamTargetCalculatorPanel } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator-panel';
 import { SamCalculatorStateService } from '../../../shared/components/production/widgets/sam-target-calculator/sam-calculator-state';
+import { InfoPanelLine, UiInfoPanel } from '../../../shared/elements/ui-info-panel/ui-info-panel';
 
 @Component({
   selector: 'app-sewing-sam',
-  imports: [WorkSpaceLayout, DataTable, ModalLayout, SideModalLayout, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, TableTemplate, CharSquare, Metadata, SamTargetCalculator, SamTargetCalculatorPanel],
+  imports: [WorkSpaceLayout, DataTable, ModalLayout, SideModalLayout, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, TableTemplate, CharSquare, Metadata, SamTargetCalculator, SamTargetCalculatorPanel, UiInfoPanel],
   providers: [SamCalculatorStateService],
   templateUrl: './sewing-sam.html',
   styleUrl: './sewing-sam.css',
@@ -79,6 +80,15 @@ export class SewingSAM extends AdminOnlyCrudPage<SkuItemReference> {
 
   get sam() {
     return this.modelForm.get('sam');
+  }
+
+  get samInfoLines(): InfoPanelLine[] {
+    return [
+      { label: 'Referencia', value: this.rowObject.reference ?? '' },
+      { label: 'Línea', value: this.rowObject.line ?? '' },
+      { label: 'Centro de costo', value: this.rowObject.sewing ?? '' },
+      { label: 'Descripción', value: this.rowObject.description ?? '' },
+    ];
   }
 
   protected override actionHandler(event: TableActionEvent<SkuItemReference>): void {

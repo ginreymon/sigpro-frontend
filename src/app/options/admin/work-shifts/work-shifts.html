@@ -109,12 +109,7 @@
             </app-ui-form-field>
             }     
 
-            <div class="bg-slate-50 p-6 rounded flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
-                <p class="text-sm text-brand-400 italic">
-                    Tiempo total
-                    <span class="font-bold text-primary">{{ totalTime }}</span>
-                </p>
-            </div>
+            <app-ui-info-panel [lines]="[{ label: 'Tiempo total', value: totalTime }]"></app-ui-info-panel>
     
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>

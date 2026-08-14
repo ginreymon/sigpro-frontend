@@ -77,20 +77,7 @@
         </app-ui-input>
       </app-ui-form-field>
 
-      <div class="bg-slate-50 p-6 rounded flex flex-col items-start justify-between gap-4 mt-4">
-        <p class="text-sm text-brand-400 italic">
-          Referencia: <strong>{{ rowObject.reference }}</strong>
-        </p>
-        <p class="text-sm text-brand-400 italic">
-          Línea: <strong>{{ rowObject.line }}</strong>
-        </p>
-        <p class="text-sm text-brand-400 italic">
-          Centro de costo: <strong>{{ rowObject.sewing }}</strong>
-        </p>
-        <p class="text-sm text-brand-400 italic">
-          Descripción: <strong>{{ rowObject.description}}</strong>
-        </p>
-      </div>
+      <app-ui-info-panel [align]="'column'" [lines]="samInfoLines"></app-ui-info-panel>
 
       @if (errorMessage()) {
       <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>

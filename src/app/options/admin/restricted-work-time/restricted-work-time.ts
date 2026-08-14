@@ -22,6 +22,7 @@ import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
+import { UiInfoPanel } from "../../../shared/elements/ui-info-panel/ui-info-panel";
 
 @Component({
   selector: 'app-restricted-work-time',
@@ -41,13 +42,17 @@ import { PaginatedResponse } from '../../../common/interfaces/paginated-response
     TableTemplate,
     CharSquare,
     Metadata,
-  ],
+    UiInfoPanel
+],
   templateUrl: './restricted-work-time.html',
   styleUrl: './restricted-work-time.css',
 })
 export class RestrictedWorkTime extends BaseCrudPage<EmployeeContinuousWorkLimit> {
   protected override entityName: string = 'Restricción';
   employees = signal<Employee[]>([]);
+
+  protected readonly continuousWorkMinutesInfo =
+    'Minutos máximos de trabajo continuo dentro de una hora. Valor permitido: 0 a 60 minutos.';
 
   constructor(
     private employeeContinuousWorkLimitService: EmployeeContinuousWorkLimitService,

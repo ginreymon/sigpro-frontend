@@ -33,7 +33,7 @@
             <h3 class="text-2xl font-semibold text-slate-900 mb-2">
                 {{ rowObject.employee?.first_name }} {{ rowObject.employee?.last_name1 }}
             </h3>
-            <p class="text-sm text-slate-500 mb-0.5"> Minutos continuos: {{ rowObject.continuous_work_minutes }} </p>
+            <p class="text-sm text-slate-500 mb-0.5"> Máx. minutos continuos: {{ rowObject.continuous_work_minutes }} </p>
         </div>
 
     </div>
@@ -69,7 +69,7 @@
                     [showDefaultOption]="true"></app-ui-select>
             </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'continuous_work_minutes'" [label]="'Minutos continuos'">
+            <app-ui-form-field [controlName]="'continuous_work_minutes'" [label]="'Máx. minutos continuos'">
                 <app-ui-input formControlName="continuous_work_minutes" [id]="'continuous_work_minutes'"
                     [placeholder]="'Minutos por hora'" [control]="continuousWorkMinutes" [type]="'number'"></app-ui-input>
             </app-ui-form-field>
@@ -84,6 +84,8 @@
                 <app-ui-checkbox formControlName="is_active" [id]="'is_active'" [control]="isActive"></app-ui-checkbox>
             </app-ui-form-field>
             }
+
+            <app-ui-info-panel [lines]="[{ label: 'Máx. minutos continuos', value: continuousWorkMinutesInfo }]"></app-ui-info-panel>
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
