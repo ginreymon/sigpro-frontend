@@ -21,6 +21,7 @@ import { CharSquare } from '../../../shared/components/widgets/char-square/char-
 import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { TableColumn } from '../../../common/interfaces/table-column';
+import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 
 @Component({
   selector: 'app-restricted-work-time',
@@ -97,6 +98,16 @@ export class RestrictedWorkTime extends BaseCrudPage<EmployeeContinuousWorkLimit
         .map(e => ({ ...e, full_name: `${e.first_name} ${e.last_name1} - ${e.id_number}` }))
         .sort((a, b) => a.full_name!.localeCompare(b.full_name!))
     );
+  }
+
+  protected override mapResponse(res: PaginatedResponse<EmployeeContinuousWorkLimit>) {
+    return {
+      ...res,
+      results: res.results.map((limit) => {
+        limit.name = `${limit.employee?.first_name ?? ''} ${limit.employee?.last_name1 ?? ''}`.trim();
+        return limit;
+      }),
+    };
   }
 
   protected override actionHandler(event: TableActionEvent<EmployeeContinuousWorkLimit>): void {
