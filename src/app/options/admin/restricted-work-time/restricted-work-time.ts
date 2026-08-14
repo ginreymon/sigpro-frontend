@@ -66,7 +66,7 @@ export class RestrictedWorkTime extends BaseCrudPage<EmployeeContinuousWorkLimit
     return [
       { type: 'template', label: 'Empleado', templateName: 'employeeTemplate' },
       { type: 'template', label: 'Cédula', templateName: 'idNumberTemplate' },
-      { field: 'continuous_work_minutes', label: 'Minutos continuos' },
+      { field: 'continuous_work_minutes', label: 'Máx. minutos continuos' },
       { field: 'description', label: 'Descripción' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
@@ -75,8 +75,8 @@ export class RestrictedWorkTime extends BaseCrudPage<EmployeeContinuousWorkLimit
   protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
       employee_id: [null, Validators.required],
-      continuous_work_minutes: [null, [Validators.required, Validators.min(1), Validators.max(60)]],
-      description: [null],
+      continuous_work_minutes: [null, [Validators.required, Validators.min(0), Validators.max(60)]],
+      description: [null, Validators.required],
       is_active: [true],
     });
   }
