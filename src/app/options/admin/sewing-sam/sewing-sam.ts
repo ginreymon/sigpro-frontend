@@ -35,6 +35,13 @@ import { InfoPanelLine, UiInfoPanel } from '../../../shared/elements/ui-info-pan
 export class SewingSAM extends AdminOnlyCrudPage<SkuItemReference> {
   protected override entityName: string = 'SAM';
 
+  // Also embedded as a tab inside production/sewing-config (module 'production'),
+  // not just its standalone route under admin — CRUD stays enabled there too.
+  protected override get isAdminModule(): boolean {
+    const moduleUrl = this.routeContext.currentModule?.url;
+    return moduleUrl === 'admin' || moduleUrl === 'production';
+  }
+
   samRecord = signal<Partial<ReferenceSam>>({});
   samRecordLoading = signal<boolean>(false);
 
