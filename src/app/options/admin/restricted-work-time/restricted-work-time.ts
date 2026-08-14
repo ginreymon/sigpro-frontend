@@ -21,7 +21,6 @@ import { CharSquare } from '../../../shared/components/widgets/char-square/char-
 import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { TableColumn } from '../../../common/interfaces/table-column';
-import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-restricted-work-time',
@@ -41,7 +40,6 @@ import { TitleCasePipe } from '@angular/common';
     TableTemplate,
     CharSquare,
     Metadata,
-    TitleCasePipe,
   ],
   templateUrl: './restricted-work-time.html',
   styleUrl: './restricted-work-time.css',
@@ -61,6 +59,7 @@ export class RestrictedWorkTime extends BaseCrudPage<EmployeeContinuousWorkLimit
   protected override get columns(): TableColumn<EmployeeContinuousWorkLimit>[] {
     return [
       { type: 'template', label: 'Empleado', templateName: 'employeeTemplate' },
+      { type: 'template', label: 'Cédula', templateName: 'idNumberTemplate' },
       { field: 'continuous_work_minutes', label: 'Minutos continuos' },
       { field: 'description', label: 'Descripción' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
@@ -95,7 +94,7 @@ export class RestrictedWorkTime extends BaseCrudPage<EmployeeContinuousWorkLimit
   getEmployees() {
     this.loadList(this.employeeDirectoryService, this.employees, true,
       items => items
-        .map(e => ({ ...e, full_name: `${e.first_name} ${e.last_name1}` }))
+        .map(e => ({ ...e, full_name: `${e.first_name} ${e.last_name1} - ${e.id_number}` }))
         .sort((a, b) => a.full_name!.localeCompare(b.full_name!))
     );
   }
