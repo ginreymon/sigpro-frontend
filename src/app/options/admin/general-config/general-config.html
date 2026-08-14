@@ -1,0 +1,15 @@
+<div class="flex flex-col h-full min-h-full">
+  <app-ui-breadcrumb [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" class="mb-2 border-b border-slate-200 lg:border-b-0" [align]="'right'"></app-ui-breadcrumb>
+
+  <div class="flex-1 min-h-0">
+    @if (activeTab() === 'modules') {
+      <app-modules />
+    } @else if (activeTab() === 'work-shifts') {
+      <app-work-shifts />
+    } @else if (activeTab() === 'work-breaks') {
+      <app-work-breaks />
+    } @else if (activeTab() === 'restricted-work-time') {
+      <app-restricted-work-time />
+    }
+  </div>
+</div>

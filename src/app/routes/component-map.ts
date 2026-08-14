@@ -5,6 +5,8 @@ import { DayOperation } from '../shared/pages/day-operation/day-operation';
 import { WorkShifts } from '../options/admin/work-shifts/work-shifts';
 import { Modules } from '../options/admin/modules/modules';
 import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
+import { RestrictedWorkTime } from '../options/admin/restricted-work-time/restricted-work-time';
+import { GeneralConfig } from '../options/admin/general-config/general-config';
 import { ShiftCycles } from '../shared/pages/shift-cycles/shift-cycles';
 import { SewingSAM } from '../options/admin/sewing-sam/sewing-sam';
 import { AppSettings } from '../options/configuration/app-settings/app-settings';
@@ -29,6 +31,8 @@ export const componentMap: Record<string, Type<any>> = {
   'admin/work-shifts': WorkShifts,
   'admin/modules': Modules,
   'admin/work-breaks': WorkBreaks,
+  'admin/restricted-work-time': RestrictedWorkTime,
+  'admin/general-config': GeneralConfig,
   'admin/sewing-sam': SewingSAM,
   'admin/stamping-sam': StampingSam,
   'stamping/stamping-sam': StampingSam,
