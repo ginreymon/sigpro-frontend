@@ -92,6 +92,7 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   initialize() {
     const coreModuleId = this.routeContextService.currentModule?.id;
     const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
+    const moduleScopeParams = { ...scopeParams, for_day_operation: 'true' };
 
     this.wslService.start();
     forkJoin({
@@ -113,8 +114,25 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
         },
       });
 
-    this.loadList(this.moduleService, this.modules, true, undefined, scopeParams);
+    this.wslService.start();
+    this.moduleService
+      .all(moduleScopeParams)
+      .pipe(finalize(() => this.wslService.end()))
+      .subscribe((modules) => {
+        const activeModules = modules.filter((m) => (m?.is_active ?? true) && !m?.is_deleted);
+        this.modules.set(activeModules);
+        this.autoSelectAssignedModule(activeModules);
+      });
+
     this.loadList(this.workShiftService, this.workShifts, true, undefined, scopeParams);
+  }
+
+  // Cuenta con módulo asociado (production_module_user_account): se preselecciona
+  // y se salta el paso de selección manual, igual que el filtrado por production area.
+  private autoSelectAssignedModule(modules: Module[]): void {
+    if (modules.length === 1 && !this.moduleId?.value) {
+      this.selectModule(modules[0].id);
+    }
   }
 
   protected override initializeModelForm(): void {

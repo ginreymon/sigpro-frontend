@@ -1,9 +1,19 @@
 <div>
+  <!-- Señuelos: Chrome ignora autocomplete="off"/type/readonly en el input real de
+       búsqueda y le mete ahí la cuenta con sesión activa, incluso fuera de un <form>.
+       Dándole aquí un username/password "de manual" para autorellenar, deja el campo
+       real en paz. Ocultos fuera de pantalla, no display:none (Chrome los ignoraría). -->
+  <input type="text" name="username" autocomplete="username" tabindex="-1" aria-hidden="true"
+    style="position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; opacity:0;" />
+  <input type="password" name="password" autocomplete="current-password" tabindex="-1" aria-hidden="true"
+    style="position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; opacity:0;" />
+
   <input
     [id]="id"
     [name]="id"
     type="text"
     autocomplete="off"
+    [readonly]="!focused()"
     [class]="`
       h-8
       w-full
@@ -25,7 +35,7 @@
     [value]="searchText()"
     [disabled]="disabled"
     (input)="onInputChange($any($event.target).value)"
-    (focus)="onFocus()"
+    (focus)="focused.set(true); onFocus()"
     (keydown)="onKeyDown($event)"
     (blur)="onBlur()"
   />

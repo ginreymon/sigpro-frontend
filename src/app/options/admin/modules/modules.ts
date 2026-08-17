@@ -6,10 +6,11 @@ import { Module } from '../../../models/production/module';
 import { ModuleService } from '../../../services/production/module-service';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
-import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
+import { UiCombobox } from '../../../shared/elements/ui-combobox/ui-combobox';
 import { WorkCenterService } from '../../../services/production/work-center-service';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { WorkCenter } from '../../../models/production/work-center';
@@ -26,6 +27,20 @@ import { TitleCasePipe } from '@angular/common';
 import { UiTooltip } from "../../../shared/elements/ui-tooltip/ui-tooltip";
 import { StampingMachine } from '../../../models/stamping/stamping-machine';
 import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
+import { User } from '../../../models/user/user';
+import { UserService } from '../../../services/user/user-service';
+import { UiCloseButton } from '../../../shared/elements/ui-close-button/ui-close-button';
+import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
+
+const TABS: TabItem[] = [
+  { key: 'general', label: 'General' },
+  { key: 'accounts', label: 'Cuentas' },
+];
+
+const TAB_FIELDS: Record<string, string[]> = {
+  general: ['name', 'number', 'operator_count', 'location_id', 'work_center_id', 'machine', 'is_active'],
+  accounts: [],
+};
 
 @Component({
   selector: 'app-modules',
@@ -38,6 +53,7 @@ import { StampingMachineService } from '../../../services/stamping/stamping-mach
     UiFormField,
     UiInput,
     UiSelect,
+    UiCombobox,
     UiCheckbox,
     TableTemplate,
     UiErrorMessage,
@@ -46,6 +62,8 @@ import { StampingMachineService } from '../../../services/stamping/stamping-mach
     Metadata,
     TitleCasePipe,
     UiTooltip,
+    UiCloseButton,
+    UiTabs,
 ],
   templateUrl: './modules.html',
   styleUrl: './modules.css',
@@ -55,18 +73,28 @@ export class Modules extends BaseCrudPage<Module> {
   workCenters = signal<WorkCenter[]>([]);
   productionAreas = signal<ProductionArea[]>([]);
   machines = signal<StampingMachine[]>([]);
+  users = signal<User[]>([]);
+  userPicker = new FormControl<number | null>(null);
+  assignedUsersList = signal<{ id: number; username: string }[]>([]);
+
+  tabs = TABS;
+  activeTab = signal('general');
 
   constructor(
     private moduleService: ModuleService,
     private workCenterService: WorkCenterService,
     private productionAreaService: ProductionAreaService,
     private stampingMachineService: StampingMachineService,
+    private userService: UserService,
   ) {
     super(moduleService);
     this.getWorkCenters();
     this.getProductionAreas();
     this.loadList(this.stampingMachineService, this.machines, true,
       items => items.sort((a, b) => a.name.localeCompare(b.name))
+    );
+    this.loadList(this.userService, this.users, true,
+      items => items.sort((a, b) => a.username.localeCompare(b.username))
     );
   }
 
@@ -101,6 +129,7 @@ export class Modules extends BaseCrudPage<Module> {
       is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
       work_center_id: [null, [Validators.required, Validators.min(1)]],
       machine: [null],
+      assigned_user_ids: this.fb.control<number[]>([]),
     });
   }
 
@@ -132,14 +161,66 @@ export class Modules extends BaseCrudPage<Module> {
     return this.modelForm.get('machine');
   }
 
+  get assignedUserIds() {
+    return this.modelForm.get('assigned_user_ids');
+  }
+
+  onTabChange(key: string): void {
+    this.activeTab.set(key);
+  }
+
+  get tabsView(): TabItem[] {
+    return this.tabs.map((tab) => ({ ...tab, hasError: this.tabHasError(tab.key) }));
+  }
+
+  private tabHasError(key: string): boolean {
+    return (TAB_FIELDS[key] ?? []).some((name) => {
+      const control = this.modelForm.get(name);
+      return !!control && control.invalid && control.touched;
+    });
+  }
+
+  get availableUsers(): User[] {
+    const ids = this.assignedUsersList().map((u) => u.id);
+    return this.users().filter((u) => !ids.includes(u.id));
+  }
+
+  addUser(): void {
+    const userId = this.userPicker.value;
+    if (userId == null) return;
+    const user = this.users().find((u) => u.id === Number(userId));
+    if (!user) return;
+
+    this.assignedUsersList.update((list) => [...list, { id: user.id, username: user.username }]);
+    this.assignedUserIds?.setValue(this.assignedUsersList().map((u) => u.id));
+    this.userPicker.reset(null);
+  }
+
+  removeUser(id: number): void {
+    this.assignedUsersList.update((list) => list.filter((u) => u.id !== id));
+    this.assignedUserIds?.setValue(this.assignedUsersList().map((u) => u.id));
+  }
+
+  protected override closeModelForm(): void {
+    this.activeTab.set('general');
+    this.userPicker.reset(null);
+    this.assignedUsersList.set([]);
+    super.closeModelForm();
+  }
+
   protected override actionHandler(event: TableActionEvent<Module>): void {
     super.actionHandler(event);
+    this.userPicker.reset(null);
 
     if (event.type == 'edit') {
       this.modelForm.patchValue(event.obj);
       this.workCenter?.setValue(event.obj.work_center.id);
       this.locationId?.setValue(event.obj.location?.id ?? null);
       this.machine?.setValue(event.obj.machine?.id ?? null);
+      this.assignedUsersList.set(event.obj.assigned_users ?? []);
+      this.assignedUserIds?.setValue(event.obj.assigned_users?.map((u) => u.id) ?? []);
+    } else {
+      this.assignedUsersList.set([]);
     }
   }
 

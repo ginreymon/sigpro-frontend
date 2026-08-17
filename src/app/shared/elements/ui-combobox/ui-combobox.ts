@@ -54,6 +54,9 @@ export class UiCombobox extends BaseControlValueAccessor<any> implements AfterVi
 
   searchText = signal('');
   isOpen = signal(false);
+  // Arranca readonly hasta el primer focus real del usuario — evita que Chrome
+  // autorellene el campo con la cuenta de la sesión activa antes de que se use.
+  focused = signal(false);
   activeIndex = signal(0);
   style = signal<Record<string, string>>({});
 

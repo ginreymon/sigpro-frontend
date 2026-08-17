@@ -17,4 +17,7 @@ export interface Module extends AuditEntity {
 
   machine?: { id: number; name: string; machine_type_id: number } | null;
   machine_id?: number | null;
+
+  assigned_users?: { id: number; username: string }[];
+  assigned_user_ids?: number[];
 }
