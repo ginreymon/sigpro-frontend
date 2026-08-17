@@ -76,12 +76,14 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'moduleForm'" (onCancel)="closeModelForm()">    
-   
+<app-modal-layout [formId]="'moduleForm'" (onCancel)="closeModelForm()">
+
+    <app-ui-tabs class="w-full border-t border-slate-200" [tabs]="tabsView" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
+
+    <div class="max-h-[50vh] overflow-y-auto">
+
     <form id="moduleForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()">
-
-            <app-ui-tabs [tabs]="tabsView" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
 
             <div [class.hidden]="activeTab() !== 'general'" class="mt-4 space-y-4">
 
@@ -157,6 +159,8 @@
         </app-ui-form-field>
 
     </fieldset>
+
+    </div>
 
 </app-modal-layout>
 
