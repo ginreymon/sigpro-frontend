@@ -12,7 +12,6 @@ import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { UiCombobox } from '../../../shared/elements/ui-combobox/ui-combobox';
 import { WorkCenterService } from '../../../services/production/work-center-service';
-import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { WorkCenter } from '../../../models/production/work-center';
 import { ProductionAreaService } from '../../../services/production/production-area-service';
 import { ProductionArea } from '../../../models/production/production-area';
@@ -38,7 +37,7 @@ const TABS: TabItem[] = [
 ];
 
 const TAB_FIELDS: Record<string, string[]> = {
-  general: ['name', 'number', 'operator_count', 'location_id', 'work_center_id', 'machine', 'is_active'],
+  general: ['name', 'number', 'operator_count', 'location_id', 'work_center_id', 'machine'],
   accounts: [],
 };
 
@@ -54,7 +53,6 @@ const TAB_FIELDS: Record<string, string[]> = {
     UiInput,
     UiSelect,
     UiCombobox,
-    UiCheckbox,
     TableTemplate,
     UiErrorMessage,
     UiBadge,
@@ -126,7 +124,6 @@ export class Modules extends BaseCrudPage<Module> {
       number: [null, [Validators.required, Validators.min(1)]],
       operator_count: [null, [Validators.required, Validators.min(1)]],
       location_id: [null, [Validators.required, Validators.min(1)]],
-      is_active: [null],
       work_center_id: [null, [Validators.required, Validators.min(1)]],
       machine: [null],
       assigned_user_ids: this.fb.control<number[]>([]),
@@ -147,10 +144,6 @@ export class Modules extends BaseCrudPage<Module> {
 
   get locationId() {
     return this.modelForm.get('location_id');
-  }
-
-  get isActive() {
-    return this.modelForm.get('is_active');
   }
 
   get workCenter() {
@@ -228,7 +221,6 @@ export class Modules extends BaseCrudPage<Module> {
     const { machine, ...formValue } = this.modelForm.value;
     const payload: Partial<Module> = {
       ...formValue,
-      is_active: this.isActive?.value ?? true,
       // If location isn't in the stamping domain, force null so the backend clears
       // any existing assignment instead of leaving it orphaned.
       machine_id: this.isStampingLocation ? (machine ? Number(machine) : null) : null,

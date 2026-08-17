@@ -113,12 +113,6 @@
                     <app-ui-select [className]="'w-full'" formControlName="work_center_id" [id]="'work_center_id'" [control]="workCenter" [items]="workCenters()" [key]="'description'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
-                @if(actionType == 'edit'){
-                <app-ui-form-field [controlName]="'is_active'" [label]="'Módulo activo'" [layout]="'horizontal'">
-                    <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'" [placeholder]="'Seleccione un estado'"></app-ui-checkbox>
-                </app-ui-form-field>
-                }
-
             </div>
 
             @if(errorMessage()){

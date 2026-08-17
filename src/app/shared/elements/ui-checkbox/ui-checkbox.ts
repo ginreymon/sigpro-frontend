@@ -14,7 +14,7 @@ import { BaseControlValueAccessor } from '../../../common/classes/base-control-v
     },
   ],
 })
-export class UiCheckbox extends BaseControlValueAccessor<boolean | null> {
+export class UiCheckbox extends BaseControlValueAccessor<boolean> {
   toggle(): void {
     if (this.disabled) return;
     this.value = !this.value;
