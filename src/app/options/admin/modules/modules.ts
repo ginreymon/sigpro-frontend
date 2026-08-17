@@ -126,7 +126,7 @@ export class Modules extends BaseCrudPage<Module> {
       number: [null, [Validators.required, Validators.min(1)]],
       operator_count: [null, [Validators.required, Validators.min(1)]],
       location_id: [null, [Validators.required, Validators.min(1)]],
-      is_active: [null, this.actionType === 'edit' ? [Validators.required] : []],
+      is_active: [null],
       work_center_id: [null, [Validators.required, Validators.min(1)]],
       machine: [null],
       assigned_user_ids: this.fb.control<number[]>([]),
