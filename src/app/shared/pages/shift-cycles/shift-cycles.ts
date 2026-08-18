@@ -94,6 +94,32 @@ export class ShiftCycles extends BaseProductionOrderPage {
     return docStatus === 1 || docStatus === 2;
   });
 
+  // Solo aplica en estampación: la orden debe estar auditada, con cantidades
+  // coincidentes, y si tiene paso de corte en la ruta, ese corte completado.
+  protected stampingChecksPassed = computed(() => {
+    if (!this.config.showStampingRecord) return true;
+    const audit = this.productionOrder()?.stampingAudit;
+    const auditOk = !!audit?.isAudited && !!audit?.quantitiesMatch;
+    const tracking = this.productionOrder()?.tracking ?? [];
+    const cutOk = tracking.every((t) => t.isCompleted);
+    return auditOk && cutOk;
+  });
+
+  protected get stampingCheckMessage(): string {
+    const audit = this.productionOrder()?.stampingAudit;
+    const tracking = this.productionOrder()?.tracking ?? [];
+    const reasons: string[] = [];
+    if (!audit?.isAudited) {
+      reasons.push('La orden aún no ha sido auditada en estampación.');
+    } else if (!audit?.quantitiesMatch) {
+      reasons.push('Las cantidades auditadas no coinciden con las cantidades ordenadas.');
+    }
+    if (tracking.some((t) => !t.isCompleted)) {
+      reasons.push('La cantidad física recibida no coincide con la cantidad registrada en la OP.');
+    }
+    return reasons.join(' ');
+  }
+
   protected preselectedIds = computed(() =>
     this.currentSession()?.employees_snapshot?.map(e => e.id) ?? []
   );
