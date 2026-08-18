@@ -95,29 +95,25 @@ export class ShiftCycles extends BaseProductionOrderPage {
   });
 
   // Solo aplica en estampación: la orden debe estar auditada, con cantidades
-  // coincidentes, y si tiene paso de corte en la ruta, ese corte completado.
+  // coincidentes. El paso de corte (tracking) no se usa aquí: el ERP no
+  // mantiene actualizado t865_mf_op_operaciones.f865_cant_completa_base para
+  // ese centro de trabajo, así que isCompleted queda en falso incluso en
+  // OPs con auditoría de estampación ya confirmada — no es una señal fiable.
   protected stampingChecksPassed = computed(() => {
     if (!this.config.showStampingRecord) return true;
     const audit = this.productionOrder()?.stampingAudit;
-    const auditOk = !!audit?.isAudited && !!audit?.quantitiesMatch;
-    const tracking = this.productionOrder()?.tracking ?? [];
-    const cutOk = tracking.every((t) => t.isCompleted);
-    return auditOk && cutOk;
+    return !!audit?.isAudited && !!audit?.quantitiesMatch;
   });
 
   protected get stampingCheckMessage(): string {
     const audit = this.productionOrder()?.stampingAudit;
-    const tracking = this.productionOrder()?.tracking ?? [];
-    const reasons: string[] = [];
     if (!audit?.isAudited) {
-      reasons.push('La orden aún no ha sido auditada en estampación.');
-    } else if (!audit?.quantitiesMatch) {
-      reasons.push('Las cantidades auditadas no coinciden con las cantidades ordenadas.');
+      return 'La orden aún no ha sido auditada en estampación.';
     }
-    if (tracking.some((t) => !t.isCompleted)) {
-      reasons.push('La cantidad física recibida no coincide con la cantidad registrada en la OP.');
+    if (!audit?.quantitiesMatch) {
+      return 'Las cantidades auditadas no coinciden con las cantidades ordenadas.';
     }
-    return reasons.join(' ');
+    return '';
   }
 
   protected preselectedIds = computed(() =>
