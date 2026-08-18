@@ -53,11 +53,10 @@
                             <span [class]="'font-semibold ' + (matchesTotal(row) === true ? 'text-green-600' : matchesTotal(row) === false ? 'text-red-600' : '')">
                                 {{ auditedQty(row.color) ?? '' }}
                             </span>
-                            @if(matchesTotal(row) === true){
-                            <app-ui-icon [iconName]="'check'" [class]="'h-5 w-5 text-green-600 inline-block'"></app-ui-icon>
-                            } @else if(matchesTotal(row) === false){
-                            <app-ui-icon [iconName]="'xmark'" [class]="'h-5 w-5 text-red-600 inline-block'"></app-ui-icon>
-                            }
+                            <app-ui-icon
+                                [iconName]="matchesTotal(row) === false ? 'xmark' : 'check'"
+                                [class]="'h-5 w-5 inline-block ' + (matchesTotal(row) === true ? 'text-green-600' : matchesTotal(row) === false ? 'text-red-600' : 'invisible')">
+                            </app-ui-icon>
                         </div>
                     </td>
 
@@ -112,11 +111,10 @@
                             <span [class]="'font-semibold ' + (footerMatchesTotal === true ? 'text-green-600' : footerMatchesTotal === false ? 'text-red-600' : '')">
                                 {{ footerAudited }}
                             </span>
-                            @if(footerMatchesTotal === true){
-                            <app-ui-icon [iconName]="'check'" [class]="'h-5 w-5 text-green-600 inline-block'"></app-ui-icon>
-                            } @else if(footerMatchesTotal === false){
-                            <app-ui-icon [iconName]="'xmark'" [class]="'h-5 w-5 text-red-600 inline-block'"></app-ui-icon>
-                            }
+                            <app-ui-icon
+                                [iconName]="footerMatchesTotal === false ? 'xmark' : 'check'"
+                                [class]="'h-5 w-5 inline-block ' + (footerMatchesTotal === true ? 'text-green-600' : footerMatchesTotal === false ? 'text-red-600' : 'invisible')">
+                            </app-ui-icon>
                         </div>
                     </td>
 
@@ -171,11 +169,10 @@
                             <span [class]="'font-semibold ' + (matchesTotal(row) === true ? 'text-green-600' : matchesTotal(row) === false ? 'text-red-600' : '')">
                                 {{ auditedQty(row.color) ?? '' }}
                             </span>
-                            @if(matchesTotal(row) === true){
-                            <app-ui-icon [iconName]="'check'" [class]="'h-5 w-5 text-green-600 inline-block'"></app-ui-icon>
-                            } @else if(matchesTotal(row) === false){
-                            <app-ui-icon [iconName]="'xmark'" [class]="'h-5 w-5 text-red-600 inline-block'"></app-ui-icon>
-                            }
+                            <app-ui-icon
+                                [iconName]="matchesTotal(row) === false ? 'xmark' : 'check'"
+                                [class]="'h-5 w-5 inline-block ' + (matchesTotal(row) === true ? 'text-green-600' : matchesTotal(row) === false ? 'text-red-600' : 'invisible')">
+                            </app-ui-icon>
                         </span>
                     </div>
 
@@ -221,11 +218,10 @@
                     <span [class]="footerMatchesTotal === true ? 'text-green-600 font-semibold' : footerMatchesTotal === false ? 'text-red-600 font-semibold' : ''">
                         {{ footerAudited }}
                     </span>
-                    @if(footerMatchesTotal === true){
-                    <app-ui-icon [iconName]="'check'" [class]="'h-4 w-4 text-green-600 inline-block'"></app-ui-icon>
-                    } @else if(footerMatchesTotal === false){
-                    <app-ui-icon [iconName]="'xmark'" [class]="'h-4 w-4 text-red-600 inline-block'"></app-ui-icon>
-                    }
+                    <app-ui-icon
+                        [iconName]="footerMatchesTotal === false ? 'xmark' : 'check'"
+                        [class]="'h-4 w-4 inline-block ' + (footerMatchesTotal === true ? 'text-green-600' : footerMatchesTotal === false ? 'text-red-600' : 'invisible')">
+                    </app-ui-icon>
                 </span>
             </span>
         </div>
