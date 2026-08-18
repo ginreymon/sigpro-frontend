@@ -107,7 +107,18 @@
 
                     <td class="px-6 py-3 text-right font-semibold">{{ footerTotal }}</td>
 
-                    <td class="px-6 py-3 text-right font-semibold">{{ footerAudited }}</td>
+                    <td class="px-6 py-3 text-right">
+                        <div class="inline-flex items-center justify-end gap-2">
+                            <span [class]="'font-semibold ' + (footerMatchesTotal === true ? 'text-green-600' : footerMatchesTotal === false ? 'text-red-600' : '')">
+                                {{ footerAudited }}
+                            </span>
+                            @if(footerMatchesTotal === true){
+                            <app-ui-icon [iconName]="'check'" [class]="'h-5 w-5 text-green-600 inline-block'"></app-ui-icon>
+                            } @else if(footerMatchesTotal === false){
+                            <app-ui-icon [iconName]="'xmark'" [class]="'h-5 w-5 text-red-600 inline-block'"></app-ui-icon>
+                            }
+                        </div>
+                    </td>
 
                     @if(hasAnyAction){
                     <td class="px-6 py-3"></td>
@@ -205,7 +216,17 @@
             <span>Total</span>
             <span class="flex items-center gap-4">
                 <span>{{ footerTotal }}</span>
-                <span class="text-gray-500 font-normal">Auditada: {{ footerAudited }}</span>
+                <span class="text-gray-500 font-normal inline-flex items-center gap-1">
+                    Auditada:
+                    <span [class]="footerMatchesTotal === true ? 'text-green-600 font-semibold' : footerMatchesTotal === false ? 'text-red-600 font-semibold' : ''">
+                        {{ footerAudited }}
+                    </span>
+                    @if(footerMatchesTotal === true){
+                    <app-ui-icon [iconName]="'check'" [class]="'h-4 w-4 text-green-600 inline-block'"></app-ui-icon>
+                    } @else if(footerMatchesTotal === false){
+                    <app-ui-icon [iconName]="'xmark'" [class]="'h-4 w-4 text-red-600 inline-block'"></app-ui-icon>
+                    }
+                </span>
             </span>
         </div>
 

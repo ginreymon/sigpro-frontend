@@ -106,6 +106,15 @@ export class OrderSkuAuditTable {
     return this.filteredRows.reduce((sum, r) => sum + (this.auditedQty(r.color) ?? 0), 0);
   }
 
+  // Footer status mirrors matchesTotal(row): false as soon as one row is
+  // wrong, true only when every row matches, null while some are still
+  // unaudited but none are wrong yet.
+  protected get footerMatchesTotal(): boolean | null {
+    if (this.filteredRows.some((r) => this.matchesTotal(r) === false)) return false;
+    if (this.filteredRows.every((r) => this.matchesTotal(r) === true)) return true;
+    return null;
+  }
+
   // null = no audit record for this color yet (nothing to compare).
   protected matchesTotal(row: OpColorRow): boolean | null {
     const record = this.auditByColor.get(row.color);
