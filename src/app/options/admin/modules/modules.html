@@ -78,20 +78,18 @@
 
 <app-modal-layout [formId]="'moduleForm'" (onCancel)="closeModelForm()">
 
-    <app-ui-tabs class="w-full border-t border-slate-200" [tabs]="tabsView" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" />
-
     <div class="max-h-[50vh] overflow-y-auto">
 
     <form id="moduleForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()">
 
-            <div [class.hidden]="activeTab() !== 'general'" class="mt-4 space-y-4">
+            <div class="mt-4 space-y-4">
 
                 <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
                     <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
                 </app-ui-form-field>
 
-                <app-ui-form-field [controlName]="'number'" [label]="'Número'">
+                <app-ui-form-field [controlName]="'number'" [label]="'Número (opcional, autoasignado si se deja vacío)'">
                     <app-ui-input [type]="'number'" formControlName="number" [id]="'number'" [placeholder]="'Número'" [control]="number"></app-ui-input>
                 </app-ui-form-field>
 
@@ -113,6 +111,10 @@
                     <app-ui-select [className]="'w-full'" formControlName="work_center_id" [id]="'work_center_id'" [control]="workCenter" [items]="workCenters()" [key]="'description'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
+                <app-ui-form-field [controlName]="'assigned_user_id'" [label]="'Cuenta asignada (opcional)'">
+                    <app-ui-select [className]="'w-full'" formControlName="assigned_user_id" [id]="'assigned_user_id'" [control]="assignedUserId" [items]="users()" [key]="'username'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+                </app-ui-form-field>
+
             </div>
 
             @if(errorMessage()){
@@ -121,38 +123,6 @@
 
         </fieldset>
     </form>
-
-    <!-- Fuera del <form>: Chrome autorellena este campo de búsqueda con la cuenta
-         de la sesión activa si queda anidado dentro de un <form> (ignora
-         autocomplete="off"/readonly ahí). El botón "Guardar" sigue enviando
-         moduleForm vía el atributo form="" del <button>, así que sacarlo del
-         <form> no afecta el submit; assigned_user_ids ya no usa formControlName. -->
-    <fieldset [disabled]="showLoader()" [class.hidden]="activeTab() !== 'accounts'" class="mt-4">
-
-        <app-ui-form-field [controlName]="'assigned_user_ids'" [label]="'Cuentas asociadas'">
-            <div class="flex items-center gap-2">
-                <app-ui-combobox class="flex-1" [className]="'w-full'" [formControl]="userPicker" [id]="'module_account_search'"
-                    [items]="availableUsers" [key]="'username'" [keyValue]="'id'"
-                    [placeholder]="'Buscar cuenta...'"></app-ui-combobox>
-                <button type="button" (click)="addUser()" [disabled]="userPicker.value == null"
-                    class="h-8 px-4 text-sm rounded bg-brand-500 text-white disabled:opacity-40 disabled:cursor-not-allowed">
-                    Agregar
-                </button>
-            </div>
-
-            <div class="flex flex-wrap gap-2 mt-3">
-                @for (u of assignedUsersList(); track u.id) {
-                <span class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-700 text-sm rounded-full pl-3 pr-1.5 py-1">
-                    {{ u.username }}
-                    <app-ui-close-button (onClose)="removeUser(u.id)"></app-ui-close-button>
-                </span>
-                } @empty {
-                <app-ui-badge [intent]="'default'" [label]="'General (visible para todas las cuentas)'"></app-ui-badge>
-                }
-            </div>
-        </app-ui-form-field>
-
-    </fieldset>
 
     </div>
 
