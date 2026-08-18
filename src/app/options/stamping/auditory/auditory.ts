@@ -21,11 +21,14 @@ import { AuditQuantityModalService } from '../../../services/common/audit-quanti
 import { DialogService } from '../../../services/common/dialog-service';
 import { AuditRecordService } from '../../../services/stamping/audit-record-service';
 import { AuditRecord, AuditRecordBulkPayload, AuditedOpSummary, AuditStatus } from '../../../models/stamping/audit-record';
+import { OPStampingService } from '../../../services/stamping/op-stamping-service';
+import { StampingOrderDetail } from '../../../models/stamping/stamping-order-detail';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { TableTemplate } from '../../../directives/table-template';
+import { SHIFT_CYCLES_CONFIG } from '../../../common/const/shift-cycles-config';
 
 const TABS: TabItem[] = [
   { key: 'tab1', label: 'Orden OP' },
@@ -40,10 +43,15 @@ const TABS: TabItem[] = [
 export class StampingAuditory extends BaseProductionOrderPage {
   protected override loadExtras = false;
 
+  // OP search here is by number only, across doc types — same traceability
+  // lookup used by the stamping module's shift-cycles searcher.
+  protected searchByNumberOnly = SHIFT_CYCLES_CONFIG['stamping'].searchByNumberOnly;
+
   private location = inject(Location);
   private auditQuantityModal = inject(AuditQuantityModalService);
   private dialogService = inject(DialogService);
   private auditRecordService = inject(AuditRecordService);
+  private opStampingService = inject(OPStampingService);
 
   private context = toSignal(this.contextService.context$, { initialValue: null });
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
@@ -70,6 +78,34 @@ export class StampingAuditory extends BaseProductionOrderPage {
   // clicked — needed to merge the modal's single-color result back into a
   // complete replaceBulk payload (the other colors must survive the replace).
   private currentAuditRecords: AuditRecord[] = [];
+
+  // "Piezas a estampar" header stat — sourced from the stamping-orders/detail
+  // endpoint (same one stamping-record uses), not production-orders/detail,
+  // since the multiplier (stamped_pieces) lives per reference+SAM. A
+  // reference can have more than one candidate SAM (different machine/
+  // technique); with exactly one it's used automatically, otherwise the
+  // user picks one from the selector shown in the template.
+  protected stampingOrderDetail = signal<StampingOrderDetail | null>(null);
+  protected selectedReferenceSamId = signal<number | null>(null);
+
+  protected referenceSams = computed(() => this.stampingOrderDetail()?.referenceSams ?? []);
+
+  protected selectedReferenceSam = computed(() => {
+    const sams = this.referenceSams();
+    if (sams.length === 1) return sams[0];
+    return sams.find((s) => s.id === this.selectedReferenceSamId()) ?? null;
+  });
+
+  protected piecesToStamp = computed<number | null>(() => {
+    const sam = this.selectedReferenceSam();
+    const orderedQty = this.stampingOrderDetail()?.orderedQty;
+    if (!sam || orderedQty == null) return null;
+    return orderedQty * sam.stamped_pieces;
+  });
+
+  protected headerExtraCards = computed(() => [
+    { title: 'Piezas a estampar', data: this.piecesToStamp() != null ? String(this.piecesToStamp()) : 'No configurado' },
+  ]);
 
   // "Auditoría" tab — global list of every OP already confirmed
   // (is_audited=True), independent of whichever OP is loaded in "Orden OP".
@@ -179,6 +215,8 @@ export class StampingAuditory extends BaseProductionOrderPage {
     this.productionOrder.set(null);
     this.auditRecordsAll.set([]);
     this.auditStatus.set(null);
+    this.stampingOrderDetail.set(null);
+    this.selectedReferenceSamId.set(null);
   }
 
   override setDocument(doc: ProductionOrder | null): void {
@@ -192,6 +230,19 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
     this.loadAuditStatus(doc);
     this.loadAllAuditRecords();
+    this.loadStampingOrderDetail(doc);
+  }
+
+  protected onReferenceSamChange(id: string): void {
+    this.selectedReferenceSamId.set(id ? Number(id) : null);
+  }
+
+  private loadStampingOrderDetail(order: ProductionOrder): void {
+    this.selectedReferenceSamId.set(null);
+    this.opStampingService.getOrderDetail(order.documentType, order.documentNumber).subscribe({
+      next: (detail) => this.stampingOrderDetail.set(detail),
+      error: () => this.stampingOrderDetail.set(null),
+    });
   }
 
   private loadAuditStatus(order: ProductionOrder): void {

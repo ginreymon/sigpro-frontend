@@ -26,12 +26,27 @@
     </div>
 
     @if (!productionOrder() && !isLoading() && activeTab() === 'tab1') {
-      <app-order-searcher [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)" class="mt-2"></app-order-searcher>
+      <app-order-searcher [preloadedDocTypes]="contextDocTypes()" [traceabilityMode]="searchByNumberOnly" [numberOnlySearch]="searchByNumberOnly" (onFoundDoc)="setDocument($event)" class="mt-2"></app-order-searcher>
     }
 
     @if (productionOrder()) {
       <div [class.hidden]="activeTab() !== 'tab1'" class="flex-1 min-h-0 overflow-hidden flex flex-col">
-        <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
+        <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true" [extraCards]="headerExtraCards()"></app-order-header>
+        @if (referenceSams().length > 1) {
+        <div class="flex items-center gap-2 mb-2 text-sm">
+          <label for="referenceSam" class="text-slate-500">SAM de estampación:</label>
+          <select
+            id="referenceSam"
+            class="border border-slate-200 rounded-md px-2 py-1 text-slate-900"
+            [value]="selectedReferenceSam()?.id ?? ''"
+            (change)="onReferenceSamChange($any($event.target).value)">
+            <option value="" disabled>Seleccione...</option>
+            @for (sam of referenceSams(); track sam.id) {
+            <option [value]="sam.id">{{ sam.machine_type_name ?? sam.sam }}</option>
+            }
+          </select>
+        </div>
+        }
         <div class="flex-1 min-h-0 overflow-hidden">
           <app-order-sku-audit-table
             [productionOrder]="productionOrder()"
