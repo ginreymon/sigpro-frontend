@@ -114,7 +114,7 @@ export class OrderSearcher implements OnInit {
         .getTraceability(documentNumber, documentType)
         .subscribe({
           next: (ops) => {
-            const activeOps = ops//ops.filter((o) => o.status === 1 || o.status === 2);
+            const activeOps = ops.filter((o) => o.status === 1 || o.status === 2);
             if (!activeOps.length) {
               this.loaderServive.hideLoader();
               this.errorMessage.set('No se encontraron resultados');
