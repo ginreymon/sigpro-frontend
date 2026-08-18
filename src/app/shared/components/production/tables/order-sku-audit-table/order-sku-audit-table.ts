@@ -71,13 +71,20 @@ export class OrderSkuAuditTable {
 
   @Output() onAction = new EventEmitter<TableActionEvent<OpColorRow>>();
 
+  // One-click "audit with the estimated (ordered) quantity" — separate from
+  // the generic view/edit/delete action system since it's specific to this
+  // table and always pairs with edit (no independent enable/tooltip config
+  // needed for a single caller).
+  @Input() checkEnabled = false;
+  @Output() onCheckRow = new EventEmitter<OpColorRow>();
+
   protected get filteredRows(): OpColorRow[] {
     if (this.selectedColors.size === 0) return this.rows;
     return this.rows.filter((r) => this.selectedColors.has(r.color));
   }
 
   protected get hasAnyAction(): boolean {
-    return this.actionKeys.some((key) => this._actions[key].enabled);
+    return this.checkEnabled || this.actionKeys.some((key) => this._actions[key].enabled);
   }
 
   protected auditedQty(color: string): number | null {
@@ -142,5 +149,9 @@ export class OrderSkuAuditTable {
 
   protected actionHandler(row: OpColorRow, type: TableActionType): void {
     this.onAction.emit({ obj: row, type, action: this._actions[type] });
+  }
+
+  protected checkHandler(row: OpColorRow): void {
+    this.onCheckRow.emit(row);
   }
 }

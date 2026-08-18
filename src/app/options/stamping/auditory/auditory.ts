@@ -302,6 +302,32 @@ export class StampingAuditory extends BaseProductionOrderPage {
       });
   }
 
+  // One-click "check" action from the table — audits the color with its
+  // ordered (estipulada) quantity directly, skipping the modal, then saves
+  // through the same path as a manual edit.
+  protected onCheckOrderColor(row: OpColorRow): void {
+    const order = this.productionOrder();
+    if (!order) return;
+
+    const match = order.colorRows.find((c) => c.color === row.color);
+    if (!match) return;
+
+    this.loaderService.showLoader();
+    this.auditRecordService
+      .all({ op_number: order.documentNumber, op_rowid: order.rowId, op_type: order.documentType })
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe((records) => {
+        this.currentAuditRecords = records;
+        const quantity = Number(match.totals?.orderedQty) || 0;
+        this.onAuditQuantitySaved({
+          color: match.color,
+          quantity,
+          orderedQty: quantity,
+          skuRowIds: match.skus.map((s) => s.skuRowId),
+        });
+      });
+  }
+
   deleteAuditBlock(): void {
     const order = this.productionOrder();
     if (!order) return;

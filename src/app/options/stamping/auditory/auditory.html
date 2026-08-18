@@ -37,7 +37,9 @@
             [productionOrder]="productionOrder()"
             [auditRecords]="auditRecordsAll()"
             [actions]="opTableActions"
-            (onAction)="onOpTableAction($event)">
+            [checkEnabled]="opTableActions.edit.enabled"
+            (onAction)="onOpTableAction($event)"
+            (onCheckRow)="onCheckOrderColor($event)">
           </app-order-sku-audit-table>
         </div>
       </div>
