@@ -5,7 +5,7 @@
       <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" class="w-full" (tabChange)="onTabChange($event)" />
 
       @if (productionOrder() && activeTab() === 'tab1') {
-      <div class="flex items-center gap-2 min-w-0 max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div class="flex items-center gap-2 min-w-0 max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:min-w-fit lg:max-w-none lg:overflow-visible">
         <app-ui-badge
           class="shrink-0"
           [intent]="opApprovalStatus() === 'approved' ? 'active' : opApprovalStatus() === 'surplus' ? 'warning' : 'danger'"

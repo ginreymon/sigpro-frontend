@@ -147,12 +147,16 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
   // "Orden OP" tab table — row-level edit opens the same per-color audit
   // modal as the "Auditoría" tab, whether that color has been audited yet or not.
-  protected opTableActions: TableActions = {
-    view: { enabled: false },
-    edit: { enabled: true, title: 'Editar color', iconName: 'pencil', toolTip: 'Editar' },
-    delete: { enabled: false },
-    create: { enabled: false },
-  };
+  // Once the audit is confirmed (isConfirmed), it's locked — no more edits,
+  // so the whole Acciones column (edit + one-click check) disappears.
+  protected get opTableActions(): TableActions {
+    return {
+      view: { enabled: false },
+      edit: { enabled: !this.isConfirmed(), title: 'Editar color', iconName: 'pencil', toolTip: 'Editar' },
+      delete: { enabled: false },
+      create: { enabled: false },
+    };
+  }
 
   protected override beforeLoad(): void {
     this.activeTab.set('tab1');
