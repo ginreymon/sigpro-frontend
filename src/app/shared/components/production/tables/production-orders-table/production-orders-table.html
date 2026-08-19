@@ -31,6 +31,9 @@
                     }
 
                     <th class="px-6 py-3 title-font tracking-wider font-medium  text-right">Total</th>
+                    @if(hasExtraColumn){
+                    <th class="px-6 py-3 title-font tracking-wider font-medium text-right">{{ extraColumnLabel }}</th>
+                    }
                 </tr>
             </thead>
 
@@ -64,6 +67,11 @@
                     <td class="px-6 py-3 text-right font-semibold">
                         {{ skuColor.totals.orderedQty }}
                     </td>
+                    @if(hasExtraColumn){
+                    <td class="px-6 py-3 text-right font-semibold">
+                        {{ extraValue(skuColor.totals.orderedQty) }}
+                    </td>
+                    }
 
                 </tr>
                 }
@@ -80,6 +88,11 @@
                     <td class="px-6 py-3 text-right font-bold text-gray-900">
                         {{ filteredGrandTotal.orderedQty }}
                     </td>
+                    @if(hasExtraColumn){
+                    <td class="px-6 py-3 text-right font-bold text-gray-900">
+                        {{ extraValue(filteredGrandTotal.orderedQty) }}
+                    </td>
+                    }
                 </tr>
             </tfoot>
 
@@ -98,7 +111,12 @@
                     <app-ui-icon [iconName]="'filter'" [class]="'w-3.5 h-3.5'"></app-ui-icon>
                 </button>
             </span>
-            <span>TOTAL</span>
+            <span class="flex items-center gap-4">
+                <span>TOTAL</span>
+                @if(hasExtraColumn){
+                <span>{{ extraColumnLabel }}</span>
+                }
+            </span>
         </div>
 
         <div class="divide-y divide-gray-200">
@@ -109,7 +127,12 @@
                         <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4 text-gray-400 transition-transform group-open:rotate-90'"></app-ui-icon>
                         {{ skuColor.color }}
                     </span>
-                    <span class="font-semibold">{{ skuColor.totals.orderedQty }}</span>
+                    <span class="flex items-center gap-4">
+                        <span class="font-semibold">{{ skuColor.totals.orderedQty }}</span>
+                        @if(hasExtraColumn){
+                        <span class="font-semibold">{{ extraValue(skuColor.totals.orderedQty) }}</span>
+                        }
+                    </span>
                 </summary>
 
                 <div class="pl-10 pr-4 divide-y divide-gray-200 bg-gray-50">
@@ -142,7 +165,12 @@
 
         <div class="flex justify-between items-center px-4 py-3 font-semibold text-gray-700 border-t border-gray-300">
             <span>TOTAL</span>
-            <span class="font-bold text-gray-900">{{ filteredGrandTotal.orderedQty }}</span>
+            <span class="flex items-center gap-4">
+                <span class="font-bold text-gray-900">{{ filteredGrandTotal.orderedQty }}</span>
+                @if(hasExtraColumn){
+                <span class="font-bold text-gray-900">{{ extraValue(filteredGrandTotal.orderedQty) }}</span>
+                }
+            </span>
         </div>
 
     </div>

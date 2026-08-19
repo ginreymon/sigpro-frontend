@@ -27,7 +27,7 @@
 
             <div class="flex-1 min-h-0 overflow-hidden">
                 @if(stampingChecksPassed()){
-                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" [readOnly]="config.readOnlyOrdersTable" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
+                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" [readOnly]="config.readOnlyOrdersTable" [factor]="totalStampingFactor()" [extraColumnLabel]="'Piezas a estampar'" (onSelectSKU)="openTaskDialog($event)"></app-production-orders-table>
                 } @else {
                 <app-info-card-template
                     [title]="'Orden pendiente de validación'"

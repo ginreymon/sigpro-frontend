@@ -83,17 +83,14 @@ export class StampingAuditory extends BaseProductionOrderPage {
   // endpoint (same one stamping-record uses), not production-orders/detail,
   // since the multiplier (stamped_pieces) lives per reference+SAM. A
   // reference can have more than one candidate SAM (different machine/
-  // technique); with exactly one it's used automatically, otherwise the
-  // user picks one from the selector shown in the template.
+  // technique); only resolved automatically when there's exactly one.
   protected stampingOrderDetail = signal<StampingOrderDetail | null>(null);
-  protected selectedReferenceSamId = signal<number | null>(null);
 
   protected referenceSams = computed(() => this.stampingOrderDetail()?.referenceSams ?? []);
 
   protected selectedReferenceSam = computed(() => {
     const sams = this.referenceSams();
-    if (sams.length === 1) return sams[0];
-    return sams.find((s) => s.id === this.selectedReferenceSamId()) ?? null;
+    return sams.length === 1 ? sams[0] : null;
   });
 
   protected piecesToStamp = computed<number | null>(() => {
@@ -216,7 +213,6 @@ export class StampingAuditory extends BaseProductionOrderPage {
     this.auditRecordsAll.set([]);
     this.auditStatus.set(null);
     this.stampingOrderDetail.set(null);
-    this.selectedReferenceSamId.set(null);
   }
 
   override setDocument(doc: ProductionOrder | null): void {
@@ -233,12 +229,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
     this.loadStampingOrderDetail(doc);
   }
 
-  protected onReferenceSamChange(id: string): void {
-    this.selectedReferenceSamId.set(id ? Number(id) : null);
-  }
-
   private loadStampingOrderDetail(order: ProductionOrder): void {
-    this.selectedReferenceSamId.set(null);
     this.opStampingService.getOrderDetail(order.documentType, order.documentNumber).subscribe({
       next: (detail) => this.stampingOrderDetail.set(detail),
       error: () => this.stampingOrderDetail.set(null),

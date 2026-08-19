@@ -137,7 +137,17 @@ export class ProductionOrdersTable {
 
   @Input() currentSession: WorkSession | null = null;
   @Input() readOnly: boolean = false;
+  @Input() factor: number | null = null;
+  @Input() extraColumnLabel: string = 'Total x Factor';
   @Output() onSelectSKU = new EventEmitter<SkuTaskDetail>();
+
+  protected get hasExtraColumn(): boolean {
+    return this.factor != null;
+  }
+
+  protected extraValue(qty: number): number {
+    return qty * (this.factor ?? 0);
+  }
 
   getProducedQty(size: any): number {
     return Number(size.completedQty) + Number(size.rejectedQty) + Number(size.wasteQty);

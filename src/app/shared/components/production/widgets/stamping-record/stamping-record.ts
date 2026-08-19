@@ -237,6 +237,11 @@ export class StampingRecord {
 
   protected onTabChange(key: string): void {
     this.activeTab.set(key);
+    // Each tab renders its own app-searcher instance (@if/@else-if), so it
+    // always mounts empty — reset the matching filter signal too, or the
+    // list stays filtered by a stale query the visible input no longer shows.
+    this.additionalTimesSearchText.set('');
+    this.referencesSearchText.set('');
   }
 
   protected goToNextTab(): void {
@@ -246,7 +251,7 @@ export class StampingRecord {
     if (this.tabHasError(key)) return;
 
     const next = this.tabsView[this.currentTabIndex + 1];
-    if (next) this.activeTab.set(next.key);
+    if (next) this.onTabChange(next.key);
   }
 
   private markTabControlsTouched(key: string): void {

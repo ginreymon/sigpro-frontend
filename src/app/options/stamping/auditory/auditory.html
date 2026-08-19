@@ -3,26 +3,6 @@
 
     <div class="flex items-center justify-between gap-3">
       <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" [variant]="'raised'" class="w-full" (tabChange)="onTabChange($event)" />
-
-      @if (productionOrder() && activeTab() === 'tab1') {
-      <div class="flex items-center gap-2 min-w-0 max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:min-w-fit lg:max-w-none lg:overflow-visible">
-        <app-ui-badge
-          class="shrink-0"
-          [intent]="opApprovalStatus() === 'approved' ? 'active' : opApprovalStatus() === 'surplus' ? 'warning' : 'danger'"
-          [label]="opApprovalStatus() === 'approved' ? 'Completo' : opApprovalStatus() === 'surplus' ? 'Sobrante' : 'Faltante'">
-        </app-ui-badge>
-        <app-ui-badge
-          class="shrink-0"
-          [intent]="auditedQuantityPercentage() === 100 ? 'active' : 'danger'"
-          [label]="auditedQuantityPercentage() + '%'">
-        </app-ui-badge>
-        <app-ui-badge
-          class="shrink-0"
-          [intent]="isConfirmed() ? 'active' : 'danger'"
-          [label]="isConfirmed() ? 'Aprobada' : 'No aprobada'">
-        </app-ui-badge>
-      </div>
-      }
     </div>
 
     @if (!productionOrder() && !isLoading() && activeTab() === 'tab1') {
@@ -32,21 +12,26 @@
     @if (productionOrder()) {
       <div [class.hidden]="activeTab() !== 'tab1'" class="flex-1 min-h-0 overflow-hidden flex flex-col">
         <app-order-header class="mt-2" [productionOrder]="productionOrder()" [mobileAccordion]="true" [extraCards]="headerExtraCards()"></app-order-header>
-        @if (referenceSams().length > 1) {
-        <div class="flex items-center gap-2 mb-2 text-sm">
-          <label for="referenceSam" class="text-slate-500">SAM de estampación:</label>
-          <select
-            id="referenceSam"
-            class="border border-slate-200 rounded-md px-2 py-1 text-slate-900"
-            [value]="selectedReferenceSam()?.id ?? ''"
-            (change)="onReferenceSamChange($any($event.target).value)">
-            <option value="" disabled>Seleccione...</option>
-            @for (sam of referenceSams(); track sam.id) {
-            <option [value]="sam.id">{{ sam.machine_type_name ?? sam.sam }}</option>
-            }
-          </select>
+
+        <div class="flex justify-end min-w-0 mb-2">
+          <div class="flex items-center gap-2 min-w-0 max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:min-w-fit lg:max-w-none lg:overflow-visible">
+            <app-ui-badge
+              class="shrink-0"
+              [intent]="opApprovalStatus() === 'approved' ? 'active' : opApprovalStatus() === 'surplus' ? 'warning' : 'danger'"
+              [label]="opApprovalStatus() === 'approved' ? 'Completo' : opApprovalStatus() === 'surplus' ? 'Sobrante' : 'Faltante'">
+            </app-ui-badge>
+            <app-ui-badge
+              class="shrink-0"
+              [intent]="isConfirmed() ? 'active' : 'danger'"
+              [label]="isConfirmed() ? 'Aprobada' : 'No aprobada'">
+            </app-ui-badge>
+             <app-ui-badge
+              class="shrink-0"
+              [intent]="auditedQuantityPercentage() === 100 ? 'active' : 'danger'"
+              [label]="auditedQuantityPercentage() + '%'">
+            </app-ui-badge>
+          </div>
         </div>
-        }
         <div class="flex-1 min-h-0 overflow-hidden">
           <app-order-sku-audit-table
             [productionOrder]="productionOrder()"
