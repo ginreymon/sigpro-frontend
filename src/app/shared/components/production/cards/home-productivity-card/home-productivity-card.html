@@ -1,0 +1,14 @@
+<div
+  class="bg-white border border-gray-200 rounded-lg p-5 flex flex-col gap-3"
+  [class.hover:shadow-md]="clickable"
+  [class.transition-shadow]="clickable"
+  [class.cursor-pointer]="clickable"
+  (click)="onClick()">
+  <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ label }}</span>
+  <app-efficiency-summary-bar
+    [efficiency]="efficiency"
+    [status]="status"
+    [completed]="completed"
+    [activeModules]="activeModules">
+  </app-efficiency-summary-bar>
+</div>

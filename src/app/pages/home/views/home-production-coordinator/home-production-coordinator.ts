@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { EfficiencySummaryBar } from '../../../../shared/components/production/widgets/efficiency-summary-bar/efficiency-summary-bar';
+import { HomeProductivityCard } from '../../../../shared/components/production/cards/home-productivity-card/home-productivity-card';
 import { ProductivityService } from '../../../../services/production/productivity-service';
 import { HomeCoordinatorBase } from '../../../../common/classes/home-coordinator-base';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-home-production-coordinator',
-  imports: [EfficiencySummaryBar],
+  imports: [HomeProductivityCard],
   templateUrl: './home-production-coordinator.html',
 })
 export class HomeProductionCoordinator extends HomeCoordinatorBase {
