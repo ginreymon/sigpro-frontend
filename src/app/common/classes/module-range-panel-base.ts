@@ -18,6 +18,7 @@ import { DateRangeValue } from '../../shared/components/form-controls/date-range
 export abstract class ModuleRangePanelBase {
   protected abstract readonly productivityService: ModuleProductivityService;
   abstract readonly plantaModule: Signal<ModuleEfficiencyStatus>;
+  protected abstract readonly plantaLabel: string;
 
   protected loaderService = inject(LoaderService);
   protected destroyRef = inject(DestroyRef);
@@ -99,7 +100,7 @@ export abstract class ModuleRangePanelBase {
     const rows = this.rangeRows();
     if (!rows.length) return null;
     const operatorCount = this.rangeModuleSummaries().reduce((s, m) => s + m.operatorCount, 0);
-    return this.buildRangeSummary(rows, 0, 0, 'PLANTA', operatorCount);
+    return this.buildRangeSummary(rows, 0, 0, this.plantaLabel, operatorCount);
   });
 
   readonly rangeAllSummaries = computed<ModuleEfficiencySummary[]>(() => {

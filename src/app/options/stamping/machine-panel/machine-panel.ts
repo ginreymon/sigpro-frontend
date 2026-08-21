@@ -17,6 +17,7 @@ import { ModuleRangePanelBase } from '../../../common/classes/module-range-panel
 })
 export class MachinePanel extends ModuleRangePanelBase {
   protected readonly productivityService = inject(StampingProductivityService);
+  protected readonly plantaLabel = 'ESTAMPACIÓN';
 
   readonly service = this.productivityService;
 
@@ -40,7 +41,7 @@ export class MachinePanel extends ModuleRangePanelBase {
     return {
       module_id: 0,
       number: 0,
-      name: 'PLANTA',
+      name: 'ESTAMPACIÓN',
       location: ref?.location ?? '',
       module_enabled: true,
       work_shift_id: 0,

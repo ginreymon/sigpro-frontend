@@ -17,6 +17,7 @@ import { ModuleRangePanelBase } from '../../../common/classes/module-range-panel
 })
 export class ModulePanel extends ModuleRangePanelBase {
   protected readonly productivityService = inject(ProductivityService);
+  protected readonly plantaLabel = 'CONFECCIÓN';
 
   readonly plantaModule = computed<ModuleEfficiencyStatus>(() => {
     const mods = this.modules();
