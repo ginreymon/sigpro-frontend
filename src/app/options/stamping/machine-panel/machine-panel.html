@@ -41,7 +41,7 @@
       } @else if (rangeSearched()) {
         <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
           @for (summary of rangeAllSummaries(); track summary.moduleId) {
-            <app-range-efficiency-card [summary]="summary"></app-range-efficiency-card>
+            <app-range-efficiency-card [summary]="summary" unitLabel="MÁQUINA"></app-range-efficiency-card>
           }
         </div>
       } @else {

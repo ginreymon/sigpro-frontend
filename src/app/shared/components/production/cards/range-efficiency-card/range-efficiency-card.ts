@@ -15,6 +15,7 @@ export class RangeEfficiencyCard {
   private appConfig = inject(AppConfigService);
 
   @Input({ required: true }) summary!: ModuleEfficiencySummary;
+  @Input() unitLabel = 'MÓDULO';
   @Output() cardClick = new EventEmitter<ModuleEfficiencySummary>();
 
   onClick(): void {
