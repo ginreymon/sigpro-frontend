@@ -29,7 +29,7 @@
                 @if(stampingChecksPassed()){
                 <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" [readOnly]="config.readOnlyOrdersTable" [customColumns]="stampingCustomColumns()" (onSelectSKU)="openTaskDialog($event)">
                     <ng-template appTableTemplate="piezas" let-totals>
-                        {{ totals.orderedQty * (totalStampingFactor() ?? 0) }}
+                        <p class="text-green-600">{{ totals.orderedQty * (totalStampingFactor() ?? 0) }}</p>
                     </ng-template>
                 </app-production-orders-table>
                 } @else {
