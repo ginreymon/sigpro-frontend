@@ -4,7 +4,7 @@ import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../../elements/ui-input/ui-input';
 import { UiSelect } from '../../../../elements/ui-select/ui-select';
 import { DocType } from '../../../../../models/production/doc-type';
-import { finalize } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { ProductionOrderService } from '../../../../../services/production/production-order-service';
 import { WorkSpaceLoaderService } from '../../../../../services/common/work-space-loader-service';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
@@ -17,6 +17,7 @@ import { UiBadge } from '../../../../elements/ui-badge/ui-badge';
 import { UiOptionCard } from '../../../../elements/ui-option-card/ui-option-card';
 import { OPStampingService } from '../../../../../services/stamping/op-stamping-service';
 import { OrderTraceability } from '../../../../../models/stamping/order-traceability';
+import { ProductionContextService } from '../../../../../services/production/production-context-service';
 
 @Component({
   selector: 'app-order-searcher',
@@ -43,6 +44,7 @@ export class OrderSearcher implements OnInit {
   results = signal<OrderTraceability[]>([]);
   poService = inject(ProductionOrderService);
   opStampingService = inject(OPStampingService);
+  contextService = inject(ProductionContextService);
   wslService = inject(WorkSpaceLoaderService);
   loaderServive = inject(LoaderService);
   @Output() onFoundDoc = new EventEmitter<ProductionOrder | null>();
@@ -91,6 +93,16 @@ export class OrderSearcher implements OnInit {
       });
   }
 
+  // Módulos cuya máquina de estampación tiene uses_processes_search buscan la
+  // OP vía /stamping/production-orders/processes/ en vez del endpoint
+  // genérico — ver StampingModuleMachine.uses_processes_search.
+  private fetchOrder(docType: string, docNumber: number): Observable<ProductionOrder> {
+    const usesProcessesSearch = this.contextService.snapshot?.session?.current_module?.machine?.uses_processes_search;
+    return usesProcessesSearch
+      ? this.opStampingService.getProductionOrderProcesses(docType, docNumber)
+      : (this.poService.getOrder({ documentType: docType, documentNumber: docNumber }, true) as Observable<ProductionOrder>);
+  }
+
   clear() {
     this.orderForm.reset();
     this.results.set([]);
@@ -133,12 +145,11 @@ export class OrderSearcher implements OnInit {
       return;
     }
 
-    const payload: Partial<ProductionOrder> = { ...this.orderForm.value };
-    this.poService
-      .getOrder(payload, true)
+    const { documentType, documentNumber } = this.orderForm.value;
+    this.fetchOrder(documentType, documentNumber)
       .pipe(finalize(() => this.loaderServive.hideLoader()))
       .subscribe({
-        next: (op) => this.onFoundDoc.emit(op as ProductionOrder),
+        next: (op) => this.onFoundDoc.emit(op),
         error: (err) => this.errorMessage.set('No se encontraron resultados'),
       });
   }
@@ -147,11 +158,10 @@ export class OrderSearcher implements OnInit {
     this.results.set([]);
     this.errorMessage.set(null);
     this.loaderServive.showLoader();
-    this.poService
-      .getOrder({ documentType: order.documentType, documentNumber: order.documentNumber }, true)
+    this.fetchOrder(order.documentType, order.documentNumber)
       .pipe(finalize(() => this.loaderServive.hideLoader()))
       .subscribe({
-        next: (op) => this.onFoundDoc.emit(op as ProductionOrder),
+        next: (op) => this.onFoundDoc.emit(op),
         error: (err) => this.errorMessage.set('No se encontraron resultados'),
       });
   }
