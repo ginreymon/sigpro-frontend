@@ -1,4 +1,5 @@
-import { OperationCenter } from '../production/operation-center';
+import { ColorRowDetail } from '../production/color-row-detail';
+import { ProductClassification } from '../production/product-classification';
 import { StampingReferenceSam } from './stamping-reference-sam';
 
 export interface StampingOrderDetail {
@@ -11,9 +12,13 @@ export interface StampingOrderDetail {
   product: string;
   createdAt: string;
   destination: string;
-  status: number;
   documentId: string;
+  planId: string;
+  sam?: number;
+  docStatus?: number;
+  docStatusName?: string;
+  classification: ProductClassification;
+  colorRows: ColorRowDetail[];
   orderedQty: number;
-  operationCenters: OperationCenter[];
   referenceSams: StampingReferenceSam[];
 }
