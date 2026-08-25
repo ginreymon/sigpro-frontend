@@ -48,10 +48,12 @@ import { SHIFT_CYCLES_CONFIG } from '../../../common/const/shift-cycles-config';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { isWithinHourlyWindow } from '../../../common/functions/hourly-window';
 import { closeWorkSessionAndExit } from '../../../common/functions/close-work-session';
+import { TableTemplate } from '../../../directives/table-template';
+import { ProductionTableCustomColumn } from '../../../shared/components/production/tables/production-orders-table/production-table-custom-column';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader, RecentRecordsCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesFab],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader, RecentRecordsCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesFab, TableTemplate],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
@@ -97,6 +99,12 @@ export class ShiftCycles extends BaseProductionOrderPage {
     if (!sams.length) return null;
     return sams.reduce((sum, sam) => sum + Number(sam.stamped_pieces), 0);
   });
+
+  protected stampingCustomColumns = computed<ProductionTableCustomColumn[]>(() => {
+    if (this.totalStampingFactor() == null) return [];
+    return [{ title: 'Piezas', tooltip: 'Piezas a estampar', templateName: 'piezas' }];
+  });
+
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
 
   get document() {

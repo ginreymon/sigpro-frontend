@@ -1,4 +1,5 @@
-import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
+import { Component, ContentChildren, EventEmitter, inject, Input, Output, QueryList, TemplateRef, ViewChild } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { ProductionOrder } from '../../../../../models/production/production-order';
 import { ColorRowDetail } from '../../../../../models/production/color-row-detail';
 import { SkuDetail } from '../../../../../models/production/sku-detail';
@@ -15,15 +16,26 @@ import { UiTooltip } from "../../../../elements/ui-tooltip/ui-tooltip";
 import { UiIcon } from "../../../../elements/ui-icon/ui-icon";
 import { TableColumnFilter } from '../../../table/table-column-filter/table-column-filter';
 import { buildColorSizeMatrix, emptySize, sumInto } from './color-size-matrix';
+import { TableTemplate, TableTemplateContext } from '../../../../../directives/table-template';
+import { ProductionTableCustomColumn } from './production-table-custom-column';
 
 @Component({
   selector: 'app-production-orders-table',
-  imports: [UiTableButton, UiTooltipFixed, UiTooltip, UiIcon, TableColumnFilter],
+  imports: [UiTableButton, UiTooltipFixed, UiTooltip, UiIcon, TableColumnFilter, NgTemplateOutlet],
   templateUrl: './production-orders-table.html',
   styleUrl: './production-orders-table.css',
 })
 export class ProductionOrdersTable {
   @ViewChild(TableColumnFilter) private colorFilterPanel!: TableColumnFilter;
+
+  @Input() customColumns: ProductionTableCustomColumn[] = [];
+
+  @ContentChildren(TableTemplate) private templates!: QueryList<TableTemplate<SkuDetail>>;
+  protected templateMap = new Map<string, TemplateRef<TableTemplateContext<SkuDetail>>>();
+
+  ngAfterContentInit(): void {
+    this.templates.forEach((t) => this.templateMap.set(t.name, t.template));
+  }
 
   private selectedColors = new Set<string>();
   protected colorFilterOpen = false;
@@ -137,17 +149,7 @@ export class ProductionOrdersTable {
 
   @Input() currentSession: WorkSession | null = null;
   @Input() readOnly: boolean = false;
-  @Input() factor: number | null = null;
-  @Input() extraColumnLabel: string = 'Total x Factor';
   @Output() onSelectSKU = new EventEmitter<SkuTaskDetail>();
-
-  protected get hasExtraColumn(): boolean {
-    return this.factor != null;
-  }
-
-  protected extraValue(qty: number): number {
-    return qty * (this.factor ?? 0);
-  }
 
   getProducedQty(size: any): number {
     return Number(size.completedQty) + Number(size.rejectedQty) + Number(size.wasteQty);

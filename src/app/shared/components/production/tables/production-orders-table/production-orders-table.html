@@ -30,10 +30,17 @@
                     </th>
                     }
 
-                    <th class="px-6 py-3 title-font tracking-wider font-medium  text-right">Total</th>
-                    @if(hasExtraColumn){
-                    <th class="px-6 py-3 title-font tracking-wider font-medium text-right">{{ extraColumnLabel }}</th>
+                    @for(col of customColumns; track col.templateName){
+                    <th class="title-font tracking-wider font-medium text-center px-8">
+                        <app-ui-tooltip-fixed [message]="col.tooltip ?? col.title">
+                            <span
+                                class="text-gray-700 bg-gray-100 px-6 w-16 inline-flex justify-center items-center rounded-full text-xs font-semibold py-1">
+                                {{ col.title }}
+                            </span>
+                        </app-ui-tooltip-fixed>
+                    </th>
                     }
+                    <th class="px-6 py-3 title-font tracking-wider font-medium  text-right">Total</th>
                 </tr>
             </thead>
 
@@ -64,14 +71,16 @@
                     </td>
                     }
 
+                    @for(col of customColumns; track col.templateName){
+                    <td class="text-center">
+                        <span class="text-gray-700 px-6 w-16 inline-flex justify-center items-center rounded-full font-semibold py-1">
+                            <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: skuColor.totals }"></ng-container>
+                        </span>
+                    </td>
+                    }
                     <td class="px-6 py-3 text-right font-semibold">
                         {{ skuColor.totals.orderedQty }}
                     </td>
-                    @if(hasExtraColumn){
-                    <td class="px-6 py-3 text-right font-semibold">
-                        {{ extraValue(skuColor.totals.orderedQty) }}
-                    </td>
-                    }
 
                 </tr>
                 }
@@ -85,14 +94,14 @@
                     <td class="text-center text-gray-900"> {{ total.orderedQty }} </td>
                     }
 
+                    @for(col of customColumns; track col.templateName){
+                    <td class="text-center text-gray-900">
+                        <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: filteredGrandTotal }"></ng-container>
+                    </td>
+                    }
                     <td class="px-6 py-3 text-right font-bold text-gray-900">
                         {{ filteredGrandTotal.orderedQty }}
                     </td>
-                    @if(hasExtraColumn){
-                    <td class="px-6 py-3 text-right font-bold text-gray-900">
-                        {{ extraValue(filteredGrandTotal.orderedQty) }}
-                    </td>
-                    }
                 </tr>
             </tfoot>
 
@@ -113,9 +122,6 @@
             </span>
             <span class="flex items-center gap-4">
                 <span>TOTAL</span>
-                @if(hasExtraColumn){
-                <span>{{ extraColumnLabel }}</span>
-                }
             </span>
         </div>
 
@@ -129,9 +135,6 @@
                     </span>
                     <span class="flex items-center gap-4">
                         <span class="font-semibold">{{ skuColor.totals.orderedQty }}</span>
-                        @if(hasExtraColumn){
-                        <span class="font-semibold">{{ extraValue(skuColor.totals.orderedQty) }}</span>
-                        }
                     </span>
                 </summary>
 
@@ -158,6 +161,17 @@
                         }
                     </div>
                     }
+
+                    @for(col of customColumns; track col.templateName){
+                    <div class="flex justify-between items-center text-sm min-h-11 py-1.5">
+                        <span class="text-gray-700 bg-gray-100 px-4 w-14 inline-flex justify-center items-center rounded-full text-xs font-semibold py-1">
+                            {{ col.title }}
+                        </span>
+                        <span class="text-gray-700 px-6 w-16 inline-flex justify-center items-center rounded-full font-semibold py-1">
+                            <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: skuColor.totals }"></ng-container>
+                        </span>
+                    </div>
+                    }
                 </div>
             </details>
             }
@@ -167,9 +181,6 @@
             <span>TOTAL</span>
             <span class="flex items-center gap-4">
                 <span class="font-bold text-gray-900">{{ filteredGrandTotal.orderedQty }}</span>
-                @if(hasExtraColumn){
-                <span class="font-bold text-gray-900">{{ extraValue(filteredGrandTotal.orderedQty) }}</span>
-                }
             </span>
         </div>
 
