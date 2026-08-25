@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, signal, computed, input, effect, inject, untracked } from '@angular/core';
-import { finalize, forkJoin, of } from 'rxjs';
+import { finalize } from 'rxjs';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
@@ -15,7 +15,6 @@ import { AdditionalStampingTimeCard } from '../../cards/additional-stamping-time
 import { StampingReferenceCard } from '../../cards/stamping-reference-card/stamping-reference-card';
 import { StampingQuantityCounter } from '../../cards/stamping-quantity-counter/stamping-quantity-counter';
 import { AdditionalStampingTimeService } from '../../../../../services/stamping/additional-stamping-time-service';
-import { OPStampingService } from '../../../../../services/stamping/op-stamping-service';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { AdditionalStampingTime } from '../../../../../models/stamping/additional-stamping-time';
 import { StampingOrderDetail } from '../../../../../models/stamping/stamping-order-detail';
@@ -44,7 +43,6 @@ export class StampingRecord {
   @Output() onSave = new EventEmitter<Partial<StampingRecordPayload>>();
 
   private additionalTimeService = inject(AdditionalStampingTimeService);
-  private opStampingService = inject(OPStampingService);
   private productionContextService = inject(ProductionContextService);
   private loaderService = inject(LoaderService);
   private appConfig = inject(AppConfigService);
@@ -376,27 +374,24 @@ export class StampingRecord {
     this.isLoadingModalData.set(true);
     this.loaderService.showLoader();
 
-    const order = this.productionContextService.snapshot?.order;
-    const orderDetail$ = order
-      ? this.opStampingService.getOrderDetail(order.documentType, order.documentNumber)
-      : of<StampingOrderDetail | null>(null);
+    // El contexto de producción ya trae la OP resuelta vía
+    // stamping-orders/detail (ver ShiftCycles.orderLoader), con
+    // referenceSams incluido — no hay que volver a pedirla acá.
+    const order = this.productionContextService.snapshot?.order as StampingOrderDetail | null;
+    const moduleMachineTypeId = this.moduleMachineTypeId();
+    const moduleMachineId = this.moduleMachineId();
 
-    forkJoin({
-      additionalTimes: this.additionalTimeService.all(),
-      orderDetail: orderDetail$,
-    })
+    this.orderDetail.set(order);
+    this.referenceSams.set(filterByMachineType(order?.referenceSams ?? [], moduleMachineTypeId));
+
+    this.additionalTimeService.all()
       .pipe(finalize(() => {
         this.isLoadingModalData.set(false);
         this.loaderService.hideLoader();
       }))
       .subscribe({
-        next: ({ additionalTimes, orderDetail }) => {
-          const moduleMachineTypeId = this.moduleMachineTypeId();
-          const moduleMachineId = this.moduleMachineId();
+        next: (additionalTimes) => {
           this.additionalTimes.set(filterByMachine(filterByMachineType(additionalTimes, moduleMachineTypeId), moduleMachineId));
-          this.orderDetail.set(orderDetail);
-          const references = filterByMachineType(orderDetail?.referenceSams ?? [], moduleMachineTypeId);
-          this.referenceSams.set(references);
         },
       });
   }
