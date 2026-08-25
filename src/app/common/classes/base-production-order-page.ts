@@ -1,6 +1,6 @@
 import { Directive, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { WorkSpaceLoaderService } from '../../services/common/work-space-loader-service';
 import { LoaderService } from '../../services/common/loader-service';
 import { ProductionContextService } from '../../services/production/production-context-service';
@@ -21,6 +21,10 @@ export abstract class BaseProductionOrderPage implements OnInit {
   currentSession = signal<WorkSession | null>(null);
 
   protected loadExtras = true;
+  // Subclases pueden reemplazar cómo se resuelve la orden (ej. el
+  // shift-cycles de estampación la trae de stamping-orders/detail, que ya
+  // incluye todo lo que production-orders/detail tiene, en un solo viaje).
+  protected orderLoader?: (docType: string, docNumber: number) => Observable<ProductionOrder | null>;
 
   ngOnInit(): void {
     this.loadDocumentFromRoute();
@@ -40,7 +44,7 @@ export abstract class BaseProductionOrderPage implements OnInit {
     this.wslService.start();
     this.loaderService.showLoader();
     this.contextService
-      .load(docType, docNumber, this.loadExtras, this.loadExtras, this.loadExtras, this.loadExtras)
+      .load(docType, docNumber, this.loadExtras, this.loadExtras, this.loadExtras, this.loadExtras, this.orderLoader)
       .pipe(finalize(() => {
         this.isLoading.set(false);
         this.wslService.end();

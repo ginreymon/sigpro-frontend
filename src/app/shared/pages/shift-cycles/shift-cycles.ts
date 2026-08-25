@@ -29,7 +29,6 @@ import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { ShiftHourlyRecord } from '../../../shared/components/production/widgets/shift-hourly-record/shift-hourly-record';
 import { StampingRecord } from '../../../shared/components/production/widgets/stamping-record/stamping-record';
 import { StampingRecord as StampingRecordModel } from '../../../models/stamping/stamping-record';
-import { StampingOrderDetail } from '../../../models/stamping/stamping-order-detail';
 import { OPStampingService } from '../../../services/stamping/op-stamping-service';
 import { filterByMachineType } from '../../../common/functions/additional-time-filters';
 import { StampingRecordService } from '../../../services/stamping/stamping-record-service';
@@ -78,6 +77,14 @@ export class ShiftCycles extends BaseProductionOrderPage {
   private destroyRef = inject(DestroyRef);
   protected shiftModals = inject(ShiftModalsService);
 
+  // En estampación, stamping-orders/detail ya trae todo lo que
+  // production-orders/detail trae (colorRows, docStatus, stampingAudit,
+  // tracking...) más orderedQty/referenceSams propios — así que reemplaza
+  // por completo la fuente de la orden y evita la segunda llamada HTTP.
+  protected override orderLoader = this.config.showStampingRecord
+    ? (docType: string, docNumber: number) => this.opStampingService.getOrderDetail(docType, docNumber)
+    : undefined;
+
   private hasCheckedActiveRecord = false;
   private activeRecord: ProductionRecord | null = null;
 
@@ -85,16 +92,15 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
   lastRecordTrigger = signal(0);
   selectedSKU = signal<SkuTaskDetail | null>(null);
-  private stampingOrderDetail = signal<StampingOrderDetail | null>(null);
 
   // Piezas a estampar = suma de stamped_pieces de cada referencia (SAM) que
   // ya tiene cantidades ingresadas (stamped_qty > 0) según el backend —
   // no depende de lo que se seleccionó en esta sesión de UI.
   protected totalStampingFactor = computed(() => {
-    const detail = this.stampingOrderDetail();
-    if (!detail) return null;
+    const referenceSams = this.productionOrder()?.referenceSams;
+    if (!referenceSams) return null;
     const machineTypeId = this.contextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
-    const sams = filterByMachineType(detail.referenceSams ?? [], machineTypeId)
+    const sams = filterByMachineType(referenceSams, machineTypeId)
       .filter((sam) => Number(sam.stamped_qty) > 0);
     if (!sams.length) return null;
     return sams.reduce((sum, sam) => sum + Number(sam.stamped_pieces), 0);
@@ -183,19 +189,6 @@ export class ShiftCycles extends BaseProductionOrderPage {
   protected override onContextLoaded(context: ProductionContext): void {
     this.checkActiveRecord(context.session, context.order);
     if (!context.order) this.lastRecordTrigger.update(n => n + 1);
-
-    if (context.order && this.config.showStampingRecord) {
-      this.loadStampingOrderDetail(context.order);
-    } else {
-      this.stampingOrderDetail.set(null);
-    }
-  }
-
-  private loadStampingOrderDetail(order: ProductionOrder): void {
-    this.opStampingService.getOrderDetail(order.documentType, order.documentNumber).subscribe({
-      next: (detail) => this.stampingOrderDetail.set(detail),
-      error: () => this.stampingOrderDetail.set(null),
-    });
   }
 
   protected override onContextError(): void {
@@ -204,7 +197,6 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
   goToSearch() {
     this.productionOrder.set(null);
-    this.stampingOrderDetail.set(null);
     this.shiftNav.goToShiftCycles();
   }
 

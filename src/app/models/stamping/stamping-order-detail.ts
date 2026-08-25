@@ -1,24 +1,12 @@
-import { ColorRowDetail } from '../production/color-row-detail';
-import { ProductClassification } from '../production/product-classification';
+import { ProductionOrder } from '../production/production-order';
 import { StampingReferenceSam } from './stamping-reference-sam';
 
-export interface StampingOrderDetail {
-  rowId: number;
-  documentType: string;
-  documentNumber: number;
-  reference: string;
-  referenceRowId: number;
-  description: string;
-  product: string;
-  createdAt: string;
-  destination: string;
-  documentId: string;
-  planId: string;
-  sam?: number;
-  docStatus?: number;
-  docStatusName?: string;
-  classification: ProductClassification;
-  colorRows: ColorRowDetail[];
+// /stamping/stamping-orders/detail/ es un superset de
+// /production/production-orders/detail/ (mismo op_production_service por
+// debajo, con orderedQty/referenceSams de estampación encima) — extender
+// ProductionOrder deja que este objeto se use en cualquier sitio que espere
+// una ProductionOrder (ej. app-production-orders-table) sin castear.
+export interface StampingOrderDetail extends ProductionOrder {
   orderedQty: number;
   referenceSams: StampingReferenceSam[];
 }

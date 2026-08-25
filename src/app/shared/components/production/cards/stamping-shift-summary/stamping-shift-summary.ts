@@ -6,7 +6,6 @@ import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UpperCasePipe } from '@angular/common';
 import { ModuleEfficiencyStatus } from '../../../../../models/production/module-efficiency-status';
 import { StampingProductivityService } from '../../../../../services/stamping/stamping-productivity-service';
-import { OPStampingService } from '../../../../../services/stamping/op-stamping-service';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { WorkSession } from '../../../../../models/production/work-session';
 
@@ -18,7 +17,6 @@ import { WorkSession } from '../../../../../models/production/work-session';
 })
 export class StampingShiftSummary extends WorkShiftSummary {
   private stampingProductivityService = inject(StampingProductivityService);
-  private opStampingService = inject(OPStampingService);
   private productionContextService = inject(ProductionContextService);
 
   private referenceSamsLoaded = false;
@@ -48,24 +46,19 @@ export class StampingShiftSummary extends WorkShiftSummary {
     // Estampación: SAM sale de referenceSams por módulo, no de la orden. Sin referencia configurada, Meta muestra '-' sin alertar.
   }
 
+  // ordenProduction (StampingOrderDetail cuando showStampingRecord está
+  // activo) ya trae referenceSams — evita otra llamada a
+  // stamping-orders/detail redundante con la que ya hizo ShiftCycles.
   private loadReferenceSams(): void {
     if (this.referenceSamsLoaded || !this.ordenProduction) return;
-    const order = this.ordenProduction;
+    this.referenceSamsLoaded = true;
     const machineTypeId = this.productionContextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
 
-    this.opStampingService.getOrderDetail(order.documentType, order.documentNumber).subscribe({
-      next: (detail) => {
-        this.referenceSamsLoaded = true;
-        const sams = (detail.referenceSams ?? [])
-          .filter(r => r.machine_type == null || r.machine_type === machineTypeId)
-          .map(r => Number(r.sam))
-          .filter(v => !isNaN(v) && v > 0);
-        this.maxReferenceSam = sams.length ? Math.max(...sams) : undefined;
-        if (this.lastSession) this.loadProductivityCards(this.lastSession);
-      },
-      error: () => {
-        this.referenceSamsLoaded = true;
-      },
-    });
+    const sams = (this.ordenProduction.referenceSams ?? [])
+      .filter(r => r.machine_type == null || r.machine_type === machineTypeId)
+      .map(r => Number(r.sam))
+      .filter(v => !isNaN(v) && v > 0);
+    this.maxReferenceSam = sams.length ? Math.max(...sams) : undefined;
+    if (this.lastSession) this.loadProductivityCards(this.lastSession);
   }
 }
