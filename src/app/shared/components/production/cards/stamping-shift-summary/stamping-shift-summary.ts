@@ -59,6 +59,9 @@ export class StampingShiftSummary extends WorkShiftSummary {
       .map(r => Number(r.sam))
       .filter(v => !isNaN(v) && v > 0);
     this.maxReferenceSam = sams.length ? Math.max(...sams) : undefined;
-    if (this.lastSession) this.loadProductivityCards(this.lastSession);
+    // Recalcula la tarjeta "Meta" con el resumen ya pedido en super.buildCards
+    // — no hace falta otra llamada a module-shift-summary solo porque ahora
+    // se conoce el SAM.
+    if (this.lastSession) this.refreshMetaCard(this.lastSession);
   }
 }

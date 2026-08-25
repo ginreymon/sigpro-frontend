@@ -82,6 +82,11 @@ export class WorkShiftSummary implements OnInit {
     this.loadProductivityCards(s);
   }
 
+  // Cachea el último resumen recibido del backend para poder recalcular la
+  // tarjeta "Meta" (ej. cuando el SAM efectivo se conoce después, ver
+  // StampingShiftSummary.refreshMetaCard) sin repetir la llamada HTTP.
+  private lastSummary: EfficiencyPeriod | null = null;
+
   protected loadProductivityCards(s: WorkSession): void {
     const moduleId = s.current_module?.id;
 
@@ -103,26 +108,39 @@ export class WorkShiftSummary implements OnInit {
           efficiency:      row?.efficiency ?? 0,
         };
 
+        this.lastSummary = summary;
         this.contextService.setEfficiency(summary);
-        const noBackendData = !summary.unit_target && !summary.efficiency;
-        if (noBackendData && this.ordenProduction && !this.getEffectiveSam()) {
-          this.showSamAlert(this.ordenProduction);
-        }
-        // Estimado en vivo mientras no hay meta real del backend (sesion/jornada
-        // recien iniciada, aun sin fila en getModuleShiftSummary): se calcula
-        // siempre desde el horario nominal del turno, sin depender de la fila.
-        const samTarget = noBackendData
-          ? this.calculateSamTarget(s, shiftTimeToUtcIso(s.work_shift.start_time))
-          : null;
-        this.cards.update(cards => cards.map((card) => {
-          if (card.title === 'Meta') return { ...card, data: samTarget !== null ? samTarget : Math.round(summary.unit_target ?? 0) };
-          if (card.title === 'Acumuladas') return { ...card, data: summary.total_completed ?? 0 };
-          if (card.title === 'Bajas y saldos ') return { ...card, data: (summary.total_rejected ?? 0) + (summary.total_scrap ?? 0) };
-          if (card.title === 'Eficiencia') return { ...card, data: Math.round((summary.efficiency ?? 0) * 100) / 100 };
-          return card;
-        }));
+        this.applySummaryToCards(s, summary);
       },
     });
+  }
+
+  // Reaplica la tarjeta "Meta" con el resumen ya obtenido (sin volver a
+  // pedirlo al backend) — usado cuando el SAM efectivo se resuelve después
+  // de la carga inicial de tarjetas.
+  protected refreshMetaCard(s: WorkSession): void {
+    if (!this.lastSummary) return;
+    this.applySummaryToCards(s, this.lastSummary);
+  }
+
+  private applySummaryToCards(s: WorkSession, summary: EfficiencyPeriod): void {
+    const noBackendData = !summary.unit_target && !summary.efficiency;
+    if (noBackendData && this.ordenProduction && !this.getEffectiveSam()) {
+      this.showSamAlert(this.ordenProduction);
+    }
+    // Estimado en vivo mientras no hay meta real del backend (sesion/jornada
+    // recien iniciada, aun sin fila en getModuleShiftSummary): se calcula
+    // siempre desde el horario nominal del turno, sin depender de la fila.
+    const samTarget = noBackendData
+      ? this.calculateSamTarget(s, shiftTimeToUtcIso(s.work_shift.start_time))
+      : null;
+    this.cards.update(cards => cards.map((card) => {
+      if (card.title === 'Meta') return { ...card, data: samTarget !== null ? samTarget : Math.round(summary.unit_target ?? 0) };
+      if (card.title === 'Acumuladas') return { ...card, data: summary.total_completed ?? 0 };
+      if (card.title === 'Bajas y saldos ') return { ...card, data: (summary.total_rejected ?? 0) + (summary.total_scrap ?? 0) };
+      if (card.title === 'Eficiencia') return { ...card, data: Math.round((summary.efficiency ?? 0) * 100) / 100 };
+      return card;
+    }));
   }
 
   protected getModuleSummary(): Observable<ModuleEfficiencyStatus[]> {
