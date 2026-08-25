@@ -113,6 +113,12 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
 
+  // Máquina asignada al módulo con uses_processes_search activo: el buscador
+  // de OP se restringe a OP/OPT (ver OrderSearcher.restrictToOpAndOpt).
+  protected usesProcessesSearch = computed(() =>
+    this.context()?.session?.current_module?.machine?.uses_processes_search ?? false
+  );
+
   get document() {
     const doc = this.productionOrder();
     if (!doc) return '';

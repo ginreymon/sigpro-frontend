@@ -72,7 +72,7 @@
         }
        
         @if(!productionOrder() && !isLoading()){
-            <app-order-searcher [preloadedDocTypes]="contextDocTypes()" [traceabilityMode]="config.searchByNumberOnly" [numberOnlySearch]="config.searchByNumberOnly" (onFoundDoc)="setDocument($event)"></app-order-searcher>
+            <app-order-searcher [preloadedDocTypes]="contextDocTypes()" [traceabilityMode]="config.searchByNumberOnly" [numberOnlySearch]="config.searchByNumberOnly" [restrictToOpAndOpt]="usesProcessesSearch()" (onFoundDoc)="setDocument($event)"></app-order-searcher>
 
             <div class="flex-1 min-h-0 mt-3 bg-gray-100 rounded-md border border-gray-200 overflow-y-auto p-3">
                 <app-recent-records-card [trigger]="lastRecordTrigger()" [service]="recentRecordsService"></app-recent-records-card>
