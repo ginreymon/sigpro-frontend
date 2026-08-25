@@ -25,6 +25,7 @@ import { TitleCasePipe } from '@angular/common';
 import { UiTooltip } from "../../../shared/elements/ui-tooltip/ui-tooltip";
 import { StampingMachine } from '../../../models/stamping/stamping-machine';
 import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
+import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { User } from '../../../models/user/user';
 import { UserService } from '../../../services/user/user-service';
 
@@ -46,6 +47,7 @@ import { UserService } from '../../../services/user/user-service';
     Metadata,
     TitleCasePipe,
     UiTooltip,
+    UiCheckbox,
 ],
   templateUrl: './modules.html',
   styleUrl: './modules.css',
@@ -105,6 +107,7 @@ export class Modules extends BaseCrudPage<Module> {
       location_id: [null, [Validators.required, Validators.min(1)]],
       work_center_id: [null, [Validators.required, Validators.min(1)]],
       machine: [null],
+      uses_processes_search: [false],
       assigned_user_id: [null],
     });
   }
@@ -133,6 +136,10 @@ export class Modules extends BaseCrudPage<Module> {
     return this.modelForm.get('machine');
   }
 
+  get usesProcessesSearch() {
+    return this.modelForm.get('uses_processes_search');
+  }
+
   get assignedUserId() {
     return this.modelForm.get('assigned_user_id');
   }
@@ -145,17 +152,19 @@ export class Modules extends BaseCrudPage<Module> {
       this.workCenter?.setValue(event.obj.work_center.id);
       this.locationId?.setValue(event.obj.location?.id ?? null);
       this.machine?.setValue(event.obj.machine?.id ?? null);
+      this.usesProcessesSearch?.setValue(event.obj.machine?.uses_processes_search ?? false);
       this.assignedUserId?.setValue(event.obj.assigned_users?.[0]?.id ?? null);
     }
   }
 
   protected override submit(): void {
-    const { machine, assigned_user_id, ...formValue } = this.modelForm.value;
+    const { machine, uses_processes_search, assigned_user_id, ...formValue } = this.modelForm.value;
     const payload: Partial<Module> = {
       ...formValue,
       // If location isn't in the stamping domain, force null so the backend clears
       // any existing assignment instead of leaving it orphaned.
       machine_id: this.isStampingLocation ? (machine ? Number(machine) : null) : null,
+      uses_processes_search: this.isStampingLocation ? !!uses_processes_search : false,
       assigned_user_ids: assigned_user_id ? [Number(assigned_user_id)] : [],
     };
 

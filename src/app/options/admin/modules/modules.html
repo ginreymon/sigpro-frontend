@@ -69,6 +69,8 @@
 
         <p class="text-sm"> <strong>Máquina asignada:</strong> {{ rowObject.machine?.name ?? 'Sin máquina asignada' }} </p>
 
+        <p class="text-sm"> <strong>Búsqueda de OP vía processes:</strong> {{ rowObject.machine?.uses_processes_search ? 'Sí' : 'No' }} </p>
+
     </div>
     }
 
@@ -104,6 +106,10 @@
                 @if(isStampingLocation){
                 <app-ui-form-field [controlName]="'machine'" [label]="'Máquina asignada'">
                     <app-ui-select [className]="'w-full'" formControlName="machine" [id]="'machine'" [control]="machine" [items]="machines()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+                </app-ui-form-field>
+
+                <app-ui-form-field [controlName]="'uses_processes_search'" [label]="'Búsqueda de OP vía processes'" [layout]="'horizontal'">
+                    <app-ui-checkbox formControlName="uses_processes_search" [control]="usesProcessesSearch" [id]="'uses_processes_search'"></app-ui-checkbox>
                 </app-ui-form-field>
                 }
 
