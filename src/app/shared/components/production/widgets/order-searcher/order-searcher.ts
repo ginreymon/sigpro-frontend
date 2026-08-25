@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, input, Input, OnInit, Output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../../elements/ui-input/ui-input';
@@ -51,6 +51,15 @@ export class OrderSearcher implements OnInit {
   @Input() preloadedDocTypes: DocType[] | null | undefined;
   @Input() traceabilityMode = false;
   @Input() numberOnlySearch = false;
+  // Default false conserva el comportamiento actual (todos los tipos de
+  // documento); en true, el select de tipo solo muestra OP y OPT.
+  restrictToOpAndOpt = input<boolean>(false);
+
+  protected visibleDoctypes = computed(() =>
+    this.restrictToOpAndOpt()
+      ? this.doctypes().filter((d) => d.doc_type === 'OP' || d.doc_type === 'OPT')
+      : this.doctypes(),
+  );
 
   constructor(private fb: FormBuilder) {
     this.orderForm = fb.group({

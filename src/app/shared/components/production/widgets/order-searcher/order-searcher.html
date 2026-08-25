@@ -13,7 +13,7 @@
 
         <div class="w-full flex flex-row justify-start gap-1.5">
             <app-ui-form-field [controlName]="'documentType'" [label]="'Tipo'">
-                <app-ui-select formControlName="documentType" [className]="'min-w-40'" [control]="documentType" [items]=" doctypes()"
+                <app-ui-select formControlName="documentType" [className]="'min-w-40'" [control]="documentType" [items]="visibleDoctypes()"
                     [key]="'doc_type'" [showDefaultOption]="true"></app-ui-select>
             </app-ui-form-field>
 
