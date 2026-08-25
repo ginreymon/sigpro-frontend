@@ -58,7 +58,7 @@
               </div>
             }
 
-            <app-stamping-quantity-counter [orderedQty]="totalOrderedQuantity" [stampedQtyBase]="totalStampedQuantity" [newCompletedQty]="newCompletedQty"></app-stamping-quantity-counter>
+            <app-stamping-quantity-counter [orderedQty]="totalPendingQuantity + totalStampedQuantity" [stampedQtyBase]="totalStampedQuantity" [newCompletedQty]="newCompletedQty"></app-stamping-quantity-counter>
 
             @if (isOrderCompleted()) {
               <p class="w-full text-sm text-gray-600 text-left bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 mt-4">
