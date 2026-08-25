@@ -1,14 +1,16 @@
 @if(!currentSession() && !isLoading()){
 <app-work-space-layout [headerVisible]="false">
     <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
-        <app-info-card-template [title]="'Jornada no planificada'"
-            [description]="'No has configurado la jornada de trabajo. Asigna un turno, módulo y operarios para poder visualizar las órdenes de producción.'">
-            <app-ui-button (onClick)="goToDayOperation()">
-                <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
-                Planificar jornada
-            </app-ui-button>
-        </app-info-card-template>
-    </div>  
+        <div class="flex-1 min-h-0 overflow-hidden">
+            <app-info-card-template [title]="'Jornada no planificada'"
+                [description]="'No has configurado la jornada de trabajo. Asigna un turno, módulo y operarios para poder visualizar las órdenes de producción.'">
+                <app-ui-button (onClick)="goToDayOperation()">
+                    <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                    Planificar jornada
+                </app-ui-button>
+            </app-info-card-template>
+        </div>
+    </div>
 </app-work-space-layout>
 }
 @if(currentSession()){
