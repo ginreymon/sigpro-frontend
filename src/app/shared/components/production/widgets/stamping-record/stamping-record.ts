@@ -72,6 +72,17 @@ export class StampingRecord {
   protected selectedReferenceSamId = signal<number | null>(null);
   private referencesSearchText = signal('');
 
+  // Completada solo si TODOS los SAM de la OP ya no tienen pendiente — cada
+  // SAM es un proceso independiente, así que uno solo no basta para cerrar la OP.
+  // Declarado antes de recordForm: su validador corre de forma síncrona al
+  // construirse el FormGroup y ya necesita leer isOrderCompleted en ese momento.
+  protected isOrderCompleted = computed(() => {
+    const detail = this.orderDetail();
+    const sams = detail?.referenceSams ?? [];
+    if (!detail || Number(detail.orderedQty) <= 0 || sams.length === 0) return false;
+    return sams.every((sam) => Number(sam.pending_qty) <= 0);
+  });
+
   protected recordForm: FormGroup = this.fb.group(
     {
       stamping_reference_sam: [null, Validators.required],
@@ -130,10 +141,17 @@ export class StampingRecord {
   }
 
   protected get totalPendingQuantity(): number {
+    if (this.isOrderCompleted()) return 0;
     return Number(this.selectedReferenceSam?.pending_qty) || 0;
   }
 
+  // Completada la OP no queda ningún SAM seleccionable (todos sin pendiente),
+  // así que el contador debe agregar lo estampado de todos los SAM en vez de
+  // depender de una selección que ya no existe.
   protected get totalStampedQuantity(): number {
+    if (this.isOrderCompleted()) {
+      return this.referenceSams().reduce((sum, sam) => sum + (Number(sam.stamped_qty) || 0), 0);
+    }
     return Number(this.selectedReferenceSam?.stamped_qty) || 0;
   }
 
@@ -144,15 +162,6 @@ export class StampingRecord {
   protected get exceedsMaxError(): { max: number; total: number } | null {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
   }
-
-  // Completada solo si TODOS los SAM de la OP ya no tienen pendiente — cada
-  // SAM es un proceso independiente, así que uno solo no basta para cerrar la OP.
-  protected isOrderCompleted = computed(() => {
-    const detail = this.orderDetail();
-    const sams = detail?.referenceSams ?? [];
-    if (!detail || Number(detail.orderedQty) <= 0 || sams.length === 0) return false;
-    return sams.every((sam) => Number(sam.pending_qty) <= 0);
-  });
 
   protected get orderLabel(): string {
     const order = this.productionContextService.snapshot?.order;
