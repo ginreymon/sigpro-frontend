@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, Location } from '@angular/common';
-import { finalize } from 'rxjs';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { UiTabs, TabItem } from '../../../shared/elements/ui-tabs/ui-tabs';
@@ -224,22 +224,29 @@ export class StampingAuditory extends BaseProductionOrderPage {
     });
     this.location.replaceState(this.router.serializeUrl(tree));
 
-    this.loadAuditStatus(doc);
-    this.loadAllAuditRecords();
-    this.loadStampingOrderDetail(doc);
+    this.loadOrderExtras(doc);
   }
 
-  private loadStampingOrderDetail(order: ProductionOrder): void {
-    this.opStampingService.getOrderDetail(order.documentType, order.documentNumber).subscribe({
-      next: (detail) => this.stampingOrderDetail.set(detail),
-      error: () => this.stampingOrderDetail.set(null),
-    });
-  }
-
-  private loadAuditStatus(order: ProductionOrder): void {
-    this.auditRecordService
-      .getStatus(order.documentType, order.documentNumber)
-      .subscribe((status) => this.auditStatus.set(status));
+  // Loads everything the "Orden OP" tab needs for a newly-found OP —
+  // audit status, per-color records, and the stamping order detail (for
+  // "Piezas a estampar") — as one combined request so the loader stays
+  // visible until all three resolve, instead of hiding as soon as the
+  // fastest one finishes.
+  private loadOrderExtras(order: ProductionOrder): void {
+    this.loaderService.showLoader();
+    forkJoin({
+      status: this.auditRecordService.getStatus(order.documentType, order.documentNumber),
+      records: this.auditRecordService.all({ op_number: order.documentNumber, op_rowid: order.rowId, op_type: order.documentType }),
+      detail: this.opStampingService
+        .getOrderDetail(order.documentType, order.documentNumber)
+        .pipe(catchError(() => of(null))),
+    })
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe(({ status, records, detail }) => {
+        this.auditStatus.set(status);
+        this.auditRecordsAll.set(records);
+        this.stampingOrderDetail.set(detail);
+      });
   }
 
   private loadAllAuditRecords(): void {
@@ -253,8 +260,10 @@ export class StampingAuditory extends BaseProductionOrderPage {
 
   private loadAuditedOps(): void {
     const offset = (this.auditedOpsPage - 1) * this.auditedOpsLimit;
+    this.wslService.start();
     this.auditRecordService
       .getAuditedOps(this.auditedOpsLimit, offset, this.auditedOpsSearchTerm)
+      .pipe(finalize(() => this.wslService.end()))
       .subscribe((res) => this.auditedOpsResponse.set(res));
   }
 
