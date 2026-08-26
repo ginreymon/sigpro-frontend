@@ -6,9 +6,9 @@ import { UiRangeSlider, TimeRange } from '../../../../../elements/ui-range-slide
 import { UiTextarea } from '../../../../../elements/ui-textarea/ui-textarea';
 import { DataTable } from '../../../../table/data-table/data-table';
 import { ModuleEfficiencyRow } from '../../../../../../models/production/module-efficiency-row';
-import { ModuleWorkBreakRecord } from '../../../../../../models/production/module-work-break-record';
+import { ModuleDowntime } from '../../../../../../models/production/module-downtime';
 import { WorkShift } from '../../../../../../models/production/work-shift';
-import { ModuleWorkBreakRecordService } from '../../../../../../services/production/module-work-break-record-service';
+import { ModuleDowntimeService } from '../../../../../../services/production/module-downtime-service';
 import { WorkShiftService } from '../../../../../../services/production/work-shift-service';
 import { DialogService } from '../../../../../../services/common/dialog-service';
 import { TableColumn } from '../../../../../../common/interfaces/table-column';
@@ -45,7 +45,7 @@ export class WorkBreakTiempoTab implements OnChanges {
   @Input() visible = false;
   @Input() row: ModuleEfficiencyRow | null = null;
 
-  private moduleWorkBreakRecordService = inject(ModuleWorkBreakRecordService);
+  private moduleDowntimeService = inject(ModuleDowntimeService);
   private workShiftService = inject(WorkShiftService);
   private dialogService = inject(DialogService);
   private fb = inject(FormBuilder);
@@ -155,7 +155,7 @@ export class WorkBreakTiempoTab implements OnChanges {
 
     forkJoin({
       shift: this.workShiftService.getById(row.work_shift_id),
-      breakRecords: this.moduleWorkBreakRecordService.all({ module: row.module_id }),
+      breakRecords: this.moduleDowntimeService.all({ module: row.module_id }),
     }).subscribe({
       next: ({ shift, breakRecords }) => {
         const shiftStart = new Date(row.shift_start_utc);
@@ -188,7 +188,7 @@ export class WorkBreakTiempoTab implements OnChanges {
     return endTotal - startTotal;
   }
 
-  private toEditable(b: ModuleWorkBreakRecord): EditableBreak {
+  private toEditable(b: ModuleDowntime): EditableBreak {
     const shiftStart = this.shiftStartUtc()!;
     return {
       id: b.id,
@@ -293,7 +293,7 @@ export class WorkBreakTiempoTab implements OnChanges {
     const { custom_reason, startMinutes, endMinutes } = this.form.getRawValue();
     const id = this.editingId();
 
-    const payload: Partial<ModuleWorkBreakRecord> = {
+    const payload: Partial<ModuleDowntime> = {
       module: this.row.module_id,
       start_time: this.toIso(startMinutes),
       end_time: this.toIso(endMinutes),
@@ -303,8 +303,8 @@ export class WorkBreakTiempoTab implements OnChanges {
 
     this.saving.set(true);
     const obs = id
-      ? this.moduleWorkBreakRecordService.update(id, payload)
-      : this.moduleWorkBreakRecordService.create(payload);
+      ? this.moduleDowntimeService.update(id, payload)
+      : this.moduleDowntimeService.create(payload);
 
     obs.subscribe({
       next: (saved) => {
@@ -338,7 +338,7 @@ export class WorkBreakTiempoTab implements OnChanges {
       this.breaks.update((arr) => arr.filter((x) => x !== b));
       return;
     }
-    this.moduleWorkBreakRecordService.delete(b.id).subscribe({
+    this.moduleDowntimeService.delete(b.id).subscribe({
       next: () => {
         this.breaks.update((arr) => arr.filter((x) => x.id !== b.id));
         if (this.editingId() === b.id) {

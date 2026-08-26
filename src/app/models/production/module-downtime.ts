@@ -1,6 +1,6 @@
 import { AuditEntity } from '../../common/interfaces/audit-entity';
 
-export interface ModuleWorkBreakRecord extends AuditEntity {
+export interface ModuleDowntime extends AuditEntity {
   module: number;
   work_break: number | null;
   name: string | null;
