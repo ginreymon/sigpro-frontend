@@ -138,7 +138,7 @@
 
 @if(config.showQuantityModal && isDocStatusValid()){
   @if(allowsManualDuration()){
-  <app-quantity-duration-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" (onSave)="saveSKU($event)"></app-quantity-duration-modal>
+  <app-quantity-duration-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" [shiftStartTime]="shiftStartTime()" (onSave)="saveSKU($event)"></app-quantity-duration-modal>
   }
   @else {
   <app-quantity-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" (onSave)="saveSKU($event)"></app-quantity-modal>

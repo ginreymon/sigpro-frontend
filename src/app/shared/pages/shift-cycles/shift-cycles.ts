@@ -128,6 +128,10 @@ export class ShiftCycles extends BaseProductionOrderPage {
     this.context()?.session?.current_module?.allows_manual_duration_entry ?? false
   );
 
+  // Hora de inicio del turno activo — límite inferior para la hora inicial
+  // del registro manual (app-quantity-duration-modal).
+  protected shiftStartTime = computed(() => this.context()?.session?.work_shift?.start_time ?? null);
+
   get document() {
     const doc = this.productionOrder();
     if (!doc) return '';

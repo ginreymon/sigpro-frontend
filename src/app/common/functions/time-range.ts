@@ -17,6 +17,19 @@ export function durationMinutesBetween(
   return endMinutes - startMinutes;
 }
 
+// Resta minutes a hhmm ("HH:mm") y devuelve el resultado en el mismo
+// formato. null si hhmm es inválido o el resultado se sale del día
+// (no soporta cruzar medianoche, igual límite que durationMinutesBetween).
+export function timeMinusMinutes(hhmm: string | null | undefined, minutes: number): string | null {
+  const total = timeStringToMinutes(hhmm);
+  if (total === null || !Number.isFinite(minutes)) return null;
+  const result = total - minutes;
+  if (result < 0 || result > 1439) return null;
+  const hh = Math.floor(result / 60).toString().padStart(2, '0');
+  const mm = (result % 60).toString().padStart(2, '0');
+  return `${hh}:${mm}`;
+}
+
 export function formatMinutesAsHHmm(minutes: number | null): string {
   if (minutes === null) return '--:--';
   const hh = Math.floor(minutes / 60).toString().padStart(2, '0');

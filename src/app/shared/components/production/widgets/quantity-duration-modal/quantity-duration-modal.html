@@ -11,26 +11,61 @@
 
             @if(activeTab() === 'horario'){
 
-                <div class="w-full mt-4 space-y-4">
+               <div class="w-full mt-4 space-y-5">
 
-                    @if(editMode()){
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700">
-                        <p><strong>Inicio:</strong> {{ toLocalDate(editRecord?.record_start) | date:'HH:mm' }}</p>
-                        <p><strong>Fin:</strong> {{ editRecord?.record_end ? (toLocalDate(editRecord?.record_end) | date:'HH:mm') : 'En curso' }}</p>
-                    </div>
-                    }
-                    @else {
+    @if(editMode()){
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700">
+            <p><strong>Inicio:</strong> {{ toLocalDate(editRecord?.record_start) | date:'HH:mm' }}</p>
+            <p><strong>Fin:</strong> {{ editRecord?.record_end ? (toLocalDate(editRecord?.record_end) | date:'HH:mm') : 'En curso' }}</p>
+        </div>
+    }
+    @else {
 
-                        <app-time-range-fields [initialEnd]="currentTimeHHmm" [disableEnd]="true"></app-time-range-fields>
+        <!-- Duración -->
+        <div class="border border-slate-200 rounded-lg bg-slate-50 p-4">           
 
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-900">
-                            Duración total: <strong class="font-mono">{{ manualDurationLabel }}</strong>
-                        </div>
+            <div class="flex flex-row justify-between items-center gap-3">
 
-                    }
+                <div class="w-2/3">
+                    <span class="text-sm text-slate-500 italic">                    
+                        Ingresa el tiempo total empleado en realizar todas las unidades registradas.
+                    </span>
+                </div>                
 
+                <div class="w-1/3 flex justify-end">
+                    <app-ui-hour-input formControlName="duration_minutes" [id]="'duration_minutes'" [title]="'Minutos'" [min]="1" [max]="999">
+                    </app-ui-hour-input>
                 </div>
 
+            </div>
+
+        </div>
+
+        <!-- Horario -->
+        <div>         
+            <!--
+                Doble binding con start_time (quantity-duration-modal.ts):
+                ajustar los minutos recalcula la hora inicial, y viceversa.
+            -->
+            <app-time-range-fields
+                [startCtrl]="'start_time'"
+                [endCtrl]="'end_time'"
+                [initialEnd]="currentTimeHHmm"
+                [disableEnd]="true">
+            </app-time-range-fields>
+
+        </div>
+
+        @if(startBeforeShiftInvalid){
+            <app-ui-error-message>
+                La hora de inicio no puede ser anterior al inicio del turno
+                ({{ shiftStartTime?.slice(0, 5) }}).
+            </app-ui-error-message>
+        }
+
+    }
+
+</div>
             }
             @else {
 
@@ -98,8 +133,8 @@
             Cancelar
         </app-ui-button>
 
-        <app-ui-button [disabled]="recordForm.invalid || isSubmitting() || !enable || manualRangeInvalid" (onClick)="save()">
-            Guardar
+        <app-ui-button [disabled]="primaryActionDisabled" (onClick)="onPrimaryAction()">
+            {{ primaryActionLabel }}
         </app-ui-button>
     </div>
 
