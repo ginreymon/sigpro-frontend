@@ -1,0 +1,9 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-0 mb-1">
+  <app-ui-form-field [controlName]="startCtrl" [label]="'Hora inicial'">
+    <app-ui-time-range-picker [formControlName]="startCtrl" [title]="'Hora inicio'" [placeholder]="'Seleccionar hora'"></app-ui-time-range-picker>
+  </app-ui-form-field>
+
+  <app-ui-form-field [controlName]="endCtrl" [label]="'Hora final'">
+    <app-ui-time-range-picker [formControlName]="endCtrl" [title]="'Hora fin'" [placeholder]="'Seleccionar hora'"></app-ui-time-range-picker>
+  </app-ui-form-field>
+</div>

@@ -20,4 +20,8 @@ export interface ProductionRecord extends AuditEntity {
   end_time: string | null;
   net_duration: string | null;
   is_paused?: boolean;
+
+  // Solo para el registro manual de duración (POST .../registro-manual/):
+  // el backend calcula start_time/end_time a partir de esto, no se persiste tal cual.
+  duration_seconds?: number;
 }

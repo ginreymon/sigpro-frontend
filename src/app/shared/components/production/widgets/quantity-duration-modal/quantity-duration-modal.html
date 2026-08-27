@@ -1,0 +1,107 @@
+@if(visible()){
+<app-box-layout [title]="'Ingresar cantidades'" [classNames]="'max-w-md'">
+
+    <div box-content class="flex flex-col justify-center items-center">
+
+        <app-sku-detail class="w-full" [selectedSKU]="selectedSKU"></app-sku-detail>
+
+        <app-ui-tabs class="w-full mt-2" [tabs]="tabsView" [activeKey]="activeTab()" (tabChange)="onTabChange($event)"></app-ui-tabs>
+
+        <form id="quantityForm" class="w-full" [formGroup]="recordForm">
+
+            @if(activeTab() === 'horario'){
+
+                <div class="w-full mt-4 space-y-4">
+
+                    @if(editMode()){
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700">
+                        <p><strong>Inicio:</strong> {{ toLocalDate(editRecord?.record_start) | date:'HH:mm' }}</p>
+                        <p><strong>Fin:</strong> {{ editRecord?.record_end ? (toLocalDate(editRecord?.record_end) | date:'HH:mm') : 'En curso' }}</p>
+                    </div>
+                    }
+                    @else {
+
+                        <app-time-range-fields [initialEnd]="currentTimeHHmm" [disableEnd]="true"></app-time-range-fields>
+
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-900">
+                            Duración total: <strong class="font-mono">{{ manualDurationLabel }}</strong>
+                        </div>
+
+                    }
+
+                </div>
+
+            }
+            @else {
+
+                @if(maxAvailable){
+                <fieldset class="mt-4 max-h-[40vh] overflow-y-auto">
+                    <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Completadas'">
+                        <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + maxAvailable" [hasAddon]="true">
+                            <span right-addon>{{ displayCompletedQty }}</span>
+                        </app-ui-large-input>
+                    </app-ui-form-field>
+
+                    <app-ui-form-field [controlName]="'rejected_quantity'" [label]="'Saldos'">
+                        <app-ui-large-input [type]="'number'" formControlName="rejected_quantity" [placeholder]="'0'" [hasAddon]="true">
+                            <span right-addon>{{ displayRejectedQty }}</span>
+                        </app-ui-large-input>
+                    </app-ui-form-field>
+
+                    <app-ui-form-field [controlName]="'scrap_quantity'" [label]="'Bajas'">
+                        <app-ui-large-input [type]="'number'" formControlName="scrap_quantity" [placeholder]="'0'" [hasAddon]="true">
+                            <span right-addon>{{ displayScrapQty }}</span>
+                        </app-ui-large-input>
+                    </app-ui-form-field>
+                </fieldset>
+
+                @if(exceedsMaxError){
+                <app-ui-error-message>
+                    La suma de cantidades ({{ exceedsMaxError.total }}) supera el máximo disponible ({{ exceedsMaxError.max }}).
+                </app-ui-error-message>
+                }
+                @if(allZeroError && recordForm.dirty){
+                <app-ui-error-message>
+                    Debe ingresar al menos una cantidad mayor a cero.
+                </app-ui-error-message>
+                }
+                }
+                @else {
+                <app-quantity-detail class="w-full border-b border-slate-200" [selectedSKU]="selectedSKU"></app-quantity-detail>
+                }
+
+                @if(editMode()){
+                <app-sku-quantity-counter class="w-full" [selectedSKU]="selectedSKU"
+                    [displayCompletedQty]="displayCompletedQty"
+                    [displayRejectedQty]="displayRejectedQty"
+                    [displayScrapQty]="displayScrapQty"
+                    [newCompletedQty]="completedQty"
+                    [newRejectedQty]="rejectedQty"
+                    [newScrapQty]="scrapQty">
+                </app-sku-quantity-counter>
+                }
+                @else{
+                <app-sku-quantity-summary class="w-full" [selectedSKU]="selectedSKU"
+                    [newCompletedQty]="completedQty"
+                    [newRejectedQty]="rejectedQty"
+                    [newScrapQty]="scrapQty">
+                </app-sku-quantity-summary>
+                }
+
+            }
+
+        </form>
+    </div>
+
+    <div box-buttons class="flex flex-row gap-3">
+        <app-ui-button [intent]="'cancel'" [disabled]="isSubmitting()" (onClick)="cancel()">
+            Cancelar
+        </app-ui-button>
+
+        <app-ui-button [disabled]="recordForm.invalid || isSubmitting() || !enable || manualRangeInvalid" (onClick)="save()">
+            Guardar
+        </app-ui-button>
+    </div>
+
+</app-box-layout>
+}

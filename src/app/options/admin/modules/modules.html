@@ -113,6 +113,10 @@
                 </app-ui-form-field>
                 }
 
+                <app-ui-form-field [controlName]="'allows_manual_duration_entry'" [label]="'Permite registro manual de duración'" [layout]="'horizontal'">
+                    <app-ui-checkbox formControlName="allows_manual_duration_entry" [control]="allowsManualDurationEntry" [id]="'allows_manual_duration_entry'"></app-ui-checkbox>
+                </app-ui-form-field>
+
                 <app-ui-form-field [controlName]="'work_center_id'" [label]="'Centro de trabajo'">
                     <app-ui-select [className]="'w-full'" formControlName="work_center_id" [id]="'work_center_id'" [control]="workCenter" [items]="workCenters()" [key]="'description'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>

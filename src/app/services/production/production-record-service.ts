@@ -14,4 +14,10 @@ export class ProductionRecordService extends BaseCrudService<ProductionRecord> {
     const params = limit ? new HttpParams().set('limit', limit) : undefined;
     return this.http.get<ProductionRecord[]>(`${this.endpoint}recent/`, { params });
   }
+
+  // Variante de create() para módulos con allows_manual_duration_entry=true:
+  // el backend calcula start_time/end_time a partir de duration_seconds.
+  createManual(data: Partial<ProductionRecord>): Observable<ProductionRecord> {
+    return this.http.post<ProductionRecord>(`${this.endpoint}registro-manual/`, data);
+  }
 }

@@ -137,7 +137,12 @@
 }
 
 @if(config.showQuantityModal && isDocStatusValid()){
-<app-quantity-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" (onSave)="saveSKU($event)"></app-quantity-modal>
+  @if(allowsManualDuration()){
+  <app-quantity-duration-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" (onSave)="saveSKU($event)"></app-quantity-duration-modal>
+  }
+  @else {
+  <app-quantity-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" (onSave)="saveSKU($event)"></app-quantity-modal>
+  }
 }
 
 @if(productionOrder() && isDocStatusValid() && config.showHourlyRecord){

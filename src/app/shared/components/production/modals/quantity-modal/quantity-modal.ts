@@ -23,8 +23,10 @@ export class QuantityModal {
   @Input() selectedSKU: SkuTaskDetail | null = null;
   @Input() enable = true;
 
-  private qms = inject(QuantityModalService);
-  private fb = inject(FormBuilder);
+  // protected (no private): app-quantity-duration-modal extiende este componente
+  // para agregar la pestaña de horario reusando el form/servicio de cantidades.
+  protected qms = inject(QuantityModalService);
+  protected fb = inject(FormBuilder);
 
   @Output() onSave = new EventEmitter<Partial<ProductionRecord>>();
 
@@ -126,11 +128,21 @@ export class QuantityModal {
   save() {
     if (this.recordForm.invalid || this.isSubmitting() || !this.enable) return;
 
+    const payload = this.buildPayload();
+    if (!payload) return;
+
+    this.onSave.emit(payload);
+  }
+
+  // Hook de extensión (OCP): app-quantity-duration-modal lo sobreescribe para
+  // sumar duration_seconds al payload base sin duplicar el resto de save().
+  // Devolver null cancela el guardado (equivalente a un return temprano).
+  protected buildPayload(): Partial<ProductionRecord> | null {
     const { completed_quantity, rejected_quantity, scrap_quantity } = this.recordForm.value;
     const editRecord = this.qms.editRecord();
     const sku = this.selectedSKU;
 
-    const payload: Partial<ProductionRecord> = {
+    return {
       ...(editRecord
         ? { id: editRecord.record_id }
         : sku && {
@@ -146,7 +158,5 @@ export class QuantityModal {
       rejected_quantity: Number(rejected_quantity),
       scrap_quantity: Number(scrap_quantity),
     };
-
-    this.onSave.emit(payload);
   }
 }

@@ -63,6 +63,10 @@
     La fecha final no puede ser menor a la fecha inicial
     }
 
+    @if (control?.errors?.['horaFinMenor']) {
+    La hora final debe ser posterior a la hora inicial
+    }
+
     @if (control?.errors?.['serverError']) {
     {{ control?.errors?.['serverError'] }}
     }

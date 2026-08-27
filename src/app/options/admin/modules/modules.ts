@@ -108,6 +108,7 @@ export class Modules extends BaseCrudPage<Module> {
       work_center_id: [null, [Validators.required, Validators.min(1)]],
       machine: [null],
       uses_processes_search: [false],
+      allows_manual_duration_entry: [false],
       assigned_user_id: [null],
     });
   }
@@ -144,6 +145,10 @@ export class Modules extends BaseCrudPage<Module> {
     return this.modelForm.get('assigned_user_id');
   }
 
+  get allowsManualDurationEntry() {
+    return this.modelForm.get('allows_manual_duration_entry');
+  }
+
   protected override actionHandler(event: TableActionEvent<Module>): void {
     super.actionHandler(event);
 
@@ -153,6 +158,7 @@ export class Modules extends BaseCrudPage<Module> {
       this.locationId?.setValue(event.obj.location?.id ?? null);
       this.machine?.setValue(event.obj.machine?.id ?? null);
       this.usesProcessesSearch?.setValue(event.obj.machine?.uses_processes_search ?? false);
+      this.allowsManualDurationEntry?.setValue(event.obj.allows_manual_duration_entry ?? false);
       this.assignedUserId?.setValue(event.obj.assigned_users?.[0]?.id ?? null);
     }
   }
