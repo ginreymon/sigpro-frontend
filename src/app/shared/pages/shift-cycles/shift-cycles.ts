@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { ProductionOrdersTable } from '../../../shared/components/production/tables/production-orders-table/production-orders-table';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { finalize, interval } from 'rxjs';
+import { finalize, interval, map } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/production/widgets/order-searcher/order-searcher';
 import { ProductionOrder } from '../../../models/production/production-order';
@@ -273,8 +273,8 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
     this.loaderService.showLoader();
     const save$ = duration_seconds
-      ? this.productionRecordService.createManual({ ...payload, duration_seconds })
-      : this.productionRecordService.create(payload);
+      ? this.productionRecordService.createManualBatch([payload], duration_seconds).pipe(map(() => undefined))
+      : this.productionRecordService.create(payload).pipe(map(() => undefined));
 
     save$
       .pipe(finalize(() => this.loaderService.hideLoader()))

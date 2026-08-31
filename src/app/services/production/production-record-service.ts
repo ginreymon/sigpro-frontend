@@ -17,7 +17,17 @@ export class ProductionRecordService extends BaseCrudService<ProductionRecord> {
 
   // Variante de create() para módulos con allows_manual_duration_entry=true:
   // el backend calcula start_time/end_time a partir de duration_seconds.
-  createManual(data: Partial<ProductionRecord>): Observable<ProductionRecord> {
-    return this.http.post<ProductionRecord>(`${this.endpoint}manual-duration/`, data);
+  // Sirve tanto para un solo registro (records con 1 elemento) como para un
+  // lote — duration_seconds cubre el lote completo, no cada registro
+  // individual. La respuesta es la lista de todos los registros guardados
+  // (mismo shape que create()), cada uno con el duration_seconds del lote.
+  createManualBatch(
+    records: Partial<ProductionRecord>[],
+    duration_seconds: number,
+  ): Observable<ProductionRecord[]> {
+    return this.http.post<ProductionRecord[]>(`${this.endpoint}manual-duration-batch/`, {
+      records,
+      duration_seconds,
+    });
   }
 }

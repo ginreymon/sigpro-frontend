@@ -22,9 +22,12 @@ import { PendingRecordsReviewModal } from '../../../shared/components/production
 import { InfoCardTemplate } from '../../../template/info-card-template/info-card-template';
 import { ShiftCyclesFab } from '../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
 import { TableTemplate } from '../../../directives/table-template';
+import { finalize } from 'rxjs';
 import { ShiftCycles } from '../shift-cycles/shift-cycles';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { ManualProductionRecordsStore } from '../../../services/production/manual-production-records-store';
+import { ProductionRecordService } from '../../../services/production/production-record-service';
+import { DialogService } from '../../../services/common/dialog-service';
 
 // Reemplazo de app-shift-cycles para módulos con
 // allows_manual_duration_entry=true (Module.allows_manual_duration_entry):
@@ -48,6 +51,8 @@ import { ManualProductionRecordsStore } from '../../../services/production/manua
 })
 export class ShiftCyclesManual extends ShiftCycles {
   protected manualRecordsStore = inject(ManualProductionRecordsStore);
+  private manualBatchRecordService = inject(ProductionRecordService);
+  private manualBatchDialogService = inject(DialogService);
 
   // Registros manuales pendientes (aún no persistidos) de la orden que está
   // abierta ahora mismo — app-production-orders-table los suma encima de
@@ -122,23 +127,32 @@ export class ShiftCyclesManual extends ShiftCycles {
     this.pendingSchedule.set(null);
   }
 
-  // Igual que saveSKU: el guardado real (persistir cada registro vía API,
-  // con el horario capturado en el paso anterior) todavía no está
-  // definido — por ahora solo confirma y limpia el store, sin llamar a
-  // ningún servicio/endpoint.
+  // Persiste el lote completo vía POST /production-records/manual-duration-batch/:
+  // un solo duration_seconds (horario capturado en el paso anterior) cubre
+  // todos los registros pendientes del store, que se crean todo-o-nada.
   protected onReviewConfirm(): void {
     const records = this.manualRecordsStore.records();
-    const totalUnits = records.reduce(
-      (sum, r) => sum + Number(r.completed_quantity ?? 0) + Number(r.rejected_quantity ?? 0) + Number(r.scrap_quantity ?? 0),
-      0,
-    );
     const schedule = this.pendingSchedule();
-    alert(
-      `Guardado real pendiente de implementar (${records.length} registro(s), ${totalUnits} unidades` +
-      (schedule ? `, horario ${schedule.start_time}-${schedule.end_time}` : '') + ').'
-    );
-    this.manualRecordsStore.clear();
-    this.reviewModalVisible.set(false);
-    this.pendingSchedule.set(null);
+    if (!records.length || !schedule) return;
+
+    this.loaderService.showLoader();
+    this.manualBatchRecordService.createManualBatch(records, schedule.duration_seconds)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => {
+          this.manualRecordsStore.clear();
+          this.reviewModalVisible.set(false);
+          this.pendingSchedule.set(null);
+          this.reloadOrder();
+          this.manualBatchDialogService.openToast(
+            'Registros guardados',
+            `${records.length} registro(s) · horario ${schedule.start_time}-${schedule.end_time}`,
+            'check',
+          );
+        },
+        error: () => {
+          this.manualBatchDialogService.openToast('No se pudo guardar', 'Error al guardar los registros.', 'fail');
+        },
+      });
   }
 }
