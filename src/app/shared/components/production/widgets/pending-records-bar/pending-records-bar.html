@@ -1,0 +1,34 @@
+@if(visible()){
+<div class="fixed bottom-4 inset-x-0 z-60 flex justify-center pointer-events-none">
+  <div class="pointer-events-auto flex items-center bg-gray-50 rounded-lg p-1.5 border border-gray-200 shadow-lg mx-auto">
+
+    <div class="flex items-center space-x-4 px-3 text-sm text-gray-700">
+      <div class="flex items-center">
+        <svg class="h-4 w-4 mr-1.5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+        <span class="font-bold">{{ pendingCount() }}</span>
+        <span class="ml-1 text-gray-500">{{ pendingCount() === 1 ? 'registro pendiente' : 'registros pendientes' }}</span>
+      </div>
+
+      <div class="w-px h-4 bg-gray-300"></div>
+
+      <div class="flex items-center">
+        <svg class="h-4 w-4 mr-1.5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+        <span class="text-gray-500">Total unidades:</span>
+        <strong class="ml-1 text-gray-900">{{ totalUnits() }}</strong>
+      </div>
+    </div>
+
+    <button type="button" (click)="save()" class="ml-2 bg-brand text-white px-5 py-1.5 rounded-md font-medium text-sm flex items-center hover:bg-brand-light transition-colors focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 shadow-sm">
+      <svg class="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z"></path>
+      </svg>
+      Guardar
+    </button>
+
+  </div>
+</div>
+}

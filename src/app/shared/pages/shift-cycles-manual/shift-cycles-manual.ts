@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/production/widgets/order-searcher/order-searcher';
@@ -16,11 +16,13 @@ import { RecentRecordsCard } from '../../../shared/components/production/cards/r
 import { ShiftTimeAlert } from '../../../shared/components/production/widgets/shift-time-alert/shift-time-alert';
 import { StampingRecord } from '../../../shared/components/production/widgets/stamping-record/stamping-record';
 import { QuantityDurationModal } from '../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
+import { PendingRecordsBar } from '../../../shared/components/production/widgets/pending-records-bar/pending-records-bar';
 import { InfoCardTemplate } from '../../../template/info-card-template/info-card-template';
 import { ShiftCyclesFab } from '../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
 import { TableTemplate } from '../../../directives/table-template';
 import { ShiftCycles } from '../shift-cycles/shift-cycles';
 import { ProductionRecord } from '../../../models/production/production-record';
+import { ManualProductionRecordsStore } from '../../../services/production/manual-production-records-store';
 
 // Reemplazo de app-shift-cycles para módulos con
 // allows_manual_duration_entry=true (Module.allows_manual_duration_entry):
@@ -36,13 +38,26 @@ import { ProductionRecord } from '../../../models/production/production-record';
   imports: [
     WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary,
     StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader,
-    RecentRecordsCard, ShiftTimeAlert, StampingRecord, QuantityDurationModal,
+    RecentRecordsCard, ShiftTimeAlert, StampingRecord, QuantityDurationModal, PendingRecordsBar,
     InfoCardTemplate, ShiftCyclesFab, TableTemplate,
   ],
   templateUrl: './shift-cycles-manual.html',
   styleUrl: './shift-cycles-manual.css',
 })
 export class ShiftCyclesManual extends ShiftCycles {
+  private manualRecordsStore = inject(ManualProductionRecordsStore);
+
+  // Registros manuales pendientes (aún no persistidos) de la orden que está
+  // abierta ahora mismo — app-production-orders-table los suma encima de
+  // productionOrder para reflejar en el navegador lo recién "guardado".
+  protected pendingRecords = computed(() => {
+    const order = this.productionOrder();
+    if (!order) return [];
+    return this.manualRecordsStore.records().filter(
+      (r) => r.op_type === order.documentType && r.op_number === order.documentNumber
+    );
+  });
+
   constructor() {
     super();
     // El registro aquí no depende de ventana horaria: app-shift-hourly-record
@@ -56,15 +71,31 @@ export class ShiftCyclesManual extends ShiftCycles {
   // app-quantity-duration-modal ya dispara su propia alerta placeholder al
   // guardar (ver quantity-duration-modal.ts) y sigue emitiendo onSave con el
   // payload normal. Para un registro NUEVO de este flujo manual, el guardado
-  // real (persistir vía API) todavía no está definido, así que a propósito
-  // no se llama a ningún servicio/endpoint aquí — solo se cierra el diálogo.
-  // Editar un registro existente sigue el flujo heredado normal (sí persiste).
+  // real (persistir vía API) todavía no está definido, así que en vez de
+  // llamar a un servicio/endpoint se guarda en ManualProductionRecordsStore
+  // (mismo shape que el POST a production-records/) y la tabla se actualiza
+  // sola en el navegador (pendingRecords). Editar un registro existente
+  // sigue el flujo heredado normal (sí persiste vía API).
   override saveSKU(record: Partial<ProductionRecord>): void {
     if (record.id) {
       super.saveSKU(record);
       return;
     }
 
+    const activityId = this.currentSession()?.active_activity?.id;
+    if (!activityId) return;
+
+    this.manualRecordsStore.add({ ...record, work_session_activity: activityId });
     this.qms.close();
+  }
+
+  // app-pending-records-bar (Guardar de todos los registros acumulados):
+  // igual que saveSKU, el guardado real (persistir cada uno vía API) todavía
+  // no está definido — por ahora solo confirma y limpia el store, sin llamar
+  // a ningún servicio/endpoint.
+  protected onSaveAllPending(records: Partial<ProductionRecord>[]): void {
+    const totalUnits = records.reduce((sum, r) => sum + Number(r.completed_quantity ?? 0), 0);
+    alert(`Guardado real pendiente de implementar (${records.length} registro(s), ${totalUnits} unidades).`);
+    this.manualRecordsStore.clear();
   }
 }

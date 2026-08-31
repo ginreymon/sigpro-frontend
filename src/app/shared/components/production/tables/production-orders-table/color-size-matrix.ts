@@ -1,6 +1,7 @@
 import { ProductionOrder } from '../../../../../models/production/production-order';
 import { ColorRowDetail } from '../../../../../models/production/color-row-detail';
 import { SkuDetail } from '../../../../../models/production/sku-detail';
+import { ProductionRecord } from '../../../../../models/production/production-record';
 
 const SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
@@ -37,6 +38,33 @@ export function sumInto(total: SkuDetail, s: SkuDetail): void {
   total.plannedQty += s.plannedQty;
   total.wasteQty += s.wasteQty;
   total.rejectedQty += s.rejectedQty;
+}
+
+// Aplica encima de una ProductionOrder los registros manuales aún no
+// persistidos (shift-cycles-manual: ver ManualProductionRecordsStore — ahí
+// se guardan en vez de llamar a POST production-records/). Clona colorRows/
+// skus y suma las cantidades capturadas al sku que corresponda por
+// skuRowId, para que buildColorSizeMatrix las refleje en el navegador sin
+// volver a pedir la orden al backend.
+export function applyPendingRecords(order: ProductionOrder, pending: Partial<ProductionRecord>[]): ProductionOrder {
+  if (!pending.length) return order;
+
+  return {
+    ...order,
+    colorRows: order.colorRows.map((c) => ({
+      ...c,
+      skus: c.skus.map((s) => {
+        const extra = pending.filter((r) => r.sku_rowid === s.skuRowId);
+        if (!extra.length) return s;
+        return extra.reduce((acc, r) => ({
+          ...acc,
+          completedQty: acc.completedQty + Number(r.completed_quantity ?? 0),
+          rejectedQty: acc.rejectedQty + Number(r.rejected_quantity ?? 0),
+          wasteQty: acc.wasteQty + Number(r.scrap_quantity ?? 0),
+        }), s);
+      }),
+    })),
+  };
 }
 
 // Builds the color x size pivot shared by ProductionOrdersTable (grid view)

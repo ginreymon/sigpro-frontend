@@ -15,9 +15,10 @@ import { finalize } from 'rxjs';
 import { UiTooltip } from "../../../../elements/ui-tooltip/ui-tooltip";
 import { UiIcon } from "../../../../elements/ui-icon/ui-icon";
 import { TableColumnFilter } from '../../../table/table-column-filter/table-column-filter';
-import { buildColorSizeMatrix, emptySize, sumInto } from './color-size-matrix';
+import { applyPendingRecords, buildColorSizeMatrix, emptySize, sumInto } from './color-size-matrix';
 import { TableTemplate, TableTemplateContext } from '../../../../../directives/table-template';
 import { ProductionTableCustomColumn } from './production-table-custom-column';
+import { ProductionRecord } from '../../../../../models/production/production-record';
 
 @Component({
   selector: 'app-production-orders-table',
@@ -113,6 +114,7 @@ export class ProductionOrdersTable {
     this.colorFilterOpen = false;
   }
   private _productionOrder: ProductionOrder | null = null;
+  private _pendingRecords: Partial<ProductionRecord>[] = [];
   sizes: string[] = [];
   skuColors: ColorRowDetail[] = [];
   totalBySizes: SkuDetail[] = [];
@@ -129,6 +131,24 @@ export class ProductionOrdersTable {
   @Input()
   set productionOrder(po: ProductionOrder | null) {
     this._productionOrder = po;
+    this.recomputeMatrix();
+  }
+
+  // Registros manuales aún no persistidos (shift-cycles-manual: ver
+  // ManualProductionRecordsStore) — se suman encima de productionOrder en
+  // el navegador, sin volver a pedirla al backend. Ver applyPendingRecords.
+  get pendingRecords() {
+    return this._pendingRecords;
+  }
+
+  @Input()
+  set pendingRecords(records: Partial<ProductionRecord>[]) {
+    this._pendingRecords = records;
+    this.recomputeMatrix();
+  }
+
+  private recomputeMatrix(): void {
+    const po = this._productionOrder;
 
     if (!po) {
       this.sizes = [];
@@ -139,7 +159,7 @@ export class ProductionOrdersTable {
       return;
     }
 
-    const matrix = buildColorSizeMatrix(po);
+    const matrix = buildColorSizeMatrix(applyPendingRecords(po, this._pendingRecords));
     this.sizes = matrix.sizes;
     this.skuColors = matrix.skuColors;
     this.totalBySizes = matrix.totalBySizes;

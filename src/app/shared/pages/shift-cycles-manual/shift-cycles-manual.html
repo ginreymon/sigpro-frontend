@@ -29,7 +29,7 @@
 
             <div class="flex-1 min-h-0 overflow-hidden">
                 @if(stampingChecksPassed()){
-                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" [readOnly]="config.readOnlyOrdersTable" [customColumns]="stampingCustomColumns()" (onSelectSKU)="openTaskDialog($event)">
+                <app-production-orders-table [productionOrder]="productionOrder()" [pendingRecords]="pendingRecords()" [currentSession]="currentSession()" [readOnly]="config.readOnlyOrdersTable" [customColumns]="stampingCustomColumns()" (onSelectSKU)="openTaskDialog($event)">
                     <ng-template appTableTemplate="piezas" let-totals>
                         <p class="text-green-600">{{ totals.orderedQty * (totalStampingFactor() ?? 0) }}</p>
                     </ng-template>
@@ -55,6 +55,8 @@
                     </app-ui-button>
                 </div>
             </div>
+
+            <app-pending-records-bar (onSave)="onSaveAllPending($event)"></app-pending-records-bar>
         }
 
         @if(productionOrder() && !isDocStatusValid()){
