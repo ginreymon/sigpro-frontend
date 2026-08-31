@@ -1,4 +1,4 @@
-import { Component, computed, effect, EventEmitter, inject, OnDestroy, Output, signal } from '@angular/core';
+import { Component, computed, effect, EventEmitter, inject, Input, OnDestroy, Output, signal } from '@angular/core';
 import { ManualProductionRecordsStore } from '../../../../../services/production/manual-production-records-store';
 import { ProductionRecord } from '../../../../../models/production/production-record';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
@@ -21,7 +21,19 @@ import { UiButton } from '../../../../elements/ui-button/ui-button';
 export class PendingRecordsBar implements OnDestroy {
   private store = inject(ManualProductionRecordsStore);
 
-  protected visible = computed(() => this.store.records().length > 0);
+  // Permite al llamador ocultar la barra sin tocar el store (ej. mientras
+  // app-duration-schedule-modal está abierto — ver ShiftCyclesManual). Sin
+  // transición de desplazamiento: se oculta al instante, a diferencia de
+  // `hasRecords` que sí anima la entrada/salida.
+  private _forceHidden = signal(false);
+
+  @Input()
+  set forceHidden(value: boolean) {
+    this._forceHidden.set(value);
+  }
+
+  protected isForceHidden = computed(() => this._forceHidden());
+  protected hasRecords = computed(() => this.store.records().length > 0);
   protected pendingCount = computed(() => this.store.records().length);
   protected totalUnits = computed(() =>
     this.store.records().reduce(
@@ -70,7 +82,7 @@ export class PendingRecordsBar implements OnDestroy {
   }
 
   // Descarta todo lo capturado: vacía el store (nadie más lo referencia,
-  // así que la barra desaparece sola vía `visible`) y con eso
+  // así que la barra desaparece sola vía `hasRecords`) y con eso
   // app-production-orders-table vuelve a mostrar solo lo cargado desde la
   // base de datos (pendingRecords queda vacío, ver applyPendingRecords).
   protected discard(): void {

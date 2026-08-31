@@ -16,7 +16,7 @@
 @if(currentSession()){
 <app-work-space-layout [headerVisible]="false">
 
-    <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
+    <div main-content class="relative h-full max-h-full flex flex-col overflow-hidden">
         @if(productionOrder() && isDocStatusValid()){
 
             @if(config.showStampingRecord){
@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <app-pending-records-bar (onSave)="onSaveAllPending()"></app-pending-records-bar>
+            <app-pending-records-bar [forceHidden]="scheduleModalVisible()" (onSave)="onSaveAllPending()"></app-pending-records-bar>
         }
 
         @if(productionOrder() && !isDocStatusValid()){
