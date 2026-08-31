@@ -54,9 +54,11 @@ export class PendingRecordsBar implements OnDestroy {
     // quantity-duration-modal), no al vaciarse (Guardar/clear). set(false)
     // + rAF + set(true) fuerza el reflow para que la animación CSS se
     // reinicie aunque ya estuviera corriendo (guardados consecutivos).
+    // 0 -> N (primera aparición) no tiembla: la barra ya está animando su
+    // entrada (hasRecords) y el shake simultáneo se veía como doble temblor.
     effect(() => {
       const count = this.pendingCount();
-      if (count > this.previousCount) this.triggerShake();
+      if (this.previousCount > 0 && count > this.previousCount) this.triggerShake();
       this.previousCount = count;
     });
   }
