@@ -14,7 +14,6 @@ import { StampingBalanceModal } from '../../../shared/components/production/moda
 import { PauseModal } from '../../../shared/components/production/modals/pause-modal/pause-modal';
 import { RecentRecordsCard } from '../../../shared/components/production/cards/recent-records-card/recent-records-card';
 import { ShiftTimeAlert } from '../../../shared/components/production/widgets/shift-time-alert/shift-time-alert';
-import { ShiftHourlyRecord } from '../../../shared/components/production/widgets/shift-hourly-record/shift-hourly-record';
 import { StampingRecord } from '../../../shared/components/production/widgets/stamping-record/stamping-record';
 import { QuantityDurationModal } from '../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
 import { InfoCardTemplate } from '../../../template/info-card-template/info-card-template';
@@ -36,10 +35,20 @@ import { ShiftCycles } from '../shift-cycles/shift-cycles';
   imports: [
     WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary,
     StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader,
-    RecentRecordsCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityDurationModal,
+    RecentRecordsCard, ShiftTimeAlert, StampingRecord, QuantityDurationModal,
     InfoCardTemplate, ShiftCyclesFab, TableTemplate,
   ],
   templateUrl: './shift-cycles-manual.html',
   styleUrl: './shift-cycles-manual.css',
 })
-export class ShiftCyclesManual extends ShiftCycles { }
+export class ShiftCyclesManual extends ShiftCycles {
+  constructor() {
+    super();
+    // El registro aquí no depende de ventana horaria: app-shift-hourly-record
+    // no se usa en este template (S_H_WINDOW/S_H_KEEP_OPEN eran suyos), y
+    // forzar showHourlyRecord=true deja en no-op el watch privado de
+    // ShiftCycles que aplicaría STAMPING_CAL_WINDOW para módulos de
+    // estampación — inWindow se queda en su valor inicial (true) siempre.
+    this.config = { ...this.config, showHourlyRecord: true };
+  }
+}

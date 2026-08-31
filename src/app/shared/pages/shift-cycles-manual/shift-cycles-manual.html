@@ -43,8 +43,8 @@
                 }
             </div>
 
-            <div [class]="'flex flex-row items-center mt-4 gap-3 w-full shrink-0 ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">
-                @if(stampingChecksPassed() && (!shiftModals.shiftHourlyVisible()||finalizeDay())){
+            <div class="flex flex-row items-center mt-4 gap-3 w-full shrink-0 justify-between">
+                @if(stampingChecksPassed()){
                 <app-shift-cycles-fab [finalizeDay]="finalizeDay()" [inWindow]="inWindow()" [config]="config" (onFinalize)="refreshSession()"></app-shift-cycles-fab>
                 }
 
@@ -138,20 +138,6 @@
 
 @if(config.showQuantityModal && isDocStatusValid()){
 <app-quantity-duration-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" [shiftStartTime]="shiftStartTime()" (onSave)="saveSKU($event)"></app-quantity-duration-modal>
-}
-
-@if(productionOrder() && isDocStatusValid() && config.showHourlyRecord){
-<app-shift-hourly-record
-    [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
-    [enabled]="currentSession() !== null"
-    [activityId]="currentSession()?.active_activity?.id"
-    [activeBreak]="currentSession()?.active_activity?.active_break ?? null"
-    [currentSession]="currentSession()"
-    [lastProductionRecord]="currentSession()?.active_activity?.last_production_record"
-    (onFinalize)="refreshSession()"
-    (onActivityPaused)="onPauseSaved($event)"
-    (inWindowChange)="inWindow.set($event)"
-></app-shift-hourly-record>
 }
 
 @if(productionOrder() && isDocStatusValid() && config.showStampingRecord){
