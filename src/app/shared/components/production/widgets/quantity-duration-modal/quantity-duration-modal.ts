@@ -27,8 +27,7 @@ import { QuantityModal } from '../../modals/quantity-modal/quantity-modal';
 })
 export class QuantityDurationModal extends QuantityModal {
   override save(): void {
-    if (this.recordForm.invalid || this.isSubmitting() || !this.enable) return;
-    alert('Registro capturado (guardado real pendiente de implementar).');
+    if (this.recordForm.invalid || this.isSubmitting() || !this.enable) return;   
     super.save();
   }
 }
