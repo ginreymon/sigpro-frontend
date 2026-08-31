@@ -7,7 +7,7 @@ import { Modules } from '../options/admin/modules/modules';
 import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
 import { RestrictedWorkTime } from '../options/admin/restricted-work-time/restricted-work-time';
 import { GeneralConfig } from '../options/admin/general-config/general-config';
-import { ShiftCycles } from '../shared/pages/shift-cycles/shift-cycles';
+import { ShiftCyclesEntry } from '../shared/pages/shift-cycles-entry/shift-cycles-entry';
 import { SewingSAM } from '../options/admin/sewing-sam/sewing-sam';
 import { AppSettings } from '../options/configuration/app-settings/app-settings';
 import { ModulePanel } from '../options/production/module-panel/module-panel';
@@ -38,7 +38,7 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/stamping-sam': StampingSam,
   'production/sewing-sam': SewingSAM,
   'production/day-operation': DayOperation,
-  'production/shift-cycles': ShiftCycles,
+  'production/shift-cycles': ShiftCyclesEntry,
   'production/data-export': DataExport,
   'production/module-panel': ModulePanel,
   'production/sewing-config': SewingConfig,
@@ -50,7 +50,7 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/additional-times': AdditionalTimes,
   'stamping/machines-config': MachinesConfig,
   'stamping/day-operation': DayOperation,
-  'stamping/shift-cycles': ShiftCycles,
+  'stamping/shift-cycles': ShiftCyclesEntry,
   'stamping/machine-panel': MachinePanel,
   'stamping/auditory': StampingAuditory,
 };
