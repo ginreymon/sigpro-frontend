@@ -7,7 +7,7 @@ import { ShiftCycles } from '../shift-cycles/shift-cycles';
 import { ShiftCyclesManual } from '../shift-cycles-manual/shift-cycles-manual';
 
 // Punto de entrada de la ruta shift-cycles: decide qué página montar según
-// Module.allows_manual_duration_entry (apps/production/models/module.py) del
+// Module.allows_production_time_adjustment (apps/production/models/module.py) del
 // módulo activo en la sesión de trabajo actual — app-shift-cycles-manual si
 // está habilitado, app-shift-cycles si no. Solo se instancia uno de los dos,
 // cada uno con su propio ciclo de carga de contexto (evita duplicar el
@@ -35,7 +35,7 @@ export class ShiftCyclesEntry implements OnInit {
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (session) => {
-          this.manual.set(!!session?.current_module?.allows_manual_duration_entry);
+          this.manual.set(!!session?.current_module?.allows_production_time_adjustment);
           this.checked.set(true);
         },
         error: () => this.checked.set(true),

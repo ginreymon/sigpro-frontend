@@ -30,7 +30,7 @@ import { ProductionRecordService } from '../../../services/production/production
 import { DialogService } from '../../../services/common/dialog-service';
 
 // Reemplazo de app-shift-cycles para módulos con
-// allows_manual_duration_entry=true (Module.allows_manual_duration_entry):
+// allows_production_time_adjustment=true (Module.allows_production_time_adjustment):
 // misma lógica (hereda ShiftCycles tal cual), solo cambia el template — al
 // seleccionar un SKU se abre app-quantity-duration-modal (mismo template y
 // validaciones que app-quantity-modal, ver quantity-duration-modal.ts) en

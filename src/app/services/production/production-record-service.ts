@@ -15,7 +15,7 @@ export class ProductionRecordService extends BaseCrudService<ProductionRecord> {
     return this.http.get<ProductionRecord[]>(`${this.endpoint}recent/`, { params });
   }
 
-  // Variante de create() para módulos con allows_manual_duration_entry=true:
+  // Variante de create() para módulos con allows_production_time_adjustment=true:
   // el backend calcula start_time/end_time a partir de duration_seconds.
   // Sirve tanto para un solo registro (records con 1 elemento) como para un
   // lote — duration_seconds cubre el lote completo, no cada registro

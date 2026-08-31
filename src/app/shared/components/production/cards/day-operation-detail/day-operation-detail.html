@@ -16,7 +16,9 @@
         <p> <strong> Descripción :</strong> {{ workSession.current_module?.work_center?.description }} </p>
     
         <p> <strong> Código :</strong> {{ workSession.current_module?.work_center?.code }} </p>
-    
+
+        <p> <strong> Permitir ajustar tiempo de producción :</strong> {{ workSession.current_module?.allows_production_time_adjustment ? 'Sí' : 'No' }} </p>
+
     </div>
 
 </div>

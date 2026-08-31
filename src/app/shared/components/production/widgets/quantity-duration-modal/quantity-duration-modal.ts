@@ -12,7 +12,7 @@ import { SkuQuantityCounter } from '../../cards/sku-quantity-counter/sku-quantit
 import { QuantityModal } from '../../modals/quantity-modal/quantity-modal';
 
 // Variante de app-quantity-modal para el asistente de shift-cycles-manual
-// (módulos con allows_manual_duration_entry=true): mismo template, mismas
+// (módulos con allows_production_time_adjustment=true): mismo template, mismas
 // validaciones — hereda todo tal cual de QuantityModal. La única diferencia
 // es Guardar: por el momento el guardado real de este flujo no está
 // definido, así que solo se muestra una alerta de confirmación en vez de
