@@ -1,4 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { extractFieldErrorMessage } from '../../../common/functions/session-errors';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/production/widgets/order-searcher/order-searcher';
@@ -150,8 +152,15 @@ export class ShiftCyclesManual extends ShiftCycles {
             'check',
           );
         },
-        error: () => {
-          this.manualBatchDialogService.openToast('No se pudo guardar', 'Error al guardar los registros.', 'fail');
+        error: (err: HttpErrorResponse) => {
+          // No se limpia manualRecordsStore (los registros pendientes se
+          // conservan para reintentar) y se vuelve al estado de selección
+          // (review modal cerrado) para que app-pending-records-bar
+          // reaparezca en vez de quedar oculta tras el modal fallido.
+          this.reviewModalVisible.set(false);
+          this.pendingSchedule.set(null);
+          const message = extractFieldErrorMessage(err) ?? 'Error al guardar los registros.';
+          this.manualBatchDialogService.openToast('No se pudo guardar', message, 'fail');
         },
       });
   }
