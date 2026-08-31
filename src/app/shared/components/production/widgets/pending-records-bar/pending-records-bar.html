@@ -1,26 +1,35 @@
-<div class="fixed bottom-4 inset-x-0 z-60 flex justify-center pointer-events-none">
-  <div [class]="'pointer-events-auto flex items-center bg-gray-50 rounded-lg p-1.5 border border-gray-200 shadow-lg mx-auto transform transition-all duration-500 ease-out ' + (visible() ? 'translate-y-0 opacity-100' : '-translate-y-[100vh] opacity-0')">
+<div class="fixed bottom-20 lg:bottom-4 inset-x-0 z-60 flex justify-center pointer-events-none">
+  <div [class]="'transform transition-all duration-500 ease-out ' + (visible() ? 'translate-y-0 opacity-100' : '-translate-y-[100vh] opacity-0')">
+    <div [class]="'pointer-events-auto flex items-center bg-gray-50 rounded-lg p-1.5 border border-gray-200 shadow-lg mx-auto ' + (shake() ? 'animate-shake' : '')">
 
-    <div class="flex items-center space-x-4 px-3 text-sm text-gray-700">
-      <div class="flex items-center">
-        <app-ui-icon [iconName]="'fileLines'" class="h-4 w-4 mr-1.5 text-brand"></app-ui-icon>
-        <span class="font-bold">{{ pendingCount() }}</span>
-        <span class="ml-1 text-gray-500">{{ pendingCount() === 1 ? 'registro pendiente' : 'registros pendientes' }}</span>
+      <div class="flex items-center space-x-4 px-3 text-sm text-gray-700">
+        <div class="flex items-center">
+          <app-ui-icon [iconName]="'fileLines'" class="h-4 w-4 mr-1.5 text-brand"></app-ui-icon>
+          <span class="font-bold">{{ pendingCount() }}</span>
+          <span class="ml-1 text-gray-500">{{ pendingCount() === 1 ? 'Registro' : 'Registros' }}</span>
+        </div>
+
+        <div class="w-px h-4 bg-gray-300"></div>
+
+        <div class="flex items-center">
+          <app-ui-icon [iconName]="'database'" class="h-4 w-4 mr-1.5 text-brand"></app-ui-icon>
+          <strong class="text-gray-900">{{ totalUnits() }}</strong>
+          <span class="ml-1 text-gray-500">Unidades</span>
+        </div>
       </div>
 
-      <div class="w-px h-4 bg-gray-300"></div>
+      <div class="flex items-center gap-2 ml-2">
+        <app-ui-button [intent]="'action'" (onClick)="discard()">
+          <app-ui-icon [iconName]="'trash'" class="h-4 w-4 mr-1.5"></app-ui-icon>
+          Eliminar
+        </app-ui-button>
 
-      <div class="flex items-center">
-        <app-ui-icon [iconName]="'database'" class="h-4 w-4 mr-1.5 text-brand"></app-ui-icon>
-        <span class="text-gray-500">Total unidades:</span>
-        <strong class="ml-1 text-gray-900">{{ totalUnits() }}</strong>
+        <app-ui-button (onClick)="save()">
+          <app-ui-icon [iconName]="'upload'" class="h-4 w-4 mr-1.5"></app-ui-icon>
+          Guardar
+        </app-ui-button>
       </div>
+
     </div>
-
-    <app-ui-button (onClick)="save()">
-      <app-ui-icon [iconName]="'upload'" class="h-4 w-4 mr-1.5"></app-ui-icon>
-      Guardar
-    </app-ui-button>
-
   </div>
 </div>

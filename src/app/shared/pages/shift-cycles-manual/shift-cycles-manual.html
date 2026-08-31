@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <app-pending-records-bar (onSave)="onSaveAllPending($event)"></app-pending-records-bar>
+            <app-pending-records-bar (onSave)="onSaveAllPending()"></app-pending-records-bar>
         }
 
         @if(productionOrder() && !isDocStatusValid()){
@@ -141,6 +141,13 @@
 @if(config.showQuantityModal && isDocStatusValid()){
 <app-quantity-duration-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" (onSave)="saveSKU($event)"></app-quantity-duration-modal>
 }
+
+<app-duration-schedule-modal
+    [visible]="scheduleModalVisible()"
+    [enable]="inWindow() || finalizeDay()"
+    (onNext)="onScheduleNext($event)"
+    (onCancel)="onScheduleCancel()">
+</app-duration-schedule-modal>
 
 @if(productionOrder() && isDocStatusValid() && config.showStampingRecord){
 <app-stamping-record

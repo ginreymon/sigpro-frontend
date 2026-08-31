@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/production/widgets/order-searcher/order-searcher';
@@ -17,6 +17,7 @@ import { ShiftTimeAlert } from '../../../shared/components/production/widgets/sh
 import { StampingRecord } from '../../../shared/components/production/widgets/stamping-record/stamping-record';
 import { QuantityDurationModal } from '../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
 import { PendingRecordsBar } from '../../../shared/components/production/widgets/pending-records-bar/pending-records-bar';
+import { DurationScheduleModal } from '../../../shared/components/production/widgets/duration-schedule-modal/duration-schedule-modal';
 import { InfoCardTemplate } from '../../../template/info-card-template/info-card-template';
 import { ShiftCyclesFab } from '../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
 import { TableTemplate } from '../../../directives/table-template';
@@ -38,7 +39,7 @@ import { ManualProductionRecordsStore } from '../../../services/production/manua
   imports: [
     WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary,
     StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader,
-    RecentRecordsCard, ShiftTimeAlert, StampingRecord, QuantityDurationModal, PendingRecordsBar,
+    RecentRecordsCard, ShiftTimeAlert, StampingRecord, QuantityDurationModal, PendingRecordsBar, DurationScheduleModal,
     InfoCardTemplate, ShiftCyclesFab, TableTemplate,
   ],
   templateUrl: './shift-cycles-manual.html',
@@ -89,13 +90,30 @@ export class ShiftCyclesManual extends ShiftCycles {
     this.qms.close();
   }
 
-  // app-pending-records-bar (Guardar de todos los registros acumulados):
-  // igual que saveSKU, el guardado real (persistir cada uno vía API) todavía
-  // no está definido — por ahora solo confirma y limpia el store, sin llamar
-  // a ningún servicio/endpoint.
-  protected onSaveAllPending(records: Partial<ProductionRecord>[]): void {
+  // Modal de horario que sale al pulsar Guardar en app-pending-records-bar
+  // (ver duration-schedule-modal.ts) — captura el horario del lote antes de
+  // confirmar el guardado.
+  protected scheduleModalVisible = signal(false);
+
+  protected onSaveAllPending(): void {
+    this.scheduleModalVisible.set(true);
+  }
+
+  protected onScheduleCancel(): void {
+    this.scheduleModalVisible.set(false);
+  }
+
+  // Igual que saveSKU: el guardado real (persistir cada registro vía API,
+  // ahora con el horario capturado aquí) todavía no está definido — por
+  // ahora solo confirma y limpia el store, sin llamar a ningún servicio/endpoint.
+  protected onScheduleNext(schedule: { start_time: string; end_time: string; duration_seconds: number }): void {
+    const records = this.manualRecordsStore.records();
     const totalUnits = records.reduce((sum, r) => sum + Number(r.completed_quantity ?? 0), 0);
-    alert(`Guardado real pendiente de implementar (${records.length} registro(s), ${totalUnits} unidades).`);
+    alert(
+      `Guardado real pendiente de implementar (${records.length} registro(s), ${totalUnits} unidades, ` +
+      `horario ${schedule.start_time}-${schedule.end_time}).`
+    );
     this.manualRecordsStore.clear();
+    this.scheduleModalVisible.set(false);
   }
 }
