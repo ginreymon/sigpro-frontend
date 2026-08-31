@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <app-pending-records-bar [forceHidden]="scheduleModalVisible()" (onSave)="onSaveAllPending()"></app-pending-records-bar>
+            <app-pending-records-bar [forceHidden]="batchHidesBar()" (onSave)="onSaveAllPending()"></app-pending-records-bar>
         }
 
         @if(productionOrder() && !isDocStatusValid()){
@@ -148,6 +148,15 @@
     (onNext)="onScheduleNext($event)"
     (onCancel)="onScheduleCancel()">
 </app-duration-schedule-modal>
+
+<app-pending-records-review-modal
+    [visible]="reviewModalVisible()"
+    [records]="manualRecordsStore.records()"
+    [schedule]="pendingSchedule()"
+    (onConfirm)="onReviewConfirm()"
+    (onCancel)="onReviewCancel()"
+    (onRemove)="manualRecordsStore.removeAt($event)">
+</app-pending-records-review-modal>
 
 @if(productionOrder() && isDocStatusValid() && config.showStampingRecord){
 <app-stamping-record

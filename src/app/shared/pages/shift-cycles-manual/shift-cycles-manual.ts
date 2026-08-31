@@ -18,6 +18,7 @@ import { StampingRecord } from '../../../shared/components/production/widgets/st
 import { QuantityDurationModal } from '../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
 import { PendingRecordsBar } from '../../../shared/components/production/widgets/pending-records-bar/pending-records-bar';
 import { DurationScheduleModal } from '../../../shared/components/production/widgets/duration-schedule-modal/duration-schedule-modal';
+import { PendingRecordsReviewModal } from '../../../shared/components/production/widgets/pending-records-review-modal/pending-records-review-modal';
 import { InfoCardTemplate } from '../../../template/info-card-template/info-card-template';
 import { ShiftCyclesFab } from '../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
 import { TableTemplate } from '../../../directives/table-template';
@@ -40,13 +41,13 @@ import { ManualProductionRecordsStore } from '../../../services/production/manua
     WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary,
     StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader,
     RecentRecordsCard, ShiftTimeAlert, StampingRecord, QuantityDurationModal, PendingRecordsBar, DurationScheduleModal,
-    InfoCardTemplate, ShiftCyclesFab, TableTemplate,
+    PendingRecordsReviewModal, InfoCardTemplate, ShiftCyclesFab, TableTemplate,
   ],
   templateUrl: './shift-cycles-manual.html',
   styleUrl: './shift-cycles-manual.css',
 })
 export class ShiftCyclesManual extends ShiftCycles {
-  private manualRecordsStore = inject(ManualProductionRecordsStore);
+  protected manualRecordsStore = inject(ManualProductionRecordsStore);
 
   // Registros manuales pendientes (aún no persistidos) de la orden que está
   // abierta ahora mismo — app-production-orders-table los suma encima de
@@ -90,10 +91,17 @@ export class ShiftCyclesManual extends ShiftCycles {
     this.qms.close();
   }
 
-  // Modal de horario que sale al pulsar Guardar en app-pending-records-bar
-  // (ver duration-schedule-modal.ts) — captura el horario del lote antes de
-  // confirmar el guardado.
+  // Asistente de guardado por lote que sale al pulsar Guardar en
+  // app-pending-records-bar: horario (duration-schedule-modal) → revisión
+  // en tabla (pending-records-review-modal) → confirmar. app-pending-records-bar
+  // se oculta (forceHidden) mientras cualquiera de los dos esté abierto.
   protected scheduleModalVisible = signal(false);
+  protected reviewModalVisible = signal(false);
+  protected batchHidesBar = computed(() => this.scheduleModalVisible() || this.reviewModalVisible());
+
+  // Expuesto (no private) para que pending-records-review-modal muestre el
+  // horario capturado junto al total de unidades.
+  protected pendingSchedule = signal<{ start_time: string; end_time: string; duration_seconds: number } | null>(null);
 
   protected onSaveAllPending(): void {
     this.scheduleModalVisible.set(true);
@@ -103,17 +111,34 @@ export class ShiftCyclesManual extends ShiftCycles {
     this.scheduleModalVisible.set(false);
   }
 
-  // Igual que saveSKU: el guardado real (persistir cada registro vía API,
-  // ahora con el horario capturado aquí) todavía no está definido — por
-  // ahora solo confirma y limpia el store, sin llamar a ningún servicio/endpoint.
   protected onScheduleNext(schedule: { start_time: string; end_time: string; duration_seconds: number }): void {
+    this.pendingSchedule.set(schedule);
+    this.scheduleModalVisible.set(false);
+    this.reviewModalVisible.set(true);
+  }
+
+  protected onReviewCancel(): void {
+    this.reviewModalVisible.set(false);
+    this.pendingSchedule.set(null);
+  }
+
+  // Igual que saveSKU: el guardado real (persistir cada registro vía API,
+  // con el horario capturado en el paso anterior) todavía no está
+  // definido — por ahora solo confirma y limpia el store, sin llamar a
+  // ningún servicio/endpoint.
+  protected onReviewConfirm(): void {
     const records = this.manualRecordsStore.records();
-    const totalUnits = records.reduce((sum, r) => sum + Number(r.completed_quantity ?? 0), 0);
+    const totalUnits = records.reduce(
+      (sum, r) => sum + Number(r.completed_quantity ?? 0) + Number(r.rejected_quantity ?? 0) + Number(r.scrap_quantity ?? 0),
+      0,
+    );
+    const schedule = this.pendingSchedule();
     alert(
-      `Guardado real pendiente de implementar (${records.length} registro(s), ${totalUnits} unidades, ` +
-      `horario ${schedule.start_time}-${schedule.end_time}).`
+      `Guardado real pendiente de implementar (${records.length} registro(s), ${totalUnits} unidades` +
+      (schedule ? `, horario ${schedule.start_time}-${schedule.end_time}` : '') + ').'
     );
     this.manualRecordsStore.clear();
-    this.scheduleModalVisible.set(false);
+    this.reviewModalVisible.set(false);
+    this.pendingSchedule.set(null);
   }
 }

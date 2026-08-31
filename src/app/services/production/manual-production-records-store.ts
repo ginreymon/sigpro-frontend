@@ -18,6 +18,10 @@ export class ManualProductionRecordsStore {
     this._records.update((records) => [...records, record]);
   }
 
+  removeAt(index: number): void {
+    this._records.update((records) => records.filter((_, i) => i !== index));
+  }
+
   clear(): void {
     this._records.set([]);
   }

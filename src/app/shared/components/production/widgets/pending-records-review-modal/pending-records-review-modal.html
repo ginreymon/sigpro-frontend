@@ -1,0 +1,57 @@
+@if(visible){
+<app-box-layout [title]="'Revisar registros'" [classNames]="'max-w-2xl'">
+
+    <div box-content class="flex flex-col w-full">
+
+        <div class="overflow-auto max-h-[50vh] mt-4 border border-gray-200 rounded-lg">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-gray-100 text-gray-700 sticky top-0">
+                    <tr>
+                        <th class="px-4 py-2 font-medium">OP</th>
+                        <th class="px-4 py-2 font-medium text-center">Completadas</th>
+                        <th class="px-4 py-2 font-medium text-center">Saldos</th>
+                        <th class="px-4 py-2 font-medium text-center">Bajas</th>
+                        <th class="px-4 py-2 font-medium text-center"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @for(record of records; track $index){
+                    <tr>
+                        <td class="px-4 py-2">{{ record.op_type }} {{ record.op_number }}</td>
+                        <td class="px-4 py-2 text-center font-semibold text-green-600">{{ record.completed_quantity }}</td>
+                        <td class="px-4 py-2 text-center font-semibold text-amber-500">{{ record.rejected_quantity }}</td>
+                        <td class="px-4 py-2 text-center font-semibold text-red-500">{{ record.scrap_quantity }}</td>
+                        <td class="px-4 py-2 text-center">
+                            <button type="button" (click)="onRemove.emit($index)" class="text-gray-400 hover:text-brand transition-colors duration-200 ease-in-out cursor-pointer">
+                                <app-ui-icon [iconName]="'circleXmark'" class="h-5 w-5"></app-ui-icon>
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex flex-row items-center gap-4 text-sm text-gray-700 mt-3">
+            <p class="w-full text-sm text-brand-700 text-left bg-brand-100 border border-brand-200 rounded-lg px-3 py-2">
+                Total unidades: <span class="font-medium">{{ totalUnits }}</span>
+                @if(schedule){
+                Horario: <span class="font-medium">{{ schedule.start_time }} - {{ schedule.end_time }}</span>
+                }
+            </p>
+        </div>
+
+    </div>
+
+    <div box-buttons class="flex flex-row gap-3">
+        <app-ui-button [intent]="'cancel'" (onClick)="onCancel.emit()">
+            Cancelar
+        </app-ui-button>
+
+        <app-ui-button (onClick)="onConfirm.emit()">
+            Confirmar
+        </app-ui-button>
+    </div>
+
+</app-box-layout>
+}
