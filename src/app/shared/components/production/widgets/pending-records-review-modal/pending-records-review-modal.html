@@ -1,5 +1,5 @@
 @if(visible){
-<app-box-layout [title]="'Revisar registros'" [classNames]="'max-w-2xl'">
+<app-box-layout [title]="'Revisar registros'">
 
     <div box-content class="flex flex-col w-full">
 
@@ -21,7 +21,7 @@
                         <td class="px-4 py-2 text-center font-semibold text-green-600">{{ record.completed_quantity }}</td>
                         <td class="px-4 py-2 text-center font-semibold text-amber-500">{{ record.rejected_quantity }}</td>
                         <td class="px-4 py-2 text-center font-semibold text-red-500">{{ record.scrap_quantity }}</td>
-                        <td class="px-4 py-2 text-center">
+                        <td class="pl-4 pr-2 py-2 text-center">
                             <button type="button" (click)="onRemove.emit($index)" class="text-gray-400 hover:text-brand transition-colors duration-200 ease-in-out cursor-pointer">
                                 <app-ui-icon [iconName]="'circleXmark'" class="h-5 w-5"></app-ui-icon>
                             </button>
