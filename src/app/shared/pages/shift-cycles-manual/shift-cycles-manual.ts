@@ -20,16 +20,17 @@ import { InfoCardTemplate } from '../../../template/info-card-template/info-card
 import { ShiftCyclesFab } from '../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
 import { TableTemplate } from '../../../directives/table-template';
 import { ShiftCycles } from '../shift-cycles/shift-cycles';
+import { ProductionRecord } from '../../../models/production/production-record';
 
 // Reemplazo de app-shift-cycles para módulos con
 // allows_manual_duration_entry=true (Module.allows_manual_duration_entry):
-// misma lógica (hereda ShiftCycles tal cual), solo cambia el template —
-// aquí el registro de cantidades en producción siempre pasa por
-// app-quantity-duration-modal (pestaña Horario obligatoria antes de
-// Cantidades). El registro de estampación manual con horario propio aún
-// no existe como widget (app-stamping-record no tiene esa pestaña) — hasta
-// que se defina ese flujo, esta página no cubre módulos de estampación con
-// el flag activo.
+// misma lógica (hereda ShiftCycles tal cual), solo cambia el template — al
+// seleccionar un SKU se abre app-quantity-duration-modal (mismo template y
+// validaciones que app-quantity-modal, ver quantity-duration-modal.ts) en
+// vez de app-quantity-modal. El registro de estampación manual con horario
+// propio aún no existe como widget (app-stamping-record no tiene esa
+// pestaña) — hasta que se defina ese flujo, esta página no cubre módulos de
+// estampación con el flag activo.
 @Component({
   selector: 'app-shift-cycles-manual',
   imports: [
@@ -50,5 +51,20 @@ export class ShiftCyclesManual extends ShiftCycles {
     // ShiftCycles que aplicaría STAMPING_CAL_WINDOW para módulos de
     // estampación — inWindow se queda en su valor inicial (true) siempre.
     this.config = { ...this.config, showHourlyRecord: true };
+  }
+
+  // app-quantity-duration-modal ya dispara su propia alerta placeholder al
+  // guardar (ver quantity-duration-modal.ts) y sigue emitiendo onSave con el
+  // payload normal. Para un registro NUEVO de este flujo manual, el guardado
+  // real (persistir vía API) todavía no está definido, así que a propósito
+  // no se llama a ningún servicio/endpoint aquí — solo se cierra el diálogo.
+  // Editar un registro existente sigue el flujo heredado normal (sí persiste).
+  override saveSKU(record: Partial<ProductionRecord>): void {
+    if (record.id) {
+      super.saveSKU(record);
+      return;
+    }
+
+    this.qms.close();
   }
 }

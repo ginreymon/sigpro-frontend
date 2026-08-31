@@ -22,7 +22,6 @@ import { WorkSessionService } from '../../../services/production/work-session-se
 import { RecentRecordsCard, RecentRecordsService } from '../../../shared/components/production/cards/recent-records-card/recent-records-card';
 import { ShiftTimeAlert } from '../../../shared/components/production/widgets/shift-time-alert/shift-time-alert';
 import { QuantityModal } from '../../../shared/components/production/modals/quantity-modal/quantity-modal';
-import { QuantityDurationModal } from '../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
 import { InfoCardTemplate } from '../../../template/info-card-template/info-card-template';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
@@ -53,7 +52,7 @@ import { ProductionTableCustomColumn } from '../../../shared/components/producti
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader, RecentRecordsCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, QuantityDurationModal, InfoCardTemplate, ShiftCyclesFab, TableTemplate],
+  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader, RecentRecordsCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesFab, TableTemplate],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
@@ -119,18 +118,6 @@ export class ShiftCycles extends BaseProductionOrderPage {
   protected usesProcessesSearch = computed(() =>
     this.context()?.session?.current_module?.machine?.uses_processes_search ?? false
   );
-
-  // Decide qué modal de cantidades mostrar: app-quantity-duration-modal (con
-  // la pestaña de horario) solo si el módulo activo lo tiene habilitado
-  // (Module.allows_manual_duration_entry) — si no, el flujo normal de
-  // siempre con app-quantity-modal.
-  protected allowsManualDuration = computed(() =>
-    this.context()?.session?.current_module?.allows_manual_duration_entry ?? false
-  );
-
-  // Hora de inicio del turno activo — límite inferior para la hora inicial
-  // del registro manual (app-quantity-duration-modal).
-  protected shiftStartTime = computed(() => this.context()?.session?.work_shift?.start_time ?? null);
 
   get document() {
     const doc = this.productionOrder();
