@@ -236,6 +236,7 @@ export class StampingRecord {
   constructor() {
     effect(() => {
       if (this.visible()) {
+        untracked(() => this.activeTab.set('reference'));
         this.loadModalData();
       } else {
         untracked(() => {
