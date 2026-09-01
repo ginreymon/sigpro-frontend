@@ -7,7 +7,7 @@ import { ShiftCyclesFab } from '../shift-cycles-fab/shift-cycles-fab';
 import { ReferenceTab } from './tabs/reference-tab/reference-tab';
 import { QuantitiesTab } from './tabs/quantities-tab/quantities-tab';
 import { AdditionalTimesTab } from './tabs/additionaltimes-tab/additionaltimes-tab';
-import { StampingRecordDataService } from './stamping-record-data.service';
+import { StampingRecordDataService } from './stamping-record-data-service';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { StampingReferenceSam } from '../../../../../models/stamping/stamping-reference-sam';
 import { StampingRecord as StampingRecordPayload } from '../../../../../models/stamping/stamping-record';
