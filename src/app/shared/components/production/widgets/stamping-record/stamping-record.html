@@ -11,16 +11,16 @@
     <form [formGroup]="recordForm" class="mt-4 min-h-40">
       @if (activeTab() === 'reference') {
         <app-reference-tab
-          [isLoading]="isLoadingModalData()"
+          [isLoading]="dataService.isLoadingModalData()"
           [references]="filteredReferences()"
           [selectedId]="selectedReferenceSamId()"
-          [hasReferenceSams]="(orderDetail()?.referenceSams?.length ?? 0) > 0"
+          [hasReferenceSams]="(dataService.orderDetail()?.referenceSams?.length ?? 0) > 0"
           (search)="searchReferences($event)"
           (toggle)="selectReference($event)">
         </app-reference-tab>
       } @else if (activeTab() === 'quantities') {
         <app-quantities-tab
-          [isLoading]="isLoadingModalData()"
+          [isLoading]="dataService.isLoadingModalData()"
           [isOrderCompleted]="isOrderCompleted()"
           [hasSelectedReference]="hasSelectedReference"
           [completedQuantityControl]="completedQuantityControl"
@@ -32,7 +32,7 @@
         </app-quantities-tab>
       } @else if (activeTab() === 'additionaltimes') {
         <app-additionaltimes-tab
-          [isLoading]="isLoadingModalData()"
+          [isLoading]="dataService.isLoadingModalData()"
           [showOnlySelected]="showOnlySelectedAdditionalTimes()"
           [selectedCount]="selectedAdditionalTimeIds().length"
           [availableCount]="filteredAdditionalTimes().length"
