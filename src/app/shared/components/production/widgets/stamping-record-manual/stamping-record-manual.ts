@@ -2,17 +2,11 @@ import { Component, OnChanges } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
-import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiTabs } from '../../../../elements/ui-tabs/ui-tabs';
 import { ShiftCyclesFab } from '../shift-cycles-fab/shift-cycles-fab';
-import { Searcher } from '../../../form-controls/searcher/searcher';
-import { UiLabelButton } from '../../../../elements/ui-label-button/ui-label-button';
-import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
-import { UiLargeInput } from '../../../../elements/ui-large-input/ui-large-input';
-import { UiErrorMessage } from '../../../../elements/ui-error-message/ui-error-message';
-import { AdditionalStampingTimeCard } from '../../cards/additional-stamping-time-card/additional-stamping-time-card';
-import { StampingReferenceCard } from '../../cards/stamping-reference-card/stamping-reference-card';
-import { StampingQuantityCounter } from '../../cards/stamping-quantity-counter/stamping-quantity-counter';
+import { ReferenceTab } from '../stamping-record/tabs/reference-tab/reference-tab';
+import { QuantitiesTab } from '../stamping-record/tabs/quantities-tab/quantities-tab';
+import { AdditionalTimesTab } from '../stamping-record/tabs/additionaltimes-tab/additionaltimes-tab';
 import { StampingRecord } from '../stamping-record/stamping-record';
 
 // Variante de app-stamping-record para shift-cycles-manual (módulos con
@@ -31,9 +25,8 @@ import { StampingRecord } from '../stamping-record/stamping-record';
   selector: 'app-stamping-record-manual',
   standalone: true,
   imports: [
-    BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesFab, Searcher,
-    AdditionalStampingTimeCard, StampingReferenceCard, StampingQuantityCounter, UiLabelButton,
-    ReactiveFormsModule, UiFormField, UiLargeInput, UiErrorMessage,
+    BoxLayout, UiButton, UiTabs, ShiftCyclesFab, ReactiveFormsModule,
+    ReferenceTab, QuantitiesTab, AdditionalTimesTab,
   ],
   templateUrl: '../stamping-record/stamping-record.html',
 })

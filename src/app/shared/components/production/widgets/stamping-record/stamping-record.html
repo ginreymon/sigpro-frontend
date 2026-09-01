@@ -10,109 +10,42 @@
 
     <form [formGroup]="recordForm" class="mt-4 min-h-40">
       @if (activeTab() === 'reference') {
-        @if (!isLoadingModalData()) {
-          <app-searcher [live]="true" [intent]="'action'" (onSearch)="searchReferences($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
-          <app-ui-form-field [controlName]="'stamping_reference_sam'" [label]="'Referencia'">
-            <div class="grid grid-cols-1 gap-2 max-h-[25vh] overflow-y-auto">
-              @for (item of filteredReferences(); track item.id) {
-                <app-stamping-reference-card
-                  [item]="item"
-                  [selected]="isReferenceSelected(item.id)"
-                  (onToggle)="selectReference(item.id)">
-                </app-stamping-reference-card>
-              } @empty {
-                <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
-                  <app-ui-icon [iconName]="'magnifyingGlass'" class="h-12 w-12"></app-ui-icon>
-                  @if ((orderDetail()?.referenceSams?.length ?? 0) > 0) {
-                    <p class="text-sm text-gray-400 font-normal">No hay referencias (SAM) para este tipo de máquina</p>
-                  } @else {
-                    <p class="text-sm text-gray-400 font-normal">No hay referencias (SAM) para esta OP</p>
-                  }
-                </div>
-              }
-            </div>
-          </app-ui-form-field>
-        }
+        <app-reference-tab
+          [isLoading]="isLoadingModalData()"
+          [references]="filteredReferences()"
+          [selectedId]="selectedReferenceSamId()"
+          [hasReferenceSams]="(orderDetail()?.referenceSams?.length ?? 0) > 0"
+          (search)="searchReferences($event)"
+          (toggle)="selectReference($event)">
+        </app-reference-tab>
       } @else if (activeTab() === 'quantities') {
-        @if (!isLoadingModalData()) {
-
-          @if (!isOrderCompleted() && !hasSelectedReference) {
-            <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
-              <app-ui-icon [iconName]="'triangleExclamation'" class="h-12 w-12"></app-ui-icon>
-              <p class="text-sm text-gray-400 font-normal text-center">Seleccione una referencia (SAM) en la pestaña "Referencia" para registrar cantidades.</p>
-            </div>
-          } @else {
-            @if (!isOrderCompleted()) {
-              <div class="mb-4">
-                <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Cantidad producida'">
-                  <app-ui-large-input [type]="'number'" formControlName="completed_quantity" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">
-                    <span right-addon>Estampadas: {{ totalStampedQuantity }}</span>
-                  </app-ui-large-input>
-                </app-ui-form-field>
-
-                @if (exceedsMaxError) {
-                  <app-ui-error-message>
-                    La cantidad ({{ exceedsMaxError.total }}) supera lo pendiente por estampar ({{ exceedsMaxError.max }}).
-                  </app-ui-error-message>
-                }
-              </div>
-            }
-
-            <app-stamping-quantity-counter [orderedQty]="totalPendingQuantity + totalStampedQuantity" [stampedQtyBase]="totalStampedQuantity" [newCompletedQty]="newCompletedQty"></app-stamping-quantity-counter>
-
-            @if (isOrderCompleted()) {
-              <p class="w-full text-sm text-gray-600 text-left bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 mt-4">
-                Orden de producción <span class="font-medium">{{ orderLabel }}</span> completada.
-              </p>
-            }
-          }
-        }
+        <app-quantities-tab
+          [isLoading]="isLoadingModalData()"
+          [isOrderCompleted]="isOrderCompleted()"
+          [hasSelectedReference]="hasSelectedReference"
+          [completedQuantityControl]="completedQuantityControl"
+          [totalPendingQuantity]="totalPendingQuantity"
+          [totalStampedQuantity]="totalStampedQuantity"
+          [newCompletedQty]="newCompletedQty"
+          [exceedsMaxError]="exceedsMaxError"
+          [orderLabel]="orderLabel">
+        </app-quantities-tab>
       } @else if (activeTab() === 'additionaltimes') {
-        @if (!isLoadingModalData()) {
-          <app-searcher [live]="true" [intent]="'action'" (onSearch)="searchAdditionalTimes($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
-          <div class="flex justify-between mt-4 mb-2">
-            <app-ui-label-button
-              [intent]="showOnlySelectedAdditionalTimes() ? 'label' : 'action'"
-              (onClick)="showOnlySelectedAdditionalTimes.set(!showOnlySelectedAdditionalTimes())">
-              Solo seleccionados ({{ selectedAdditionalTimeIds().length }})
-            </app-ui-label-button>
-            <p class="text-xs text-gray-700">Tiempos disponibles ({{ filteredAdditionalTimes().length }})</p>
-          </div>
-          <app-ui-form-field [controlName]="'additional_times'" [hideLabel]="true">
-            <div class="grid grid-cols-1 gap-2 max-h-[25vh] overflow-y-auto">
-              @for (item of displayedAdditionalTimes(); track item.id) {
-                <app-additional-stamping-time-card
-                  [item]="item"
-                  [selected]="isSelected(item.id)"
-                  [quantity]="getQuantity(item.id)"
-                  (onToggle)="toggleAdditionalTime(item.id)">
-                  @if (isSelected(item.id)) {
-                    <div quantity-input class="flex items-center gap-2 h-8 bg-white border border-gray-300 rounded pl-3 pr-2 transition-all duration-200 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-200" (click)="$event.stopPropagation()">
-                      <label class="text-xs text-gray-500">Cantidad</label>
-                      <input
-                        type="number"
-                        min="1"
-                        class="w-12 h-full text-sm text-right font-semibold text-green-600 bg-transparent outline-none"
-                        [value]="getQuantity(item.id)"
-                        (input)="setQuantity(item.id, +$any($event.target).value)" />
-                    </div>
-                  }
-                </app-additional-stamping-time-card>
-              } @empty {
-                <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
-                  <app-ui-icon [iconName]="'magnifyingGlass'" class="h-12 w-12"></app-ui-icon>
-                  <p class="text-sm text-gray-400 font-normal">No hay tiempos adicionales</p>
-                </div>
-              }
-            </div>
-          </app-ui-form-field>
-
-          @if (submitAttempted() && hasInvalidAdditionalTimeQuantity) {
-            <app-ui-error-message>
-              La cantidad debe ser mayor a 0 en los tiempos adicionales seleccionados.
-            </app-ui-error-message>
-          }
-        }
+        <app-additionaltimes-tab
+          [isLoading]="isLoadingModalData()"
+          [showOnlySelected]="showOnlySelectedAdditionalTimes()"
+          [selectedCount]="selectedAdditionalTimeIds().length"
+          [availableCount]="filteredAdditionalTimes().length"
+          [items]="displayedAdditionalTimes()"
+          [selectedIds]="selectedAdditionalTimeIds()"
+          [quantities]="additionalTimeQuantities()"
+          [submitAttempted]="submitAttempted()"
+          [hasInvalidQuantity]="hasInvalidAdditionalTimeQuantity"
+          (search)="searchAdditionalTimes($event)"
+          (toggleShowOnlySelected)="showOnlySelectedAdditionalTimes.set(!showOnlySelectedAdditionalTimes())"
+          (toggle)="toggleAdditionalTime($event)"
+          (quantityChange)="setQuantity($event.id, $event.value)">
+        </app-additionaltimes-tab>
       }
     </form>
 

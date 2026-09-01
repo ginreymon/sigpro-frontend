@@ -1,0 +1,32 @@
+@if (!isLoading) {
+  @if (!isOrderCompleted && !hasSelectedReference) {
+    <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
+      <app-ui-icon [iconName]="'triangleExclamation'" class="h-12 w-12"></app-ui-icon>
+      <p class="text-sm text-gray-400 font-normal text-center">Seleccione una referencia (SAM) en la pestaña "Referencia" para registrar cantidades.</p>
+    </div>
+  } @else {
+    @if (!isOrderCompleted) {
+      <div class="mb-4">
+        <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Cantidad producida'">
+          <app-ui-large-input [type]="'number'" [formControl]="completedQuantityControl" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">
+            <span right-addon>Estampadas: {{ totalStampedQuantity }}</span>
+          </app-ui-large-input>
+        </app-ui-form-field>
+
+        @if (exceedsMaxError) {
+          <app-ui-error-message>
+            La cantidad ({{ exceedsMaxError.total }}) supera lo pendiente por estampar ({{ exceedsMaxError.max }}).
+          </app-ui-error-message>
+        }
+      </div>
+    }
+
+    <app-stamping-quantity-counter [orderedQty]="totalPendingQuantity + totalStampedQuantity" [stampedQtyBase]="totalStampedQuantity" [newCompletedQty]="newCompletedQty"></app-stamping-quantity-counter>
+
+    @if (isOrderCompleted) {
+      <p class="w-full text-sm text-gray-600 text-left bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 mt-4">
+        Orden de producción <span class="font-medium">{{ orderLabel }}</span> completada.
+      </p>
+    }
+  }
+}

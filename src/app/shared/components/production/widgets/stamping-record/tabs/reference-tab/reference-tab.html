@@ -1,0 +1,23 @@
+@if (!isLoading) {
+  <app-searcher [live]="true" [intent]="'action'" (onSearch)="search.emit($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
+  <app-ui-form-field [controlName]="'stamping_reference_sam'" [label]="'Referencia'">
+    <div class="grid grid-cols-1 gap-2 max-h-[25vh] overflow-y-auto">
+      @for (item of references; track item.id) {
+        <app-stamping-reference-card
+          [item]="item"
+          [selected]="item.id === selectedId"
+          (onToggle)="toggle.emit(item.id)">
+        </app-stamping-reference-card>
+      } @empty {
+        <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
+          <app-ui-icon [iconName]="'magnifyingGlass'" class="h-12 w-12"></app-ui-icon>
+          @if (hasReferenceSams) {
+            <p class="text-sm text-gray-400 font-normal">No hay referencias (SAM) para este tipo de máquina</p>
+          } @else {
+            <p class="text-sm text-gray-400 font-normal">No hay referencias (SAM) para esta OP</p>
+          }
+        </div>
+      }
+    </div>
+  </app-ui-form-field>
+}

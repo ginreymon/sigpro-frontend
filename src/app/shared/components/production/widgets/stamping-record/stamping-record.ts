@@ -1,19 +1,13 @@
 import { Component, EventEmitter, Input, Output, signal, computed, input, effect, inject, untracked } from '@angular/core';
 import { finalize } from 'rxjs';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
-import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiTabs, TabItem } from '../../../../elements/ui-tabs/ui-tabs';
 import { ShiftCyclesFab } from '../shift-cycles-fab/shift-cycles-fab';
-import { Searcher } from '../../../form-controls/searcher/searcher';
-import { UiLabelButton } from '../../../../elements/ui-label-button/ui-label-button';
-import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
-import { UiLargeInput } from '../../../../elements/ui-large-input/ui-large-input';
-import { UiErrorMessage } from '../../../../elements/ui-error-message/ui-error-message';
-import { AdditionalStampingTimeCard } from '../../cards/additional-stamping-time-card/additional-stamping-time-card';
-import { StampingReferenceCard } from '../../cards/stamping-reference-card/stamping-reference-card';
-import { StampingQuantityCounter } from '../../cards/stamping-quantity-counter/stamping-quantity-counter';
+import { ReferenceTab } from './tabs/reference-tab/reference-tab';
+import { QuantitiesTab } from './tabs/quantities-tab/quantities-tab';
+import { AdditionalTimesTab } from './tabs/additionaltimes-tab/additionaltimes-tab';
 import { AdditionalStampingTimeService } from '../../../../../services/stamping/additional-stamping-time-service';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { AdditionalStampingTime } from '../../../../../models/stamping/additional-stamping-time';
@@ -29,9 +23,8 @@ import { filterByMachine, filterByMachineType } from '../../../../../common/func
   selector: 'app-stamping-record',
   standalone: true,
   imports: [
-    BoxLayout, UiButton, UiIcon, UiTabs, ShiftCyclesFab, Searcher,
-    AdditionalStampingTimeCard, StampingReferenceCard, StampingQuantityCounter, UiLabelButton,
-    ReactiveFormsModule, UiFormField, UiLargeInput, UiErrorMessage,
+    BoxLayout, UiButton, UiTabs, ShiftCyclesFab, ReactiveFormsModule,
+    ReferenceTab, QuantitiesTab, AdditionalTimesTab,
   ],
   templateUrl: './stamping-record.html',
 })
@@ -163,6 +156,10 @@ export class StampingRecord {
 
   protected get exceedsMaxError(): { max: number; total: number } | null {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
+  }
+
+  protected get completedQuantityControl(): FormControl {
+    return this.recordForm.get('completed_quantity') as FormControl;
   }
 
   // Tiempos adicionales solo aplican sobre una cantidad ya definida y válida
