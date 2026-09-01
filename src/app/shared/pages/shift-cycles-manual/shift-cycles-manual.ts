@@ -16,7 +16,7 @@ import { StampingBalanceModal } from '../../../shared/components/production/moda
 import { PauseModal } from '../../../shared/components/production/modals/pause-modal/pause-modal';
 import { RecentRecordsCard } from '../../../shared/components/production/cards/recent-records-card/recent-records-card';
 import { ShiftTimeAlert } from '../../../shared/components/production/widgets/shift-time-alert/shift-time-alert';
-import { StampingRecord } from '../../../shared/components/production/widgets/stamping-record/stamping-record';
+import { StampingRecordManual } from '../../../shared/components/production/widgets/stamping-record-manual/stamping-record-manual';
 import { QuantityDurationModal } from '../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
 import { PendingRecordsBar } from '../../../shared/components/production/widgets/pending-records-bar/pending-records-bar';
 import { DurationScheduleModal } from '../../../shared/components/production/widgets/duration-schedule-modal/duration-schedule-modal';
@@ -45,7 +45,7 @@ import { DialogService } from '../../../services/common/dialog-service';
   imports: [
     WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary,
     StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader,
-    RecentRecordsCard, ShiftTimeAlert, StampingRecord, QuantityDurationModal, PendingRecordsBar, DurationScheduleModal,
+    RecentRecordsCard, ShiftTimeAlert, StampingRecordManual, QuantityDurationModal, PendingRecordsBar, DurationScheduleModal,
     PendingRecordsReviewModal, InfoCardTemplate, ShiftCyclesFab, TableTemplate,
   ],
   templateUrl: './shift-cycles-manual.html',

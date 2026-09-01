@@ -159,14 +159,14 @@
 </app-pending-records-review-modal>
 
 @if(productionOrder() && isDocStatusValid() && config.showStampingRecord){
-<app-stamping-record
+<app-stamping-record-manual
     [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
     [visible]="shiftModals.stampingRecordVisible()"
     [inWindow]="inWindow()"
     (onClose)="shiftModals.closeStampingRecord()"
     (onFinalize)="refreshSession()"
     (onSave)="saveStamping($event)"
-></app-stamping-record>
+></app-stamping-record-manual>
 }
 
 }
