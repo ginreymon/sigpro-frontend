@@ -49,6 +49,9 @@ export class StampingRecord {
   private fb = inject(FormBuilder);
 
   protected stampingConfig = SHIFT_CYCLES_CONFIG['stamping'];
+  // StampingRecordManual fuerza inWindow=true siempre (no depende de
+  // STAMPING_CAL_WINDOW), así que el aviso de ventana no aplica ahí.
+  protected showWindowStatus = true;
 
   protected tabs: TabItem[] = [
     { key: 'reference', label: 'Referencia' },
@@ -161,6 +164,13 @@ export class StampingRecord {
     return this.recordForm.errors?.['exceedsMax'] ?? null;
   }
 
+  // Tiempos adicionales solo aplican sobre una cantidad ya definida y válida
+  // (sin superar lo pendiente) — si se invalida, la pestaña se cierra sola.
+  protected get hasValidQuantity(): boolean {
+    if (this.isOrderCompleted()) return true;
+    return !!this.recordForm.get('completed_quantity')?.valid && !this.exceedsMaxError;
+  }
+
   protected get orderLabel(): string {
     const order = this.productionContextService.snapshot?.order;
     return order ? `${order.documentType} ${order.documentNumber}` : '';
@@ -181,7 +191,17 @@ export class StampingRecord {
     const tabs = this.isOrderCompleted()
       ? this.tabs.filter((tab) => tab.key === 'quantities')
       : this.tabs;
-    return tabs.map((tab) => ({ ...tab, hasError: this.tabHasError(tab.key) }));
+    return tabs.map((tab) => ({
+      ...tab,
+      hasError: this.tabHasError(tab.key),
+      disabled: this.isTabDisabled(tab.key),
+    }));
+  }
+
+  private isTabDisabled(key: string): boolean {
+    if (key === 'quantities') return !this.isOrderCompleted() && !this.hasSelectedReference;
+    if (key === 'additionaltimes') return !this.hasValidQuantity;
+    return false;
   }
 
   private tabHasError(key: string): boolean {

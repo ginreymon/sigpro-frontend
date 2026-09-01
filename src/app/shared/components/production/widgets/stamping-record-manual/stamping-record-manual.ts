@@ -38,6 +38,8 @@ import { StampingRecord } from '../stamping-record/stamping-record';
   templateUrl: '../stamping-record/stamping-record.html',
 })
 export class StampingRecordManual extends StampingRecord implements OnChanges {
+  protected override showWindowStatus = false;
+
   ngOnChanges(): void {
     this.inWindow = true;
   }

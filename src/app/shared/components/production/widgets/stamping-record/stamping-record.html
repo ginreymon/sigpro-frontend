@@ -116,7 +116,7 @@
       }
     </form>
 
-    @if (!isOrderCompleted()) {
+    @if (!isOrderCompleted() && showWindowStatus) {
       @if (!inWindow) {
         <p class="w-full text-sm text-gray-600 text-left bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 mt-4">
           Podrá registrar las cantidades de <span class="font-medium">{{ windowRange.start }} </span> a <span class="font-medium">{{ windowRange.end }}</span>.

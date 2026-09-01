@@ -66,6 +66,6 @@ export class AppConfigService {
   }
 
   get stampingCalibrationWindowSeconds(): number {
-    return this.getNumber(AppSettingKey.STAMPING_CALIBRATION_WINDOW, 5) * 60;
+    return this.getNumber(AppSettingKey.STAMPING_CALIBRATION_WINDOW, 15) * 60;
   }
 }
