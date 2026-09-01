@@ -1,5 +1,4 @@
-import { Component, OnChanges, inject } from '@angular/core';
-import { DialogService } from '../../../../../services/common/dialog-service';
+import { Component, OnChanges } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
@@ -24,7 +23,10 @@ import { StampingRecord } from '../stamping-record/stamping-record';
 // STAMPING_CAL_WINDOW: ese flujo no tiene ventana horaria propia, a
 // diferencia del registro en tiempo real de estampación — se fuerza
 // inWindow=true en cada cambio de inputs (ver ngOnChanges), sin importar lo
-// que el llamador (app-shift-cycles-manual) le pase.
+// que el llamador (app-shift-cycles-manual) le pase. register() se hereda
+// tal cual: sigue emitiendo onSave con el payload normal — es
+// ShiftCyclesManual.saveStamping quien decide guardarlo en
+// ManualStampingRecordsStore en vez de persistirlo (igual que saveSKU).
 @Component({
   selector: 'app-stamping-record-manual',
   standalone: true,
@@ -36,16 +38,7 @@ import { StampingRecord } from '../stamping-record/stamping-record';
   templateUrl: '../stamping-record/stamping-record.html',
 })
 export class StampingRecordManual extends StampingRecord implements OnChanges {
-  private dialogService = inject(DialogService);
-
   ngOnChanges(): void {
     this.inWindow = true;
-  }
-
-  // El guardado real de este flujo todavía no está definido (igual que
-  // app-quantity-duration-modal para el flujo de SKU) — por ahora solo
-  // confirma con una alerta y no persiste ni emite onSave.
-  protected override register(): void {
-    this.dialogService.openToast('A guardar', 'Este registro aún no se guarda — el flujo está pendiente de definir.', 'check');
   }
 }

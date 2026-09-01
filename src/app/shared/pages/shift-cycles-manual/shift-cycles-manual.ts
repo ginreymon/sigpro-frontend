@@ -30,6 +30,8 @@ import { ProductionRecord } from '../../../models/production/production-record';
 import { ManualProductionRecordsStore } from '../../../services/production/manual-production-records-store';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
 import { DialogService } from '../../../services/common/dialog-service';
+import { StampingRecord } from '../../../models/stamping/stamping-record';
+import { ManualStampingRecordsStore } from '../../../services/stamping/manual-stamping-records-store';
 
 // Reemplazo de app-shift-cycles para módulos con
 // allows_production_time_adjustment=true (Module.allows_production_time_adjustment):
@@ -55,6 +57,7 @@ export class ShiftCyclesManual extends ShiftCycles {
   protected manualRecordsStore = inject(ManualProductionRecordsStore);
   private manualBatchRecordService = inject(ProductionRecordService);
   private manualBatchDialogService = inject(DialogService);
+  protected manualStampingRecordsStore = inject(ManualStampingRecordsStore);
 
   // Registros manuales pendientes (aún no persistidos) de la orden que está
   // abierta ahora mismo — app-production-orders-table los suma encima de
@@ -165,5 +168,39 @@ export class ShiftCyclesManual extends ShiftCycles {
           this.manualBatchDialogService.openToast('No se pudo guardar', message, 'fail');
         },
       });
+  }
+
+  // Espejo de saveSKU pero para el flujo de estampación
+  // (app-stamping-record-manual): en vez de persistir de una vía
+  // stampingRecordService.create() (comportamiento heredado de ShiftCycles),
+  // se acumula en ManualStampingRecordsStore hasta que se defina el guardado
+  // por lote (igual que production-records/manual-duration-batch/).
+  override saveStamping(record: Partial<StampingRecord>): void {
+    if (record.id) {
+      super.saveStamping(record);
+      return;
+    }
+
+    const activityId = this.currentSession()?.active_activity?.id;
+    if (!activityId) return;
+
+    this.manualStampingRecordsStore.add({ ...record, work_session_activity: activityId });
+    this.shiftModals.closeStampingRecord();
+  }
+
+  // app-stamping-pending-records-bar se oculta mientras app-stamping-record-manual
+  // esté capturando un registro nuevo — mismo criterio que batchHidesBar
+  // (producción) con qms.visible().
+  protected stampingBatchHidesBar = computed(() => this.shiftModals.stampingRecordVisible());
+
+  // El guardado por lote de estampación (equivalente a onReviewConfirm +
+  // manual-duration-batch de producción) todavía no está definido — por
+  // ahora solo confirma con un aviso, sin persistir ni vaciar el store.
+  protected onStampingSaveAllPending(): void {
+    this.manualBatchDialogService.openToast(
+      'Guardado por lote pendiente',
+      'El guardado de los registros de estampación aún no está definido.',
+      'check',
+    );
   }
 }

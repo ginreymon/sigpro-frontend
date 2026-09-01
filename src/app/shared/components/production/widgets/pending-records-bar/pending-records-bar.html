@@ -1,5 +1,5 @@
 <div class="fixed bottom-20 lg:absolute lg:bottom-0 inset-x-0 z-60 flex justify-center pointer-events-none">
-  <div [class]="isForceHidden() ? 'hidden' : 'transform transition-all duration-500 ease-out ' + (hasRecords() ? 'translate-y-0 opacity-100' : '-translate-y-[100vh] opacity-0')">
+  <div [class]="forceHidden() ? 'hidden' : 'transform transition-all duration-500 ease-out ' + (hasRecords() ? 'translate-y-0 opacity-100' : '-translate-y-[100vh] opacity-0')">
     <div [class]="'pointer-events-auto flex items-center bg-gray-50 rounded-lg p-1.5 border border-gray-200 shadow-2xl mx-auto ' + (shake() ? 'animate-shake' : '')">
 
       <div class="flex items-center space-x-4 px-3 text-sm text-gray-700">

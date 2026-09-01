@@ -56,7 +56,21 @@
                 </div>
             </div>
 
-            <app-pending-records-bar [forceHidden]="batchHidesBar()" (onSave)="onSaveAllPending()"></app-pending-records-bar>
+            @if(config.showStampingRecord){
+            <app-pending-records-bar
+                [records]="manualStampingRecordsStore.records()"
+                [forceHidden]="stampingBatchHidesBar()"
+                (onSave)="onStampingSaveAllPending()"
+                (onDiscard)="manualStampingRecordsStore.clear()">
+            </app-pending-records-bar>
+            } @else {
+            <app-pending-records-bar
+                [records]="manualRecordsStore.records()"
+                [forceHidden]="batchHidesBar()"
+                (onSave)="onSaveAllPending()"
+                (onDiscard)="manualRecordsStore.clear()">
+            </app-pending-records-bar>
+            }
         }
 
         @if(productionOrder() && !isDocStatusValid()){

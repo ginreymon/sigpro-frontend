@@ -1,16 +1,20 @@
-import { Component, computed, effect, EventEmitter, inject, Input, OnDestroy, Output, signal } from '@angular/core';
-import { ManualProductionRecordsStore } from '../../../../../services/production/manual-production-records-store';
-import { ProductionRecord } from '../../../../../models/production/production-record';
+import { Component, EventEmitter, Output, computed, effect, input, signal } from '@angular/core';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 
-// Barra flotante que resume los registros manuales capturados en
-// shift-cycles-manual (ManualProductionRecordsStore) — siempre montada,
-// pero solo entra en pantalla mientras haya al menos un registro pendiente
-// (ese flujo no persiste al guardar; ver quantity-duration-modal.ts /
-// ShiftCyclesManual.saveSKU), animando su entrada/salida en vez de
-// aparecer/desaparecer abruptamente (@if la desmontaría y no podría
-// transicionar la salida). Mismo tratamiento z-index que app-shift-time-alert.
+// Shape mínimo para sumar "unidades" — cubre tanto ProductionRecord
+// (completed/rejected/scrap) como StampingRecord (solo completed).
+export interface PendingRecordUnits {
+  completed_quantity?: number;
+  rejected_quantity?: number;
+  scrap_quantity?: number;
+}
+
+// Barra flotante que resume registros manuales aún no persistidos (ver
+// ShiftCyclesManual.saveSKU/saveStamping) — puramente presentacional: no
+// conoce el store de quien la usa, solo recibe los registros a resumir y
+// emite la intención de guardar/descartar. El llamador decide a qué store
+// pertenecen (ManualProductionRecordsStore o ManualStampingRecordsStore).
 @Component({
   selector: 'app-pending-records-bar',
   standalone: true,
@@ -18,31 +22,21 @@ import { UiButton } from '../../../../elements/ui-button/ui-button';
   templateUrl: './pending-records-bar.html',
   styleUrl: './pending-records-bar.css',
 })
-export class PendingRecordsBar implements OnDestroy {
-  private store = inject(ManualProductionRecordsStore);
+export class PendingRecordsBar {
+  records = input<PendingRecordUnits[]>([]);
+  forceHidden = input(false);
 
-  // Permite al llamador ocultar la barra sin tocar el store (ej. mientras
-  // app-duration-schedule-modal está abierto — ver ShiftCyclesManual). Sin
-  // transición de desplazamiento: se oculta al instante, a diferencia de
-  // `hasRecords` que sí anima la entrada/salida.
-  private _forceHidden = signal(false);
-
-  @Input()
-  set forceHidden(value: boolean) {
-    this._forceHidden.set(value);
-  }
-
-  protected isForceHidden = computed(() => this._forceHidden());
-  protected hasRecords = computed(() => this.store.records().length > 0);
-  protected pendingCount = computed(() => this.store.records().length);
+  protected hasRecords = computed(() => this.records().length > 0);
+  protected pendingCount = computed(() => this.records().length);
   protected totalUnits = computed(() =>
-    this.store.records().reduce(
+    this.records().reduce(
       (sum, r) => sum + Number(r.completed_quantity ?? 0) + Number(r.scrap_quantity ?? 0) + Number(r.rejected_quantity ?? 0),
       0,
     )
   );
 
-  @Output() onSave = new EventEmitter<Partial<ProductionRecord>[]>();
+  @Output() onSave = new EventEmitter<void>();
+  @Output() onDiscard = new EventEmitter<void>();
 
   protected shake = signal(false);
   private previousCount = 0;
@@ -51,11 +45,10 @@ export class PendingRecordsBar implements OnDestroy {
 
   constructor() {
     // Tiembla cada vez que se agrega un registro (al ingresar cantidades vía
-    // quantity-duration-modal), no al vaciarse (Guardar/clear). set(false)
-    // + rAF + set(true) fuerza el reflow para que la animación CSS se
-    // reinicie aunque ya estuviera corriendo (guardados consecutivos).
-    // 0 -> N (primera aparición) no tiembla: la barra ya está animando su
-    // entrada (hasRecords) y el shake simultáneo se veía como doble temblor.
+    // quantity-duration-modal / stamping-record-manual), no al vaciarse
+    // (Guardar/Eliminar). 0 -> N (primera aparición) no tiembla: la barra ya
+    // está animando su entrada (hasRecords) y el shake simultáneo se veía
+    // como doble temblor.
     effect(() => {
       const count = this.pendingCount();
       if (this.previousCount > 0 && count > this.previousCount) this.triggerShake();
@@ -80,14 +73,10 @@ export class PendingRecordsBar implements OnDestroy {
   }
 
   protected save(): void {
-    this.onSave.emit(this.store.records());
+    this.onSave.emit();
   }
 
-  // Descarta todo lo capturado: vacía el store (nadie más lo referencia,
-  // así que la barra desaparece sola vía `hasRecords`) y con eso
-  // app-production-orders-table vuelve a mostrar solo lo cargado desde la
-  // base de datos (pendingRecords queda vacío, ver applyPendingRecords).
   protected discard(): void {
-    this.store.clear();
+    this.onDiscard.emit();
   }
 }
