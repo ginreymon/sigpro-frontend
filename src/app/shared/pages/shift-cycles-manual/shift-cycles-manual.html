@@ -167,10 +167,31 @@
     [visible]="reviewModalVisible()"
     [records]="manualRecordsStore.records()"
     [schedule]="pendingSchedule()"
+    [variant]="'production'"
     (onConfirm)="onReviewConfirm()"
     (onCancel)="onReviewCancel()"
     (onRemove)="manualRecordsStore.removeAt($event)">
 </app-pending-records-review-modal>
+
+@if(config.showStampingRecord){
+<app-duration-schedule-modal
+    [visible]="stampingScheduleModalVisible()"
+    [enable]="inWindow() || finalizeDay()"
+    (onNext)="onStampingScheduleNext($event)"
+    (onCancel)="onStampingScheduleCancel()">
+</app-duration-schedule-modal>
+
+<app-pending-records-review-modal
+    [visible]="stampingReviewModalVisible()"
+    [records]="manualStampingRecordsStore.records()"
+    [schedule]="stampingPendingSchedule()"
+    [variant]="'stamping'"
+    [additionalTimeMinutes]="additionalTimeMinutes()"
+    (onConfirm)="onStampingReviewConfirm()"
+    (onCancel)="onStampingReviewCancel()"
+    (onRemove)="manualStampingRecordsStore.removeAt($event)">
+</app-pending-records-review-modal>
+}
 
 @if(productionOrder() && isDocStatusValid() && config.showStampingRecord){
 <app-stamping-record-manual
