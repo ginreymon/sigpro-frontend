@@ -39,6 +39,7 @@ import { StampingRecord } from '../stamping-record/stamping-record';
 })
 export class StampingRecordManual extends StampingRecord implements OnChanges {
   protected override showWindowStatus = false;
+  protected override saveButtonLabel = 'Aceptar';
 
   ngOnChanges(): void {
     this.inWindow = true;

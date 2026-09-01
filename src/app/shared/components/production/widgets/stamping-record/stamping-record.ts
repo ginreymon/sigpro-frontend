@@ -52,6 +52,7 @@ export class StampingRecord {
   // StampingRecordManual fuerza inWindow=true siempre (no depende de
   // STAMPING_CAL_WINDOW), así que el aviso de ventana no aplica ahí.
   protected showWindowStatus = true;
+  protected saveButtonLabel = 'Guardar';
 
   protected tabs: TabItem[] = [
     { key: 'reference', label: 'Referencia' },
