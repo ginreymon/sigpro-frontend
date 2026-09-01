@@ -101,10 +101,12 @@ export class ShiftCyclesManual extends ShiftCycles {
   // Asistente de guardado por lote que sale al pulsar Guardar en
   // app-pending-records-bar: horario (duration-schedule-modal) → revisión
   // en tabla (pending-records-review-modal) → confirmar. app-pending-records-bar
-  // se oculta (forceHidden) mientras cualquiera de los dos esté abierto.
+  // se oculta (forceHidden) mientras cualquiera de los dos esté abierto, o
+  // mientras app-quantity-duration-modal (qms, heredado de ShiftCycles) esté
+  // capturando cantidades — ambos flotan en el mismo borde inferior.
   protected scheduleModalVisible = signal(false);
   protected reviewModalVisible = signal(false);
-  protected batchHidesBar = computed(() => this.scheduleModalVisible() || this.reviewModalVisible());
+  protected batchHidesBar = computed(() => this.scheduleModalVisible() || this.reviewModalVisible() || this.qms.visible());
 
   // Expuesto (no private) para que pending-records-review-modal muestre el
   // horario capturado junto al total de unidades.
