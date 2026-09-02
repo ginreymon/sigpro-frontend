@@ -8,6 +8,7 @@ import { ReferenceTab } from '../stamping-record/tabs/reference-tab/reference-ta
 import { QuantitiesTab } from '../stamping-record/tabs/quantities-tab/quantities-tab';
 import { AdditionalTimesTab } from '../stamping-record/tabs/additionaltimes-tab/additionaltimes-tab';
 import { StampingRecord } from '../stamping-record/stamping-record';
+import { StampingRecordDataService } from '../stamping-record/stamping-record-data-service';
 
 // Variante de app-stamping-record para shift-cycles-manual (módulos con
 // allows_production_time_adjustment=true): mismo template y validaciones —
@@ -28,6 +29,7 @@ import { StampingRecord } from '../stamping-record/stamping-record';
     BoxLayout, UiButton, UiTabs, ShiftCyclesFab, ReactiveFormsModule,
     ReferenceTab, QuantitiesTab, AdditionalTimesTab,
   ],
+  providers: [StampingRecordDataService],
   templateUrl: '../stamping-record/stamping-record.html',
 })
 export class StampingRecordManual extends StampingRecord implements OnChanges {
