@@ -45,7 +45,7 @@
 
             <div class="flex flex-row items-center mt-4 gap-3 w-full shrink-0 justify-between">
                 @if(stampingChecksPassed()){
-                <app-shift-cycles-fab [finalizeDay]="finalizeDay()" [inWindow]="inWindow()" [config]="config" [hiddenActions]="['pause']" (onFinalize)="refreshSession()"></app-shift-cycles-fab>
+                <app-shift-cycles-fab [finalizeDay]="finalizeDay()" [inWindow]="inWindow()" [config]="config" [hiddenActions]="['pause', 'lastDelivery']" (onFinalize)="refreshSession()"></app-shift-cycles-fab>
                 }
 
                 <div [class]="`flex flex-row gap-3 shrink-0 ${stampingChecksPassed() ? 'ml-3':''}`">
