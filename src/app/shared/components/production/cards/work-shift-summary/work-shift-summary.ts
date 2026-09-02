@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, inject, Input, OnInit, signal } from '@angular/core';
-import { Observable } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { WorkShiftCard } from '../../../../../common/interfaces/work-shift-card';
 import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
 import { employeeWeight } from '../../../../../common/functions/employee-weight';
@@ -32,6 +32,10 @@ export class WorkShiftSummary implements OnInit {
   private elementRef = inject(ElementRef<HTMLElement>);
 
   cards = signal<WorkShiftCard[]>([]);
+  // Meta y Eficiencia dependen de getModuleShiftSummary() (HTTP); mientras
+  // esa llamada está en vuelo se muestran con skeleton en vez del '-'
+  // inicial de buildCards, para que se note que está cargando.
+  protected summaryLoading = signal(true);
   protected pendingSession: WorkSession | null = null;
   private configLoaded = false;
 
@@ -79,6 +83,7 @@ export class WorkShiftSummary implements OnInit {
       { title: 'Bajas y saldos ', data: '-', thresholds: { green: Infinity, red: Infinity } },
       { title: 'Eficiencia', data: '-', thresholds: { green: this.appConfig.highEfficiencyLimit, red: this.appConfig.lowEfficiencyLimit } },
     ]);
+    this.summaryLoading.set(true);
     this.loadProductivityCards(s);
   }
 
@@ -90,7 +95,7 @@ export class WorkShiftSummary implements OnInit {
   protected loadProductivityCards(s: WorkSession): void {
     const moduleId = s.current_module?.id;
 
-    this.getModuleSummary().subscribe({
+    this.getModuleSummary().pipe(finalize(() => this.summaryLoading.set(false))).subscribe({
       next: (rows) => {
         const row = rows.find(r => r.module_id === moduleId);
         const summary: EfficiencyPeriod = {
@@ -187,6 +192,12 @@ export class WorkShiftSummary implements OnInit {
     const base = 'inline-block rounded transition-colors';
     const hoverable = card.title === 'Encomendados';
     return hoverable ? `${base} cursor-pointer hover:text-gray-700 hover:bg-gray-100` : base;
+  }
+
+  private static readonly summaryLoadingTitles = ['Meta', 'Acumuladas', 'Bajas y saldos ', 'Eficiencia'];
+
+  isSummaryLoadingCard(card: WorkShiftCard): boolean {
+    return this.summaryLoading() && WorkShiftSummary.summaryLoadingTitles.includes(card.title);
   }
 
   getDataClasses(card: WorkShiftCard, size: string = 'text-sm'): string {

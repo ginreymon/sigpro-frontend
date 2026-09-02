@@ -12,7 +12,11 @@
           </span>
         }
         <span [class]="getDataClasses(card, 'text-sm sm:text-xs lg:text-sm')">
-          {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
+          @if (isSummaryLoadingCard(card)) {
+            <span class="number-skeleton">000</span>
+          } @else {
+            {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
+          }
         </span>
       </div>
 
@@ -42,7 +46,11 @@
             </span>
             }
             <span [class]="getDataClasses(card)">
-              {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
+              @if (isSummaryLoadingCard(card)) {
+                <span class="number-skeleton">000</span>
+              } @else {
+                {{ card.data.toString() | uppercase }} {{ card.title == 'Eficiencia'?'%':'' }}
+              }
             </span>
           </div>         
         </div>

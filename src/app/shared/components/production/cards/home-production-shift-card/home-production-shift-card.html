@@ -25,7 +25,11 @@
         <div class="bg-gray-100 p-2 rounded-md">
             <h4 class="text-slate-500 text-xs">{{ card.title }}</h4>
             <p [class]="getDataClasses(card,'text-2xl')">
-                {{ card.data.toString() | uppercase }} {{ card.title.startsWith('Eficiencia') ? '%' : '' }}
+                @if (isSummaryLoadingCard(card)) {
+                    <span class="number-skeleton">000</span>
+                } @else {
+                    {{ card.data.toString() | uppercase }} {{ card.title.startsWith('Eficiencia') ? '%' : '' }}
+                }
             </p>
         </div>
         }
