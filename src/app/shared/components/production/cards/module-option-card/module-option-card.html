@@ -14,5 +14,7 @@
   </div>
   @if(!all) {
   <p class="text-xs text-gray-500"><strong>Ubicación:</strong> {{ mod?.location?.name ?? '' | titlecase | ellipsis:25 }}</p>
+
+  <p class="text-xs text-gray-500"><strong>Tiempo manual:</strong> {{ mod?.allows_production_time_adjustment? 'Sí':'No' }}</p>
   }
 </app-ui-option-card>

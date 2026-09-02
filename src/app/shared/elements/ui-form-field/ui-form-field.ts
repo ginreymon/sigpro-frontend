@@ -14,6 +14,7 @@ export class UiFormField {
   @Input() controls: Partial<FormFieldConfig>[] = [];
   @Input() groupLabel: string | null = null;
   @Input() hideLabel = false;
+  @Input() labelDetail: string | null | undefined = null;
 
   @Input() set label(value: string) {
     this.updateFirstControl({ label: value });
@@ -46,6 +47,12 @@ export class UiFormField {
 
   get control(): FormControl | null {
     return this.controlContainer?.control?.get(this.controlName) as FormControl;
+  }
+
+  get labelControl(): string {
+    return [this.groupLabel ?? this.label, this.labelDetail]
+      .filter(Boolean)
+      .join(' ');
   }
 
   private updateFirstControl(value: Partial<FormFieldConfig>) {
