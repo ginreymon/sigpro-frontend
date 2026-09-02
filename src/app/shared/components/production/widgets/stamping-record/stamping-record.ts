@@ -101,7 +101,7 @@ export class StampingRecord {
     const q = this.referencesSearchText().toLowerCase().trim();
     // Un SAM ya completo (sin pendiente) no se puede seguir registrando —
     // se quita de la lista de selección en vez de mostrarlo inactivo.
-    const list = this.dataService.referenceSams().filter((item) => Number(item.pending_qty) > 0);
+    const list = this.referenceSamsSnapshot().filter((item) => Number(item.pending_qty) > 0);
     if (!q) return list;
     return list.filter(
       (item) =>
@@ -114,12 +114,20 @@ export class StampingRecord {
     return Number(this.dataService.orderDetail()?.orderedQty) || 0;
   }
 
+  // Punto de extensión: StampingRecordManual lo sobreescribe para restar
+  // encima los registros aún no persistidos (ManualStampingRecordsStore),
+  // ya que ese flujo no guarda en BD y por tanto pending_qty/stamped_qty del
+  // backend no se actualizan solos al registrar.
+  protected referenceSamsSnapshot(): StampingReferenceSam[] {
+    return this.dataService.referenceSams();
+  }
+
   // El pendiente/estampado se valida por SAM seleccionado, no por el total del OP:
   // cada SAM (según el módulo que estampó) es un proceso independiente sobre la
   // misma OP y no debe compartir avance con otro SAM.
   protected get selectedReferenceSam(): StampingReferenceSam | null {
     const id = this.selectedReferenceSamId();
-    return this.dataService.referenceSams().find((sam) => sam.id === id) ?? null;
+    return this.referenceSamsSnapshot().find((sam) => sam.id === id) ?? null;
   }
 
   protected get hasSelectedReference(): boolean {
@@ -136,7 +144,7 @@ export class StampingRecord {
   // depender de una selección que ya no existe.
   protected get totalStampedQuantity(): number {
     if (this.isOrderCompleted()) {
-      return this.dataService.referenceSams().reduce((sum, sam) => sum + (Number(sam.stamped_qty) || 0), 0);
+      return this.referenceSamsSnapshot().reduce((sum, sam) => sum + (Number(sam.stamped_qty) || 0), 0);
     }
     return Number(this.selectedReferenceSam?.stamped_qty) || 0;
   }
