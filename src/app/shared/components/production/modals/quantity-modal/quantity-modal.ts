@@ -33,6 +33,13 @@ export class QuantityModal {
   protected visible = this.qms.visible;
   protected isSubmitting = signal(false);
   protected editMode = computed(() => !!this.qms.editRecord());
+
+  // app-quantity-duration-modal lo sobreescribe a 'Agregar': ese flujo no
+  // persiste de una (acumula en ManualProductionRecordsStore), así que el
+  // botón no debe decir "Guardar".
+  protected get saveButtonLabel(): string {
+    return 'Guardar';
+  }
   
   constructor() {
     effect(() => {

@@ -26,6 +26,10 @@ import { QuantityModal } from '../../modals/quantity-modal/quantity-modal';
   templateUrl: '../../modals/quantity-modal/quantity-modal.html',
 })
 export class QuantityDurationModal extends QuantityModal {
+  protected override get saveButtonLabel(): string {
+    return 'Agregar';
+  }
+
   override save(): void {
     if (this.recordForm.invalid || this.isSubmitting() || !this.enable) return;   
     super.save();

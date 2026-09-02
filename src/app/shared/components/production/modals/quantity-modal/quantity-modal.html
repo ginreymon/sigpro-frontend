@@ -68,7 +68,7 @@
         </app-ui-button>
 
         <app-ui-button [disabled]="recordForm.invalid || isSubmitting() || !enable" (onClick)="save()">
-            Guardar
+            {{ saveButtonLabel }}
         </app-ui-button>
     </div>
 
