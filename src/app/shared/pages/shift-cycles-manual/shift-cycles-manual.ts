@@ -33,6 +33,7 @@ import { DialogService } from '../../../services/common/dialog-service';
 import { StampingRecord } from '../../../models/stamping/stamping-record';
 import { ManualStampingRecordsStore } from '../../../services/stamping/manual-stamping-records-store';
 import { AdditionalStampingTimeService } from '../../../services/stamping/additional-stamping-time-service';
+import { StampingRecordService } from '../../../services/stamping/stamping-record-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 // Reemplazo de app-shift-cycles para módulos con
@@ -61,6 +62,7 @@ export class ShiftCyclesManual extends ShiftCycles {
   private manualBatchDialogService = inject(DialogService);
   protected manualStampingRecordsStore = inject(ManualStampingRecordsStore);
   private additionalStampingTimeService = inject(AdditionalStampingTimeService);
+  private manualStampingBatchRecordService = inject(StampingRecordService);
 
   // id de AdditionalStampingTime -> standard_time (minutos por unidad, mismo
   // criterio que app-additional-stamping-time-card) — usado por
@@ -232,14 +234,40 @@ export class ShiftCyclesManual extends ShiftCycles {
     this.stampingPendingSchedule.set(null);
   }
 
-  // El guardado por lote de estampación (equivalente a onReviewConfirm +
-  // production-records/manual-duration-batch/) todavía no está definido —
-  // por ahora Confirmar solo avisa, sin persistir ni vaciar el store.
+  // Persiste el lote completo vía POST /stamping-records/manual-duration-batch/,
+  // homólogo a onReviewConfirm (producción): un solo duration_seconds
+  // (horario capturado en el paso anterior) cubre todos los registros
+  // pendientes del store de estampación, que se crean todo-o-nada.
   protected onStampingReviewConfirm(): void {
-    this.manualBatchDialogService.openToast(
-      'Guardado por lote pendiente',
-      'El guardado de los registros de estampación aún no está definido.',
-      'check',
-    );
+    const records = this.manualStampingRecordsStore.records();
+    const schedule = this.stampingPendingSchedule();
+    if (!records.length || !schedule) return;
+
+    this.loaderService.showLoader();
+    this.manualStampingBatchRecordService.createManualBatch(records, schedule.duration_seconds)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: () => {
+          this.manualStampingRecordsStore.clear();
+          this.stampingReviewModalVisible.set(false);
+          this.stampingPendingSchedule.set(null);
+          this.reloadOrder();
+          this.manualBatchDialogService.openToast(
+            'Registros guardados',
+            `${records.length} registro(s) · horario ${schedule.start_time}-${schedule.end_time}`,
+            'check',
+          );
+        },
+        error: (err: HttpErrorResponse) => {
+          // Igual que onReviewConfirm: no se limpia el store (los registros
+          // pendientes se conservan para reintentar) y se vuelve al estado
+          // de selección (review modal cerrado) para que app-pending-records-bar
+          // reaparezca en vez de quedar oculta tras el modal fallido.
+          this.stampingReviewModalVisible.set(false);
+          this.stampingPendingSchedule.set(null);
+          const message = extractFieldErrorMessage(err) ?? 'Error al guardar los registros.';
+          this.manualBatchDialogService.openToast('No se pudo guardar', message, 'fail');
+        },
+      });
   }
 }

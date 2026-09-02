@@ -14,4 +14,17 @@ export class StampingRecordService extends BaseCrudService<StampingRecord> {
     const params = limit ? new HttpParams().set('limit', limit) : undefined;
     return this.http.get<StampingRecord[]>(`${this.endpoint}recent/`, { params });
   }
+
+  // Homólogo a ProductionRecordService.createManualBatch, para módulos de
+  // estampación con allows_production_time_adjustment=true. Mismo payload:
+  // duration_seconds cubre el lote completo, no cada registro individual.
+  createManualBatch(
+    records: Partial<StampingRecord>[],
+    duration_seconds: number,
+  ): Observable<StampingRecord[]> {
+    return this.http.post<StampingRecord[]>(`${this.endpoint}manual-duration-batch/`, {
+      records,
+      duration_seconds,
+    });
+  }
 }
