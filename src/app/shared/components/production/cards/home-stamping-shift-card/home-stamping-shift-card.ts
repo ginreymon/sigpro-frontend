@@ -32,7 +32,7 @@ export class HomeStampingShiftCard extends StampingShiftSummary {
     this.loadMonthlyEfficiency(s);
   }
 
-  protected override isSummaryLoadingCard(card: WorkShiftCard): boolean {
+  override isSummaryLoadingCard(card: WorkShiftCard): boolean {
     if (card.title === this.monthlyEfficiencyTitle) return this.monthlyEfficiencyLoading();
     return super.isSummaryLoadingCard(card);
   }
