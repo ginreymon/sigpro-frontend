@@ -72,7 +72,7 @@ export class StampingRecord {
   protected recordForm: FormGroup = this.fb.group(
     {
       stamping_reference_sam: [null, Validators.required],
-      completed_quantity: [null, [Validators.required, Validators.min(1), this.integerValidator]],
+      completed_quantity: [null, [Validators.required, Validators.min(1), this.integerValidator.bind(this)]],
       additional_times: [[] as number[]],
     },
     { validators: [this.exceedsMaxValidator.bind(this)] },
@@ -159,6 +159,12 @@ export class StampingRecord {
 
   protected get completedQuantityControl(): FormControl {
     return this.recordForm.get('completed_quantity') as FormControl;
+  }
+
+  // Máquinas tipo calandra (uses_processes_search=true) miden en unidades
+  // fraccionarias; el resto de máquinas solo produce piezas enteras.
+  protected get usesProcessesSearch(): boolean {
+    return !!this.productionContextService.snapshot?.session?.current_module?.machine?.uses_processes_search;
   }
 
   // Tiempos adicionales solo aplican sobre una cantidad ya definida y válida
@@ -367,7 +373,10 @@ export class StampingRecord {
     return this.recordForm.valid;
   }
 
+  // Solo aplica a máquinas que no son tipo calandra: esas sí permiten
+  // cantidades fraccionarias (ver usesProcessesSearch).
   private integerValidator(control: AbstractControl): ValidationErrors | null {
+    if (this.usesProcessesSearch) return null;
     const value = control.value;
     if (value === null || value === undefined || value === '') return null;
     return Number.isInteger(Number(value)) ? null : { notInteger: true };

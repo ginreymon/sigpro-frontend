@@ -8,9 +8,15 @@
     @if (!isOrderCompleted) {
       <div class="mb-4">
         <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Cantidad producida'">
-          <app-ui-large-input [type]="'number'" [formControl]="completedQuantityControl" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">
-            <span right-addon>Estampadas: {{ totalStampedQuantity }}</span>
-          </app-ui-large-input>
+          @if (usesProcessesSearch) {
+            <app-ui-decimal-input [formControl]="completedQuantityControl" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">
+              <span right-addon>Estampadas: {{ totalStampedQuantity }}</span>
+            </app-ui-decimal-input>
+          } @else {
+            <app-ui-large-input [type]="'number'" [formControl]="completedQuantityControl" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">
+              <span right-addon>Estampadas: {{ totalStampedQuantity }}</span>
+            </app-ui-large-input>
+          }
         </app-ui-form-field>
 
         @if (exceedsMaxError) {

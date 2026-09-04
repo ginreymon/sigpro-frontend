@@ -3,13 +3,14 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { UiIcon } from '../../../../../../elements/ui-icon/ui-icon';
 import { UiFormField } from '../../../../../../elements/ui-form-field/ui-form-field';
 import { UiLargeInput } from '../../../../../../elements/ui-large-input/ui-large-input';
+import { UiDecimalInput } from '../../../../../../elements/ui-decimal-input/ui-decimal-input';
 import { UiErrorMessage } from '../../../../../../elements/ui-error-message/ui-error-message';
 import { StampingQuantityCounter } from '../../../../cards/stamping-quantity-counter/stamping-quantity-counter';
 
 @Component({
   selector: 'app-quantities-tab',
   standalone: true,
-  imports: [ReactiveFormsModule, UiIcon, UiFormField, UiLargeInput, UiErrorMessage, StampingQuantityCounter],
+  imports: [ReactiveFormsModule, UiIcon, UiFormField, UiLargeInput, UiDecimalInput, UiErrorMessage, StampingQuantityCounter],
   templateUrl: './quantities-tab.html',
 })
 export class QuantitiesTab {
@@ -17,6 +18,7 @@ export class QuantitiesTab {
   @Input() isOrderCompleted = false;
   @Input() hasSelectedReference = false;
   @Input() completedQuantityControl!: FormControl;
+  @Input() usesProcessesSearch = false;
   @Input() totalPendingQuantity = 0;
   @Input() totalStampedQuantity = 0;
   @Input() newCompletedQty = 0;
