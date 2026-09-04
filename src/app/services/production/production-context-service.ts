@@ -46,7 +46,7 @@ export class ProductionContextService {
     // como el shift-cycles de estampación pueden pasar un loader propio
     // (ej. stamping-orders/detail, que ya trae colorRows + referenceSams en
     // un solo viaje) para no tener que pegarle también al endpoint genérico.
-    orderLoader?: (docType: string, docNumber: number) => Observable<ProductionOrder | null>,
+    orderLoader?: (docType: string, docNumber: number, session: ProductionContext['session']) => Observable<ProductionOrder | null>,
   ): Observable<ProductionContext> {
     const coreModuleId = this.routeContextService.currentModule?.id;
     const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
@@ -75,7 +75,7 @@ export class ProductionContextService {
         const order$ = type && number
           ? (
               orderLoader
-                ? orderLoader(type, number)
+                ? orderLoader(type, number, session)
                 : this.poService.getOrder({ documentType: type, documentNumber: number }, true).pipe(
                     map(order => order as ProductionOrder),
                   )

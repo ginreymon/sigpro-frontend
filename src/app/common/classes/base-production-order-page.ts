@@ -24,7 +24,7 @@ export abstract class BaseProductionOrderPage implements OnInit {
   // Subclases pueden reemplazar cómo se resuelve la orden (ej. el
   // shift-cycles de estampación la trae de stamping-orders/detail, que ya
   // incluye todo lo que production-orders/detail tiene, en un solo viaje).
-  protected orderLoader?: (docType: string, docNumber: number) => Observable<ProductionOrder | null>;
+  protected orderLoader?: (docType: string, docNumber: number, session: WorkSession | null) => Observable<ProductionOrder | null>;
 
   ngOnInit(): void {
     this.loadDocumentFromRoute();

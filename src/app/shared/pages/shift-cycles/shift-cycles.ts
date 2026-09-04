@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { ProductionOrdersTable } from '../../../shared/components/production/tables/production-orders-table/production-orders-table';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { finalize, interval, map } from 'rxjs';
+import { finalize, interval, map, Observable } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/production/widgets/order-searcher/order-searcher';
 import { ProductionOrder } from '../../../models/production/production-order';
@@ -81,8 +81,17 @@ export class ShiftCycles extends BaseProductionOrderPage {
   // production-orders/detail trae (colorRows, docStatus, stampingAudit,
   // tracking...) más orderedQty/referenceSams propios — así que reemplaza
   // por completo la fuente de la orden y evita la segunda llamada HTTP.
+  // Si el módulo tiene uses_processes_search activo, ni stamping-orders/detail
+  // ni production-orders/detail sirven (su colorRows sale mal para OP/OPT en
+  // ese formato) — hay que usar production-orders/processes, igual que hace
+  // OrderSearcher.fetchOrder. Esto aplica tanto a la búsqueda dentro de la
+  // página como a la carga inicial vía query params (?docType=&docNumber=),
+  // porque ambos casos comparten este mismo loader.
   protected override orderLoader = this.config.showStampingRecord
-    ? (docType: string, docNumber: number) => this.opStampingService.getOrderDetail(docType, docNumber)
+    ? (docType: string, docNumber: number, session: WorkSession | null) =>
+        session?.current_module?.machine?.uses_processes_search
+          ? (this.opStampingService.getProductionOrderProcesses(docType, docNumber) as Observable<ProductionOrder | null>)
+          : this.opStampingService.getOrderDetail(docType, docNumber)
     : undefined;
 
   private hasCheckedActiveRecord = false;
