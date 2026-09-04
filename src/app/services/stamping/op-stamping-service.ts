@@ -9,13 +9,17 @@ import { ColorRowDetail } from '../../models/production/color-row-detail';
 import { SkuDetail } from '../../models/production/sku-detail';
 
 // sp_ordenes_produccion_proceso_json (OPT) devuelve colorRows[].items en vez
-// de colorRows[].skus (cada color trae un único renglón sintético, no tallas
-// reales por SKU — ver comentario en el SP). Se normaliza acá, en el único
-// punto que llama a este endpoint, para que el resto de la app siga
-// trabajando con el contrato único ColorRowDetail.skus (buildColorSizeMatrix,
-// ProductionOrdersTable, etc.) sin tener que conocer esta diferencia.
+// de colorRows[].skus, y cada item trae "attribute" en vez de "size" (cada
+// color trae un único renglón sintético, no tallas reales por SKU — ver
+// comentario en el SP). Se normaliza acá, en el único punto que llama a este
+// endpoint, para que el resto de la app siga trabajando con el contrato
+// único ColorRowDetail.skus[].size (buildColorSizeMatrix, ProductionOrdersTable,
+// OrderSkuAuditTable, etc.) sin tener que conocer esta diferencia.
+interface ProcessesSkuItem extends Omit<SkuDetail, 'size'> {
+  attribute: string;
+}
 interface ProcessesColorRow extends Omit<ColorRowDetail, 'skus'> {
-  items: SkuDetail[];
+  items: ProcessesSkuItem[];
 }
 interface ProcessesOrderResponse extends Omit<ProductionOrder, 'colorRows'> {
   colorRows: ProcessesColorRow[];
@@ -48,7 +52,10 @@ export class OPStampingService {
     return this.http.get<ProcessesOrderResponse>(`${this.path}/production-orders/processes/`, { params }).pipe(
       map((data) => ({
         ...data,
-        colorRows: data.colorRows.map(({ items, ...rest }) => ({ ...rest, skus: items })),
+        colorRows: data.colorRows.map(({ items, ...rest }) => ({
+          ...rest,
+          skus: items.map(({ attribute, ...item }): SkuDetail => ({ ...item, size: attribute })),
+        })),
       })),
     );
   }
