@@ -1,10 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { StampingOrderDetail } from '../../models/stamping/stamping-order-detail';
 import { OrderTraceability } from '../../models/stamping/order-traceability';
 import { ProductionOrder } from '../../models/production/production-order';
+import { ColorRowDetail } from '../../models/production/color-row-detail';
+import { SkuDetail } from '../../models/production/sku-detail';
+
+// sp_ordenes_produccion_proceso_json (OPT) devuelve colorRows[].items en vez
+// de colorRows[].skus (cada color trae un único renglón sintético, no tallas
+// reales por SKU — ver comentario en el SP). Se normaliza acá, en el único
+// punto que llama a este endpoint, para que el resto de la app siga
+// trabajando con el contrato único ColorRowDetail.skus (buildColorSizeMatrix,
+// ProductionOrdersTable, etc.) sin tener que conocer esta diferencia.
+interface ProcessesColorRow extends Omit<ColorRowDetail, 'skus'> {
+  items: SkuDetail[];
+}
+interface ProcessesOrderResponse extends Omit<ProductionOrder, 'colorRows'> {
+  colorRows: ProcessesColorRow[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +45,11 @@ export class OPStampingService {
   // production-orders/detail (ver OrderSearcher).
   getProductionOrderProcesses(docType: string, docNumber: number): Observable<ProductionOrder> {
     const params = new HttpParams().set('type', docType).set('number', docNumber);
-    return this.http.get<ProductionOrder>(`${this.path}/production-orders/processes/`, { params });
+    return this.http.get<ProcessesOrderResponse>(`${this.path}/production-orders/processes/`, { params }).pipe(
+      map((data) => ({
+        ...data,
+        colorRows: data.colorRows.map(({ items, ...rest }) => ({ ...rest, skus: items })),
+      })),
+    );
   }
 }
