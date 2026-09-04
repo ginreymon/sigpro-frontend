@@ -54,6 +54,10 @@ export class OrderSearcher implements OnInit {
   // Default false conserva el comportamiento actual (todos los tipos de
   // documento); en true, el select de tipo solo muestra OP y OPT.
   restrictToOpAndOpt = input<boolean>(false);
+  // Páginas de estampación (shift-cycles, auditory) deben quedarse dentro del
+  // namespace /stamping/ — nunca caer al genérico /production/production-orders/detail,
+  // aunque el módulo no tenga uses_processes_search. Ver fetchOrder().
+  @Input() useStampingDetail = false;
 
   protected visibleDoctypes = computed(() =>
     this.restrictToOpAndOpt()
@@ -110,12 +114,15 @@ export class OrderSearcher implements OnInit {
 
   // Módulos cuya máquina de estampación tiene uses_processes_search buscan la
   // OP vía /stamping/production-orders/processes/ en vez del endpoint
-  // genérico — ver StampingModuleMachine.uses_processes_search.
+  // genérico — ver StampingModuleMachine.uses_processes_search. Si no aplica
+  // pero el searcher vive en una página de estampación (useStampingDetail),
+  // el fallback tampoco debe salirse a /production/production-orders/detail:
+  // usa /stamping/stamping-orders/detail (mismo dato + orderedQty/referenceSams).
   private fetchOrder(docType: string, docNumber: number): Observable<ProductionOrder> {
     const usesProcessesSearch = this.contextService.snapshot?.session?.current_module?.machine?.uses_processes_search;
-    return usesProcessesSearch
-      ? this.opStampingService.getProductionOrderProcesses(docType, docNumber)
-      : (this.poService.getOrder({ documentType: docType, documentNumber: docNumber }, true) as Observable<ProductionOrder>);
+    if (usesProcessesSearch) return this.opStampingService.getProductionOrderProcesses(docType, docNumber);
+    if (this.useStampingDetail) return this.opStampingService.getOrderDetail(docType, docNumber);
+    return this.poService.getOrder({ documentType: docType, documentNumber: docNumber }, true) as Observable<ProductionOrder>;
   }
 
   clear() {

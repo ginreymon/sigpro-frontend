@@ -6,7 +6,7 @@
     </div>
 
     @if (!productionOrder() && !isLoading() && activeTab() === 'tab1') {
-      <app-order-searcher [preloadedDocTypes]="contextDocTypes()" [traceabilityMode]="searchByNumberOnly" [numberOnlySearch]="searchByNumberOnly" (onFoundDoc)="setDocument($event)" class="mt-2"></app-order-searcher>
+      <app-order-searcher [preloadedDocTypes]="contextDocTypes()" [traceabilityMode]="searchByNumberOnly" [numberOnlySearch]="searchByNumberOnly" [useStampingDetail]="true" (onFoundDoc)="setDocument($event)" class="mt-2"></app-order-searcher>
     }
 
     @if (productionOrder()) {
