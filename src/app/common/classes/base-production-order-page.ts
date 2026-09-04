@@ -1,5 +1,6 @@
 import { Directive, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { finalize, Observable } from 'rxjs';
 import { WorkSpaceLoaderService } from '../../services/common/work-space-loader-service';
 import { LoaderService } from '../../services/common/loader-service';
@@ -12,6 +13,7 @@ import { WorkSession } from '../../models/production/work-session';
 export abstract class BaseProductionOrderPage implements OnInit {
   protected router = inject(Router);
   protected route = inject(ActivatedRoute);
+  protected location = inject(Location);
   protected wslService = inject(WorkSpaceLoaderService);
   protected loaderService = inject(LoaderService);
   protected contextService = inject(ProductionContextService);
@@ -63,17 +65,30 @@ export abstract class BaseProductionOrderPage implements OnInit {
   setDocument(doc: ProductionOrder | null): void {
     this.productionOrder.set(doc);
     if (!doc) return;
-    this.router.navigate([], {
+    // replaceState en vez de router.navigate: solo sincroniza la URL (para
+    // que quede bookmarkeable/recargable), sin volver a emitir en
+    // route.queryParams — router.navigate sí lo hace, y como
+    // loadDocumentFromRoute está suscrito a ese observable, disparaba un
+    // loadContext() completo (session, docTypes, workBreaks, employees,
+    // workShifts, modules y la orden otra vez) inmediatamente después de que
+    // el buscador ya había resuelto la orden, duplicando todas esas llamadas.
+    const tree = this.router.createUrlTree([], {
       queryParams: { docType: doc.documentType, docNumber: doc.documentNumber },
       queryParamsHandling: 'merge',
     });
+    this.location.replaceState(this.router.serializeUrl(tree));
   }
 
   reloadOrder(): void {
+    // Se lee de productionOrder(), no de route.snapshot.queryParams: desde
+    // que setDocument usa Location.replaceState (ver comentario ahí), la URL
+    // se actualiza por fuera del Router, así que el snapshot de la ruta
+    // queda desactualizado tras una búsqueda — la orden actual en memoria es
+    // la única fuente confiable.
+    const current = this.productionOrder();
     this.productionOrder.set(null);
     this.beforeLoad();
-    const { docType, docNumber } = this.route.snapshot.queryParams;
-    this.loadContext(docType || undefined, docNumber ? +docNumber : undefined);
+    this.loadContext(current?.documentType, current?.documentNumber);
   }
 
   protected beforeLoad(): void {}

@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DatePipe, Location } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -47,7 +47,6 @@ export class StampingAuditory extends BaseProductionOrderPage {
   // lookup used by the stamping module's shift-cycles searcher.
   protected searchByNumberOnly = SHIFT_CYCLES_CONFIG['stamping'].searchByNumberOnly;
 
-  private location = inject(Location);
   private auditQuantityModal = inject(AuditQuantityModalService);
   private dialogService = inject(DialogService);
   private auditRecordService = inject(AuditRecordService);
@@ -216,14 +215,8 @@ export class StampingAuditory extends BaseProductionOrderPage {
   }
 
   override setDocument(doc: ProductionOrder | null): void {
-    this.productionOrder.set(doc);
+    super.setDocument(doc);
     if (!doc) return;
-    const tree = this.router.createUrlTree([], {
-      queryParams: { docType: doc.documentType, docNumber: doc.documentNumber },
-      queryParamsHandling: 'merge',
-    });
-    this.location.replaceState(this.router.serializeUrl(tree));
-
     this.loadOrderExtras(doc);
   }
 
