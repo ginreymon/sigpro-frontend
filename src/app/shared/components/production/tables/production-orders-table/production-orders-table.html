@@ -9,7 +9,7 @@
                 <tr>
                     <th class="px-6 py-3 title-font tracking-wider font-medium w-full">
                         <div class="inline-flex items-center gap-1">
-                            <span>Color SKU</span>
+                            <span>{{ colorColumnLabel }}</span>
                             <button
                                 type="button"
                                 (click)="toggleColorFilterDropdown($event)"
@@ -21,7 +21,7 @@
 
                     @for(size of sizes; track size ){
                     <th class="title-font tracking-wider font-medium text-center px-8">
-                        <app-ui-tooltip-fixed [message]="`Talla ${size}`">
+                        <app-ui-tooltip-fixed [message]="`${sizeTooltipLabel} ${size}`">
                             <span
                                 class="text-gray-700 bg-gray-100 px-6 w-16 inline-flex justify-center items-center rounded-full text-xs font-semibold py-1">
                                 {{ size }}

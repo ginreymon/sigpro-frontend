@@ -30,6 +30,8 @@ export class ProductionOrdersTable {
   @ViewChild(TableColumnFilter) private colorFilterPanel!: TableColumnFilter;
 
   @Input() customColumns: ProductionTableCustomColumn[] = [];
+  @Input() colorColumnLabel = 'Color SKU';
+  @Input() sizeTooltipLabel = 'Talla';
 
   @ContentChildren(TableTemplate) private templates!: QueryList<TableTemplate<SkuDetail>>;
   protected templateMap = new Map<string, TemplateRef<TableTemplateContext<SkuDetail>>>();
