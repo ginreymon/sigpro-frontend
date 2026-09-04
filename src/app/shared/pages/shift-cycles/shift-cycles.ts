@@ -1,7 +1,7 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { ProductionOrdersTable } from '../../../shared/components/production/tables/production-orders-table/production-orders-table';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { finalize, interval, map, Observable } from 'rxjs';
+import { finalize, interval, map } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { OrderSearcher } from '../../../shared/components/production/widgets/order-searcher/order-searcher';
 import { ProductionOrder } from '../../../models/production/production-order';
@@ -90,7 +90,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
   protected override orderLoader = this.config.showStampingRecord
     ? (docType: string, docNumber: number, session: WorkSession | null) =>
         session?.current_module?.machine?.uses_processes_search
-          ? (this.opStampingService.getProductionOrderProcesses(docType, docNumber) as Observable<ProductionOrder | null>)
+          ? this.opStampingService.getProductionOrderProcesses(docType, docNumber)
           : this.opStampingService.getOrderDetail(docType, docNumber)
     : undefined;
 

@@ -29,9 +29,11 @@ export class StampingRecordDataService {
     this.isLoadingModalData.set(true);
     this.loaderService.showLoader();
 
-    // El contexto de producción ya trae la OP resuelta vía
-    // stamping-orders/detail (ver ShiftCycles.orderLoader), con
-    // referenceSams incluido — no hay que volver a pedirla acá.
+    // El contexto de producción ya trae la OP resuelta con referenceSams
+    // incluido — no hay que volver a pedirla acá. La fuente varía según el
+    // módulo (ver ShiftCycles.orderLoader): stamping-orders/detail normalmente,
+    // o production-orders/processes si uses_processes_search=true (ese SP
+    // también agrega orderedQty/referenceSams, mismo shape StampingOrderDetail).
     const order = this.productionContextService.snapshot?.order as StampingOrderDetail | null;
     const moduleMachineTypeId = this.moduleMachineTypeId();
     const moduleMachineId = this.moduleMachineId();

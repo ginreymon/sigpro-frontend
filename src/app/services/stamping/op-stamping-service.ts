@@ -4,7 +4,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { StampingOrderDetail } from '../../models/stamping/stamping-order-detail';
 import { OrderTraceability } from '../../models/stamping/order-traceability';
-import { ProductionOrder } from '../../models/production/production-order';
 import { ColorRowDetail } from '../../models/production/color-row-detail';
 import { SkuDetail } from '../../models/production/sku-detail';
 
@@ -24,7 +23,7 @@ interface ProcessesSkuItem extends Omit<SkuDetail, 'size'> {
 interface ProcessesColorRow extends Omit<ColorRowDetail, 'skus'> {
   items: ProcessesSkuItem[];
 }
-interface ProcessesOrderResponse extends Omit<ProductionOrder, 'colorRows'> {
+interface ProcessesOrderResponse extends Omit<StampingOrderDetail, 'colorRows'> {
   colorRows: ProcessesColorRow[];
 }
 
@@ -50,7 +49,7 @@ export class OPStampingService {
   // Búsqueda de OP para módulos cuya máquina tiene uses_processes_search —
   // sp_ordenes_produccion_proceso_json en vez del endpoint genérico de
   // production-orders/detail (ver OrderSearcher).
-  getProductionOrderProcesses(docType: string, docNumber: number): Observable<ProductionOrder> {
+  getProductionOrderProcesses(docType: string, docNumber: number): Observable<StampingOrderDetail> {
     const params = new HttpParams().set('type', docType).set('number', docNumber);
     return this.http.get<ProcessesOrderResponse>(`${this.path}/production-orders/processes/`, { params }).pipe(
       map((data) => ({
