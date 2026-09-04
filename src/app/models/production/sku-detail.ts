@@ -5,4 +5,5 @@ export interface SkuDetail extends Totals {
   skuRowId: number;
   hasOpenRecords?: boolean;
   baseRouteQuantity?: number;
+  itemId?: string;
 }

@@ -9,12 +9,15 @@ import { ColorRowDetail } from '../../models/production/color-row-detail';
 import { SkuDetail } from '../../models/production/sku-detail';
 
 // sp_ordenes_produccion_proceso_json (OPT) devuelve colorRows[].items en vez
-// de colorRows[].skus, y cada item trae "attribute" en vez de "size" (cada
-// color trae un único renglón sintético, no tallas reales por SKU — ver
-// comentario en el SP). Se normaliza acá, en el único punto que llama a este
-// endpoint, para que el resto de la app siga trabajando con el contrato
-// único ColorRowDetail.skus[].size (buildColorSizeMatrix, ProductionOrdersTable,
-// OrderSkuAuditTable, etc.) sin tener que conocer esta diferencia.
+// de colorRows[].skus, con "attribute" en vez de "size" (cada color trae un
+// único renglón sintético, no tallas reales por SKU — ver comentario en el
+// SP). skuRowId ya viene en 0 desde el propio SP (no aplica para estos
+// renglones sintéticos) e itemId trae el GUID determinístico — ambos pasan
+// tal cual, solo se normaliza items -> skus y attribute -> size, en el
+// único punto que llama a este endpoint, para que el resto de la app siga
+// trabajando con el contrato único ColorRowDetail.skus[] (buildColorSizeMatrix,
+// ProductionOrdersTable, OrderSkuAuditTable, etc.) sin tener que conocer
+// esta diferencia.
 interface ProcessesSkuItem extends Omit<SkuDetail, 'size'> {
   attribute: string;
 }

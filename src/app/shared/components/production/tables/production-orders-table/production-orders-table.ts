@@ -175,6 +175,14 @@ export class ProductionOrdersTable {
     return Number(size.completedQty) + Number(size.rejectedQty) + Number(size.wasteQty);
   }
 
+  // true si el renglón es un SKU real (no el placeholder de emptySize()).
+  // OP normal lo identifica por skuRowId != 0; OPT vía production-orders/processes
+  // no tiene skuRowId real (sale en 0 a propósito — ver OPStampingService) y
+  // usa itemId (GUID) en su lugar, así que cualquiera de los dos cuenta.
+  hasRealSku(size: SkuDetail): boolean {
+    return size.skuRowId !== 0 || !!size.itemId;
+  }
+
   getButtonIntent(size: any): ButtonBaseType {
     if (this.getProducedQty(size) === size.orderedQty) return 'cancel';
     if (size.hasOpenRecords === true) return 'action';

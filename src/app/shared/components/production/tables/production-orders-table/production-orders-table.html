@@ -61,7 +61,7 @@
                             }
                         </app-ui-table-button>
                         }
-                        @if(readOnly && size.skuRowId != 0){
+                        @if(readOnly && hasRealSku(size)){
                         <app-ui-tooltip [message]="`${getProducedQty(size)} / ${size.orderedQty}`">
                             <span class="text-gray-700 px-6 w-16 inline-flex justify-center items-center rounded-full font-semibold py-1">
                                 {{ size.orderedQty }}
@@ -154,7 +154,7 @@
                             }
                         </app-ui-table-button>
                         }
-                        @if(readOnly && size.skuRowId != 0){
+                        @if(readOnly && hasRealSku(size)){
                         <span class="text-gray-700 px-6 w-16 inline-flex justify-center items-center rounded-full font-semibold py-1">
                             {{ size.orderedQty }}
                         </span>
