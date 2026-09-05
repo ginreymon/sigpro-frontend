@@ -3,8 +3,8 @@ import { finalize } from 'rxjs';
 import { WorkSessionService } from '../../../services/production/work-session-service';
 import { RouteContextService } from '../../../services/core/route-context-service';
 import { LoaderService } from '../../../services/common/loader-service';
-import { ShiftCycles } from '../shift-cycles/shift-cycles';
-import { ShiftCyclesManual } from '../shift-cycles-manual/shift-cycles-manual';
+import { ShiftCycles } from './shift-cycles/shift-cycles';
+import { ShiftCyclesManual } from './shift-cycles-manual/shift-cycles-manual';
 
 // Punto de entrada de la ruta shift-cycles: decide qué página montar según
 // Module.allows_production_time_adjustment (apps/production/models/module.py) del

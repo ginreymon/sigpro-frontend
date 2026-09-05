@@ -3,20 +3,20 @@ import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-spac
 import { InfoCardTemplate } from '../../../../template/info-card-template/info-card-template';
 import { UiButton } from '../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
-import { StampingShiftSummary } from '../cards/stamping-shift-summary/stamping-shift-summary';
-import { WorkShiftSummary } from '../cards/work-shift-summary/work-shift-summary';
-import { OrderHeader } from '../cards/order-header/order-header';
-import { ProductionOrdersTable } from '../tables/production-orders-table/production-orders-table';
+import { StampingShiftSummary } from '../../../components/production/cards/stamping-shift-summary/stamping-shift-summary';
+import { WorkShiftSummary } from '../../../components/production/cards/work-shift-summary/work-shift-summary';
+import { OrderHeader } from '../../../components/production/cards/order-header/order-header';
+import { ProductionOrdersTable } from '../../../components/production/tables/production-orders-table/production-orders-table';
 import { TableTemplate } from '../../../../directives/table-template';
-import { ShiftCyclesFab } from '../widgets/shift-cycles-fab/shift-cycles-fab';
-import { OrderSearcher } from '../widgets/order-searcher/order-searcher';
-import { RecentRecordsCard } from '../cards/recent-records-card/recent-records-card';
-import { EmployeesModal } from '../modals/employees-modal/employees-modal';
-import { BalanceModal } from '../modals/balance-modal/balance-modal';
-import { StampingBalanceModal } from '../modals/stamping-balance-modal/stamping-balance-modal';
-import { PauseModal } from '../modals/pause-modal/pause-modal';
-import { ShiftTimeAlert } from '../widgets/shift-time-alert/shift-time-alert';
-import type { ShiftCycles } from '../../../pages/shift-cycles/shift-cycles';
+import { ShiftCyclesFab } from '../../../components/production/widgets/shift-cycles-fab/shift-cycles-fab';
+import { OrderSearcher } from '../../../components/production/widgets/order-searcher/order-searcher';
+import { RecentRecordsCard } from '../../../components/production/cards/recent-records-card/recent-records-card';
+import { EmployeesModal } from '../../../components/production/modals/employees-modal/employees-modal';
+import { BalanceModal } from '../../../components/production/modals/balance-modal/balance-modal';
+import { StampingBalanceModal } from '../../../components/production/modals/stamping-balance-modal/stamping-balance-modal';
+import { PauseModal } from '../../../components/production/modals/pause-modal/pause-modal';
+import { ShiftTimeAlert } from '../../../components/production/widgets/shift-time-alert/shift-time-alert';
+import type { ShiftCycles } from '../shift-cycles/shift-cycles';
 
 // Skeleton compartido entre app-shift-cycles y app-shift-cycles-manual: toda
 // la estructura idéntica de ambas páginas (jornada no planificada, resumen +
