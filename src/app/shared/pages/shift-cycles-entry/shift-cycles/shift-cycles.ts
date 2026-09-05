@@ -110,8 +110,11 @@ export class ShiftCycles extends BaseProductionOrderPage {
     return sams.reduce((sum, sam) => sum + Number(sam.stamped_pieces), 0);
   });
 
+  // Columna "Piezas" solo aplica a máquinas sin uses_processes_search: en
+  // procesos (uses_processes_search=true) el conteo por SAM/referencia no
+  // aplica, ya que ahí las unidades se buscan por proceso, no por color/talla.
   stampingCustomColumns = computed<ProductionTableCustomColumn[]>(() => {
-    if (this.totalStampingFactor() == null) return [];
+    if (this.usesProcessesSearch() || this.totalStampingFactor() == null) return [];
     return [{ title: 'Piezas', tooltip: 'Piezas a estampar', templateName: 'piezas' }];
   });
 
