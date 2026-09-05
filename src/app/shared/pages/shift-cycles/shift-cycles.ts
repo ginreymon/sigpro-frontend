@@ -1,29 +1,15 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { ProductionOrdersTable } from '../../../shared/components/production/tables/production-orders-table/production-orders-table';
-import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { finalize, interval, map } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { OrderSearcher } from '../../../shared/components/production/widgets/order-searcher/order-searcher';
 import { ProductionOrder } from '../../../models/production/production-order';
-import { UiButton } from '../../../shared/elements/ui-button/ui-button';
-import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
-import { OrderHeader } from '../../../shared/components/production/cards/order-header/order-header';
-import { WorkShiftSummary } from '../../../shared/components/production/cards/work-shift-summary/work-shift-summary';
-import { StampingShiftSummary } from '../../../shared/components/production/cards/stamping-shift-summary/stamping-shift-summary';
-import { EmployeesModal } from '../../../shared/components/production/modals/employees-modal/employees-modal';
-import { BalanceModal } from '../../../shared/components/production/modals/balance-modal/balance-modal';
-import { StampingBalanceModal } from '../../../shared/components/production/modals/stamping-balance-modal/stamping-balance-modal';
 import { SkuTaskDetail } from '../../../models/production/sku-task-detail';
 import { DialogService } from '../../../services/common/dialog-service';
 import { ProductionRecord } from '../../../models/production/production-record';
 import { WorkSession } from '../../../models/production/work-session';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { WorkSessionService } from '../../../services/production/work-session-service';
-import { RecentRecordsCard, RecentRecordsService } from '../../../shared/components/production/cards/recent-records-card/recent-records-card';
-import { ShiftTimeAlert } from '../../../shared/components/production/widgets/shift-time-alert/shift-time-alert';
+import { RecentRecordsService } from '../../../shared/components/production/cards/recent-records-card/recent-records-card';
 import { QuantityModal } from '../../../shared/components/production/modals/quantity-modal/quantity-modal';
 import { QuantityModalService } from '../../../services/common/quantity-modal-service';
-import { InfoCardTemplate } from '../../../template/info-card-template/info-card-template';
 import { ProductionRecordService } from '../../../services/production/production-record-service';
 import { WorkBreakRecord } from '../../../models/production/work-break-record';
 import { ShiftHourlyRecord } from '../../../shared/components/production/widgets/shift-hourly-record/shift-hourly-record';
@@ -36,8 +22,7 @@ import { ProductionContext } from '../../../models/production/production-context
 import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
 import { parseSessionErrors } from '../../../common/functions/session-errors';
 import { EmployeesSavedData } from '../../../services/common/shift-modals-service';
-import { ShiftCyclesFab } from "../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab";
-import { PauseModal } from '../../../shared/components/production/modals/pause-modal/pause-modal';
+import { ShiftCycleActionKey } from "../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab";
 import { ShiftModalsService } from '../../../services/common/shift-modals-service';
 import { ProductionRecordContext } from '../../../models/production/production-record-context';
 import { ShiftNavigationService } from '../../../services/core/shift-navigation-service';
@@ -47,22 +32,22 @@ import { SHIFT_CYCLES_CONFIG } from '../../../common/const/shift-cycles-config';
 import { AppConfigService } from '../../../services/core/app-config-service';
 import { isWithinHourlyWindow } from '../../../common/functions/hourly-window';
 import { closeWorkSessionAndExit } from '../../../common/functions/close-work-session';
-import { TableTemplate } from '../../../directives/table-template';
 import { ProductionTableCustomColumn } from '../../../shared/components/production/tables/production-orders-table/production-table-custom-column';
+import { ShiftCyclesShell } from '../../../shared/components/production/shift-cycles-shell/shift-cycles-shell';
 
 @Component({
   selector: 'app-shift-cycles',
-  imports: [WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary, StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader, RecentRecordsCard, ShiftTimeAlert, ShiftHourlyRecord, StampingRecord, QuantityModal, InfoCardTemplate, ShiftCyclesFab, TableTemplate],
+  imports: [ShiftCyclesShell, QuantityModal, ShiftHourlyRecord, StampingRecord],
   templateUrl: './shift-cycles.html',
   styleUrl: './shift-cycles.css',
 })
 export class ShiftCycles extends BaseProductionOrderPage {
-  protected inWindow = signal(true);
+  inWindow = signal(true);
 
   private shiftNav = inject(ShiftNavigationService);
   private routeContextService = inject(RouteContextService);
 
-  protected config: ShiftCyclesConfig =
+  config: ShiftCyclesConfig =
     SHIFT_CYCLES_CONFIG[this.routeContextService.currentModule?.url ?? ''] ?? SHIFT_CYCLES_CONFIG['production'];
 
   private dialogService = inject(DialogService);
@@ -72,10 +57,20 @@ export class ShiftCycles extends BaseProductionOrderPage {
   private productionRecordService = inject(ProductionRecordService);
   private stampingRecordService = inject(StampingRecordService);
   private opStampingService = inject(OPStampingService);
-  protected recentRecordsService: RecentRecordsService | null =
+  recentRecordsService: RecentRecordsService | null =
     this.config.showStampingRecord ? this.stampingRecordService : null;
   private destroyRef = inject(DestroyRef);
-  protected shiftModals = inject(ShiftModalsService);
+  shiftModals = inject(ShiftModalsService);
+
+  // Extension points para app-shift-cycles-shell (skeleton de template
+  // compartido con ShiftCyclesManual): la variante manual sobreescribe estos
+  // hooks en vez de duplicar el bloque de tabla/action-bar en su propio
+  // template.
+  pendingRecords = computed<Partial<ProductionRecord>[]>(() => []);
+  fabHiddenActions: ShiftCycleActionKey[] = [];
+  fabVisible = computed(() => this.stampingChecksPassed() && (!this.shiftModals.shiftHourlyVisible() || this.finalizeDay()));
+  actionBarJustifyClass = computed<string>(() => (this.shiftModals.shiftHourlyVisible() && !this.finalizeDay()) ? 'justify-end' : 'justify-between');
+  contentExtraClass = '';
 
   // En estampación, stamping-orders/detail ya trae todo lo que
   // production-orders/detail trae (colorRows, docStatus, stampingAudit,
@@ -105,7 +100,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
   // Piezas a estampar = suma de stamped_pieces de cada referencia (SAM) que
   // ya tiene cantidades ingresadas (stamped_qty > 0) según el backend —
   // no depende de lo que se seleccionó en esta sesión de UI.
-  protected totalStampingFactor = computed(() => {
+  totalStampingFactor = computed(() => {
     const referenceSams = this.productionOrder()?.referenceSams;
     if (!referenceSams) return null;
     const machineTypeId = this.contextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
@@ -115,7 +110,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
     return sams.reduce((sum, sam) => sum + Number(sam.stamped_pieces), 0);
   });
 
-  protected stampingCustomColumns = computed<ProductionTableCustomColumn[]>(() => {
+  stampingCustomColumns = computed<ProductionTableCustomColumn[]>(() => {
     if (this.totalStampingFactor() == null) return [];
     return [{ title: 'Piezas', tooltip: 'Piezas a estampar', templateName: 'piezas' }];
   });
@@ -124,7 +119,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
   // Máquina asignada al módulo con uses_processes_search activo: el buscador
   // de OP se restringe a OP/OPT (ver OrderSearcher.restrictToOpAndOpt).
-  protected usesProcessesSearch = computed(() =>
+  usesProcessesSearch = computed(() =>
     this.context()?.session?.current_module?.machine?.uses_processes_search ?? false
   );
 
@@ -134,9 +129,9 @@ export class ShiftCycles extends BaseProductionOrderPage {
     return `${doc.documentType} ${doc.documentNumber}`;
   }
 
-  protected finalizeDay = computed(() => !!this.currentSession()?.editing_finalized);
+  finalizeDay = computed(() => !!this.currentSession()?.editing_finalized);
 
-  protected isDocStatusValid = computed(() => {
+  isDocStatusValid = computed(() => {
     const docStatus = this.productionOrder()?.docStatus;
     return docStatus === 1 || docStatus === 2;
   });
@@ -146,7 +141,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
   // mantiene actualizado t865_mf_op_operaciones.f865_cant_completa_base para
   // ese centro de trabajo, así que isCompleted queda en falso incluso en
   // OPs con auditoría de estampación ya confirmada — no es una señal fiable.
-  protected stampingChecksPassed = computed(() => {
+  stampingChecksPassed = computed(() => {
     if (!this.config.showStampingRecord) return true;
     // Las OPT (orden de producción de terceros) no pasan por auditoría de
     // estampación en el ERP, así que exigir el gate las deja bloqueadas para siempre.
@@ -155,7 +150,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
     return !!audit?.isAudited && !!audit?.quantitiesMatch;
   });
 
-  protected get stampingCheckMessage(): string {
+  get stampingCheckMessage(): string {
     const audit = this.productionOrder()?.stampingAudit;
     if (!audit?.isAudited) {
       return 'La orden aún no ha sido auditada en estampación.';

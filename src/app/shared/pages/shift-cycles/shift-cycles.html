@@ -1,168 +1,30 @@
-@if(!currentSession() && !isLoading()){
-<app-work-space-layout [headerVisible]="false">
-    <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
-        <div class="flex-1 min-h-0 overflow-hidden">
-            <app-info-card-template [title]="'Jornada no planificada'"
-                [description]="'No has configurado la jornada de trabajo. Asigna un turno, módulo y operarios para poder visualizar las órdenes de producción.'">
-                <app-ui-button (onClick)="goToDayOperation()">
-                    <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
-                    Planificar jornada
-                </app-ui-button>
-            </app-info-card-template>
-        </div>
-    </div>
-</app-work-space-layout>
-}
-@if(currentSession()){
-<app-work-space-layout [headerVisible]="false">
+<app-shift-cycles-shell [page]="this">
+  <ng-container quantityModal>
+    <app-quantity-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" (onSave)="saveSKU($event)"></app-quantity-modal>
+  </ng-container>
 
-    <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
-        @if(productionOrder() && isDocStatusValid()){
+  <ng-container hourlyWidget>
+    <app-shift-hourly-record
+        [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
+        [enabled]="currentSession() !== null"
+        [activityId]="currentSession()?.active_activity?.id"
+        [activeBreak]="currentSession()?.active_activity?.active_break ?? null"
+        [currentSession]="currentSession()"
+        [lastProductionRecord]="currentSession()?.active_activity?.last_production_record"
+        (onFinalize)="refreshSession()"
+        (onActivityPaused)="onPauseSaved($event)"
+        (inWindowChange)="inWindow.set($event)"
+    ></app-shift-hourly-record>
+  </ng-container>
 
-            @if(config.showStampingRecord){
-            <app-stamping-shift-summary [session]="currentSession()" [ordenProduction]="productionOrder()"></app-stamping-shift-summary>
-            } @else {
-            <app-work-shift-summary [session]="currentSession()" [ordenProduction]="productionOrder()"></app-work-shift-summary>
-            }
-
-            <app-order-header [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
-
-            <div class="flex-1 min-h-0 overflow-hidden">
-                @if(stampingChecksPassed()){
-                <app-production-orders-table [productionOrder]="productionOrder()" [currentSession]="currentSession()" [readOnly]="config.readOnlyOrdersTable" [customColumns]="stampingCustomColumns()" [colorColumnLabel]="usesProcessesSearch() ? 'Color' : 'Color SKU'" [sizeTooltipLabel]="usesProcessesSearch() ? 'Unidad' : 'Talla'" (onSelectSKU)="openTaskDialog($event)">
-                    <ng-template appTableTemplate="piezas" let-totals>
-                        <p class="text-green-600">{{ totals.orderedQty * (totalStampingFactor() ?? 0) }}</p>
-                    </ng-template>
-                </app-production-orders-table>
-                } @else {
-                <app-info-card-template
-                    [title]="'Orden pendiente de validación'"
-                    [description]="stampingCheckMessage"
-                    [icon]="'triangleExclamation'">
-                </app-info-card-template>
-                }
-            </div>
-
-            <div [class]="'flex flex-row items-center mt-4 gap-3 w-full shrink-0 ' + ((shiftModals.shiftHourlyVisible() && !finalizeDay()) ? 'justify-end' : 'justify-between')">
-                @if(stampingChecksPassed() && (!shiftModals.shiftHourlyVisible()||finalizeDay())){
-                <app-shift-cycles-fab [finalizeDay]="finalizeDay()" [inWindow]="inWindow()" [config]="config" (onFinalize)="refreshSession()"></app-shift-cycles-fab>
-                }
-
-                <div [class]="`flex flex-row gap-3 shrink-0 ${stampingChecksPassed() ? 'ml-3':''}`">
-                    <app-ui-button (onClick)="finalizeDay()? closeSession() :goToSearch()">
-                        <app-ui-icon [iconName]="finalizeDay()?'logout':'circleLeft'" class="h-5 w-5"></app-ui-icon>
-                        {{ finalizeDay()?'Cerrar día':'Cerrar OP' }}
-                    </app-ui-button>
-                </div>
-            </div>           
-        }
-
-        @if(productionOrder() && !isDocStatusValid()){
-            <div class="flex-1 min-h-0 flex items-center justify-center">
-                <app-info-card-template
-                    [title]="'Orden no disponible'"
-                    [description]="'La orden ' + productionOrder()!.documentType + ' ' + productionOrder()!.documentNumber + ' se encuentra en estado ' + (productionOrder()!.docStatusName ?? 'Desconocido') + ' y no puede procesarse.'"
-                    [icon]="'triangleExclamation'">
-                    <app-ui-button (onClick)="goToSearch()">
-                        <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
-                        Buscar otra orden
-                    </app-ui-button>
-                </app-info-card-template>
-            </div>
-        }
-       
-        @if(!productionOrder() && !isLoading()){
-            <app-order-searcher [preloadedDocTypes]="contextDocTypes()" [traceabilityMode]="config.searchByNumberOnly" [numberOnlySearch]="config.searchByNumberOnly" [restrictToOpAndOpt]="usesProcessesSearch()" [useStampingDetail]="config.showStampingRecord" (onFoundDoc)="setDocument($event)"></app-order-searcher>
-
-            <div class="flex-1 min-h-0 mt-3 bg-gray-100 rounded-md border border-gray-200 overflow-y-auto p-3">
-                <app-recent-records-card [trigger]="lastRecordTrigger()" [service]="recentRecordsService"></app-recent-records-card>
-            </div>
-
-            <div class="flex flex-row justify-end mt-4">
-                <app-ui-button (onClick)="goToDayOperation()">
-                    <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
-                    Jornada
-                </app-ui-button>
-            </div>
-        }
-    </div>
-
-</app-work-space-layout>
-
-@if(config.showEmployeesModal){
-<app-employees-modal
-  [visible]="shiftModals.activeModal() === 'employees'"
-  [employees]="shiftModals.employeesData()?.employees ?? []"
-  [preselectedIds]="shiftModals.employeesData()?.preselectedIds ?? []"
-  [apprenticeIds]="shiftModals.employeesData()?.apprenticeIds ?? []"
-  [apprenticeEditable]="shiftModals.employeesData()?.apprenticeEditable ?? false"
-  (onSave)="shiftModals.onEmployeesSaved($event)"
-  (onClose)="shiftModals.close()"
-></app-employees-modal>
-}
-
-@if(config.showBalanceSheet && isDocStatusValid()){
-  @if(config.showStampingRecord){
-  <app-stamping-balance-modal
-    [visible]="shiftModals.activeModal() === 'balance'"
-    [currentSession]="shiftModals.balanceData()?.currentSession ?? null"
-    [shiftEndTime]="shiftModals.balanceData()?.shiftEndTime ?? null"
-    [reloadTrigger]="shiftModals.reloadBalanceTrigger()"
-    (onClose)="shiftModals.close()"
-  ></app-stamping-balance-modal>
-  } @else {
-  <app-balance-modal
-    [visible]="shiftModals.activeModal() === 'balance'"
-    [currentSession]="shiftModals.balanceData()?.currentSession ?? null"
-    [shiftEndTime]="shiftModals.balanceData()?.shiftEndTime ?? null"
-    [enable]="inWindow() || finalizeDay()"
-    [reloadTrigger]="shiftModals.reloadBalanceTrigger()"
-    (onClose)="shiftModals.close()"
-    (onEditRecord)="handleEditRecord($event)"
-  ></app-balance-modal>
-  }
-}
-
-@if(config.showPauseModal && isDocStatusValid()){
-<app-pause-modal
-  [visible]="shiftModals.activeModal() === 'pause'"
-  [activityIdOverride]="shiftModals.pauseData()?.activityId"
-  (onPause)="shiftModals.onPauseSaved($event)"
-  (onCancel)="shiftModals.close()"
-></app-pause-modal>
-}
-
-@if(config.showShiftTimeAlert){
-<app-shift-time-alert [enabled]="currentSession() !== null"></app-shift-time-alert>
-}
-
-@if(config.showQuantityModal && isDocStatusValid()){
-<app-quantity-modal [selectedSKU]="selectedSKU()" [enable]="inWindow() || finalizeDay()" (onSave)="saveSKU($event)"></app-quantity-modal>
-}
-
-@if(productionOrder() && isDocStatusValid() && config.showHourlyRecord){
-<app-shift-hourly-record
-    [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
-    [enabled]="currentSession() !== null"
-    [activityId]="currentSession()?.active_activity?.id"
-    [activeBreak]="currentSession()?.active_activity?.active_break ?? null"
-    [currentSession]="currentSession()"
-    [lastProductionRecord]="currentSession()?.active_activity?.last_production_record"
-    (onFinalize)="refreshSession()"
-    (onActivityPaused)="onPauseSaved($event)"
-    (inWindowChange)="inWindow.set($event)"
-></app-shift-hourly-record>
-}
-
-@if(productionOrder() && isDocStatusValid() && config.showStampingRecord){
-<app-stamping-record
-    [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
-    [visible]="shiftModals.stampingRecordVisible()"
-    [inWindow]="inWindow()"
-    (onClose)="shiftModals.closeStampingRecord()"
-    (onFinalize)="refreshSession()"
-    (onSave)="saveStamping($event)"
-></app-stamping-record>
-}
-
-}
+  <ng-container stampingWidget>
+    <app-stamping-record
+        [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
+        [visible]="shiftModals.stampingRecordVisible()"
+        [inWindow]="inWindow()"
+        (onClose)="shiftModals.closeStampingRecord()"
+        (onFinalize)="refreshSession()"
+        (onSave)="saveStamping($event)"
+    ></app-stamping-record>
+  </ng-container>
+</app-shift-cycles-shell>

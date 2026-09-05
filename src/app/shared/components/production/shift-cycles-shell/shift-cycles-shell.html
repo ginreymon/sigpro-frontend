@@ -1,0 +1,155 @@
+@if(!page().currentSession() && !page().isLoading()){
+<app-work-space-layout [headerVisible]="false">
+    <div main-content class="h-full max-h-full flex flex-col overflow-hidden">
+        <div class="flex-1 min-h-0 overflow-hidden">
+            <app-info-card-template [title]="'Jornada no planificada'"
+                [description]="'No has configurado la jornada de trabajo. Asigna un turno, módulo y operarios para poder visualizar las órdenes de producción.'">
+                <app-ui-button (onClick)="page().goToDayOperation()">
+                    <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                    Planificar jornada
+                </app-ui-button>
+            </app-info-card-template>
+        </div>
+    </div>
+</app-work-space-layout>
+}
+@if(page().currentSession()){
+<app-work-space-layout [headerVisible]="false">
+
+    <div main-content [class]="'h-full max-h-full flex flex-col overflow-hidden ' + page().contentExtraClass">
+        @if(page().productionOrder() && page().isDocStatusValid()){
+
+            @if(page().config.showStampingRecord){
+            <app-stamping-shift-summary [session]="page().currentSession()" [ordenProduction]="page().productionOrder()"></app-stamping-shift-summary>
+            } @else {
+            <app-work-shift-summary [session]="page().currentSession()" [ordenProduction]="page().productionOrder()"></app-work-shift-summary>
+            }
+
+            <app-order-header [productionOrder]="page().productionOrder()" [mobileAccordion]="true"></app-order-header>
+
+            <div class="flex-1 min-h-0 overflow-hidden">
+                @if(page().stampingChecksPassed()){
+                <app-production-orders-table [productionOrder]="page().productionOrder()" [pendingRecords]="page().pendingRecords()" [currentSession]="page().currentSession()" [readOnly]="page().config.readOnlyOrdersTable" [customColumns]="page().stampingCustomColumns()" [colorColumnLabel]="page().usesProcessesSearch() ? 'Color' : 'Color SKU'" [sizeTooltipLabel]="page().usesProcessesSearch() ? 'Unidad' : 'Talla'" (onSelectSKU)="page().openTaskDialog($event)">
+                    <ng-template appTableTemplate="piezas" let-totals>
+                        <p class="text-green-600">{{ totals.orderedQty * (page().totalStampingFactor() ?? 0) }}</p>
+                    </ng-template>
+                </app-production-orders-table>
+                } @else {
+                <app-info-card-template
+                    [title]="'Orden pendiente de validación'"
+                    [description]="page().stampingCheckMessage"
+                    [icon]="'triangleExclamation'">
+                </app-info-card-template>
+                }
+            </div>
+
+            <div [class]="'flex flex-row items-center mt-4 gap-3 w-full shrink-0 ' + page().actionBarJustifyClass()">
+                @if(page().fabVisible()){
+                <app-shift-cycles-fab [finalizeDay]="page().finalizeDay()" [inWindow]="page().inWindow()" [config]="page().config" [hiddenActions]="page().fabHiddenActions" (onFinalize)="page().refreshSession()"></app-shift-cycles-fab>
+                }
+
+                <div [class]="'flex flex-row gap-3 shrink-0 ' + (page().fabVisible() ? 'ml-3' : '')">
+                    <app-ui-button (onClick)="page().finalizeDay() ? page().closeSession() : page().goToSearch()">
+                        <app-ui-icon [iconName]="page().finalizeDay() ? 'logout' : 'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                        {{ page().finalizeDay() ? 'Cerrar día' : 'Cerrar OP' }}
+                    </app-ui-button>
+                </div>
+            </div>
+
+            <ng-content select="[extraContent]"></ng-content>
+        }
+
+        @if(page().productionOrder() && !page().isDocStatusValid()){
+            <div class="flex-1 min-h-0 flex items-center justify-center">
+                <app-info-card-template
+                    [title]="'Orden no disponible'"
+                    [description]="'La orden ' + page().productionOrder()!.documentType + ' ' + page().productionOrder()!.documentNumber + ' se encuentra en estado ' + (page().productionOrder()!.docStatusName ?? 'Desconocido') + ' y no puede procesarse.'"
+                    [icon]="'triangleExclamation'">
+                    <app-ui-button (onClick)="page().goToSearch()">
+                        <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                        Buscar otra orden
+                    </app-ui-button>
+                </app-info-card-template>
+            </div>
+        }
+
+        @if(!page().productionOrder() && !page().isLoading()){
+            <app-order-searcher [preloadedDocTypes]="page().contextDocTypes()" [traceabilityMode]="page().config.searchByNumberOnly" [numberOnlySearch]="page().config.searchByNumberOnly" [restrictToOpAndOpt]="page().usesProcessesSearch()" [useStampingDetail]="page().config.showStampingRecord" (onFoundDoc)="page().setDocument($event)"></app-order-searcher>
+
+            <div class="flex-1 min-h-0 mt-3 bg-gray-100 rounded-md border border-gray-200 overflow-y-auto p-3">
+                <app-recent-records-card [trigger]="page().lastRecordTrigger()" [service]="page().recentRecordsService"></app-recent-records-card>
+            </div>
+
+            <div class="flex flex-row justify-end mt-4">
+                <app-ui-button (onClick)="page().goToDayOperation()">
+                    <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
+                    Jornada
+                </app-ui-button>
+            </div>
+        }
+    </div>
+
+</app-work-space-layout>
+
+@if(page().config.showEmployeesModal){
+<app-employees-modal
+  [visible]="page().shiftModals.activeModal() === 'employees'"
+  [employees]="page().shiftModals.employeesData()?.employees ?? []"
+  [preselectedIds]="page().shiftModals.employeesData()?.preselectedIds ?? []"
+  [apprenticeIds]="page().shiftModals.employeesData()?.apprenticeIds ?? []"
+  [apprenticeEditable]="page().shiftModals.employeesData()?.apprenticeEditable ?? false"
+  (onSave)="page().shiftModals.onEmployeesSaved($event)"
+  (onClose)="page().shiftModals.close()"
+></app-employees-modal>
+}
+
+@if(page().config.showBalanceSheet && page().isDocStatusValid()){
+  @if(page().config.showStampingRecord){
+  <app-stamping-balance-modal
+    [visible]="page().shiftModals.activeModal() === 'balance'"
+    [currentSession]="page().shiftModals.balanceData()?.currentSession ?? null"
+    [shiftEndTime]="page().shiftModals.balanceData()?.shiftEndTime ?? null"
+    [reloadTrigger]="page().shiftModals.reloadBalanceTrigger()"
+    (onClose)="page().shiftModals.close()"
+  ></app-stamping-balance-modal>
+  } @else {
+  <app-balance-modal
+    [visible]="page().shiftModals.activeModal() === 'balance'"
+    [currentSession]="page().shiftModals.balanceData()?.currentSession ?? null"
+    [shiftEndTime]="page().shiftModals.balanceData()?.shiftEndTime ?? null"
+    [enable]="page().inWindow() || page().finalizeDay()"
+    [reloadTrigger]="page().shiftModals.reloadBalanceTrigger()"
+    (onClose)="page().shiftModals.close()"
+    (onEditRecord)="page().handleEditRecord($event)"
+  ></app-balance-modal>
+  }
+}
+
+@if(page().config.showPauseModal && page().isDocStatusValid()){
+<app-pause-modal
+  [visible]="page().shiftModals.activeModal() === 'pause'"
+  [activityIdOverride]="page().shiftModals.pauseData()?.activityId"
+  (onPause)="page().shiftModals.onPauseSaved($event)"
+  (onCancel)="page().shiftModals.close()"
+></app-pause-modal>
+}
+
+@if(page().config.showShiftTimeAlert){
+<app-shift-time-alert [enabled]="page().currentSession() !== null"></app-shift-time-alert>
+}
+
+@if(page().config.showQuantityModal && page().isDocStatusValid()){
+<ng-content select="[quantityModal]"></ng-content>
+}
+
+@if(page().productionOrder() && page().isDocStatusValid() && page().config.showHourlyRecord){
+<ng-content select="[hourlyWidget]"></ng-content>
+}
+
+@if(page().productionOrder() && page().isDocStatusValid() && page().config.showStampingRecord){
+<ng-content select="[stampingWidget]"></ng-content>
+}
+
+<ng-content select="[extraModals]"></ng-content>
+
+}

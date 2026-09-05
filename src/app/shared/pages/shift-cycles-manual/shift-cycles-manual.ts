@@ -1,29 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { extractFieldErrorMessage } from '../../../common/functions/session-errors';
-import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { FormsModule } from '@angular/forms';
-import { OrderSearcher } from '../../../shared/components/production/widgets/order-searcher/order-searcher';
-import { ProductionOrdersTable } from '../../../shared/components/production/tables/production-orders-table/production-orders-table';
-import { UiButton } from '../../../shared/elements/ui-button/ui-button';
-import { UiIcon } from '../../../shared/elements/ui-icon/ui-icon';
-import { OrderHeader } from '../../../shared/components/production/cards/order-header/order-header';
-import { WorkShiftSummary } from '../../../shared/components/production/cards/work-shift-summary/work-shift-summary';
-import { StampingShiftSummary } from '../../../shared/components/production/cards/stamping-shift-summary/stamping-shift-summary';
-import { EmployeesModal } from '../../../shared/components/production/modals/employees-modal/employees-modal';
-import { BalanceModal } from '../../../shared/components/production/modals/balance-modal/balance-modal';
-import { StampingBalanceModal } from '../../../shared/components/production/modals/stamping-balance-modal/stamping-balance-modal';
-import { PauseModal } from '../../../shared/components/production/modals/pause-modal/pause-modal';
-import { RecentRecordsCard } from '../../../shared/components/production/cards/recent-records-card/recent-records-card';
-import { ShiftTimeAlert } from '../../../shared/components/production/widgets/shift-time-alert/shift-time-alert';
 import { StampingRecordManual } from '../../../shared/components/production/widgets/stamping-record-manual/stamping-record-manual';
 import { QuantityDurationModal } from '../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
 import { PendingRecordsBar } from '../../../shared/components/production/widgets/pending-records-bar/pending-records-bar';
 import { DurationScheduleModal } from '../../../shared/components/production/widgets/duration-schedule-modal/duration-schedule-modal';
 import { PendingRecordsReviewModal } from '../../../shared/components/production/widgets/pending-records-review-modal/pending-records-review-modal';
-import { InfoCardTemplate } from '../../../template/info-card-template/info-card-template';
-import { ShiftCyclesFab } from '../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
-import { TableTemplate } from '../../../directives/table-template';
 import { finalize } from 'rxjs';
 import { ShiftCycles } from '../shift-cycles/shift-cycles';
 import { ProductionRecord } from '../../../models/production/production-record';
@@ -35,6 +17,8 @@ import { ManualStampingRecordsStore } from '../../../services/stamping/manual-st
 import { AdditionalStampingTimeService } from '../../../services/stamping/additional-stamping-time-service';
 import { StampingRecordService } from '../../../services/stamping/stamping-record-service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ShiftCyclesShell } from '../../../shared/components/production/shift-cycles-shell/shift-cycles-shell';
+import { ShiftCycleActionKey } from '../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
 
 // Reemplazo de app-shift-cycles para módulos con
 // allows_production_time_adjustment=true (Module.allows_production_time_adjustment):
@@ -48,10 +32,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-shift-cycles-manual',
   imports: [
-    WorkSpaceLayout, FormsModule, OrderSearcher, ProductionOrdersTable, UiButton, UiIcon, WorkShiftSummary,
-    StampingShiftSummary, EmployeesModal, BalanceModal, StampingBalanceModal, PauseModal, OrderHeader,
-    RecentRecordsCard, ShiftTimeAlert, StampingRecordManual, QuantityDurationModal, PendingRecordsBar, DurationScheduleModal,
-    PendingRecordsReviewModal, InfoCardTemplate, ShiftCyclesFab, TableTemplate,
+    ShiftCyclesShell, StampingRecordManual, QuantityDurationModal, PendingRecordsBar, DurationScheduleModal,
+    PendingRecordsReviewModal,
   ],
   templateUrl: './shift-cycles-manual.html',
   styleUrl: './shift-cycles-manual.css',
@@ -76,13 +58,23 @@ export class ShiftCyclesManual extends ShiftCycles {
   // Registros manuales pendientes (aún no persistidos) de la orden que está
   // abierta ahora mismo — app-production-orders-table los suma encima de
   // productionOrder para reflejar en el navegador lo recién "guardado".
-  protected pendingRecords = computed(() => {
+  override pendingRecords = computed<Partial<ProductionRecord>[]>(() => {
     const order = this.productionOrder();
     if (!order) return [];
     return this.manualRecordsStore.records().filter(
       (r) => r.op_type === order.documentType && r.op_number === order.documentNumber
     );
   });
+
+  // Extension points de app-shift-cycles-shell (ver ShiftCycles): esta
+  // variante oculta pausa/último-envío en el fab, siempre muestra la
+  // action-bar en 'justify-between' (no depende de shift-hourly-record, que
+  // aquí no se usa) y da position:relative al contenedor principal para que
+  // app-pending-records-bar (position:absolute) se ancle a él.
+  override fabHiddenActions: ShiftCycleActionKey[] = ['pause', 'lastDelivery'];
+  override fabVisible = computed(() => this.stampingChecksPassed());
+  override actionBarJustifyClass = computed(() => 'justify-between');
+  override contentExtraClass = 'relative';
 
   constructor() {
     super();
