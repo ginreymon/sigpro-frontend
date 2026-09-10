@@ -68,8 +68,12 @@ export class ShiftCycles extends BaseProductionOrderPage {
   // template.
   pendingRecords = computed<Partial<ProductionRecord>[]>(() => []);
   fabHiddenActions: ShiftCycleActionKey[] = [];
-  fabVisible = computed(() => this.stampingChecksPassed() && (!this.shiftModals.shiftHourlyVisible() || this.finalizeDay()));
-  actionBarJustifyClass = computed<string>(() => (this.shiftModals.shiftHourlyVisible() && !this.finalizeDay()) ? 'justify-end' : 'justify-between');
+  fabVisible = computed(() => this.stampingChecksPassed() || (!this.shiftModals.shiftHourlyVisible() || this.finalizeDay()));
+  actionBarJustifyClass = computed<string>(() =>
+    (!this.stampingChecksPassed() && this.shiftModals.shiftHourlyVisible() && !this.finalizeDay())
+      ? 'justify-end'
+      : 'justify-between'
+  );
   contentExtraClass = '';
 
   // En estampación, stamping-orders/detail ya trae todo lo que
