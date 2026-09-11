@@ -64,6 +64,12 @@ export abstract class BaseProductionOrderPage implements OnInit {
 
   setDocument(doc: ProductionOrder | null): void {
     this.productionOrder.set(doc);
+    // El searcher resuelve la OP fuera de loadContext(), así que hay que
+    // reflejarla también en el snapshot de contexto — si no, queda
+    // desactualizada ahí y todo lo que lee contextService.snapshot?.order
+    // (ej. StampingRecordDataService, para la pestaña Referencia) sigue
+    // viendo la OP anterior tras una búsqueda dentro de la página.
+    this.contextService.updateOrder(doc);
     if (!doc) return;
     // replaceState en vez de router.navigate: solo sincroniza la URL (para
     // que quede bookmarkeable/recargable), sin volver a emitir en
