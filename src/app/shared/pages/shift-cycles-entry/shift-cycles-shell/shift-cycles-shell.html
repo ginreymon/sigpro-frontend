@@ -80,7 +80,11 @@
                 <app-recent-records-card [trigger]="page().lastRecordTrigger()" [service]="page().recentRecordsService"></app-recent-records-card>
             </div>
 
-            <div class="flex flex-row justify-end mt-4">
+            <div class="flex flex-row justify-between mt-4">
+                <app-ui-button [intent]="'action'" (onClick)="page().closeSession()">
+                    <app-ui-icon [iconName]="'logout'" class="h-5 w-5"></app-ui-icon>
+                    Cerrar día
+                </app-ui-button>
                 <app-ui-button (onClick)="page().goToDayOperation()">
                     <app-ui-icon [iconName]="'circleLeft'" class="h-5 w-5"></app-ui-icon>
                     Jornada
