@@ -21,7 +21,7 @@
     <app-stamping-record
         [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
         [visible]="shiftModals.stampingRecordVisible()"
-        [inWindow]="inWindow()"
+        [inWindow]="inWindow() || finalizeDay()"
         (onClose)="shiftModals.closeStampingRecord()"
         (onFinalize)="refreshSession()"
         (onSave)="saveStamping($event)"
