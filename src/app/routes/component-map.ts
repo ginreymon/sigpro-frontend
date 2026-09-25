@@ -23,6 +23,7 @@ import { MachinesConfig } from '../options/stamping/machines-config/machines-con
 import { SewingConfig } from '../options/production/sewing-config/sewing-config';
 import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
 import { StampingAuditory } from '../options/stamping/auditory/auditory';
+import { SiesaOutboundDocuments } from '../options/integration/siesa-outbound-documents/siesa-outbound-documents';
 
 export const componentMap: Record<string, Type<any>> = {
   'configuration/app-settings': AppSettings,
@@ -53,4 +54,5 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/shift-cycles': ShiftCyclesEntry,
   'stamping/machine-panel': MachinePanel,
   'stamping/auditory': StampingAuditory,
+  'integration/siesa-outbound-documents': SiesaOutboundDocuments,
 };

@@ -1,0 +1,49 @@
+<app-work-space-layout>
+    <div main-content class="h-full">
+        <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
+            (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+
+            <ng-template appTableTemplate="statusTemplate" let-row>
+                <app-ui-badge [intent]="statusIntent(row.status)" [label]="row.status_display"></app-ui-badge>
+            </ng-template>
+
+            <ng-template appTableTemplate="sentAtTemplate" let-row>
+                {{ row.sent_at ? (row.sent_at | date: 'dd/MM/yyyy HH:mm') : '—' }}
+            </ng-template>
+
+            <ng-template appTableTemplate="createdAtTemplate" let-row>
+                {{ row.created_at | date: 'dd/MM/yyyy HH:mm' }}
+            </ng-template>
+
+        </app-data-table>
+    </div>
+</app-work-space-layout>
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+
+    <div class="mb-4 flex items-center gap-3">
+        <app-ui-badge [intent]="statusIntent(rowObject.status!)" [label]="rowObject.status_display ?? ''"></app-ui-badge>
+        <h3 class="text-2xl font-semibold text-slate-900"> {{ rowObject.document_type }} </h3>
+    </div>
+
+    <div class="space-y-2 text-sm text-slate-600">
+        <p> <strong>Clave idempotencia:</strong> {{ rowObject.idempotency_key }} </p>
+        <p> <strong>OP:</strong> {{ rowObject.op_number ?? '—' }} </p>
+        <p> <strong>Centro de trabajo:</strong> {{ rowObject.work_center_code ?? '—' }} </p>
+        <p> <strong>Ubicación (location_id):</strong> {{ rowObject.location_id ?? '—' }} </p>
+        <p> <strong>Líneas del archivo plano:</strong> {{ rowObject.flat_file_line_count }} </p>
+        <p> <strong>Intentos:</strong> {{ rowObject.attempts }} </p>
+        <p> <strong>Próximo reintento:</strong> {{ rowObject.next_retry_at ? (rowObject.next_retry_at | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+        <p> <strong>Enviado:</strong> {{ rowObject.sent_at ? (rowObject.sent_at | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+
+        @if(rowObject.error_detail){
+        <p> <strong>Tipo de error:</strong> {{ rowObject.error_type ?? '—' }} </p>
+        <p> <strong>Detalle del error:</strong> </p>
+        <p class="whitespace-pre-wrap rounded bg-red-50 p-2 text-red-700"> {{ rowObject.error_detail }} </p>
+        }
+    </div>
+
+    <app-metadata [rowObject]="rowObject"></app-metadata>
+
+</app-side-modal-layout>
