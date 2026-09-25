@@ -1,0 +1,15 @@
+<app-work-space-layout>
+    <div main-content class="h-full flex flex-col items-center justify-center text-center gap-4 py-16">
+        <app-ui-icon iconName="screwdriverWrench" [class]="'w-10 h-10 text-slate-400'"></app-ui-icon>
+        <div>
+            <h3 class="text-lg font-semibold text-slate-700">Vista en construcción</h3>
+            <p class="text-sm text-slate-500 max-w-md">
+                Aprobación TEP: revisar y aprobar la información registrada de las OPs
+                procesadas en las áreas, validando cantidades y tiempos, antes de que sean
+                enviadas a SIESA. Falta el endpoint de backend que liste las OPs pendientes
+                de aprobación (hoy solo existe <code>apps/integration</code> ->
+                <code>tep/send</code>, que envía un documento ya armado, sin paso de revisión).
+            </p>
+        </div>
+    </div>
+</app-work-space-layout>
