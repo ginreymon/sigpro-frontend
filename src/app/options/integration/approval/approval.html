@@ -1,15 +1,30 @@
 <app-work-space-layout>
-    <div main-content class="h-full flex flex-col items-center justify-center text-center gap-4 py-16">
-        <app-ui-icon iconName="screwdriverWrench" [class]="'w-10 h-10 text-slate-400'"></app-ui-icon>
-        <div>
-            <h3 class="text-lg font-semibold text-slate-700">Vista en construcción</h3>
-            <p class="text-sm text-slate-500 max-w-md">
-                Aprobación TEP: revisar y aprobar la información registrada de las OPs
-                procesadas en las áreas, validando cantidades y tiempos, antes de que sean
-                enviadas a SIESA. Falta el endpoint de backend que liste las OPs pendientes
-                de aprobación (hoy solo existe <code>apps/integration</code> ->
-                <code>tep/send</code>, que envía un documento ya armado, sin paso de revisión).
-            </p>
-        </div>
+    <div main-content class="h-full">
+        <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
+            (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+        </app-data-table>
     </div>
 </app-work-space-layout>
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+
+    <div class="mb-4">
+        <h3 class="text-2xl font-semibold text-slate-900"> OP {{ rowObject.op_number }} </h3>
+        <p class="text-sm text-slate-500"> {{ rowObject.op_type }} · {{ rowObject.origin }} </p>
+    </div>
+
+    <div class="space-y-2 text-sm text-slate-600">
+        <p> <strong>Cantidad ordenada:</strong> {{ rowObject.ordered_quantity }} </p>
+        <p> <strong>Cantidad planeada:</strong> {{ rowObject.planned_quantity }} </p>
+        <p> <strong>Completada:</strong> {{ rowObject.total_completed }} </p>
+        <p> <strong>Desperdicio:</strong> {{ rowObject.total_scrap }} </p>
+        <p> <strong>Rechazada:</strong> {{ rowObject.total_rejected }} </p>
+        <p> <strong>Total registrado:</strong> {{ rowObject.total_recorded }} </p>
+        <p> <strong>Pendiente:</strong> {{ rowObject.pending_quantity }} </p>
+        <p> <strong>Registros:</strong> {{ rowObject.total_records }} </p>
+        <p> <strong>Primer inicio:</strong> {{ rowObject.first_start ? (rowObject.first_start | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+        <p> <strong>Último fin:</strong> {{ rowObject.last_end ? (rowObject.last_end | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+    </div>
+
+</app-side-modal-layout>

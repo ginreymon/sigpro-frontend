@@ -22,11 +22,11 @@ const STATUS_INTENT: Record<SiesaOutboundDocumentStatus, BadgeIntent> = {
 };
 
 @Component({
-  selector: 'app-siesa-outbound-documents',
+  selector: 'app-siesa-outbound',
   imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, TableTemplate, DatePipe],
-  templateUrl: './siesa-outbound-documents.html',
+  templateUrl: './siesa-outbound.html',
 })
-export class SiesaOutboundDocuments extends BaseCrudPage<SiesaOutboundDocument> {
+export class SiesaOutbound extends BaseCrudPage<SiesaOutboundDocument> {
   protected override entityName: string = 'documento SIESA';
 
   // Outbox transaccional inmutable (ver docstring del modelo): solo lectura,
