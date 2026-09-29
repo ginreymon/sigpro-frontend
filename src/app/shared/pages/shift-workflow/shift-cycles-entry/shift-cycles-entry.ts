@@ -1,8 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { finalize } from 'rxjs';
-import { WorkSessionService } from '../../../services/production/work-session-service';
-import { RouteContextService } from '../../../services/core/route-context-service';
-import { LoaderService } from '../../../services/common/loader-service';
+import { WorkSessionService } from '../../../../services/production/work-session-service';
+import { RouteContextService } from '../../../../services/core/route-context-service';
+import { LoaderService } from '../../../../services/common/loader-service';
 import { ShiftCycles } from './shift-cycles/shift-cycles';
 import { ShiftCyclesManual } from './shift-cycles-manual/shift-cycles-manual';
 

@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
-import { DataTable } from '../../../shared/components/table/data-table/data-table';
-import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
-import { BaseCrudPage } from '../../../common/classes/base-crud-page';
-import { TableColumn } from '../../../common/interfaces/table-column';
-import { TableActions } from '../../../common/interfaces/table-actions';
-import { TableToolsButtons } from '../../../common/interfaces/table-tools-buttons';
-import { OrderToBeOutbound } from '../../../models/integration/order-to-be-outbound';
-import { OrdersToBeOutboundService } from '../../../services/integration/orders-to-be-outbound-service';
+import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
+import { DataTable } from '../../../components/table/data-table/data-table';
+import { SideModalLayout } from '../../../components/layout/side-modal-layout/side-modal-layout';
+import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
+import { TableColumn } from '../../../../common/interfaces/table-column';
+import { TableActions } from '../../../../common/interfaces/table-actions';
+import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
+import { OrderToBeOutbound } from '../../../../models/integration/order-to-be-outbound';
+import { OrdersToBeOutboundService } from '../../../../services/integration/orders-to-be-outbound-service';
 
 @Component({
   selector: 'app-approval',

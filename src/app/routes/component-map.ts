@@ -1,18 +1,18 @@
 import { Type } from '@angular/core';
 import { Roles } from '../options/admin/roles/roles';
 import { Users } from '../options/admin/users/users';
-import { DayOperation } from '../shared/pages/day-operation/day-operation';
+import { DayOperation } from '../shared/pages/shift-workflow/day-operation/day-operation';
 import { WorkShifts } from '../options/admin/work-shifts/work-shifts';
 import { Modules } from '../options/admin/modules/modules';
 import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
 import { RestrictedWorkTime } from '../options/admin/restricted-work-time/restricted-work-time';
 import { GeneralConfig } from '../options/admin/general-config/general-config';
-import { ShiftCyclesEntry } from '../shared/pages/shift-cycles-entry/shift-cycles-entry';
+import { ShiftCyclesEntry } from '../shared/pages/shift-workflow/shift-cycles-entry/shift-cycles-entry';
 import { SewingSAM } from '../options/admin/sewing-sam/sewing-sam';
 import { AppSettings } from '../options/configuration/app-settings/app-settings';
 import { ModulePanel } from '../options/production/module-panel/module-panel';
 import { OrderDetail } from '../options/production/order-detail/order-detail';
-import { DataExport } from '../shared/pages/data-export/data-export';
+import { DataExport } from '../shared/pages/shift-workflow/data-export/data-export';
 import { TechnicalSheetPage } from '../options/catalog/technical-sheet/technical-sheet';
 import { Processes } from '../options/stamping/processes/processes';
 import { MachineTypes } from '../options/stamping/machine-types/machine-types';
@@ -24,7 +24,7 @@ import { SewingConfig } from '../options/production/sewing-config/sewing-config'
 import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
 import { StampingAuditory } from '../options/stamping/auditory/auditory';
 import { SiesaOutbound } from '../options/integration/siesa-outbound/siesa-outbound';
-import { Approval } from '../options/integration/approval/approval';
+import { Approval } from '../shared/pages/integration/approval/approval';
 
 export const componentMap: Record<string, Type<any>> = {
   'configuration/app-settings': AppSettings,

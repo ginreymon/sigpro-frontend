@@ -1,24 +1,24 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { extractFieldErrorMessage } from '../../../../common/functions/session-errors';
-import { StampingRecordManual } from '../../../../shared/components/production/widgets/stamping-record-manual/stamping-record-manual';
-import { QuantityDurationModal } from '../../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
-import { PendingRecordsBar } from '../../../../shared/components/production/widgets/pending-records-bar/pending-records-bar';
-import { DurationScheduleModal } from '../../../../shared/components/production/widgets/duration-schedule-modal/duration-schedule-modal';
-import { PendingRecordsReviewModal } from '../../../../shared/components/production/widgets/pending-records-review-modal/pending-records-review-modal';
+import { extractFieldErrorMessage } from '../../../../../common/functions/session-errors';
+import { StampingRecordManual } from '../../../../../shared/components/production/widgets/stamping-record-manual/stamping-record-manual';
+import { QuantityDurationModal } from '../../../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
+import { PendingRecordsBar } from '../../../../../shared/components/production/widgets/pending-records-bar/pending-records-bar';
+import { DurationScheduleModal } from '../../../../../shared/components/production/widgets/duration-schedule-modal/duration-schedule-modal';
+import { PendingRecordsReviewModal } from '../../../../../shared/components/production/widgets/pending-records-review-modal/pending-records-review-modal';
 import { finalize } from 'rxjs';
 import { ShiftCycles } from '../shift-cycles/shift-cycles';
-import { ProductionRecord } from '../../../../models/production/production-record';
-import { ManualProductionRecordsStore } from '../../../../services/production/manual-production-records-store';
-import { ProductionRecordService } from '../../../../services/production/production-record-service';
-import { DialogService } from '../../../../services/common/dialog-service';
-import { StampingRecord } from '../../../../models/stamping/stamping-record';
-import { ManualStampingRecordsStore } from '../../../../services/stamping/manual-stamping-records-store';
-import { AdditionalStampingTimeService } from '../../../../services/stamping/additional-stamping-time-service';
-import { StampingRecordService } from '../../../../services/stamping/stamping-record-service';
+import { ProductionRecord } from '../../../../../models/production/production-record';
+import { ManualProductionRecordsStore } from '../../../../../services/production/manual-production-records-store';
+import { ProductionRecordService } from '../../../../../services/production/production-record-service';
+import { DialogService } from '../../../../../services/common/dialog-service';
+import { StampingRecord } from '../../../../../models/stamping/stamping-record';
+import { ManualStampingRecordsStore } from '../../../../../services/stamping/manual-stamping-records-store';
+import { AdditionalStampingTimeService } from '../../../../../services/stamping/additional-stamping-time-service';
+import { StampingRecordService } from '../../../../../services/stamping/stamping-record-service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ShiftCyclesShell } from '../shift-cycles-shell/shift-cycles-shell';
-import { ShiftCycleActionKey } from '../../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
+import { ShiftCycleActionKey } from '../../../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
 
 // Reemplazo de app-shift-cycles para módulos con
 // allows_production_time_adjustment=true (Module.allows_production_time_adjustment):
