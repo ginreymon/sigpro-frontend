@@ -1,7 +1,7 @@
 <app-work-space-layout>
     <div main-content class="h-full">
         <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
-            (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            (onPagerChange)="pagerHandler($event)" [showSearch]="false" [actions]="actions"
             (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
 
             <ng-template appTableTemplate="dateTemplate" let-row>
