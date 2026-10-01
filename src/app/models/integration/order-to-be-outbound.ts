@@ -1,25 +1,45 @@
 import { BaseEntity } from '../../common/interfaces/base-entity';
 
-// Fila de sp_totales_registrados_por_op (apps/integration/orders-to-be-outbound/).
-// Contrato en evolucion: se espera que el backend agregue mas columnas
-// cuando se sume el flujo de aprobacion/rechazo (ver plan de la vista
-// approval). `id` es sintetico (op_rowid * 10 + origin_id, ver serializer):
-// no es una entidad CRUD, es una fila de un reporte agregado (una fila por
-// OP + area de origen); solo existe para calzar con BaseEntity/DataTable.
-export interface OrderToBeOutbound extends BaseEntity {
+// Fila de la tabla de aprobacion: un item de `work_centers` de
+// sp_totales_registrados_por_op_json (apps/integration/orders-to-be-outbound/),
+// con el largo de su `detail` y el `detail` mismo. `id` es secuencial dentro de
+// la respuesta (no es una entidad CRUD, es una fila de un reporte agregado);
+// solo existe para calzar con BaseEntity/DataTable.
+// Las columnas deben coincidir con el JSON del SP.
+export interface OrderToBeOutboundDetail {
   op_rowid: number;
   op_number: number;
   op_type: string;
-  origin: string;
-  origin_id: number;
-  ordered_quantity: number;
-  planned_quantity: number;
+  description: string | null;
   total_completed: number;
   total_scrap: number;
   total_rejected: number;
   total_recorded: number;
-  pending_quantity: number;
   total_records: number;
+  pieces: number | null;
+  times_on_route: number | null;
+  operation_number: number | null;
+  completed_operation: number | null;
+  erp_planned_quantity: number | null;
+  erp_ordered_quantity: number | null;
+  erp_completed_quantity: number | null;
+  erp_rejected_quantity: number | null;
+  erp_scrap_quantity: number | null;
+  recorded_quantity_per_piece: number | null;
+  erp_quantity_difference: number | null;
+}
+
+export interface OrderToBeOutbound extends BaseEntity {
+  date: string | null;
+
+  code: string;
+  work_center_id: number;
+  origin: string;
+  origin_id: number;
+  core_module_id: number | null;
   first_start: string | null;
   last_end: string | null;
+
+  detail_count: number;
+  detail: OrderToBeOutboundDetail[];
 }

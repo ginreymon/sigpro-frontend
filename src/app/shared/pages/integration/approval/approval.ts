@@ -7,12 +7,13 @@ import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
+import { TableTemplate } from '../../../../directives/table-template';
 import { OrderToBeOutbound } from '../../../../models/integration/order-to-be-outbound';
 import { OrdersToBeOutboundService } from '../../../../services/integration/orders-to-be-outbound-service';
 
 @Component({
   selector: 'app-approval',
-  imports: [WorkSpaceLayout, DataTable, SideModalLayout, DatePipe],
+  imports: [WorkSpaceLayout, DataTable, SideModalLayout, DatePipe, TableTemplate],
   templateUrl: './approval.html',
 })
 export class Approval extends BaseCrudPage<OrderToBeOutbound> {
@@ -22,7 +23,7 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
   // revisar antes de enviar a SIESA, sin crear/editar/eliminar desde la UI.
   protected override get actions(): TableActions {
     return {
-      view: { enabled: true, title: 'Detalle de la OP', iconName: 'eye', toolTip: 'Ver detalle' },
+      view: { enabled: true, title: 'Detalle de la OP', iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: false },
       delete: { enabled: false },
       create: { enabled: false },
@@ -42,14 +43,12 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
 
   protected override get columns(): TableColumn<OrderToBeOutbound>[] {
     return [
-      { field: 'op_number', label: 'OP', align: 'right' },
-      { field: 'op_type', label: 'Tipo doc.' },
+      { type: 'template', label: 'Fecha', templateName: 'dateTemplate' },
+      { field: 'code', label: 'Centro de trabajo' },
       { field: 'origin', label: 'Área de origen' },
-      { field: 'ordered_quantity', label: 'Ordenada', align: 'right' },
-      { field: 'total_completed', label: 'Completada', align: 'right' },
-      { field: 'total_scrap', label: 'Desperdicio', align: 'right' },
-      { field: 'total_rejected', label: 'Rechazada', align: 'right' },
-      { field: 'pending_quantity', label: 'Pendiente', align: 'right' },
+      { type: 'template', label: 'Primer inicio', templateName: 'firstStartTemplate' },
+      { type: 'template', label: 'Último fin', templateName: 'lastEndTemplate' },
+      { field: 'detail_count', label: 'Documentos', align: 'right' },
     ];
   }
 }

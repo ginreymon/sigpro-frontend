@@ -3,6 +3,19 @@
         <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
             (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
             (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+
+            <ng-template appTableTemplate="dateTemplate" let-row>
+                {{ row.date ? (row.date | date: 'dd/MM/yyyy') : 'Histórico' }}
+            </ng-template>
+
+            <ng-template appTableTemplate="firstStartTemplate" let-row>
+                {{ row.first_start ? (row.first_start | date: 'dd/MM/yyyy HH:mm') : '—' }}
+            </ng-template>
+
+            <ng-template appTableTemplate="lastEndTemplate" let-row>
+                {{ row.last_end ? (row.last_end | date: 'dd/MM/yyyy HH:mm') : '—' }}
+            </ng-template>
+
         </app-data-table>
     </div>
 </app-work-space-layout>
@@ -10,21 +23,35 @@
 <app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
 
     <div class="mb-4">
-        <h3 class="text-2xl font-semibold text-slate-900"> OP {{ rowObject.op_number }} </h3>
-        <p class="text-sm text-slate-500"> {{ rowObject.op_type }} · {{ rowObject.origin }} </p>
+        <h3 class="text-2xl font-semibold text-slate-900"> {{ rowObject.code }} </h3>
+        <p class="text-sm text-slate-500">
+            {{ rowObject.origin }} · {{ rowObject.date ? (rowObject.date | date: 'dd/MM/yyyy') : 'Histórico' }}
+        </p>
     </div>
 
-    <div class="space-y-2 text-sm text-slate-600">
-        <p> <strong>Cantidad ordenada:</strong> {{ rowObject.ordered_quantity }} </p>
-        <p> <strong>Cantidad planeada:</strong> {{ rowObject.planned_quantity }} </p>
-        <p> <strong>Completada:</strong> {{ rowObject.total_completed }} </p>
-        <p> <strong>Desperdicio:</strong> {{ rowObject.total_scrap }} </p>
-        <p> <strong>Rechazada:</strong> {{ rowObject.total_rejected }} </p>
-        <p> <strong>Total registrado:</strong> {{ rowObject.total_recorded }} </p>
-        <p> <strong>Pendiente:</strong> {{ rowObject.pending_quantity }} </p>
-        <p> <strong>Registros:</strong> {{ rowObject.total_records }} </p>
+    <div class="space-y-1 text-sm text-slate-600 mb-4">
         <p> <strong>Primer inicio:</strong> {{ rowObject.first_start ? (rowObject.first_start | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
         <p> <strong>Último fin:</strong> {{ rowObject.last_end ? (rowObject.last_end | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+        <p> <strong>Documentos:</strong> {{ rowObject.detail_count }} </p>
+    </div>
+
+    <div class="space-y-3">
+        @for (item of rowObject.detail; track $index) {
+        <div class="rounded-lg border border-slate-200 p-3 text-sm text-slate-600">
+            <p class="font-semibold text-slate-900"> OP {{ item.op_number }} · {{ item.op_type }} </p>
+            <p> <strong>Operación:</strong> {{ item.operation_number }} </p>
+            <p> <strong>Ordenada (ERP):</strong> {{ item.erp_ordered_quantity }} </p>
+            <p> <strong>Planeada (ERP):</strong> {{ item.erp_planned_quantity }} </p>
+            <p> <strong>Completada (ERP):</strong> {{ item.erp_completed_quantity }} </p>
+            <p> <strong>Completada (registrada):</strong> {{ item.total_completed }} </p>
+            <p> <strong>Desperdicio:</strong> {{ item.total_scrap }} </p>
+            <p> <strong>Rechazada:</strong> {{ item.total_rejected }} </p>
+            <p> <strong>Total registrado:</strong> {{ item.total_recorded }} </p>
+            <p> <strong>Registrada por pieza:</strong> {{ item.recorded_quantity_per_piece }} </p>
+            <p> <strong>Diferencia con ERP:</strong> {{ item.erp_quantity_difference }} </p>
+            <p> <strong>Registros:</strong> {{ item.total_records }} </p>
+        </div>
+        }
     </div>
 
 </app-side-modal-layout>
