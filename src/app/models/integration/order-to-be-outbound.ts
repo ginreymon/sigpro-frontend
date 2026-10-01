@@ -35,6 +35,7 @@ export interface OrderToBeOutbound extends BaseEntity {
   record_date: string | null;
 
   code: string;
+  description: string | null;
   work_center_id: number;
   origin: string;
   origin_id: number;

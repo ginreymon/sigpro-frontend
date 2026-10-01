@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
 import { SideModalLayout } from '../../../components/layout/side-modal-layout/side-modal-layout';
+import { ModalLayout } from '../../../components/layout/modal-layout/modal-layout';
 import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../common/interfaces/table-actions';
@@ -11,6 +12,8 @@ import { DateRangeForm, DateRangeValue } from '../../../components/form-controls
 import { localTodayStr } from '../../../../common/functions/date-utils';
 import { toLocalDate } from '../../../../common/functions/time-range';
 import { UiButton } from '../../../elements/ui-button/ui-button';
+import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
+import { OpTotalsTable } from '../../../components/widgets/op-totals-table/op-totals-table';
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
 import { CharSquare } from '../../../components/widgets/char-square/char-square';
@@ -24,6 +27,7 @@ import { OrdersToBeOutboundService } from '../../../../services/integration/orde
     WorkSpaceLayout,
     DataTable,
     SideModalLayout,
+    ModalLayout,
     DatePipe,
     TableTemplate,
     UiAccordionItem,
@@ -31,6 +35,8 @@ import { OrdersToBeOutboundService } from '../../../../services/integration/orde
     CharSquare,
     DateRangeForm,
     UiButton,
+    UiLabelButton,
+    OpTotalsTable,
   ],
   templateUrl: './approval.html',
 })
@@ -95,6 +101,23 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
     this.reload();
   }
 
+  protected approve(row: OrderToBeOutbound): void {
+    this.rowObject = row;
+    const title = [row.code,'·', row.description].filter(Boolean).map((text) => text!.trim()).join(' ');
+    this.dialogService.openModal(title, 'Enviar');
+  }
+
+  protected closeApproveModal(): void {
+    this.dialogService.closeModal();
+  }
+
+  // Badge de la fecha: dos colores según la paridad de day_number.
+  protected dateBadgeClass(row: OrderToBeOutbound): string {
+    return row.day_number != null && row.day_number % 2 === 0
+      ? 'text-green-700 bg-green-100'
+      : 'text-brand-700 bg-brand-100';
+  }
+
   protected expandedDetailIndexes = signal<Set<number>>(new Set());
 
   protected override closeModelForm(): void {
@@ -116,11 +139,12 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
 
   protected override get columns(): TableColumn<OrderToBeOutbound>[] {
     return [    
-      { field: 'day_number', label: 'Día' },
-      { field: 'record_date', label: 'Fecha' },
-      { field: 'code', label: 'Centro de trabajo' },
+      { type: 'template', label: 'Fecha', templateName: 'dayTemplate' },
       { field: 'origin', label: 'Área' },
-      { field: 'detail_count', label: 'OPs', align: 'right' },
+      { type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
+      // { field: 'detail_count', label: 'OPs', align: 'right' },
+      { type: 'template', label: 'Registrado por OP', templateName: 'opsTotalsTemplate' },
+      { type: 'template', label: 'Acciones', templateName: 'approveTemplate', align: 'center' },
     ];
   }
 }

@@ -1,0 +1,23 @@
+<table class="w-full text-xs rounded overflow-hidden">
+    <thead class="bg-gray-200">
+        <tr>
+            <th class="px-3 py-1 text-left font-semibold">OP</th>
+            <th class="px-3 py-1 text-right font-semibold">Cantidad</th>
+            <th class="px-3 py-1 text-right font-semibold">Horas</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for(item of detail; track item.op_rowid){
+        <tr class="odd:bg-white even:bg-gray-100">
+            <td class="px-3 py-1 whitespace-nowrap text-green-600">{{ item.op_type }} {{ item.op_number }}</td>
+            <td class="px-3 py-1 text-right text-green-600">{{ item.total_recorded }}</td>
+            <td class="px-3 py-1">
+                <div class="w-20 ml-auto">
+                    <input type="number" min="0" step="any"
+                        class="w-full text-xs border border-slate-300 rounded px-2 py-1 text-right focus:outline-none focus:ring-1 focus:ring-green-400">
+                </div>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
