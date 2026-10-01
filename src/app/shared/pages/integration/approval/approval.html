@@ -4,10 +4,6 @@
             (onPagerChange)="pagerHandler($event)" [showSearch]="false" [actions]="actions"
             (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
 
-            <ng-template appTableTemplate="dateTemplate" let-row>
-                {{ row.date ? (row.date | date: 'dd/MM/yyyy') : 'Histórico' }}
-            </ng-template>
-
             <ng-template appTableTemplate="firstStartTemplate" let-row>
                 {{ row.first_start ? (row.first_start | date: 'dd/MM/yyyy HH:mm') : '—' }}
             </ng-template>
@@ -33,7 +29,7 @@
       <p class="text-sm text-slate-500 mb-0.5">
         {{ rowObject.origin }} · {{ rowObject.date ? (rowObject.date | date: 'dd/MM/yyyy') : 'Histórico' }}
       </p>
-      <p class="text-sm text-slate-500 mb-0.5"> Documentos : {{ rowObject.detail_count }} </p>
+      <p class="text-sm text-slate-500 mb-0.5"> OPs : {{ rowObject.detail_count }} </p>
     </div>
 
   </div>

@@ -35,7 +35,7 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
   // revisar antes de enviar a SIESA, sin crear/editar/eliminar desde la UI.
   protected override get actions(): TableActions {
     return {
-      view: { enabled: true, title: 'Detalle de la OP', iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: true, title: 'Detalle Centro de Trabajo', iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: false },
       delete: { enabled: false },
       create: { enabled: false },
@@ -74,12 +74,11 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
 
   protected override get columns(): TableColumn<OrderToBeOutbound>[] {
     return [
-      { type: 'template', label: 'Fecha', templateName: 'dateTemplate' },
+      { type: 'template', label: 'Fecha inicio', templateName: 'firstStartTemplate' },
+      { type: 'template', label: 'Fecha fin', templateName: 'lastEndTemplate' },
       { field: 'code', label: 'Centro de trabajo' },
-      { field: 'origin', label: 'Área de origen' },
-      { type: 'template', label: 'Primer inicio', templateName: 'firstStartTemplate' },
-      { type: 'template', label: 'Último fin', templateName: 'lastEndTemplate' },
-      { field: 'detail_count', label: 'Documentos', align: 'right' },
+      { field: 'origin', label: 'Área' },
+      { field: 'detail_count', label: 'OPs', align: 'right' },
     ];
   }
 }
