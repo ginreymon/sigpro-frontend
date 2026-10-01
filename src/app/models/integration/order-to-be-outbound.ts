@@ -27,6 +27,8 @@ export interface OrderToBeOutboundDetail {
   erp_scrap_quantity: number | null;
   recorded_quantity_per_piece: number | null;
   erp_quantity_difference: number | null;
+  // Ids de los registros agrupados (production/stamping record).
+  register_ids: number[];
 }
 
 export interface OrderToBeOutbound extends BaseEntity {
