@@ -36,7 +36,7 @@ import { OrdersToBeOutboundService } from '../../../../services/integration/orde
 export class Approval extends BaseCrudPage<OrderToBeOutbound> {
   protected override entityName: string = 'OP pendiente de aprobación';
 
-  // Reporte agregado de solo lectura (sp_totales_registrados_por_op):
+  // Reporte agregado de solo lectura (fn_totales_registrados_por_op_detalle):
   // revisar antes de enviar a SIESA, sin crear/editar/eliminar desde la UI.
   protected override get actions(): TableActions {
     return {
@@ -110,9 +110,9 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
   }
 
   protected override get columns(): TableColumn<OrderToBeOutbound>[] {
-    return [
-      { type: 'template', label: 'Fecha fin', templateName: 'lastEndTemplate' },
-      { type: 'template', label: 'Fecha inicio', templateName: 'firstStartTemplate' },
+    return [    
+      { field: 'day_number', label: 'Día' },
+      { field: 'record_date', label: 'Fecha' },
       { field: 'code', label: 'Centro de trabajo' },
       { field: 'origin', label: 'Área' },
       { field: 'detail_count', label: 'OPs', align: 'right' },

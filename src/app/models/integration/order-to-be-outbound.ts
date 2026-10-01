@@ -30,7 +30,9 @@ export interface OrderToBeOutboundDetail {
 }
 
 export interface OrderToBeOutbound extends BaseEntity {
-  date: string | null;
+  // null cuando la consulta no trae rango de fechas.
+  day_number: number | null;
+  record_date: string | null;
 
   code: string;
   work_center_id: number;
