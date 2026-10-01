@@ -1,5 +1,7 @@
 import { Component, computed, signal, ViewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
 import { SideModalLayout } from '../../../components/layout/side-modal-layout/side-modal-layout';
@@ -20,6 +22,8 @@ import { CharSquare } from '../../../components/widgets/char-square/char-square'
 import { TableTemplate } from '../../../../directives/table-template';
 import { OrderToBeOutbound } from '../../../../models/integration/order-to-be-outbound';
 import { OrdersToBeOutboundService } from '../../../../services/integration/orders-to-be-outbound-service';
+import { TepService } from '../../../../services/integration/tep-service';
+import { TepSendRequest } from '../../../../models/integration/tep-send';
 
 @Component({
   selector: 'app-approval',
@@ -65,7 +69,10 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
     addItem: { enabled: false },
   };
 
-  constructor(private ordersToBeOutboundService: OrdersToBeOutboundService) {
+  constructor(
+    private ordersToBeOutboundService: OrdersToBeOutboundService,
+    private tepService: TepService,
+  ) {
     super(ordersToBeOutboundService);
   }
 
@@ -121,13 +128,62 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
 
   // Al enviar se pide confirmación: el envío no se puede deshacer. Abrir la
   // confirmación cierra el modal (DialogService.closeAll).
+  // Pide confirmación y, al confirmar, envía el TEP del grupo seleccionado.
   protected confirmSend(): void {
+    const row = this.rowObject as OrderToBeOutbound;
+    const hours = this.opHours()[this.opHoursKey(row)] ?? {};
+    if (row.detail.some((item) => !hours[item.op_rowid]?.trim() || isNaN(Number(hours[item.op_rowid])))) {
+      this.dialogService.openToast('Aviso', 'Ingrese las horas de todas las OP.', 'triangleExclamation');
+      return;
+    }
+
     this.dialogService.openConfirm(
       'Enviar TEP',
       'Al confirmar, el envío no se puede deshacer. ¿Desea continuar?',
       'Confirmar',
-      () => this.dialogService.closeConfirm(),
+      () => this.sendTep(row, hours),
     );
+  }
+
+  private sendTep(row: OrderToBeOutbound, hours: Partial<Record<number, string>>): void {
+    this.dialogService.closeConfirm();
+    this.loaderService.showLoader();
+    this.tepService
+      .send(this.buildTepRequest(row, hours))
+      .pipe(finalize(() => this.reload(() => this.loaderService.hideLoader())))
+      .subscribe({
+        next: () =>
+          this.dialogService.openToast('Proceso exitoso', 'El TEP fue enviado correctamente.', 'check'),
+        error: (err: HttpErrorResponse) =>
+          this.dialogService.openToast('No se pudo enviar', this.tepErrorMessage(err), 'fail'),
+      });
+  }
+
+  // completed_quantity: cantidad base de la OP (sin bajas ni rechazos) / piezas;
+  // el backend la valida contra la suma de los registros.
+  private buildTepRequest(row: OrderToBeOutbound, hours: Partial<Record<number, string>>): TepSendRequest {
+    const workCenter = row.code.trim();
+    return {
+      header: { date: row.record_date!, work_center_id: workCenter },
+      details: row.detail.map((item) => ({
+        op_document_type_id: item.op_type,
+        op_document_number: item.op_number,
+        operation_number: item.operation_number,
+        operation_work_center_id: workCenter,
+        completed_quantity: Math.round((item.total_completed / (item.pieces || 1)) * 10000) / 10000,
+        hours: Number(hours[item.op_rowid]),
+        operation_completed: item.completed_operation ? 1 : 0,
+        register_ids: item.register_ids,
+        origin_id: row.origin_id,
+      })),
+    };
+  }
+
+  private tepErrorMessage(err: HttpErrorResponse): string {
+    const body = err.error;
+    if (Array.isArray(body?.details)) return body.details.join(' · ');
+    if (body?.ok === false) return `SIESA rechazó el envío (tipo de error ${body.error_type ?? 's/d'}).`;
+    return body?.error ?? 'No se pudo enviar el TEP.';
   }
 
   // Badge de la fecha: dos colores según la paridad de day_number.
