@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal, ViewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
@@ -7,6 +7,9 @@ import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
+import { DateRangeForm, DateRangeValue } from '../../../components/form-controls/date-range-form/date-range-form';
+import { localTodayStr } from '../../../../common/functions/date-utils';
+import { UiButton } from '../../../elements/ui-button/ui-button';
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
 import { CharSquare } from '../../../components/widgets/char-square/char-square';
@@ -25,6 +28,8 @@ import { OrdersToBeOutboundService } from '../../../../services/integration/orde
     UiAccordionItem,
     UiBadge,
     CharSquare,
+    DateRangeForm,
+    UiButton,
   ],
   templateUrl: './approval.html',
 })
@@ -51,6 +56,38 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
 
   constructor(private ordersToBeOutboundService: OrdersToBeOutboundService) {
     super(ordersToBeOutboundService);
+  }
+
+  @ViewChild(DateRangeForm) private dateRangeForm?: DateRangeForm;
+
+  // Rango elegido. Vive en la página y no en el formulario: mientras carga, el
+  // layout reemplaza main-content por un esqueleto y el formulario se destruye
+  // y se vuelve a crear; así recupera las fechas con las que se consultó.
+  protected dateRange = signal<DateRangeValue | null>({
+    startDate: localTodayStr(),
+    endDate: localTodayStr(),
+  });
+  protected hasDateFilter = computed(() => this.dateRange() !== null);
+
+  // Al abrir, solo los registros de hoy (una sola consulta, ya filtrada).
+  protected override initialFilters(): Record<string, any> {
+    const today = localTodayStr();
+    return { date_from: today, date_to: today };
+  }
+
+  protected onDateRangeSearch(value: DateRangeValue): void {
+    this.dateRange.set(value);
+    this.filters = { date_from: value.startDate, date_to: value.endDate };
+    this.page = 1;
+    this.reload();
+  }
+
+  protected clearDateRange(): void {
+    this.dateRange.set(null);
+    this.dateRangeForm?.form.reset();
+    this.filters = {};
+    this.page = 1;
+    this.reload();
   }
 
   protected expandedDetailIndexes = signal<Set<number>>(new Set());

@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UiButton } from '../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
@@ -15,8 +15,10 @@ export interface DateRangeValue {
   imports: [ReactiveFormsModule, DateRangeFields, UiButton, UiIcon],
   templateUrl: './date-range-form.html',
 })
-export class DateRangeForm {
+export class DateRangeForm implements OnInit {
   @Output() onSearch = new EventEmitter<DateRangeValue>();
+  // Fechas con las que arranca el formulario (opcional).
+  @Input() initialRange: DateRangeValue | null = null;
 
   private fb = inject(FormBuilder);
 
@@ -24,6 +26,15 @@ export class DateRangeForm {
     start_date: [null, Validators.required],
     end_date: [null, Validators.required],
   });
+
+  ngOnInit(): void {
+    if (this.initialRange) {
+      this.form.patchValue({
+        start_date: this.initialRange.startDate,
+        end_date: this.initialRange.endDate,
+      });
+    }
+  }
 
   submit(): void {
     if (this.form.invalid) return;

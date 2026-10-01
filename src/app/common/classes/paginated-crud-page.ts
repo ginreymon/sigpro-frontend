@@ -11,12 +11,20 @@ export abstract class PaginatedCrudPage<T extends BaseEntity> {
   protected limit: number = environment.DEFAULT_PAGE_SIZE;
   protected page: number = 1;
   protected searchTerm: string = '';
+  // Filtros extra que se envían en cada consulta (reload/search/pager).
+  protected filters: Record<string, any> = this.initialFilters();
   protected paginatedResponse = signal<PaginatedResponse<T> | null>(null);
 
   protected wslService = inject(WorkSpaceLoaderService);
 
   constructor(protected crudService: BaseCrudService<T>) {
     this.reload();
+  }
+
+  // Filtros de la primera consulta (el constructor ya la dispara, antes de que
+  // se inicialicen los campos de la subclase: no usar campos de instancia aquí).
+  protected initialFilters(): Record<string, any> {
+    return {};
   }
 
   private getData(params: QueryParams, callback?: () => void) {
@@ -44,6 +52,7 @@ export abstract class PaginatedCrudPage<T extends BaseEntity> {
       limit: this.limit,
       offset,
       search: this.searchTerm || undefined,
+      filters: this.filters,
     };
 
     this.getData(params, callback);
@@ -56,6 +65,7 @@ export abstract class PaginatedCrudPage<T extends BaseEntity> {
       limit: this.limit,
       offset: 0,
       search: this.searchTerm,
+      filters: this.filters,
     };
     this.getData(params);
   }
@@ -75,6 +85,7 @@ export abstract class PaginatedCrudPage<T extends BaseEntity> {
       limit: this.limit,
       offset,
       search: this.searchTerm || undefined,
+      filters: this.filters,
     };
     this.getData(params);
   }
