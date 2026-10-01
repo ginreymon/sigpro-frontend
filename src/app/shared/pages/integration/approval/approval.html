@@ -17,7 +17,7 @@
             (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
 
             <ng-template appTableTemplate="lastEndTemplate" let-row>
-                {{ row.last_end ? (row.last_end | date: 'dd/MM/yyyy HH:mm') : '—' }}
+                {{ row.last_end ? (toLocalDate(row.last_end) | date: 'dd/MM/yyyy HH:mm') : '—' }}
             </ng-template>
 
         </app-data-table>
@@ -44,8 +44,8 @@
   </div>
 
   <div class="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
-    <p> <strong>Inicio:</strong> {{ rowObject.first_start ? (rowObject.first_start | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
-    <p> <strong>Finalización:</strong> {{ rowObject.last_end ? (rowObject.last_end | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+    <p> <strong>Inicio:</strong> {{ rowObject.first_start ? (toLocalDate(rowObject.first_start) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+    <p> <strong>Finalización:</strong> {{ rowObject.last_end ? (toLocalDate(rowObject.last_end) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
   </div>
 
   @if(rowObject.detail?.length){

@@ -9,6 +9,7 @@ import { TableActions } from '../../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
 import { DateRangeForm, DateRangeValue } from '../../../components/form-controls/date-range-form/date-range-form';
 import { localTodayStr } from '../../../../common/functions/date-utils';
+import { toLocalDate } from '../../../../common/functions/time-range';
 import { UiButton } from '../../../elements/ui-button/ui-button';
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
@@ -35,6 +36,10 @@ import { OrdersToBeOutboundService } from '../../../../services/integration/orde
 })
 export class Approval extends BaseCrudPage<OrderToBeOutbound> {
   protected override entityName: string = 'OP pendiente de aprobación';
+
+  // first_start/last_end llegan en UTC sin sufijo de zona: toLocalDate los marca
+  // como UTC para que DatePipe los muestre en hora local.
+  protected readonly toLocalDate = toLocalDate;
 
   // Reporte agregado de solo lectura (fn_totales_registrados_por_op_detalle):
   // revisar antes de enviar a SIESA, sin crear/editar/eliminar desde la UI.
