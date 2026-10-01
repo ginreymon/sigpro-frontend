@@ -119,8 +119,15 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
     this.dialogService.openModal(title, 'Enviar');
   }
 
-  protected closeApproveModal(): void {
-    this.dialogService.closeModal();
+  // Al enviar se pide confirmación: el envío no se puede deshacer. Abrir la
+  // confirmación cierra el modal (DialogService.closeAll).
+  protected confirmSend(): void {
+    this.dialogService.openConfirm(
+      'Enviar TEP',
+      'Al confirmar, el envío no se puede deshacer. ¿Desea continuar?',
+      'Confirmar',
+      () => this.dialogService.closeConfirm(),
+    );
   }
 
   // Badge de la fecha: dos colores según la paridad de day_number.

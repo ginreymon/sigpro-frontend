@@ -113,7 +113,7 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [uppercaseTitle]="true" (onAccept)="closeApproveModal()">
+<app-modal-layout [uppercaseTitle]="true" (onAccept)="confirmSend()">
 
   <app-op-totals-table [detail]="rowObject.detail ?? []" [hours]="opHours()[opHoursKey(rowObject)] ?? {}"
     (hoursChange)="setOpHours(rowObject, $event)"></app-op-totals-table>
