@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
@@ -7,13 +7,25 @@ import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
+import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
+import { UiBadge } from '../../../elements/ui-badge/ui-badge';
+import { CharSquare } from '../../../components/widgets/char-square/char-square';
 import { TableTemplate } from '../../../../directives/table-template';
 import { OrderToBeOutbound } from '../../../../models/integration/order-to-be-outbound';
 import { OrdersToBeOutboundService } from '../../../../services/integration/orders-to-be-outbound-service';
 
 @Component({
   selector: 'app-approval',
-  imports: [WorkSpaceLayout, DataTable, SideModalLayout, DatePipe, TableTemplate],
+  imports: [
+    WorkSpaceLayout,
+    DataTable,
+    SideModalLayout,
+    DatePipe,
+    TableTemplate,
+    UiAccordionItem,
+    UiBadge,
+    CharSquare,
+  ],
   templateUrl: './approval.html',
 })
 export class Approval extends BaseCrudPage<OrderToBeOutbound> {
@@ -39,6 +51,25 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
 
   constructor(private ordersToBeOutboundService: OrdersToBeOutboundService) {
     super(ordersToBeOutboundService);
+  }
+
+  protected expandedDetailIndexes = signal<Set<number>>(new Set());
+
+  protected override closeModelForm(): void {
+    this.expandedDetailIndexes.set(new Set());
+    super.closeModelForm();
+  }
+
+  protected isDetailExpanded(index: number): boolean {
+    return this.expandedDetailIndexes().has(index);
+  }
+
+  protected toggleDetailExpanded(index: number): void {
+    const expanded = new Set(this.expandedDetailIndexes());
+    if (!expanded.delete(index)) {
+      expanded.add(index);
+    }
+    this.expandedDetailIndexes.set(expanded);
   }
 
   protected override get columns(): TableColumn<OrderToBeOutbound>[] {

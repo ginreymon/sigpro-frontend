@@ -22,36 +22,65 @@
 
 <app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
 
-    <div class="mb-4">
-        <h3 class="text-2xl font-semibold text-slate-900"> {{ rowObject.code }} </h3>
-        <p class="text-sm text-slate-500">
-            {{ rowObject.origin }} · {{ rowObject.date ? (rowObject.date | date: 'dd/MM/yyyy') : 'Histórico' }}
-        </p>
+  <div class="mb-4 flex items-center gap-4">
+
+    <app-char-square>
+      {{ rowObject.code?.trim()?.charAt(0) }}
+    </app-char-square>
+
+    <div>
+      <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ rowObject.code?.trim() }} </h3>
+      <p class="text-sm text-slate-500 mb-0.5">
+        {{ rowObject.origin }} · {{ rowObject.date ? (rowObject.date | date: 'dd/MM/yyyy') : 'Histórico' }}
+      </p>
+      <p class="text-sm text-slate-500 mb-0.5"> Documentos : {{ rowObject.detail_count }} </p>
     </div>
 
-    <div class="space-y-1 text-sm text-slate-600 mb-4">
-        <p> <strong>Primer inicio:</strong> {{ rowObject.first_start ? (rowObject.first_start | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
-        <p> <strong>Último fin:</strong> {{ rowObject.last_end ? (rowObject.last_end | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
-        <p> <strong>Documentos:</strong> {{ rowObject.detail_count }} </p>
-    </div>
+  </div>
 
-    <div class="space-y-3">
-        @for (item of rowObject.detail; track $index) {
-        <div class="rounded-lg border border-slate-200 p-3 text-sm text-slate-600">
-            <p class="font-semibold text-slate-900"> OP {{ item.op_number }} · {{ item.op_type }} </p>
-            <p> <strong>Operación:</strong> {{ item.operation_number }} </p>
-            <p> <strong>Ordenada (ERP):</strong> {{ item.erp_ordered_quantity }} </p>
-            <p> <strong>Planeada (ERP):</strong> {{ item.erp_planned_quantity }} </p>
-            <p> <strong>Completada (ERP):</strong> {{ item.erp_completed_quantity }} </p>
-            <p> <strong>Completada (registrada):</strong> {{ item.total_completed }} </p>
-            <p> <strong>Desperdicio:</strong> {{ item.total_scrap }} </p>
-            <p> <strong>Rechazada:</strong> {{ item.total_rejected }} </p>
-            <p> <strong>Total registrado:</strong> {{ item.total_recorded }} </p>
-            <p> <strong>Registrada por pieza:</strong> {{ item.recorded_quantity_per_piece }} </p>
-            <p> <strong>Diferencia con ERP:</strong> {{ item.erp_quantity_difference }} </p>
-            <p> <strong>Registros:</strong> {{ item.total_records }} </p>
+  <div class="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
+    <p> <strong>Primer inicio:</strong> {{ rowObject.first_start ? (rowObject.first_start | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+    <p> <strong>Último fin:</strong> {{ rowObject.last_end ? (rowObject.last_end | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+  </div>
+
+  @if(rowObject.detail?.length){
+  <div class="mt-4 mb-2 divide-y divide-slate-200 border border-slate-200 rounded-lg">
+
+    @for(item of rowObject.detail; track $index){
+
+    <app-ui-accordion-item [expanded]="isDetailExpanded($index)" (toggle)="toggleDetailExpanded($index)">
+
+      <ng-container accordion-header>
+        <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="item.completed_operation" [class.bg-gray-300]="!item.completed_operation"></span>
+
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }}  {{ item.op_number }}</p>
+          <p class="text-xs text-slate-500 truncate">{{ item.description || ('Operación ' + (item.operation_number ?? '—')) }}</p>
         </div>
-        }
-    </div>
+
+        <app-ui-badge [active]="!!item.completed_operation" activeText="Completa" inactiveText="Diferencia"></app-ui-badge>
+      </ng-container>
+
+      <div accordion-body class="bg-slate-50 rounded-lg p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
+        <p> <strong>Ordenada (ERP):</strong> {{ item.erp_ordered_quantity ?? '—' }} </p>
+        <p class="text-green-600"> <strong>Completada (registrada):</strong> {{ item.total_completed }} </p>
+        <p> <strong>Planeada (ERP):</strong> {{ item.erp_planned_quantity ?? '—' }} </p>
+        <p class=" text-amber-500"> <strong>Rechazada:</strong>  {{ item.total_rejected }} </p>
+
+        <p> <strong>Completada (ERP):</strong> {{ item.erp_completed_quantity ?? '—' }} </p>
+        <p class=" text-red-500"> <strong>Bajas:</strong> {{ item.total_scrap }} </p>
+        <p> <strong>Registros:</strong> {{ item.total_records }} </p> 
+        <p> <strong>Total registrado:</strong> {{ item.total_recorded }} </p>
+        <p> <strong>Operación:</strong> {{ item.operation_number ?? '—' }} </p>        
+        <p> <strong>Registrada por pieza:</strong> {{ item.recorded_quantity_per_piece ?? '—' }} </p>
+
+        <p class="col-span-2"> <strong>Diferencia con ERP:</strong> {{ item.erp_quantity_difference ?? '—' }} </p>      
+      </div>
+
+    </app-ui-accordion-item>
+
+    }
+  </div>
+  }
 
 </app-side-modal-layout>
