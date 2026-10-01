@@ -74,8 +74,8 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
 
   protected override get columns(): TableColumn<OrderToBeOutbound>[] {
     return [
-      { type: 'template', label: 'Fecha inicio', templateName: 'firstStartTemplate' },
       { type: 'template', label: 'Fecha fin', templateName: 'lastEndTemplate' },
+      { type: 'template', label: 'Fecha inicio', templateName: 'firstStartTemplate' },
       { field: 'code', label: 'Centro de trabajo' },
       { field: 'origin', label: 'Área' },
       { field: 'detail_count', label: 'OPs', align: 'right' },
