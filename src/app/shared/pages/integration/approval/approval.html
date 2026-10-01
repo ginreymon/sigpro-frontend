@@ -29,7 +29,8 @@
             </ng-template>
 
             <ng-template appTableTemplate="opsTotalsTemplate" let-row>
-                <app-op-totals-table [detail]="row.detail"></app-op-totals-table>
+                <app-op-totals-table [detail]="row.detail" [hours]="opHours()[opHoursKey(row)] ?? {}"
+                    (hoursChange)="setOpHours(row, $event)"></app-op-totals-table>
             </ng-template>
 
             <ng-template appTableTemplate="approveTemplate" let-row>
@@ -114,6 +115,7 @@
 
 <app-modal-layout [uppercaseTitle]="true" (onAccept)="closeApproveModal()">
 
-  <app-op-totals-table [detail]="rowObject.detail ?? []"></app-op-totals-table>
+  <app-op-totals-table [detail]="rowObject.detail ?? []" [hours]="opHours()[opHoursKey(rowObject)] ?? {}"
+    (hoursChange)="setOpHours(rowObject, $event)"></app-op-totals-table>
 
 </app-modal-layout>

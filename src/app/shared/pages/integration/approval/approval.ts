@@ -101,6 +101,18 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
     this.reload();
   }
 
+  // Horas digitadas por op_rowid, por día y centro de trabajo. Las comparten la
+  // tabla de la fila y la del modal de Enviar TEP.
+  protected opHours = signal<Partial<Record<string, Partial<Record<number, string>>>>>({});
+
+  protected opHoursKey(row: Partial<OrderToBeOutbound>): string {
+    return `${row.record_date}:${row.code}`;
+  }
+
+  protected setOpHours(row: Partial<OrderToBeOutbound>, hours: Partial<Record<number, string>>): void {
+    this.opHours.update((all) => ({ ...all, [this.opHoursKey(row)]: hours }));
+  }
+
   protected approve(row: OrderToBeOutbound): void {
     this.rowObject = row;
     const title = [row.code,'·', row.description].filter(Boolean).map((text) => text!.trim()).join(' ');
@@ -141,8 +153,7 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
     return [    
       { type: 'template', label: 'Fecha', templateName: 'dayTemplate' },
       { field: 'origin', label: 'Área' },
-      { type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
-      // { field: 'detail_count', label: 'OPs', align: 'right' },
+      { type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },      
       { type: 'template', label: 'Registrado por OP', templateName: 'opsTotalsTemplate' },
       { type: 'template', label: 'Acciones', templateName: 'approveTemplate', align: 'center' },
     ];

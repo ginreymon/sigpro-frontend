@@ -3,7 +3,7 @@
         <tr>
             <th class="px-3 py-1 text-left font-semibold">OP</th>
             <th class="px-3 py-1 text-right font-semibold">Cantidad</th>
-            <th class="px-3 py-1 text-right font-semibold">Horas</th>
+            <th class="px-3 py-1 text-right font-semibold">Minutos</th>
         </tr>
     </thead>
     <tbody>
@@ -13,7 +13,8 @@
             <td class="px-3 py-1 text-right text-green-600">{{ item.total_recorded }}</td>
             <td class="px-3 py-1">
                 <div class="w-20 ml-auto">
-                    <input type="number" min="0" step="any"
+                    <input type="number" min="0" step="any" [value]="hours[item.op_rowid] ?? ''"
+                        (input)="setHours(item.op_rowid, $any($event.target).value)"
                         class="w-full text-xs border border-slate-300 rounded px-2 py-1 text-right focus:outline-none focus:ring-1 focus:ring-green-400">
                 </div>
             </td>
