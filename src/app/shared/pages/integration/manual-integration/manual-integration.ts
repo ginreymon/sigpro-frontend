@@ -231,7 +231,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
       { type: 'template', label: 'Fecha', templateName: 'dayTemplate' },
       { type: 'template', label: 'Área', templateName: 'originTemplate' },
       { type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
-      { type: 'template', label: 'OPs', templateName: 'opsTotalsTemplate', align:'center' },
+      { type: 'template', label: 'Documentos', templateName: 'opsTotalsTemplate', align:'center' },
       { type: 'template', label: 'Acciones', templateName: 'approveTemplate', align: 'center' },
     ];
   }
