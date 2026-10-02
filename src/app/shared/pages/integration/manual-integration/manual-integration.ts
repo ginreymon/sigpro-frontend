@@ -18,6 +18,7 @@ import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button
 import { OpTotalsTable } from '../../../components/widgets/op-totals-table/op-totals-table';
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
+import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
 import { CharSquare } from '../../../components/widgets/char-square/char-square';
 import { TableTemplate } from '../../../../directives/table-template';
 import { OrderToBeOutbound } from '../../../../models/integration/order-to-be-outbound';
@@ -35,6 +36,7 @@ import { TepSendRequest } from '../../../../models/integration/tep-send';
     TableTemplate,
     UiAccordionItem,
     UiBadge,
+    UiOriginBadge,
     CharSquare,
     DateRangeForm,
     UiButton,
@@ -227,7 +229,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   protected override get columns(): TableColumn<OrderToBeOutbound>[] {
     return [
       { type: 'template', label: 'Fecha', templateName: 'dayTemplate' },
-      { field: 'origin', label: 'Área' },
+      { type: 'template', label: 'Área', templateName: 'originTemplate' },
       { type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
       { type: 'template', label: 'OPs', templateName: 'opsTotalsTemplate', align:'center' },
       { type: 'template', label: 'Acciones', templateName: 'approveTemplate', align: 'center' },

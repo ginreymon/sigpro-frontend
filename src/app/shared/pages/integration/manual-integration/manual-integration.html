@@ -24,6 +24,10 @@
                 }
             </ng-template>
 
+            <ng-template appTableTemplate="originTemplate" let-row>
+                <app-ui-origin-badge [originId]="row.origin_id" [label]="row.origin"></app-ui-origin-badge>
+            </ng-template>
+
             <ng-template appTableTemplate="workCenterTemplate" let-row>
                 {{ row.code?.trim() }}{{ row.description ? ' · ' + row.description.trim() : '' }}
             </ng-template>
