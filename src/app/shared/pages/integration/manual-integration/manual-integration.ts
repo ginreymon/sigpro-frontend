@@ -5,8 +5,8 @@ import { finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
 import { SideModalLayout } from '../../../components/layout/side-modal-layout/side-modal-layout';
-import { ModalLayout } from '../../../components/layout/modal-layout/modal-layout';
 import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
+import { TableActionEvent } from '../../../../common/interfaces/table-action-event';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
@@ -26,12 +26,11 @@ import { TepService } from '../../../../services/integration/tep-service';
 import { TepSendRequest } from '../../../../models/integration/tep-send';
 
 @Component({
-  selector: 'app-approval',
+  selector: 'app-manual-integration',
   imports: [
     WorkSpaceLayout,
     DataTable,
     SideModalLayout,
-    ModalLayout,
     DatePipe,
     TableTemplate,
     UiAccordionItem,
@@ -42,9 +41,9 @@ import { TepSendRequest } from '../../../../models/integration/tep-send';
     UiLabelButton,
     OpTotalsTable,
   ],
-  templateUrl: './approval.html',
+  templateUrl: './manual-integration.html',
 })
-export class Approval extends BaseCrudPage<OrderToBeOutbound> {
+export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   protected override entityName: string = 'OP pendiente de aprobación';
 
   // first_start/last_end llegan en UTC sin sufijo de zona: toLocalDate los marca
@@ -120,10 +119,23 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
     this.opHours.update((all) => ({ ...all, [this.opHoursKey(row)]: hours }));
   }
 
+  // Contenido del modal lateral según quién lo abre: el ojo (solo lectura) o Integrar (horas + envío).
+  protected sideMode = signal<'view' | 'integrate'>('view');
+
+  protected override actionHandler(event: TableActionEvent<OrderToBeOutbound>): void {
+    this.sideMode.set('view');
+    super.actionHandler(event);
+  }
+
   protected approve(row: OrderToBeOutbound): void {
     this.rowObject = row;
-    const title = [row.code,'·', row.description].filter(Boolean).map((text) => text!.trim()).join(' ');
-    this.dialogService.openModal(title, 'Enviar');
+    this.sideMode.set('integrate');
+    this.dialogService.openSideModal('Integrar OPs', 'Aceptar');
+  }
+
+  protected onSideModalAccept(): void {
+    if (this.sideMode() === 'integrate') this.confirmSend();
+    else this.closeModelForm();
   }
 
   // Al enviar se pide confirmación: el envío no se puede deshacer. Abrir la
@@ -213,11 +225,11 @@ export class Approval extends BaseCrudPage<OrderToBeOutbound> {
   }
 
   protected override get columns(): TableColumn<OrderToBeOutbound>[] {
-    return [    
+    return [
       { type: 'template', label: 'Fecha', templateName: 'dayTemplate' },
       { field: 'origin', label: 'Área' },
-      { type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },      
-      { type: 'template', label: 'Registrado por OP', templateName: 'opsTotalsTemplate' },
+      { type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
+      { type: 'template', label: 'OPs', templateName: 'opsTotalsTemplate', align:'center' },
       { type: 'template', label: 'Acciones', templateName: 'approveTemplate', align: 'center' },
     ];
   }

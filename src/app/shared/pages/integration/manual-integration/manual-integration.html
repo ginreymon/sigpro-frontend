@@ -18,7 +18,7 @@
 
             <ng-template appTableTemplate="dayTemplate" let-row>
                 @if(row.record_date){
-                <span [class]="'text-xs font-semibold px-2.5 py-1 rounded-full ' + dateBadgeClass(row)">
+                <span [class]="'text-xs font-semibold px-5 py-1 rounded-full ' + dateBadgeClass(row)">
                     {{ row.record_date | date: 'dd/MM/yyyy' }}
                 </span>
                 }
@@ -29,18 +29,15 @@
             </ng-template>
 
             <ng-template appTableTemplate="opsTotalsTemplate" let-row>
-                <app-op-totals-table [detail]="row.detail" [hours]="opHours()[opHoursKey(row)] ?? {}"
-                    (hoursChange)="setOpHours(row, $event)"></app-op-totals-table>
+               <span [class]="'text-xs font-semibold px-5 py-1 rounded-full ' + dateBadgeClass(row)">
+                 {{ row.detail.length }}
+               </span>
             </ng-template>
 
             <ng-template appTableTemplate="approveTemplate" let-row>
                 <app-ui-label-button [classNames]="'w-24'" [intent]="'action'" (onClick)="approve(row)">
-                  Enviar TEP
+                  Integrar
                 </app-ui-label-button>
-            </ng-template>
-
-            <ng-template appTableTemplate="lastEndTemplate" let-row>
-                {{ row.last_end ? (toLocalDate(row.last_end) | date: 'dd/MM/yyyy HH:mm') : '—' }}
             </ng-template>
 
         </app-data-table>
@@ -48,7 +45,7 @@
     </div>
 </app-work-space-layout>
 
-<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+<app-side-modal-layout [hideCancel]="sideMode() === 'view'" (onAccept)="onSideModalAccept()">
 
   <div class="mb-4 flex items-center gap-4">
 
@@ -71,7 +68,10 @@
     <p> <strong>Finalización:</strong> {{ rowObject.last_end ? (toLocalDate(rowObject.last_end) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
   </div>
 
-  @if(rowObject.detail?.length){
+  @if(sideMode() === 'integrate'){
+  <app-op-totals-table [detail]="rowObject.detail ?? []" [hours]="opHours()[opHoursKey(rowObject)] ?? {}"
+    (hoursChange)="setOpHours(rowObject, $event)"></app-op-totals-table>
+  } @else if(rowObject.detail?.length){
   <div class="mt-4 mb-2 divide-y divide-slate-200 border border-slate-200 rounded-lg">
 
     @for(item of rowObject.detail; track $index){
@@ -112,10 +112,3 @@
   }
 
 </app-side-modal-layout>
-
-<app-modal-layout [uppercaseTitle]="true" (onAccept)="confirmSend()">
-
-  <app-op-totals-table [detail]="rowObject.detail ?? []" [hours]="opHours()[opHoursKey(rowObject)] ?? {}"
-    (hoursChange)="setOpHours(rowObject, $event)"></app-op-totals-table>
-
-</app-modal-layout>

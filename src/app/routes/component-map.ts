@@ -24,7 +24,7 @@ import { SewingConfig } from '../options/production/sewing-config/sewing-config'
 import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
 import { StampingAuditory } from '../options/stamping/auditory/auditory';
 import { SiesaOutbound } from '../options/integration/siesa-outbound/siesa-outbound';
-import { Approval } from '../shared/pages/integration/approval/approval';
+import { ManualIntegration } from '../shared/pages/integration/manual-integration/manual-integration';
 
 export const componentMap: Record<string, Type<any>> = {
   'configuration/app-settings': AppSettings,
@@ -56,5 +56,5 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/machine-panel': MachinePanel,
   'stamping/auditory': StampingAuditory,
   'integration/siesa-outbound': SiesaOutbound,
-  'integration/approval': Approval,
+  'integration/manual-integration': ManualIntegration,
 };
