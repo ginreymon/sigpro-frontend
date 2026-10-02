@@ -2,7 +2,7 @@
     <div main-content class="h-full flex flex-col gap-4">
 
         <div class="shrink-0 flex flex-row items-start gap-4">
-            <app-date-range-form class="flex-1" [initialRange]="dateRange()" (onSearch)="onDateRangeSearch($event)"></app-date-range-form>
+            <app-date-range-form class="flex-1" [initialRange]="dateRange()" [limitToOneMonth]="true" (onSearch)="onDateRangeSearch($event)"></app-date-range-form>
 
             @if (hasDateFilter()) {
             <app-ui-button [classNames]="'mt-5'" [type]="'button'" intent="cancel" (onClick)="clearDateRange()">

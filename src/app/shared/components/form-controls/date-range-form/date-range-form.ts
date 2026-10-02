@@ -19,6 +19,8 @@ export class DateRangeForm implements OnInit {
   @Output() onSearch = new EventEmitter<DateRangeValue>();
   // Fechas con las que arranca el formulario (opcional).
   @Input() initialRange: DateRangeValue | null = null;
+  // Bloquea Consultar cuando el rango supera un mes.
+  @Input() limitToOneMonth: boolean = false;
 
   private fb = inject(FormBuilder);
 

@@ -84,3 +84,13 @@ export function currentMonthRange(): { startDate: string; endDate: string } {
   const endDate = now.toISOString().slice(0, 10);
   return { startDate, endDate };
 }
+
+/**
+ * True when the range YYYY-MM-DD → YYYY-MM-DD spans more than one calendar month
+ * (e.g. 2026-05-27 → 2026-06-27 is one month; → 2026-06-28 is more).
+ */
+export function exceedsOneMonth(startStr: string, endStr: string): boolean {
+  const [y, m, d] = startStr.split('-').map(Number);
+  const [ey, em, ed] = endStr.split('-').map(Number);
+  return new Date(ey, em - 1, ed) > new Date(y, m, d);
+}

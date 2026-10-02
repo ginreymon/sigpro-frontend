@@ -1,6 +1,6 @@
 <form [formGroup]="form" class="flex flex-row items-start gap-1 w-full">
 
-  <app-date-range-fields startCtrl="start_date" endCtrl="end_date" class="flex-1"></app-date-range-fields>
+  <app-date-range-fields startCtrl="start_date" endCtrl="end_date" [limitToOneMonth]="limitToOneMonth" class="flex-1"></app-date-range-fields>
 
   <app-ui-button
     [classNames]="'mt-5'"
