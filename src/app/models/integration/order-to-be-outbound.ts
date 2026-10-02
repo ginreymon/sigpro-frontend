@@ -29,6 +29,9 @@ export interface OrderToBeOutboundDetail {
   erp_quantity_difference: number | null;
   // Ids de los registros agrupados (production/stamping record).
   register_ids: number[];
+  // Referencia del artículo de la OP (t120.f120_referencia / f120_rowid).
+  reference: string | null;
+  reference_rowid: number | null;
 }
 
 export interface OrderToBeOutbound extends BaseEntity {
