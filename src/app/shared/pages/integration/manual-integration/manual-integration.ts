@@ -78,6 +78,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   }
 
   @ViewChild(DateRangeForm) private dateRangeForm?: DateRangeForm;
+  @ViewChild(OpTotalsTable) private opTotalsTable?: OpTotalsTable;
 
   // Rango elegido. Vive en la página y no en el formulario: mientras carga, el
   // layout reemplaza main-content por un esqueleto y el formulario se destruye
@@ -145,15 +146,14 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   // Pide confirmación y, al confirmar, envía el TEP del grupo seleccionado.
   protected confirmSend(): void {
     const row = this.rowObject as OrderToBeOutbound;
+    // Si algún tiempo está mal, el modal sigue abierto y la tabla marca las OP con error
+    // (un toast cerraría el modal lateral).
+    if (!this.opTotalsTable?.validate()) return;
     const hours = this.opHours()[this.opHoursKey(row)] ?? {};
-    if (row.detail.some((item) => !hours[item.op_rowid]?.trim() || isNaN(Number(hours[item.op_rowid])))) {
-      this.dialogService.openToast('Aviso', 'Ingrese las horas de todas las OP.', 'triangleExclamation');
-      return;
-    }
 
     this.dialogService.openConfirm(
-      'Enviar TEP',
-      'Al confirmar, el envío no se puede deshacer. ¿Desea continuar?',
+      'Integrar TEP',
+      'Al confirmar, esta acción no se puede deshacer. ¿Desea continuar?',
       'Confirmar',
       () => this.sendTep(row, hours),
     );

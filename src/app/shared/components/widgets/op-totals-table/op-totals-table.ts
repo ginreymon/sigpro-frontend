@@ -38,6 +38,13 @@ export class OpTotalsTable {
     return (this.forms[opRowid] ??= this.createForm(opRowid));
   }
 
+  // Marca como tocados los campos de todas las OP (para mostrar sus errores) y
+  // dice si el tiempo de todas es válido.
+  validate(): boolean {
+    this.detail.forEach((item) => this.timeForm(item.op_rowid).markAllAsTouched());
+    return this.detail.every((item) => this.timeForm(item.op_rowid).valid);
+  }
+
   protected showError(form: TimeForm): boolean {
     return form.invalid && (form.touched || form.dirty);
   }
