@@ -11,7 +11,10 @@
             @for(item of detail; track item.op_rowid){
             @let form = timeForm(item.op_rowid);
             <tr>
-                <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-700">{{ item.op_type }} {{ item.op_number }}</td>
+                <td class="px-4 py-3 max-w-0 w-full">
+                    <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }} {{ item.op_number }}</p>
+                    <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
+                </td>
                 <td class="px-4 py-3 font-medium text-right text-green-600">{{ item.total_recorded }}</td>
                 <td class="px-4 py-3">
                     <div class="ml-auto w-fit flex items-center divide-x divide-gray-300 border rounded h-8 bg-white transition-all duration-200 focus-within:ring-2"

@@ -58,7 +58,7 @@
     </app-char-square>
 
     <div>
-      <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ rowObject.code?.trim() }} </h3>
+      <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ `${rowObject.code?.trim()} · ${rowObject.description?.trim()}` }} </h3>
       <p class="text-sm text-slate-500 mb-0.5">
         {{ rowObject.origin }} · {{ rowObject.record_date ? (rowObject.record_date | date: 'dd/MM/yyyy') : 'Histórico' }}
       </p>
@@ -67,7 +67,7 @@
 
   </div>
 
-  <div class="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
+  <div class="mb-4 px-4 grid grid-cols-2 gap-x-4 gap-y-2 p-3 rounded-lg border border-slate-200 text-sm text-slate-600">
     <p> <strong>Inicio:</strong> {{ rowObject.first_start ? (toLocalDate(rowObject.first_start) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
     <p> <strong>Finalización:</strong> {{ rowObject.last_end ? (toLocalDate(rowObject.last_end) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
   </div>
@@ -87,7 +87,7 @@
 
         <div class="min-w-0 flex-1">
           <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }}  {{ item.op_number }}</p>
-          <p class="text-xs text-slate-500 truncate">{{ item.description || ('Operación ' + (item.operation_number ?? '—')) }}</p>
+          <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
         </div>
 
         <app-ui-badge [active]="!!item.completed_operation" activeText="Completa" inactiveText="Diferencia"></app-ui-badge>
