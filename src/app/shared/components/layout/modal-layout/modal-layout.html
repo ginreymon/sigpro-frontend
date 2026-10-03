@@ -11,10 +11,18 @@
 
     </div>
 
-    <div class="space-y-4 md:space-y-6 py-4 md:py-6 text-gray-600 overflow-y-auto">
+    <div class="shrink-0 text-gray-600 empty:hidden pt-4 md:pt-6">
+      <ng-content select="[modal-top]"></ng-content>
+    </div>
+
+    <div class="flex-1 min-h-0 space-y-4 md:space-y-6 py-4 md:py-6 text-gray-600 overflow-y-auto">
 
       <ng-content></ng-content>
 
+    </div>
+
+    <div class="shrink-0 text-gray-600 empty:hidden pb-4 md:pb-6">
+      <ng-content select="[modal-bottom]"></ng-content>
     </div>
 
     <div class="flex justify-end items-center border-t border-default space-x-4 pt-4 md:pt-5">

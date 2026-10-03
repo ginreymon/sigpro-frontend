@@ -1,12 +1,12 @@
 import { Component, computed, signal, ViewChild } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
 import { SideModalLayout } from '../../../components/layout/side-modal-layout/side-modal-layout';
+import { ModalLayout } from '../../../components/layout/modal-layout/modal-layout';
 import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
-import { TableActionEvent } from '../../../../common/interfaces/table-action-event';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
@@ -19,7 +19,6 @@ import { OpTotalsTable } from '../../../components/widgets/op-totals-table/op-to
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
-import { CharSquare } from '../../../components/widgets/char-square/char-square';
 import { TableTemplate } from '../../../../directives/table-template';
 import { OrderToBeOutbound } from '../../../../models/integration/order-to-be-outbound';
 import { OrdersToBeOutboundService } from '../../../../services/integration/orders-to-be-outbound-service';
@@ -32,12 +31,13 @@ import { TepSendRequest } from '../../../../models/integration/tep-send';
     WorkSpaceLayout,
     DataTable,
     SideModalLayout,
+    ModalLayout,
+    NgTemplateOutlet,
     DatePipe,
     TableTemplate,
     UiAccordionItem,
     UiBadge,
     UiOriginBadge,
-    CharSquare,
     DateRangeForm,
     UiButton,
     UiLabelButton,
@@ -122,23 +122,10 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
     this.opHours.update((all) => ({ ...all, [this.opHoursKey(row)]: hours }));
   }
 
-  // Contenido del modal lateral según quién lo abre: el ojo (solo lectura) o Integrar (horas + envío).
-  protected sideMode = signal<'view' | 'integrate'>('view');
-
-  protected override actionHandler(event: TableActionEvent<OrderToBeOutbound>): void {
-    this.sideMode.set('view');
-    super.actionHandler(event);
-  }
-
+  // El ojo (solo lectura) usa el modal lateral (BaseCrudPage); Integrar (horas + envío) usa el modal central.
   protected approve(row: OrderToBeOutbound): void {
     this.rowObject = row;
-    this.sideMode.set('integrate');
-    this.dialogService.openSideModal('Integrar OPs', 'Aceptar');
-  }
-
-  protected onSideModalAccept(): void {
-    if (this.sideMode() === 'integrate') this.confirmSend();
-    else this.closeModelForm();
+    this.dialogService.openModal('Integrar OPs', 'Aceptar');
   }
 
   // Al enviar se pide confirmación: el envío no se puede deshacer. Abrir la
@@ -147,7 +134,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   protected confirmSend(): void {
     const row = this.rowObject as OrderToBeOutbound;
     // Si algún tiempo está mal, el modal sigue abierto y la tabla marca las OP con error
-    // (un toast cerraría el modal lateral).
+    // (un toast cerraría el modal).
     if (!this.opTotalsTable?.validate()) return;
     const hours = this.opHours()[this.opHoursKey(row)] ?? {};
 

@@ -49,20 +49,24 @@
     </div>
 </app-work-space-layout>
 
-<app-side-modal-layout [hideCancel]="sideMode() === 'view'" (onAccept)="onSideModalAccept()">
+<ng-template #rowTitle>
+  <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ `${rowObject.code?.trim()} · ${rowObject.description?.trim()}` }} </h3>
+  <p class="text-sm text-slate-500 mb-0.5">
+    {{ rowObject.origin }} · {{ rowObject.record_date ? (rowObject.record_date | date: 'dd/MM/yyyy') : 'Histórico' }}
+  </p>
+  <p class="text-sm text-slate-500 mb-0.5"> OPs : {{ rowObject.detail_count }} </p>
+</ng-template>
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
 
   <div class="mb-4 flex items-center gap-4">
 
-    <app-char-square>
+    <div class="size-16 shrink-0 rounded-full bg-brand-100 flex items-center justify-center text-3xl font-bold text-brand-600">
       {{ rowObject.code?.trim()?.charAt(0) }}
-    </app-char-square>
+    </div>
 
     <div>
-      <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ `${rowObject.code?.trim()} · ${rowObject.description?.trim()}` }} </h3>
-      <p class="text-sm text-slate-500 mb-0.5">
-        {{ rowObject.origin }} · {{ rowObject.record_date ? (rowObject.record_date | date: 'dd/MM/yyyy') : 'Histórico' }}
-      </p>
-      <p class="text-sm text-slate-500 mb-0.5"> OPs : {{ rowObject.detail_count }} </p>
+      <ng-container *ngTemplateOutlet="rowTitle"></ng-container>
     </div>
 
   </div>
@@ -72,10 +76,7 @@
     <p> <strong>Finalización:</strong> {{ rowObject.last_end ? (toLocalDate(rowObject.last_end) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
   </div>
 
-  @if(sideMode() === 'integrate'){
-  <app-op-totals-table [detail]="rowObject.detail ?? []" [hours]="opHours()[opHoursKey(rowObject)] ?? {}"
-    (hoursChange)="setOpHours(rowObject, $event)"></app-op-totals-table>
-  } @else if(rowObject.detail?.length){
+  @if(rowObject.detail?.length){
   <div class="mt-4 mb-2 divide-y divide-slate-200 border border-slate-200 rounded-lg">
 
     @for(item of rowObject.detail; track $index){
@@ -116,3 +117,14 @@
   }
 
 </app-side-modal-layout>
+
+<app-modal-layout classNames="max-w-xl" (onAccept)="confirmSend()">
+
+  <div modal-top>
+    <ng-container *ngTemplateOutlet="rowTitle"></ng-container>
+  </div>
+
+  <app-op-totals-table [detail]="rowObject.detail ?? []" [hours]="opHours()[opHoursKey(rowObject)] ?? {}"
+    (hoursChange)="setOpHours(rowObject, $event)"></app-op-totals-table>
+
+</app-modal-layout>
