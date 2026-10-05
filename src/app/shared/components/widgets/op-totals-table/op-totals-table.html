@@ -1,43 +1,39 @@
-<div class="border border-slate-200 rounded-lg overflow-hidden">
-    <table class="w-full text-sm">
-        <thead class="bg-slate-50 text-slate-500">
-            <tr>
-                <th class="px-4 py-3 text-left font-semibold">OP</th>
-                <th class="px-4 py-3 text-right font-semibold">Cantidad</th>
-                <th class="px-4 py-3 text-right font-semibold">Tiempo</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200">
-            @for(item of detail; track item.op_rowid){
-            @let form = timeForm(item.op_rowid);
-            <tr>
-                <td class="px-4 py-3 max-w-0 w-full">
-                    <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }} {{ item.op_number }}</p>
-                    <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
-                </td>
-                <td class="px-4 py-3 font-medium text-right text-green-600">{{ item.total_recorded }}</td>
-                <td class="px-4 py-3">
-                    <div class="ml-auto w-fit flex items-center divide-x divide-gray-300 border rounded h-8 bg-white transition-all duration-200 focus-within:ring-2"
-                        [class]="showError(form) ? 'border-red-500 divide-red-300 focus-within:border-red-500 focus-within:ring-red-200' : 'border-gray-300 focus-within:border-brand-500 focus-within:ring-brand-200'">
-                        <label class="flex items-center gap-1 pl-1 pr-2.5">
-                            <input type="number" min="0" step="1" placeholder="0" aria-label="Horas"
-                                [formControl]="form.controls.h"
-                                class="w-12 h-full text-sm text-right bg-transparent focus:outline-none">
-                            <span class="text-xs text-slate-400">h</span>
-                        </label>
-                        <label class="flex items-center gap-1 pl-1 pr-2.5">
-                            <input type="number" min="0" max="59" step="1" placeholder="0" aria-label="Minutos"
-                                [formControl]="form.controls.m"
-                                class="w-12 h-full text-sm text-right bg-transparent focus:outline-none">
-                            <span class="text-xs text-slate-400">min</span>
-                        </label>
-                    </div>
-                    @if (showError(form)) {
-                    <p class="mt-1 text-xs text-red-500 text-right">{{ errorMessage(form) }}</p>
-                    }
-                </td>
-            </tr>
+<app-simple-table>
+    <ng-container tableHead>
+        <th class="px-4 py-3 text-left font-semibold">OP</th>
+        <th class="px-4 py-3 text-right font-semibold">Cantidad</th>
+        <th class="px-4 py-3 text-right font-semibold">Tiempo</th>
+    </ng-container>
+    <ng-container tableBody>
+    @for(item of detail; track item.op_rowid){
+    @let form = timeForm(item.op_rowid);
+    <tr>
+        <td class="px-4 py-3 max-w-0 w-full">
+            <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }} {{ item.op_number }}</p>
+            <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
+        </td>
+        <td class="px-4 py-3 font-medium text-right text-green-600">{{ item.total_recorded }}</td>
+        <td class="px-4 py-3">
+            <div class="ml-auto w-fit flex items-center divide-x divide-gray-300 border rounded h-8 bg-white transition-all duration-200 focus-within:ring-2"
+                [class]="showError(form) ? 'border-red-500 divide-red-300 focus-within:border-red-500 focus-within:ring-red-200' : 'border-gray-300 focus-within:border-brand-500 focus-within:ring-brand-200'">
+                <label class="flex items-center gap-1 pl-1 pr-2.5">
+                    <input type="number" min="0" step="1" placeholder="0" aria-label="Horas"
+                        [formControl]="form.controls.h"
+                        class="w-12 h-full text-sm text-right bg-transparent focus:outline-none">
+                    <span class="text-xs text-slate-400">h</span>
+                </label>
+                <label class="flex items-center gap-1 pl-1 pr-2.5">
+                    <input type="number" min="0" max="59" step="1" placeholder="0" aria-label="Minutos"
+                        [formControl]="form.controls.m"
+                        class="w-12 h-full text-sm text-right bg-transparent focus:outline-none">
+                    <span class="text-xs text-slate-400">min</span>
+                </label>
+            </div>
+            @if (showError(form)) {
+            <p class="mt-1 text-xs text-red-500 text-right">{{ errorMessage(form) }}</p>
             }
-        </tbody>
-    </table>
-</div>
+        </td>
+    </tr>
+    }
+    </ng-container>
+</app-simple-table>

@@ -1,0 +1,12 @@
+<div class="border border-slate-200 rounded-lg overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-500">
+            <tr>
+                <ng-content select="[tableHead]"></ng-content>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            <ng-content select="[tableBody]"></ng-content>
+        </tbody>
+    </table>
+</div>

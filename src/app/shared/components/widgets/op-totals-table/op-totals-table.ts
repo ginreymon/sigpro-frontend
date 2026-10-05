@@ -7,6 +7,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { SimpleTable } from '../../table/simple-table/simple-table';
 import { OrderToBeOutboundDetail } from '../../../../models/integration/order-to-be-outbound';
 
 type TimeForm = FormGroup<{ h: FormControl<number | null>; m: FormControl<number | null> }>;
@@ -19,7 +20,7 @@ function timeRequired(group: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-op-totals-table',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, SimpleTable],
   templateUrl: './op-totals-table.html',
   styleUrl: './op-totals-table.css',
 })
