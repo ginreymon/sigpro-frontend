@@ -1,0 +1,13 @@
+/* Valores por defecto de encabezado (px-4 py-3 font-semibold) y celdas (px-4 py-3 font-medium).
+   En @layer base con :where() cualquier clase utilitaria del <th>/<td> los sobreescribe. */
+@layer base {
+  :where(app-simple-table thead th) {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+  }
+
+  :where(app-simple-table tbody td) {
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+  }
+}
