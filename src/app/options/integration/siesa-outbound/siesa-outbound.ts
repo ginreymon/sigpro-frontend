@@ -10,15 +10,18 @@ import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../common/interfaces/table-tools-buttons';
-import { SiesaOutboundDocument, SiesaOutboundDocumentStatus } from '../../../models/integration/siesa-outbound-document';
-import { SiesaOutboundDocumentService } from '../../../services/integration/siesa-outbound-document-service';
+import { TepSubmission, TepSubmissionStatus } from '../../../models/integration/tep-submission';
+import { TepSubmissionService } from '../../../services/integration/tep-submission-service';
 
-const STATUS_INTENT: Record<SiesaOutboundDocumentStatus, BadgeIntent> = {
+const STATUS_INTENT: Record<TepSubmissionStatus, BadgeIntent> = {
   pending: 'warning',
-  sending: 'default',
   sent: 'active',
   failed: 'danger',
-  poisoned: 'paused',
+};
+
+const ORIGIN_LABEL: Record<number, string> = {
+  1: 'Confección',
+  2: 'Estampación',
 };
 
 @Component({
@@ -26,14 +29,14 @@ const STATUS_INTENT: Record<SiesaOutboundDocumentStatus, BadgeIntent> = {
   imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, TableTemplate, DatePipe],
   templateUrl: './siesa-outbound.html',
 })
-export class SiesaOutbound extends BaseCrudPage<SiesaOutboundDocument> {
-  protected override entityName: string = 'documento SIESA';
+export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
+  protected override entityName: string = 'envío TEP';
 
-  // Outbox transaccional inmutable (ver docstring del modelo): solo lectura,
-  // sin crear/editar/eliminar desde la UI.
+  // Historial de envíos a SIESA (integration/tep/send/): solo lectura, sin
+  // crear/editar/eliminar desde la UI.
   protected override get actions(): TableActions {
     return {
-      view: { enabled: true, title: 'Detalle del documento', iconName: 'eye', toolTip: 'Ver detalle' },
+      view: { enabled: true, title: 'Detalle del envío', iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: false },
       delete: { enabled: false },
       create: { enabled: false },
@@ -47,24 +50,33 @@ export class SiesaOutbound extends BaseCrudPage<SiesaOutboundDocument> {
     addItem: { enabled: false },
   };
 
-  constructor(private siesaOutboundDocumentService: SiesaOutboundDocumentService) {
-    super(siesaOutboundDocumentService);
+  constructor(private tepSubmissionService: TepSubmissionService) {
+    super(tepSubmissionService);
   }
 
-  protected override get columns(): TableColumn<SiesaOutboundDocument>[] {
+  protected override get columns(): TableColumn<TepSubmission>[] {
     return [
-      { field: 'document_type', label: 'Tipo doc.' },
-      { field: 'idempotency_key', label: 'Clave idempotencia' },
-      { field: 'op_number', label: 'OP', align: 'right' },
-      { field: 'work_center_code', label: 'Centro trabajo' },
+      { type: 'template', label: 'Fecha', templateName: 'createdAtTemplate' },
+      { field: 'work_center_id', label: 'Centro de trabajo' },
+      { type: 'template', label: 'Documentos', templateName: 'opsTemplate', align: 'center' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
-      { field: 'attempts', label: 'Intentos', align: 'right' },
-      { type: 'template', label: 'Enviado', templateName: 'sentAtTemplate' },
-      { type: 'template', label: 'Creado', templateName: 'createdAtTemplate' },
+      { type: 'template', label: 'Respuesta SIESA', templateName: 'responseTemplate' },
     ];
   }
 
-  protected statusIntent(status: SiesaOutboundDocumentStatus): BadgeIntent {
+  protected statusIntent(status: TepSubmissionStatus): BadgeIntent {
     return STATUS_INTENT[status] ?? 'default';
+  }
+
+  protected originLabel(originId: number | null): string {
+    return originId != null ? (ORIGIN_LABEL[originId] ?? `${originId}`) : '—';
+  }
+
+  // Resumen de la respuesta de SIESA para la tabla: el primer mensaje del
+  // dataset de error o, si no hay dataset (XML / error de red), el texto crudo.
+  protected responseSummary(submission: TepSubmission): string {
+    if (submission.status === 'sent') return 'Sin errores';
+    if (submission.status === 'pending') return 'Sin respuesta';
+    return submission.siesa_messages[0]?.detail ?? submission.error_detail ?? '—';
   }
 }
