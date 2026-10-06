@@ -211,6 +211,14 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
       : 'text-brand-700 bg-brand-100';
   }
 
+  // Badge de Documentos: verde si todas las OP están completas, naranja
+  // (warning) si hay completas y pendientes, rojo si ninguna está completa.
+  protected documentsBadgeClass(row: OrderToBeOutbound): string {
+    const completed = row.detail.filter((item) => !!item.completed_operation).length;
+    if (completed === row.detail.length) return 'text-green-700 bg-green-100';
+    return completed > 0 ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100';
+  }
+
   protected expandedDetailIndexes = signal<Set<number>>(new Set());
 
   protected override closeModelForm(): void {

@@ -33,7 +33,7 @@
             </ng-template>
 
             <ng-template appTableTemplate="opsTotalsTemplate" let-row>
-               <span [class]="'inline-block w-24 text-center text-xs font-semibold py-1 rounded-full ' + dateBadgeClass(row)">
+               <span [class]="'inline-block w-24 text-center text-xs font-semibold py-1 rounded-full ' + documentsBadgeClass(row)">
                  {{ row.detail.length }} {{ `${row.detail.length ==1? 'Orden':'Órdenes'}` }}
                </span>
             </ng-template>
