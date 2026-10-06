@@ -28,15 +28,16 @@ export class UpdateService {
 
   // Borra la caché del navegador y recarga con una URL nueva, para que el
   // index.html se pida al servidor como en la primera visita. No toca
-  // localStorage: conserva la sesión y el menú.
-  async applyUpdate(): Promise<void> {
+  // localStorage: conserva la sesión y el menú. Con toHome recarga en la raíz de
+  // la app en vez de la ruta actual (para la vista fija /update).
+  async applyUpdate(toHome = false): Promise<void> {
     try {
       const names = await caches.keys();
       await Promise.all(names.map((name) => caches.delete(name)));
     } catch {
       // Cache Storage no disponible: la URL nueva ya evita el index.html cacheado.
     }
-    const url = new URL(location.href);
+    const url = toHome ? new URL(document.baseURI) : new URL(location.href);
     url.searchParams.set(VERSION_PARAM, this.latestVersion);
     location.replace(url.toString());
   }

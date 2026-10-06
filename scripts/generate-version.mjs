@@ -14,7 +14,7 @@ try {
   // Sin git (p. ej. build desde un zip): la fecha basta para distinguir builds.
 }
 
-const stamp = new Date().toISOString().replace(/\D/g, '').slice(0, 12);
+const stamp = new Date().toISOString().replace(/\D/g, '').slice(0, 14);
 const version = `${commit}-${stamp}`;
 
 writeFileSync('src/environments/build-info.ts', `export const BUILD_VERSION = '${version}';\n`);

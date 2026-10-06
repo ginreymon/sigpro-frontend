@@ -8,12 +8,14 @@ import { ConfirmPassword } from './pages/auth/confirm-password/confirm-password'
 import { authGuard } from './guards/auth-guard';
 import { NotAuthorized } from './pages/not-authorized/not-authorized';
 import { getDynamicRoutes } from './routes/get-dynamic-routes';
+import { UpdateAvailable } from './shared/components/notifications/update-available/update-available';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'confirm-password', component: ConfirmPassword },
   { path: 'not-authorized', component: NotAuthorized },
+  { path: 'app-update', component: UpdateAvailable, data: { alwaysVisible: true } },
   {
     path: '',
     component: Layout,

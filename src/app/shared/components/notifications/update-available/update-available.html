@@ -1,10 +1,20 @@
-@if (updateService.updateAvailable()) {
-<div class="fixed inset-0 z-[10000] flex flex-col items-center justify-center gap-4 bg-gray-100 px-4 text-center">
-  <span class="text-2xl font-semibold uppercase tracking-widest text-gray-400">SIGPRO</span>
-  <h2 class="text-2xl font-semibold text-slate-900">Hay una nueva versión disponible</h2>
-  <p class="max-w-md text-sm text-slate-600">
-    Actualiza para cargar la versión más reciente. Tu sesión se mantiene abierta.
-  </p>
-  <app-ui-button (onClick)="updateService.applyUpdate()">Actualizar</app-ui-button>
+@if (alwaysVisible || updateService.updateAvailable()) {
+<div class="fixed inset-0 z-[10000] overflow-auto bg-slate-50 dark:bg-slate-950">
+  <app-update-page
+    pillLabel="Actualización disponible"
+    title="Hay una nueva versión de SIGPRO"
+    description="Actualiza para cargar la versión más reciente y seguir trabajando sin problemas. Tu sesión se mantiene abierta."
+    badgeLabel="Nueva versión"
+    [versionLabel]="version">
+
+    <div actions class="flex justify-center lg:justify-start">
+      <button (click)="updateService.applyUpdate(alwaysVisible)"
+              class="bg-brand hover:bg-brand-hover text-white px-8 py-4 rounded-lg font-bold transition-all hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+        <app-ui-icon iconName="arrowsRotate" [class]="'w-4 h-4'"></app-ui-icon>
+        Actualizar ahora
+      </button>
+    </div>
+
+  </app-update-page>
 </div>
 }
