@@ -1,6 +1,6 @@
 // Request/response de POST integration/tep/send/. Solo los campos que manda
 // Approval; el backend completa los valores fijos del encabezado (compañía,
-// centro de operación, tipo de documento, etc.).
+// centro de operación, tipo de documento, fecha del envío, etc.).
 export interface TepSendDetail {
   op_document_type_id: string;
   op_document_number: number;
@@ -17,7 +17,8 @@ export interface TepSendDetail {
 
 export interface TepSendRequest {
   header: {
-    date: string;
+    // Opcional: sin fecha (o null) el backend usa el día del envío.
+    date?: string | null;
     work_center_id: string;
   };
   details: TepSendDetail[];

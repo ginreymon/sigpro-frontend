@@ -167,7 +167,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   private buildTepRequest(row: OrderToBeOutbound, hours: Partial<Record<number, string>>): TepSendRequest {
     const workCenter = row.code.trim();
     return {
-      header: { date: row.record_date!, work_center_id: workCenter },
+      header: { work_center_id: workCenter },
       details: row.detail.map((item) => ({
         op_document_type_id: item.op_type,
         op_document_number: item.op_number,
