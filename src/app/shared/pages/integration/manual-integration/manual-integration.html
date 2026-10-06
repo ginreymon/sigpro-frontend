@@ -14,7 +14,7 @@
         <div class="flex-1 min-h-0">
         <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
             (onPagerChange)="pagerHandler($event)" [showSearch]="false" [actions]="actions"
-            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons" [columnFilter]="true">
 
             <ng-template appTableTemplate="dayTemplate" let-row>
                 @if(row.record_date){

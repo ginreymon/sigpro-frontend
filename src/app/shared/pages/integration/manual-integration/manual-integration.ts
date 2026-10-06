@@ -217,9 +217,9 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
 
   protected override get columns(): TableColumn<OrderToBeOutbound>[] {
     return [
-      { type: 'template', label: 'Fecha', templateName: 'dayTemplate' },
-      { type: 'template', label: 'Área', templateName: 'originTemplate' },
-      { type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
+      { field: 'record_date', type: 'template', label: 'Fecha', templateName: 'dayTemplate' },
+      { field: 'origin', type: 'template', label: 'Área', templateName: 'originTemplate' },
+      { field: 'code', type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
       { type: 'template', label: 'Documentos', templateName: 'opsTotalsTemplate', align:'center' },
       { type: 'template', label: 'Acciones', templateName: 'approveTemplate', align: 'center' },
     ];

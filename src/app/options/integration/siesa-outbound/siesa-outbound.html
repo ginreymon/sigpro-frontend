@@ -2,7 +2,7 @@
     <div main-content class="h-full">
         <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
             (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
-            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons" [columnFilter]="true">
 
             <ng-template appTableTemplate="opsTemplate" let-row>
                 <span class="inline-block w-24 rounded-full bg-brand-100 py-1 text-center text-xs font-semibold text-brand-700">

@@ -61,7 +61,7 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
       { type: 'template', label: 'Fecha', templateName: 'createdAtTemplate' },
       { field: 'work_center_id', label: 'Centro de trabajo' },
       { type: 'template', label: 'Documentos', templateName: 'opsTemplate', align: 'center' },
-      { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
+      { field: 'status_display', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
       { type: 'template', label: 'Respuesta SIESA', templateName: 'responseTemplate' },
     ];
   }
