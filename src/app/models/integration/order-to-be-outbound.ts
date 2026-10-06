@@ -31,6 +31,10 @@ export interface OrderToBeOutboundDetail {
   reference_rowid: number | null;
 }
 
+// Estado del grupo: Completa si todas sus OP tienen la operación completa.
+export const OPERATIONS_LABEL = { complete: 'Completa', difference: 'Diferencia' } as const;
+export type OperationsStatus = (typeof OPERATIONS_LABEL)[keyof typeof OPERATIONS_LABEL];
+
 export interface OrderToBeOutbound extends BaseEntity {
   // null cuando la consulta no trae rango de fechas.
   day_number: number | null;
@@ -47,4 +51,7 @@ export interface OrderToBeOutbound extends BaseEntity {
 
   detail_count: number;
   detail: OrderToBeOutboundDetail[];
+
+  // Lo calcula el frontend al cargar (ManualIntegration.mapResponse); no viene del API.
+  operations_status?: OperationsStatus;
 }

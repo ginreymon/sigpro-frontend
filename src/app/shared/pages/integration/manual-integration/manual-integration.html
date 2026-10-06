@@ -38,6 +38,11 @@
                </span>
             </ng-template>
 
+            <ng-template appTableTemplate="statusTemplate" let-row>
+                <app-ui-badge [active]="row.operations_status === operationsLabel.complete"
+                    [activeText]="operationsLabel.complete" [inactiveText]="operationsLabel.difference"></app-ui-badge>
+            </ng-template>
+
             <ng-template appTableTemplate="approveTemplate" let-row>
                 <app-ui-label-button [classNames]="'w-24'" [intent]="'action'" (onClick)="approve(row)">
                   Integrar

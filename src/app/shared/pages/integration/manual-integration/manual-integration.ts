@@ -20,7 +20,8 @@ import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordio
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
 import { TableTemplate } from '../../../../directives/table-template';
-import { OrderToBeOutbound } from '../../../../models/integration/order-to-be-outbound';
+import { OPERATIONS_LABEL, OrderToBeOutbound } from '../../../../models/integration/order-to-be-outbound';
+import { PaginatedResponse } from '../../../../common/interfaces/paginated-response';
 import { OrdersToBeOutboundService } from '../../../../services/integration/orders-to-be-outbound-service';
 import { TepService } from '../../../../services/integration/tep-service';
 import { TepSendRequest } from '../../../../models/integration/tep-send';
@@ -53,6 +54,20 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   // first_start/last_end llegan en UTC sin sufijo de zona: toLocalDate los marca
   // como UTC para que DatePipe los muestre en hora local.
   protected readonly toLocalDate = toLocalDate;
+  protected readonly operationsLabel = OPERATIONS_LABEL;
+
+  // Estado por grupo (centro de trabajo y día): Completa solo si todas sus OP lo están.
+  protected override mapResponse(res: PaginatedResponse<OrderToBeOutbound>): PaginatedResponse<OrderToBeOutbound> {
+    return {
+      ...res,
+      results: res.results.map((row) => ({
+        ...row,
+        operations_status: row.detail.every((item) => !!item.completed_operation)
+          ? OPERATIONS_LABEL.complete
+          : OPERATIONS_LABEL.difference,
+      })),
+    };
+  }
 
   // Reporte agregado de solo lectura (fn_totales_registrados_por_op_detalle):
   // revisar antes de enviar a SIESA, sin crear/editar/eliminar desde la UI.
@@ -220,6 +235,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
       { field: 'record_date', type: 'template', label: 'Fecha', templateName: 'dayTemplate' },
       { field: 'origin', type: 'template', label: 'Área', templateName: 'originTemplate' },
       { field: 'code', type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
+      { field: 'operations_status', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
       { type: 'template', label: 'Documentos', templateName: 'opsTotalsTemplate', align:'center' },
       { type: 'template', label: 'Acciones', templateName: 'approveTemplate', align: 'center' },
     ];
