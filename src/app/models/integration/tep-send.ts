@@ -29,5 +29,4 @@ export interface TepSendResponse {
   ok: boolean;
   error_type: number | null;
   error_detail_xml: string | null;
-  flat_file_lines: string[];
 }

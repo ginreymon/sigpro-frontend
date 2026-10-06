@@ -17,14 +17,11 @@ export interface OrderToBeOutboundDetail {
   total_recorded: number;
   total_records: number;
   pieces: number | null;
-  times_on_route: number | null;
   operation_number: number | null;
   completed_operation: number | null;
   erp_planned_quantity: number | null;
   erp_ordered_quantity: number | null;
   erp_completed_quantity: number | null;
-  erp_rejected_quantity: number | null;
-  erp_scrap_quantity: number | null;
   recorded_quantity_per_piece: number | null;
   erp_quantity_difference: number | null;
   // Ids de los registros agrupados (production/stamping record).

@@ -40,6 +40,5 @@ export interface TepSubmission extends TimeAuditEntity, UserAuditEntity {
   error_detail: string | null;
   siesa_messages: SiesaMessage[];
   sent_at: string | null;
-  flat_file_lines: string[] | null;
   details: TepSubmissionDetail[];
 }
