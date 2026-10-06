@@ -24,6 +24,7 @@ import { OrderToBeOutbound } from '../../../../models/integration/order-to-be-ou
 import { OrdersToBeOutboundService } from '../../../../services/integration/orders-to-be-outbound-service';
 import { TepService } from '../../../../services/integration/tep-service';
 import { TepSendRequest } from '../../../../models/integration/tep-send';
+import { CharSquare } from '../../../components/widgets/char-square/char-square';
 
 @Component({
   selector: 'app-manual-integration',
@@ -42,7 +43,8 @@ import { TepSendRequest } from '../../../../models/integration/tep-send';
     UiButton,
     UiLabelButton,
     OpTotalsTable,
-  ],
+    CharSquare
+],
   templateUrl: './manual-integration.html',
 })
 export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {

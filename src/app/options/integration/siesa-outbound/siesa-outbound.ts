@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../shared/components/table/data-table/data-table';
 import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
+import { UiAccordionItem } from '../../../shared/elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge, BadgeIntent } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
@@ -12,6 +13,7 @@ import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../common/interfaces/table-tools-buttons';
 import { TepSubmission, TepSubmissionStatus } from '../../../models/integration/tep-submission';
 import { TepSubmissionService } from '../../../services/integration/tep-submission-service';
+import { CharSquare } from '../../../shared/components/widgets/char-square/char-square';
 
 const STATUS_INTENT: Record<TepSubmissionStatus, BadgeIntent> = {
   pending: 'warning',
@@ -26,7 +28,7 @@ const ORIGIN_LABEL: Record<number, string> = {
 
 @Component({
   selector: 'app-siesa-outbound',
-  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, TableTemplate, DatePipe],
+  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, UiAccordionItem, TableTemplate, DatePipe, CharSquare],
   templateUrl: './siesa-outbound.html',
 })
 export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
@@ -62,6 +64,25 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
       { type: 'template', label: 'Respuesta SIESA', templateName: 'responseTemplate' },
     ];
+  }
+
+  protected expandedItems = signal<Set<string>>(new Set());
+
+  protected override closeModelForm(): void {
+    this.expandedItems.set(new Set());
+    super.closeModelForm();
+  }
+
+  protected isExpanded(key: string): boolean {
+    return this.expandedItems().has(key);
+  }
+
+  protected toggleExpanded(key: string): void {
+    const expanded = new Set(this.expandedItems());
+    if (!expanded.delete(key)) {
+      expanded.add(key);
+    }
+    this.expandedItems.set(expanded);
   }
 
   protected statusIntent(status: TepSubmissionStatus): BadgeIntent {
