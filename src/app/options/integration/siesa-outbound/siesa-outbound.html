@@ -59,9 +59,9 @@
         @if (rowObject.status === 'sent') {
         <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-700 font-semibold"> SIESA recibió el documento sin errores. </div>
         } @else if (rowObject.status === 'pending') {
-        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-700 font-semibold"> El envío no tiene respuesta registrada de SIESA. </div>
+        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-700"> El envío no tiene respuesta registrada de SIESA. </div>
         } @else {
-        <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 font-semibold"> <strong>Tipo de error:</strong> {{ rowObject.error_type ?? '—' }} </div>
+        <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700"> <strong>Tipo de error:</strong> {{ rowObject.error_type ?? '—' }} </div>
 
         @if (rowObject.siesa_messages?.length) {
         <div class="divide-y divide-red-100 border border-red-100 rounded-lg">
