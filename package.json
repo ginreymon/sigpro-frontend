@@ -3,9 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "version:generate": "node scripts/generate-version.mjs",
+    "prestart": "npm run version:generate",
     "start": "ng serve",
+    "prebuild": "npm run version:generate",
     "build": "ng build",
+    "prewatch": "npm run version:generate",
     "watch": "ng build --watch --configuration development",
+    "pretest": "npm run version:generate",
     "test": "ng test"
   },
   "prettier": {

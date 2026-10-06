@@ -2,6 +2,10 @@
 
 # Compiled output
 /dist
+
+# Versión del build (la genera scripts/generate-version.mjs)
+/src/environments/build-info.ts
+/public/version.json
 /tmp
 /out-tsc
 /bazel-out
