@@ -18,4 +18,7 @@ export interface ProductionOrder extends BaseDocument, BaseProduct, AuditInfo {
   // Solo presente cuando la orden se resolvió vía stamping-orders/detail
   // (StampingOrderDetail) en vez de production-orders/detail.
   referenceSams?: StampingReferenceSam[];
+  // Solo presente cuando la orden se resolvió vía production-orders/processes:
+  // true si el backend generó itemId en colorRows[].items.
+  hasItemId?: boolean;
 }

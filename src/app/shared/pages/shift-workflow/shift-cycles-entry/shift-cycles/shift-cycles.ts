@@ -152,7 +152,9 @@ export class ShiftCycles extends BaseProductionOrderPage {
     if (!this.config.showStampingRecord) return true;
     // Las OPT (orden de producción de terceros) no pasan por auditoría de
     // estampación en el ERP, así que exigir el gate las deja bloqueadas para siempre.
-    if (this.productionOrder()?.documentType?.toUpperCase() === 'OPT') return true;
+    // if (this.productionOrder()?.documentType?.toUpperCase() === 'OPT') return true;
+    // Al verificar que si tiene hasItemId = true se garantiza que sea visibles la OPs y OPTs para sumblimación
+    if (this.productionOrder()?.hasItemId) return true;
     const audit = this.productionOrder()?.stampingAudit;
     return !!audit?.isAudited && !!audit?.quantitiesMatch;
   });
