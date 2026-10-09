@@ -4,7 +4,7 @@ import { UiFormField } from '../../../../shared/elements/ui-form-field/ui-form-f
 import { UiInput } from '../../../../shared/elements/ui-input/ui-input';
 import { UiCombobox } from '../../../../shared/elements/ui-combobox/ui-combobox';
 import { UiCheckbox } from '../../../../shared/elements/ui-checkbox/ui-checkbox';
-import { Reference } from '../../../../models/catalog/reference';
+import { Reference } from '../../../../models/stamping/reference';
 
 @Component({
   selector: 'app-identification-tab',

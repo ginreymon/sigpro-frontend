@@ -13,7 +13,6 @@ import { AppSettings } from '../options/configuration/app-settings/app-settings'
 import { ModulePanel } from '../options/production/module-panel/module-panel';
 import { OrderDetail } from '../options/production/order-detail/order-detail';
 import { DataExport } from '../shared/pages/shift-workflow/data-export/data-export';
-import { TechnicalSheetPage } from '../options/catalog/technical-sheet/technical-sheet';
 import { Processes } from '../options/stamping/processes/processes';
 import { MachineTypes } from '../options/stamping/machine-types/machine-types';
 import { Machines } from '../options/stamping/machines/machines';
@@ -45,7 +44,6 @@ export const componentMap: Record<string, Type<any>> = {
   'production/module-panel': ModulePanel,
   'production/sewing-config': SewingConfig,
   'production/order-detail': OrderDetail,
-  'catalog/technical-sheet': TechnicalSheetPage,
   'stamping/processes': Processes,
   'stamping/machine-types': MachineTypes,
   'stamping/machines': Machines,

@@ -25,8 +25,8 @@ import { SamTargetCalculatorPanel } from '../../../shared/components/production/
 import { SamCalculatorStateService } from '../../../shared/components/production/widgets/sam-target-calculator/sam-calculator-state';
 import { calcSamTarget } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-formula';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
-import { Reference } from '../../../models/catalog/reference';
-import { ReferencesService } from '../../../services/catalog/references-service';
+import { Reference } from '../../../models/stamping/reference';
+import { ReferencesService } from '../../../services/stamping/references-service';
 import { StampingMachineType } from '../../../models/stamping/stamping-machine-type';
 import { StampingMachineTypeService } from '../../../services/stamping/stamping-machine-type-service';
 import { StampingPiece } from '../../../models/stamping/stamping-piece';
