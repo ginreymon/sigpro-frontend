@@ -9,6 +9,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { AuditEntity } from '../interfaces/audit-entity';
 import { ActionsCrudPage } from './actions-crud-page';
 import { LoaderService } from '../../services/common/loader-service';
+import { apiFieldErrors } from '../functions/api-error';
 
 @Directive()
 export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage<T> {
@@ -106,16 +107,13 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
   }
 
   protected markServerFieldErrors(err: any): boolean {
-    const body = err?.error;
-    if (err?.status !== 400 || !body || typeof body !== 'object') return false;
+    if (err?.status !== 400) return false;
 
     let matched = false;
-    Object.keys(body).forEach((key) => {
+    Object.entries(apiFieldErrors(err)).forEach(([key, messages]) => {
       const control = this.modelForm?.get(key);
       if (!control) return;
-      const fieldError = body[key];
-      const message = Array.isArray(fieldError) ? fieldError.join(' ') : String(fieldError);
-      control.setErrors({ serverError: message });
+      control.setErrors({ serverError: messages.join(' ') });
       control.markAsTouched();
       matched = true;
     });

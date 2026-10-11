@@ -26,6 +26,7 @@ import { OrdersToBeOutboundService } from '../../../../services/integration/orde
 import { TepService } from '../../../../services/integration/tep-service';
 import { TepSendRequest } from '../../../../models/integration/tep-send';
 import { CharSquare } from '../../../components/widgets/char-square/char-square';
+import { apiErrorDetail, apiFieldErrors } from '../../../../common/functions/api-error';
 
 @Component({
   selector: 'app-manual-integration',
@@ -199,9 +200,13 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
 
   private tepErrorMessage(err: HttpErrorResponse): string {
     const body = err.error;
-    if (Array.isArray(body?.details)) return body.details.join(' · ');
+    // register_ids rejected by the backend: errors.register_ids (envelope) or details (previous shape).
+    const fields = apiFieldErrors(err);
+    const details = fields['register_ids'] ?? fields['details'] ?? [];
+    if (details.length > 0) return details.join(' · ');
+    // SIESA rejected the document: ok / error_type travel with the error response.
     if (body?.ok === false) return `SIESA rechazó el envío (tipo de error ${body.error_type ?? 's/d'}).`;
-    return body?.error ?? 'No se pudo enviar el TEP.';
+    return apiErrorDetail(err) || body?.error || 'No se pudo enviar el TEP.';
   }
 
   // Badge de la fecha: dos colores según la paridad de day_number.

@@ -4,6 +4,7 @@ import { BaseEntity } from '../interfaces/base-entity';
 import { TableActionEvent } from '../interfaces/table-action-event';
 import { TableActionType } from '../interfaces/table-actions';
 import { PaginatedCrudPage } from './paginated-crud-page';
+import { apiErrorDetail } from '../functions/api-error';
 
 export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCrudPage<T> {
   protected displayFields: (keyof T)[] = [];
@@ -52,7 +53,7 @@ export abstract class ActionsCrudPage<T extends BaseEntity> extends PaginatedCru
             this.dialogService.openToast('Eliminado', `${label} fue eliminado correctamente.`, 'check');
           },
           (err) => {
-            const detail = err?.error?.detail;
+            const detail = apiErrorDetail(err);
             this.dialogService.openToast('Aviso', detail || `${label} no pudo ser eliminado.`, 'fail');
           }
         );

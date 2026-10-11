@@ -18,6 +18,7 @@ import { DialogService } from '../../../../../services/common/dialog-service';
 import { UiIcon } from "../../../../elements/ui-icon/ui-icon";
 import { PauseModalService } from '../../../../../services/common/pause-modal-service';
 import { RouteContextService } from '../../../../../services/core/route-context-service';
+import { apiErrorDetail } from '../../../../../common/functions/api-error';
 
 @Component({
   selector: 'app-pause-modal',
@@ -140,7 +141,7 @@ export class PauseModal implements OnInit {
           this.touched.set(false);
         },
         error: (err: HttpErrorResponse) => {
-          const message = err.error?.detail ?? 'Hubo un problema al intentar pausar la actividad.';
+          const message = apiErrorDetail(err, 'Hubo un problema al intentar pausar la actividad.');
           this.dialogService.openToast('No se pudo pausar', message, 'fail');
         },
       });

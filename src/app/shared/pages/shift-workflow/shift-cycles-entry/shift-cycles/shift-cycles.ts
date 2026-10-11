@@ -21,6 +21,7 @@ import { StampingRecordService } from '../../../../../services/stamping/stamping
 import { ProductionContext } from '../../../../../models/production/production-context';
 import { BaseProductionOrderPage } from '../../../../../common/classes/base-production-order-page';
 import { parseSessionErrors } from '../../../../../common/functions/session-errors';
+import { apiNonFieldErrors } from '../../../../../common/functions/api-error';
 import { EmployeesSavedData } from '../../../../../services/common/shift-modals-service';
 import { ShiftCycleActionKey } from "../../../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab";
 import { ShiftModalsService } from '../../../../../services/common/shift-modals-service';
@@ -324,7 +325,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
           this.dialogService.openToast('Registro guardado', `Completadas: ${payload.completed_quantity}`, 'check');
         },
         error: (err) => {
-          const message = err?.error?.non_field_errors?.[0] ?? 'Error al guardar el registro.';
+          const message = apiNonFieldErrors(err)[0] ?? 'Error al guardar el registro.';
           this.dialogService.openToast('No se pudo guardar', message, 'fail');
         },
       });
