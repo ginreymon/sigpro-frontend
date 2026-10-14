@@ -99,20 +99,53 @@
         <app-ui-badge [active]="!!item.completed_operation" activeText="Completa" inactiveText="Diferencia"></app-ui-badge>
       </ng-container>
 
-      <div accordion-body class="bg-slate-50 rounded-lg p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
-        <p> <strong>Ordenada (ERP):</strong> {{ item.erp_ordered_quantity ?? '—' }} </p>
-        <p class="text-green-600"> <strong>Completada (registrada):</strong> {{ item.total_completed }} </p>
-        <p> <strong>Planeada (ERP):</strong> {{ item.erp_planned_quantity ?? '—' }} </p>
-        <p class=" text-amber-500"> <strong>Rechazada:</strong>  {{ item.total_rejected }} </p>
-
-        <p> <strong>Completada (ERP):</strong> {{ item.erp_completed_quantity ?? '—' }} </p>
-        <p class=" text-red-500"> <strong>Bajas:</strong> {{ item.total_scrap }} </p>
-        <p> <strong>Registros:</strong> {{ item.total_records }} </p> 
-        <p> <strong>Total registrado:</strong> {{ item.total_recorded }} </p>
-        <p> <strong>Operación:</strong> {{ item.operation_number ?? '—' }} </p>        
-        <p> <strong>Registrada por pieza:</strong> {{ item.recorded_quantity_per_piece ?? '—' }} </p>
-
-        <p class="col-span-2"> <strong>Diferencia con ERP:</strong> {{ item.erp_quantity_difference ?? '—' }} </p>      
+      <div accordion-body class="flex flex-col gap-2 pb-1">
+        <section class="rounded-md border border-slate-200 overflow-hidden">
+          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
+            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-brand-500"></span>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">{{ targetName }}</h4>
+          </header>
+          <dl class="grid grid-cols-2 gap-px bg-slate-200">
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Completada', value: item.total_completed, tone: 'text-green-600' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Rechazada', value: item.total_rejected, tone: 'text-amber-500' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Bajas', value: item.total_scrap, tone: 'text-red-500' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Total', value: item.total_recorded, tone: 'font-bold text-gray-800' }"></ng-container>
+          </dl>
+        </section>
+        <section class="rounded-md border border-slate-200 overflow-hidden">
+          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
+            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-400"></span>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">{{ sourceName }}</h4>
+          </header>
+          <dl class="grid grid-cols-2 gap-px bg-slate-200">
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Planeada', value: item.erp_planned_quantity ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Ordenada', value: item.erp_ordered_quantity ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Completada', value: item.erp_completed_quantity ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Diferencia', value: item.erp_quantity_difference ?? '—' }"></ng-container>
+          </dl>
+        </section>
+        <section class="rounded-md border border-slate-200 overflow-hidden">
+          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
+            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-300"></span>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">Registros</h4>
+          </header>
+          <dl class="grid grid-cols-2 gap-px bg-slate-200">
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Número de registros', value: item.total_records }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Total registrado', value: item.total_recorded }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Código de operación', value: item.operation_number ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Registros por pieza', value: item.recorded_quantity_per_piece ?? '—' }"></ng-container>
+          </dl>
+        </section>
+        <section class="rounded-md border border-slate-200 overflow-hidden">
+          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
+            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-300"></span>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">Tiempo</h4>
+          </header>
+          <dl class="grid grid-cols-2 gap-px bg-slate-200">
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Tiempo total', value: formatSecondsAsHHmm(item.total_seconds) }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Segundos por unidad', value: item.seconds_by_unit != null ? ((item.seconds_by_unit | number: '1.0-2') + ' s') : '—' }"></ng-container>
+          </dl>
+        </section>
       </div>
 
     </app-ui-accordion-item>
@@ -133,3 +166,11 @@
     (hoursChange)="setOpHours(rowObject, $event)"></app-op-totals-table>
 
 </app-modal-layout>
+
+<!-- Label/value cell of the OP detail grid (see accordion-body). -->
+<ng-template #stat let-label="label" let-value="value" let-tone="tone">
+  <div class="bg-white px-3 py-2 min-w-0">
+    <dt class="text-xs text-slate-500 truncate">{{ label }}</dt>
+    <dd class="text-sm font-semibold tabular-nums truncate" [class]="tone || 'text-gray-700'">{{ value }}</dd>
+  </div>
+</ng-template>

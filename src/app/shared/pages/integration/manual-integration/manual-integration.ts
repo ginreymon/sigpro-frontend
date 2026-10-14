@@ -1,5 +1,5 @@
 import { Component, computed, signal, ViewChild } from '@angular/core';
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
@@ -12,7 +12,7 @@ import { TableActions } from '../../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
 import { DateRangeForm, DateRangeValue } from '../../../components/form-controls/date-range-form/date-range-form';
 import { localTodayStr } from '../../../../common/functions/date-utils';
-import { toLocalDate } from '../../../../common/functions/time-range';
+import { formatSecondsAsHHmm, toLocalDate } from '../../../../common/functions/time-range';
 import { UiButton } from '../../../elements/ui-button/ui-button';
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { OpTotalsTable } from '../../../components/widgets/op-totals-table/op-totals-table';
@@ -37,6 +37,7 @@ import { apiErrorDetail, apiFieldErrors } from '../../../../common/functions/api
     ModalLayout,
     NgTemplateOutlet,
     DatePipe,
+    DecimalPipe,
     TableTemplate,
     UiAccordionItem,
     UiBadge,
@@ -51,10 +52,13 @@ import { apiErrorDetail, apiFieldErrors } from '../../../../common/functions/api
 })
 export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   protected override entityName: string = 'OP pendiente de aprobación';
+  protected readonly sourceName: string = 'SIESA';
+  protected readonly targetName: string = 'SIGPRO';
 
   // first_start/last_end llegan en UTC sin sufijo de zona: toLocalDate los marca
   // como UTC para que DatePipe los muestre en hora local.
   protected readonly toLocalDate = toLocalDate;
+  protected readonly formatSecondsAsHHmm = formatSecondsAsHHmm;
   protected readonly operationsLabel = OPERATIONS_LABEL;
 
   // Estado por grupo (centro de trabajo y día): Completa solo si todas sus OP lo están.

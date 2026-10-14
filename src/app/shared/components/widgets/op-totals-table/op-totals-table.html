@@ -2,6 +2,7 @@
     <ng-container tableHead>
         <th class="text-left">OP</th>
         <th class="text-right">Cantidad</th>
+        <th class="text-right">Tiempo calculado</th>
         <th class="text-right">Tiempo</th>
     </ng-container>
     <ng-container tableBody>
@@ -13,6 +14,7 @@
             <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
         </td>
         <td class="text-right text-green-600">{{ item.total_recorded }}</td>
+        <td class="text-right">{{ formatSecondsAsHHmm(item.total_seconds) }}</td>
         <td class="font-normal">
             <div class="ml-auto w-fit flex items-center divide-x divide-gray-300 border rounded h-8 bg-white transition-all duration-200 focus-within:ring-2"
                 [class]="showError(form) ? 'border-red-500 divide-red-300 focus-within:border-red-500 focus-within:ring-red-200' : 'border-gray-300 focus-within:border-brand-500 focus-within:ring-brand-200'">

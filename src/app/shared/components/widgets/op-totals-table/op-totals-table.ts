@@ -9,10 +9,11 @@ import {
 } from '@angular/forms';
 import { SimpleTable } from '../../table/simple-table/simple-table';
 import { OrderToBeOutboundDetail } from '../../../../models/integration/order-to-be-outbound';
+import { formatSecondsAsHHmm } from '../../../../common/functions/time-range';
 
 type TimeForm = FormGroup<{ h: FormControl<number | null>; m: FormControl<number | null> }>;
 
-// Al menos uno de los dos campos debe tener valor (el otro cuenta como 0).
+// At least one of the two fields must have a value (the other counts as 0).
 function timeRequired(group: AbstractControl): ValidationErrors | null {
   const { h, m } = group.value;
   return h == null && m == null ? { timeRequired: true } : null;
@@ -26,25 +27,27 @@ function timeRequired(group: AbstractControl): ValidationErrors | null {
 })
 export class OpTotalsTable {
   @Input() detail: OrderToBeOutboundDetail[] = [];
-  // Horas decimales por op_rowid. El padre las guarda y las vuelve a pasar,
-  // así varias instancias de la tabla muestran los mismos valores. Vacío = inválido.
+  // Decimal hours per op_rowid. The parent stores them and passes them back, so
+  // several instances of the table show the same values. Empty = invalid.
   @Input() hours: Partial<Record<number, string>> = {};
   @Output() hoursChange = new EventEmitter<Partial<Record<number, string>>>();
 
-  // Un formulario (horas + minutos) por OP. Se conserva lo digitado porque el padre
-  // solo recibe el total decimal y recomponerlo al teclear movería los valores.
+  // One form (hours + minutes) per OP. What was typed is kept because the parent
+  // only receives the decimal total and rebuilding it while typing would shift the values.
   private forms: Partial<Record<number, TimeForm>> = {};
 
   protected timeForm(opRowid: number): TimeForm {
     return (this.forms[opRowid] ??= this.createForm(opRowid));
   }
 
-  // Marca como tocados los campos de todas las OP (para mostrar sus errores) y
-  // dice si el tiempo de todas es válido.
+  // Marks the fields of every OP as touched (to show their errors) and tells
+  // whether the time of all of them is valid.
   validate(): boolean {
     this.detail.forEach((item) => this.timeForm(item.op_rowid).markAllAsTouched());
     return this.detail.every((item) => this.timeForm(item.op_rowid).valid);
   }
+
+  protected readonly formatSecondsAsHHmm = formatSecondsAsHHmm;
 
   protected showError(form: TimeForm): boolean {
     return form.invalid && (form.touched || form.dirty);
@@ -76,7 +79,7 @@ export class OpTotalsTable {
     return Math.round(Number(raw) * 60);
   }
 
-  // Inválido (vacío, negativo o minutos > 59) se envía vacío: el padre lo trata como faltante.
+  // Invalid (empty, negative or minutes > 59) is emitted empty: the parent treats it as missing.
   private emitTotal(opRowid: number, form: TimeForm): void {
     const { h, m } = form.getRawValue();
     const total = form.valid ? String(Math.round(((h ?? 0) + (m ?? 0) / 60) * 100) / 100) : '';

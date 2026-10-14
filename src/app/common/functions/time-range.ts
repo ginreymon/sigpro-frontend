@@ -37,6 +37,11 @@ export function formatMinutesAsHHmm(minutes: number | null): string {
   return `${hh}:${mm}`;
 }
 
+// Seconds as HH:MM, rounded to the nearest minute. '--:--' when there is no value.
+export function formatSecondsAsHHmm(seconds: number | null | undefined): string {
+  return formatMinutesAsHHmm(seconds == null ? null : Math.round(seconds / 60));
+}
+
 // record_start/record_end llegan del backend sin sufijo de zona horaria —
 // se asume UTC (igual que en balance-modal/stamping-balance-modal) para que
 // el DatePipe la convierta a hora local en vez de interpretarla como local.
