@@ -18,20 +18,43 @@
     </div>
 
     @if (samValue) {
-      <div class="space-y-1">
-        <app-ui-form-field [controlName]="'intervalo'" [label]="'Intervalo (min)'">
-          <app-ui-input [type]="'number'" [ngModel]="intervalo()" (ngModelChange)="intervalo.set(+$event)"></app-ui-input>
-        </app-ui-form-field>
+      <p class="text-xs font-medium uppercase tracking-wide text-slate-500 mb-1.5">Calcular</p>
+      <div class="grid grid-cols-3 gap-1 p-1 mb-4 bg-slate-100 rounded-md" role="group" aria-label="Valor a calcular">
+        @for (field of fields; track field) {
+          <button type="button"
+            class="px-2 py-1.5 text-sm font-medium rounded transition-colors"
+            [class]="mode() === field ? 'bg-white text-green-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+            [attr.aria-pressed]="mode() === field"
+            (click)="setMode(field)">
+            {{ label[field] }}
+          </button>
+        }
+      </div>
 
-        <app-ui-form-field [controlName]="'operarios'" [label]="'Operarios'">
-          <app-ui-input [type]="'number'" [isFloat]="true" [ngModel]="operarios()" (ngModelChange)="operarios.set(+$event)"></app-ui-input>
-        </app-ui-form-field>
+      <div class="space-y-1">
+        @if (mode() !== 'meta') {
+          <app-ui-form-field [controlName]="'meta'" [label]="'Meta (unidades)'">
+            <app-ui-input [type]="'number'" [ngModel]="meta()" (ngModelChange)="meta.set(+$event)"></app-ui-input>
+          </app-ui-form-field>
+        }
+
+        @if (mode() !== 'intervalo') {
+          <app-ui-form-field [controlName]="'intervalo'" [label]="'Intervalo (min)'">
+            <app-ui-input [type]="'number'" [ngModel]="intervalo()" (ngModelChange)="intervalo.set(+$event)"></app-ui-input>
+          </app-ui-form-field>
+        }
+
+        @if (mode() !== 'operarios') {
+          <app-ui-form-field [controlName]="'operarios'" [label]="'Operarios'">
+            <app-ui-input [type]="'number'" [isFloat]="true" [ngModel]="operarios()" (ngModelChange)="operarios.set(+$event)"></app-ui-input>
+          </app-ui-form-field>
+        }
 
         <div class="pt-3 mt-3 flex items-center justify-between">
-          <span class="text-sm text-slate-500">Meta</span>
+          <span class="text-sm text-slate-500">{{ label[mode()] }}</span>
           <span class="text-2xl font-semibold text-green-600">
-            {{ targetUnits() ?? '—' }}
-            <span class="text-sm font-normal text-slate-400">Unidades</span>
+            {{ result() ?? '—' }}
+            <span class="text-sm font-normal text-slate-400">{{ unit[mode()] }}</span>
           </span>
         </div>
       </div>
