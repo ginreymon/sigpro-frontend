@@ -4,8 +4,8 @@ import { BUILD_VERSION } from '../../../environments/build-info';
 const CHECK_INTERVAL_MS = 5 * 60 * 1000;
 const VERSION_PARAM = 'v';
 
-// Detecta despliegues nuevos comparando la versión incrustada en el bundle con
-// /version.json (que el servidor no cachea, ver web.config).
+// Detects new deployments by comparing the version embedded in the bundle with
+// /version.json (which the server does not cache, see web.config).
 @Injectable({
   providedIn: 'root',
 })
@@ -14,11 +14,14 @@ export class UpdateService {
 
   private latestVersion = BUILD_VERSION;
   private started = false;
+  // Version we already reloaded for (comes in ?v=). If the bundle is still the old
+  // one after reloading, do not warn again about that same version: avoids a loop.
+  private reloadedFor: string | null = null;
 
   start(): void {
     if (this.started) return;
     this.started = true;
-    this.removeVersionParam();
+    this.reloadedFor = this.removeVersionParam();
     this.checkForUpdate();
     setInterval(() => this.checkForUpdate(), CHECK_INTERVAL_MS);
     document.addEventListener('visibilitychange', () => {
@@ -26,16 +29,24 @@ export class UpdateService {
     });
   }
 
-  // Borra la caché del navegador y recarga con una URL nueva, para que el
-  // index.html se pida al servidor como en la primera visita. No toca
-  // localStorage: conserva la sesión y el menú. Con toHome recarga en la raíz de
-  // la app en vez de la ruta actual (para la vista fija /update).
+  // Clears the browser cache and reloads with a new URL so index.html is requested
+  // from the server as on the first visit. Leaves localStorage untouched: keeps the
+  // session and the menu. With toHome it reloads at the app root instead of the
+  // current route (for the fixed /update view).
   async applyUpdate(toHome = false): Promise<void> {
     try {
       const names = await caches.keys();
       await Promise.all(names.map((name) => caches.delete(name)));
+      const registrations = await navigator.serviceWorker?.getRegistrations();
+      await Promise.all((registrations ?? []).map((registration) => registration.unregister()));
     } catch {
-      // Cache Storage no disponible: la URL nueva ya evita el index.html cacheado.
+      // Cache Storage unavailable: the new URL already avoids the cached index.html.
+    }
+    try {
+      // Refreshes index.html in the HTTP cache so it points to the new bundle.
+      await fetch(document.baseURI, { cache: 'reload' });
+    } catch {
+      // No network: reload anyway.
     }
     const url = toHome ? new URL(document.baseURI) : new URL(location.href);
     url.searchParams.set(VERSION_PARAM, this.latestVersion);
@@ -49,18 +60,27 @@ export class UpdateService {
       if (!response.ok) return;
       const { version } = await response.json();
       if (version && version !== BUILD_VERSION) {
+        if (version === this.reloadedFor) {
+          console.warn(
+            `Reloaded for version ${version} but the bundle is still ${BUILD_VERSION}: ` +
+              'cached index.html or version.json from a different build.',
+          );
+          return;
+        }
         this.latestVersion = version;
         this.updateAvailable.set(true);
       }
     } catch {
-      // Sin red o respuesta inválida: se reintenta en la siguiente revisión.
+      // No network or invalid response: retried on the next check.
     }
   }
 
-  private removeVersionParam(): void {
+  private removeVersionParam(): string | null {
     const url = new URL(location.href);
-    if (!url.searchParams.has(VERSION_PARAM)) return;
+    const value = url.searchParams.get(VERSION_PARAM);
+    if (value === null) return null;
     url.searchParams.delete(VERSION_PARAM);
     history.replaceState(history.state, '', url.toString());
+    return value;
   }
 }
