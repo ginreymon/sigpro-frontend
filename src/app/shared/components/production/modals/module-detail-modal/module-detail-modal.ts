@@ -15,9 +15,7 @@ import { TableActions } from '../../../../../common/interfaces/table-actions';
 import { TableActionEvent } from '../../../../../common/interfaces/table-action-event';
 import { efficiencyTextColor } from '../../../../../common/functions/efficiency-color';
 import { BalanceSummaryModal } from '../balance-summary-modal/balance-summary-modal';
-import { ModuleWorkBreakEditModal } from '../module-work-break-edit-modal/module-work-break-edit-modal';
 import { UiBadge } from '../../../../elements/ui-badge/ui-badge';
-import { DialogService } from '../../../../../services/common/dialog-service';
 
 interface BalanceContext {
   startDate: string;
@@ -32,7 +30,7 @@ export interface ModuleEfficiencyService {
 
 @Component({
   selector: 'app-module-detail-modal',
-  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe, BalanceSummaryModal, ModuleWorkBreakEditModal, UiBadge],
+  imports: [BottomSheetShell, UiIcon, DataTable, TableTemplate, DateRangeForm, DecimalPipe, DatePipe, UpperCasePipe, BalanceSummaryModal, UiBadge],
   templateUrl: './module-detail-modal.html',
 })
 export class ModuleDetailModal implements OnChanges {
@@ -46,22 +44,18 @@ export class ModuleDetailModal implements OnChanges {
 
   private productivityService = inject(ProductivityService);
   private appConfig = inject(AppConfigService);
-  private dialogService = inject(DialogService);
 
   isLoading = signal(false);
   hasSearched = signal(false);
   rows = signal<ModuleEfficiencyRow[]>([]);
   balanceContext = signal<BalanceContext | null>(null);
   readonly balanceVisible = computed(() => !!this.balanceContext());
-  editRow = signal<ModuleEfficiencyRow | null>(null);
-  readonly editVisible = computed(() => !!this.editRow());
   private moduleId = signal<number | null>(null);
 
   readonly skeletonRows = Array(4).fill(0);
 
   readonly tableActions = computed<Partial<TableActions>>(() => ({
     view: { enabled: !this.service, title: 'Ver balance', iconName: 'eye', toolTip: 'Ver' },
-    edit: { enabled: !this.moduleId(), title: 'Editar', iconName: 'pencil', toolTip: 'Editar' },
   }));
 
   readonly pagedRows = computed(() => ({
@@ -144,7 +138,6 @@ export class ModuleDetailModal implements OnChanges {
       this.hasSearched.set(false);
       this.isLoading.set(false);
       this.balanceContext.set(null);
-      this.editRow.set(null);
       this.dateRangeForm?.form.reset();
     }
   }
@@ -176,41 +169,6 @@ export class ModuleDetailModal implements OnChanges {
 
   handleAction(event: TableActionEvent<ModuleEfficiencyRow>): void {
     if (event.type === 'view') this.openDetail(event.obj);
-    if (event.type === 'edit') this.openEdit(event.obj);
-  }
-
-  openEdit(row: ModuleEfficiencyRow): void {
-    if (!this.canEdit(row)) {
-      this.dialogService.openToast(
-        'No se puede editar',
-        'Ya no se puede editar porque ya se cerró la jornada o el módulo.',
-        'fail',
-      );
-      return;
-    }
-    this.editRow.set(row);
-  }
-
-  private canEdit(row: ModuleEfficiencyRow): boolean {
-    if (row.ended_at !== null) return false;
-
-    const start = this.toLocalDate(row.shift_start_utc);
-    if (!start) return false;
-
-    const now = new Date();
-    return start.getFullYear() === now.getFullYear()
-      && start.getMonth() === now.getMonth()
-      && start.getDate() === now.getDate();
-  }
-
-  private toLocalDate(value: string | null): Date | null {
-    if (!value) return null;
-    const iso = value.endsWith('Z') || value.includes('+') ? value : value + 'Z';
-    return new Date(iso);
-  }
-
-  closeEdit(): void {
-    this.editRow.set(null);
   }
 
   openDetail(row: ModuleEfficiencyRow): void {
