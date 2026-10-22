@@ -109,15 +109,15 @@
             <ng-container *ngTemplateOutlet="stat; context: { label: 'Segundos por unidad', value: item.seconds_by_unit != null ? ((item.seconds_by_unit | number: '1.0-2') + ' s') : '—' }"></ng-container>
           </dl>
         </section>
-        @if(item.detail?.ColorRows?.length){
+        @if(item.detail?.colorRows?.length){
         <section class="rounded-md border border-slate-200 overflow-hidden">
           <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
             <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-300"></span>
             <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">Colores</h4>
           </header>
           <dl class="grid grid-cols-2 gap-px bg-slate-200">
-            @for(color of item.detail!.ColorRows; track color.Color){
-            <ng-container *ngTemplateOutlet="stat; context: { label: color.Color, value: (color.Totales?.Cant_Completada ?? '—') + ' / ' + (color.Totales?.Cant_Ordenada ?? '—') }"></ng-container>
+            @for(color of item.detail!.colorRows; track color.color){
+            <ng-container *ngTemplateOutlet="stat; context: { label: color.color, value: (color.totals?.completedQty ?? '—') + ' / ' + (color.totals?.orderedQty ?? '—') }"></ng-container>
             }
           </dl>
         </section>
