@@ -24,7 +24,7 @@
             </ng-template>
 
             <ng-template appTableTemplate="integrateTemplate" let-row>
-                <app-ui-label-button [classNames]="'w-24'" [intent]="'action'">
+                <app-ui-label-button [classNames]="'w-24'" [intent]="'action'" (onClick)="integrate(row)">
                   Integrar
                 </app-ui-label-button>
             </ng-template>
@@ -54,12 +54,30 @@
     <p> <strong>Finalización:</strong> {{ rowObject.last_end ? (toLocalDate(rowObject.last_end) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
   </div>
 
+  <ng-container *ngTemplateOutlet="documentsList"></ng-container>
+
+</app-side-modal-layout>
+
+<app-modal-layout classNames="max-w-xl" (onAccept)="closeModelForm()">
+
+  <div modal-top>
+    <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ `${rowObject.code?.trim()} · ${rowObject.description?.trim()}` }} </h3>
+    <p class="text-sm text-slate-500 mb-0.5"> {{ rowObject.origin }} </p>
+    <p class="text-sm text-slate-500 mb-0.5"> OPs : {{ rowObject.documents_count }} </p>
+  </div>
+
+  <ng-container *ngTemplateOutlet="documentsList"></ng-container>
+
+</app-modal-layout>
+
+<!-- OP accordion shared by the side (view) and central (integrate) modals. -->
+<ng-template #documentsList>
   @if(rowObject.documents?.length){
   <div class="mt-4 mb-2 divide-y divide-slate-200 border border-slate-200 rounded-lg">
 
     @for(item of rowObject.documents; track item.op_rowid){
 
-    <app-ui-accordion-item [expanded]="isDocumentExpanded($index)" (toggle)="toggleDocumentExpanded($index)">
+    <app-ui-accordion-item [expanded]="expandedDocumentIndexes().has($index)" (toggle)="toggleDocumentExpanded($index)">
 
       <ng-container accordion-header>
         <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="item.completed_operation" [class.bg-gray-300]="!item.completed_operation"></span>
@@ -72,70 +90,12 @@
         <app-ui-badge [active]="item.erp_quantity_difference == 0" activeText="Completado" inactiveText="Incompleto"></app-ui-badge>
       </ng-container>
 
-      <div accordion-body class="flex flex-col gap-2 pb-1">
-        <section class="rounded-md border border-slate-200 overflow-hidden">
-          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
-            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-brand-500"></span>
-            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">{{ targetName }}</h4>
-          </header>
-          <dl class="grid grid-cols-2 gap-px bg-slate-200">
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Completada', value: item.total_completed, tone: 'text-green-600' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Rechazada', value: item.total_rejected, tone: 'text-amber-500' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Bajas', value: item.total_scrap, tone: 'text-red-500' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Total', value: item.total_recorded, tone: 'font-bold text-gray-800' }"></ng-container>
-          </dl>
-        </section>
-        <section class="rounded-md border border-slate-200 overflow-hidden">
-          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
-            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-400"></span>
-            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">{{ sourceName }}</h4>
-          </header>
-          <dl class="grid grid-cols-2 gap-px bg-slate-200">
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Planeada', value: item.erp_planned_quantity ?? '—' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Ordenada', value: item.erp_ordered_quantity ?? '—' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Completada', value: item.erp_completed_quantity ?? '—' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Diferencia', value: item.erp_quantity_difference ?? '—' }"></ng-container>
-          </dl>
-        </section>
-        <section class="rounded-md border border-slate-200 overflow-hidden">
-          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
-            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-300"></span>
-            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">Registros</h4>
-          </header>
-          <dl class="grid grid-cols-2 gap-px bg-slate-200">
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Número de registros', value: item.total_records }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Código de operación', value: item.operation_number ?? '—' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Registros por pieza', value: item.recorded_quantity_per_piece ?? '—' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Segundos por unidad', value: item.seconds_by_unit != null ? ((item.seconds_by_unit | number: '1.0-2') + ' s') : '—' }"></ng-container>
-          </dl>
-        </section>
-        @if(item.detail?.colorRows?.length){
-        <section class="rounded-md border border-slate-200 overflow-hidden">
-          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
-            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-300"></span>
-            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">Colores</h4>
-          </header>
-          <dl class="grid grid-cols-2 gap-px bg-slate-200">
-            @for(color of item.detail!.colorRows; track color.color){
-            <ng-container *ngTemplateOutlet="stat; context: { label: color.color, value: (color.totals?.completedQty ?? '—') + ' / ' + (color.totals?.orderedQty ?? '—') }"></ng-container>
-            }
-          </dl>
-        </section>
-        }
-      </div>
+      <app-document-detail accordion-body [document]="item" [originId]="rowObject.origin_id"
+        [sourceName]="sourceName" [targetName]="targetName"></app-document-detail>
 
     </app-ui-accordion-item>
 
     }
   </div>
   }
-
-</app-side-modal-layout>
-
-<!-- Label/value cell of the document detail grid (see accordion-body). -->
-<ng-template #stat let-label="label" let-value="value" let-tone="tone">
-  <div class="bg-white px-3 py-2 min-w-0">
-    <dt class="text-xs text-slate-500 truncate">{{ label }}</dt>
-    <dd class="text-sm font-semibold tabular-nums truncate" [class]="tone || 'text-gray-700'">{{ value }}</dd>
-  </div>
 </ng-template>

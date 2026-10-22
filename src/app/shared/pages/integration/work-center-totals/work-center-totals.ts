@@ -1,15 +1,18 @@
 import { Component, inject, LOCALE_ID, signal } from '@angular/core';
-import { DatePipe, DecimalPipe, formatDate, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, formatDate, NgTemplateOutlet } from '@angular/common';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
 import { SideModalLayout } from '../../../components/layout/side-modal-layout/side-modal-layout';
+import { ModalLayout } from '../../../components/layout/modal-layout/modal-layout';
 import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
 import { toLocalDate } from '../../../../common/functions/time-range';
+
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
+import { DocumentDetail } from './components/document-detail';
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
 import { CharSquare } from '../../../components/widgets/char-square/char-square';
@@ -28,12 +31,13 @@ import { UiIcon } from '../../../elements/ui-icon/ui-icon';
     WorkSpaceLayout,
     DataTable,
     SideModalLayout,
-    NgTemplateOutlet,
+    ModalLayout,
     DatePipe,
-    DecimalPipe,
     TableTemplate,
+    NgTemplateOutlet,
     UiAccordionItem,
     UiBadge,
+    DocumentDetail,
     UiLabelButton,
     UiOriginBadge,
     CharSquare,
@@ -83,15 +87,17 @@ export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
     };
   }
 
+  // The central modal (ModalLayout) shows what will be integrated for the work center.
+  protected integrate(row: OrderByWorkCenter): void {
+    this.rowObject = row;
+    this.dialogService.openModal('Integrar OPs', 'Aceptar');
+  }
+
   protected expandedDocumentIndexes = signal<Set<number>>(new Set());
 
   protected override closeModelForm(): void {
     this.expandedDocumentIndexes.set(new Set());
     super.closeModelForm();
-  }
-
-  protected isDocumentExpanded(index: number): boolean {
-    return this.expandedDocumentIndexes().has(index);
   }
 
   protected toggleDocumentExpanded(index: number): void {
