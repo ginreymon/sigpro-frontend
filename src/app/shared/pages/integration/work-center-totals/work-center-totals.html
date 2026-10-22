@@ -87,7 +87,7 @@
           <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
         </div>
 
-        <app-ui-badge [active]="item.erp_quantity_difference == 0" activeText="Completo (Para integrar)" inactiveText="Incompleto"></app-ui-badge>
+        <app-ui-badge [active]="item.erp_sigpro_difference == 0" activeText="Completo (Para integrar)" inactiveText="Incompleto"></app-ui-badge>
       </ng-container>
 
       <app-document-detail accordion-body [document]="item" [originId]="rowObject.origin_id" [mode]="mode"

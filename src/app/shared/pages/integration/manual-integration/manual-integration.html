@@ -121,7 +121,7 @@
             <ng-container *ngTemplateOutlet="stat; context: { label: 'Planeada', value: item.erp_planned_quantity ?? '—' }"></ng-container>
             <ng-container *ngTemplateOutlet="stat; context: { label: 'Ordenada', value: item.erp_ordered_quantity ?? '—' }"></ng-container>
             <ng-container *ngTemplateOutlet="stat; context: { label: 'Completada', value: item.erp_completed_quantity ?? '—' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Diferencia', value: item.erp_quantity_difference ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Diferencia', value: item.erp_sigpro_difference ?? '—' }"></ng-container>
           </dl>
         </section>
         <section class="rounded-md border border-slate-200 overflow-hidden">
