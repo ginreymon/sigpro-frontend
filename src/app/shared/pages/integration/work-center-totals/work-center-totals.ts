@@ -12,7 +12,7 @@ import { toLocalDate } from '../../../../common/functions/time-range';
 
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
-import { DocumentDetail } from './components/document-detail';
+import { DocumentDetail } from './components/document-detail/document-detail';
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
 import { CharSquare } from '../../../components/widgets/char-square/char-square';

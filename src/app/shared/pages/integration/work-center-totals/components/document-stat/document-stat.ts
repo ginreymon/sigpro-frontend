@@ -4,12 +4,7 @@ import { Component, input } from '@angular/core';
 @Component({
   selector: 'app-document-stat',
   host: { class: 'block' },
-  template: `
-    <div class="bg-white px-3 py-2 min-w-0">
-      <dt class="text-xs text-slate-500 truncate">{{ label() }}</dt>
-      <dd class="text-sm font-semibold tabular-nums truncate" [class]="tone() || 'text-gray-700'">{{ value() }}</dd>
-    </div>
-  `,
+  templateUrl: './document-stat.html',
 })
 export class DocumentStat {
   readonly label = input.required<string>();
