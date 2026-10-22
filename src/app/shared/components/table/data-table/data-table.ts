@@ -3,7 +3,7 @@ import { TableColumn } from '../../../../common/interfaces/table-column';
 import { TablePager } from '../table-pager/table-pager';
 import { PaginatedResponse } from '../../../../common/interfaces/paginated-response';
 import { TableTools } from '../table-tools/table-tools';
-import { environment } from '../../../../../environments/environment.development';
+import { environment } from '../../../../../environments/environment';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
 import { UiTooltip } from '../../../elements/ui-tooltip/ui-tooltip';
 import { TableRow } from '../../../../common/interfaces/table-row';

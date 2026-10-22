@@ -1,5 +1,6 @@
 export const environment = {
   BASE_API_URL: 'http://localhost:8000/api/v1',
+  API_URLS: ['http://localhost:8000/api/v1'],
   ACCESS_TOKEN_NAME: 'access_token',
   REFRESH_TOKEN_NAME: 'refresh_token',
   MENU_NAME: 'menu',
