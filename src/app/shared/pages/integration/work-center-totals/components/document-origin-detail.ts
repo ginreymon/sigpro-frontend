@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { DocumentColorsDetail } from './document-colors-detail/document-colors-detail';
-import { DocumentProductionTable } from './document-production-table/document-production-table';
+import { DocumentColorsTable } from './document-colors-table/document-colors-table';
 
 // `view`: side modal (eye). `integrate`: central modal (Integrar).
 export type DocumentDetailMode = 'view' | 'integrate';
@@ -21,7 +21,7 @@ export const ORIGIN_DETAIL_COMPONENTS: Record<DocumentDetailMode, Record<number,
     1: { component: DocumentColorsDetail }, // Confección: completed / ordered per color
   },
   integrate: {
-    // Confección: production order color x size table, cells colored by status
-    1: { component: DocumentProductionTable, inputs: { cellStyle: 'status' } },
+    // Confección: one row per color with its totals; expands to the SKU breakdown.
+    1: { component: DocumentColorsTable },
   },
 };
