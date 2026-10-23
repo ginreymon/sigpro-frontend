@@ -67,7 +67,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
       ...res,
       results: res.results.map((row) => ({
         ...row,
-        operations_status: row.detail.every((item) => !!item.completed_operation)
+        operations_status: row.detail.every((item) => !!item.erp_completed_operation)
           ? OPERATIONS_LABEL.complete
           : OPERATIONS_LABEL.difference,
       })),
@@ -195,7 +195,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
         operation_work_center_id: workCenter,
         completed_quantity: Math.round((item.total_completed / (item.pieces || 1)) * 10000) / 10000,
         hours: Number(hours[item.op_rowid]),
-        operation_completed: item.completed_operation ? 1 : 0,
+        operation_completed: item.erp_completed_operation ? 1 : 0,
         register_ids: item.register_ids,
         origin_id: row.origin_id,
       })),
@@ -223,7 +223,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   // Badge de Documentos: verde si todas las OP están completas, naranja
   // (warning) si hay completas y pendientes, rojo si ninguna está completa.
   protected documentsBadgeClass(row: OrderToBeOutbound): string {
-    const completed = row.detail.filter((item) => !!item.completed_operation).length;
+    const completed = row.detail.filter((item) => !!item.erp_completed_operation).length;
     if (completed === row.detail.length) return 'text-green-700 bg-green-100';
     return completed > 0 ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100';
   }

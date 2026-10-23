@@ -18,12 +18,11 @@ export interface OrderToBeOutboundDetail {
   total_records: number;
   pieces: number | null;
   operation_number: number | null;
-  completed_operation: number | null;
-  erp_planned_quantity: number | null;
-  erp_ordered_quantity: number | null;
+  erp_completed_operation: number | null;
+  erp_execution_quantity: number | null;
   erp_completed_quantity: number | null;
   recorded_quantity_per_piece: number | null;
-  erp_sigpro_difference: number | null;
+  erp_quantity_discrepancy: number | null;
   // Net time of the OP in seconds (excluding breaks and module stoppages) and per
   // recorded unit. null for stamping or when the query has no date range.
   total_seconds: number | null;

@@ -89,14 +89,14 @@
     <app-ui-accordion-item [expanded]="isDetailExpanded($index)" (toggle)="toggleDetailExpanded($index)">
 
       <ng-container accordion-header>
-        <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="item.completed_operation" [class.bg-gray-300]="!item.completed_operation"></span>
+        <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="item.erp_completed_operation" [class.bg-gray-300]="!item.erp_completed_operation"></span>
 
         <div class="min-w-0 flex-1">
           <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }}  {{ item.op_number }}</p>
           <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
         </div>
 
-        <app-ui-badge [active]="!!item.completed_operation" activeText="Completa" inactiveText="Diferencia"></app-ui-badge>
+        <app-ui-badge [active]="!!item.erp_completed_operation" activeText="Completa" inactiveText="Diferencia"></app-ui-badge>
       </ng-container>
 
       <div accordion-body class="flex flex-col gap-2 pb-1">
@@ -118,10 +118,9 @@
             <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">{{ sourceName }}</h4>
           </header>
           <dl class="grid grid-cols-2 gap-px bg-slate-200">
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Planeada', value: item.erp_planned_quantity ?? '—' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Ordenada', value: item.erp_ordered_quantity ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'A ejecutar', value: item.erp_execution_quantity ?? '—' }"></ng-container>
             <ng-container *ngTemplateOutlet="stat; context: { label: 'Completada', value: item.erp_completed_quantity ?? '—' }"></ng-container>
-            <ng-container *ngTemplateOutlet="stat; context: { label: 'Diferencia', value: item.erp_sigpro_difference ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Diferencia', value: item.erp_quantity_discrepancy ??'—' }"></ng-container>
           </dl>
         </section>
         <section class="rounded-md border border-slate-200 overflow-hidden">
