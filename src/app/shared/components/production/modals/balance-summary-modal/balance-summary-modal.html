@@ -28,10 +28,12 @@
           <span class="font-semibold text-slate-700 text-right">{{ row.total_ordered }}</span>
           <span class="text-slate-400">Comp.</span>
           <span class="font-semibold text-green-600 text-right">{{ row.total_completed }}</span>
-          <span class="text-slate-400">Saldos</span>
-          <span class="font-semibold text-amber-500 text-right">{{ row.total_rejected }}</span>
-          <span class="text-slate-400">Bajas</span>
-          <span class="font-semibold text-red-500 text-right">{{ row.total_scrap }}</span>
+          @if (!stamping) {
+            <span class="text-slate-400">Saldos</span>
+            <span class="font-semibold text-amber-500 text-right">{{ row.total_rejected }}</span>
+            <span class="text-slate-400">Bajas</span>
+            <span class="font-semibold text-red-500 text-right">{{ row.total_scrap }}</span>
+          }
         </div>
       </ng-template>
 

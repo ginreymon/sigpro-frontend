@@ -5,7 +5,7 @@
 
       <!-- Sticky form -->
       <div class="shrink-0 mb-4">
-        <app-date-range-form (onSearch)="onSearch($event)"></app-date-range-form>
+        <app-date-range-form [initialRange]="defaultRange" (onSearch)="onSearch($event)"></app-date-range-form>
       </div>
 
       <!-- Scrollable results -->
@@ -97,6 +97,8 @@
     [startDate]="balanceContext()?.startDate ?? null"
     [endDate]="balanceContext()?.endDate ?? null"
     [moduleId]="balanceContext()?.moduleId"
+    [service]="service"
+    [stamping]="!!service"
     (onClose)="closeBalance()">
   </app-balance-summary-modal>
 }

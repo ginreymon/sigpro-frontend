@@ -43,6 +43,18 @@ export class StampingProductivityService {
     );
   }
 
+  getBalanceSummary(p: ProductivityParams): Observable<PaginatedResponse<StampingProductivitySummaryRow>> {
+    let params = new HttpParams()
+      .set('start_date', p.startDate)
+      .set('end_date', p.endDate)
+      .set('client_now', p.clientNow ?? new Date().toISOString());
+    if (p.moduleId !== undefined) params = params.set('module_id', p.moduleId);
+
+    return this.http.get<StampingProductivitySummaryRow[]>(`${this.path}/balance-summary/`, { params }).pipe(
+      map(results => ({ count: results.length, next: null, previous: null, results }))
+    );
+  }
+
   getModuleShiftSummary(coreModuleId?: number): Observable<ModuleEfficiencyStatus[]> {
     let params = new HttpParams();
     if (coreModuleId !== undefined) params = params.set('core_module_id', coreModuleId);

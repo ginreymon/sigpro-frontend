@@ -14,7 +14,7 @@ import { TableColumn } from '../../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../../common/interfaces/table-actions';
 import { TableActionEvent } from '../../../../../common/interfaces/table-action-event';
 import { efficiencyTextColor } from '../../../../../common/functions/efficiency-color';
-import { BalanceSummaryModal } from '../balance-summary-modal/balance-summary-modal';
+import { BalanceSummaryModal, BalanceSummaryService } from '../balance-summary-modal/balance-summary-modal';
 import { UiBadge } from '../../../../elements/ui-badge/ui-badge';
 
 interface BalanceContext {
@@ -24,7 +24,7 @@ interface BalanceContext {
   title: string;
 }
 
-export interface ModuleEfficiencyService {
+export interface ModuleEfficiencyService extends BalanceSummaryService {
   getModuleEfficiency(startDate: string, endDate: string, moduleId?: number): Observable<ModuleEfficiencyRow[]>;
 }
 
@@ -55,7 +55,7 @@ export class ModuleDetailModal implements OnChanges {
   readonly skeletonRows = Array(4).fill(0);
 
   readonly tableActions = computed<Partial<TableActions>>(() => ({
-    view: { enabled: !this.service, title: 'Ver balance', iconName: 'eye', toolTip: 'Ver' },
+    view: { enabled: true, title: 'Ver balance', iconName: 'eye', toolTip: 'Ver' },
   }));
 
   readonly pagedRows = computed(() => ({
@@ -140,6 +140,25 @@ export class ModuleDetailModal implements OnChanges {
       this.balanceContext.set(null);
       this.dateRangeForm?.form.reset();
     }
+    if (changes['visible']?.currentValue && this.module && this.service) {
+      this.searchDefaultRange();
+    }
+  }
+
+  // Stamping: pre-fills the date form with the card's last worked day (from
+  // module-shift-summary) or today, and runs the search so the table shows up
+  // without a manual click. Production keeps the manual flow.
+  get defaultRange(): DateRangeValue | null {
+    if (!this.service) return null;
+    const day = this.module?.last_worked_date ?? formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
+    return { startDate: day, endDate: day };
+  }
+
+  private searchDefaultRange(): void {
+    const range = this.defaultRange!;
+    // The form may not be rendered yet on the first open; patch it after render.
+    setTimeout(() => this.dateRangeForm?.form.patchValue({ start_date: range.startDate, end_date: range.endDate }));
+    this.onSearch(range);
   }
 
   title(): string {
