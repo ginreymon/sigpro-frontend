@@ -12,7 +12,10 @@ import { toLocalDate } from '../../../../common/functions/time-range';
 
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
-import { DocumentIntegrationMatrix } from './options/production/document-integration-matrix/document-integration-matrix';
+import {
+  DocumentIntegrationMatrix,
+  SelectionSummary,
+} from './options/production/document-integration-matrix/document-integration-matrix';
 import { DocumentDetail } from './components/document-detail/document-detail';
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
@@ -95,8 +98,51 @@ export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
 
   protected expandedDocumentIndexes = signal<Set<number>>(new Set());
 
+  // SKUs picked in the integration matrix of each OP (by op_rowid), kept here so they survive collapsing the accordion.
+  protected readonly selectedSkuIdsByOp = signal<Record<number, number[]>>({});
+
+  protected selectedSkuIdsOf(opRowid: number): number[] {
+    return this.selectedSkuIdsByOp()[opRowid] ?? [];
+  }
+
+  protected setSelectedSkuIds(opRowid: number, ids: number[]): void {
+    this.selectedSkuIdsByOp.update((byOp) => ({ ...byOp, [opRowid]: ids }));
+  }
+
+  // Units and time of the selection of each OP (by op_rowid), reported by its matrix.
+  private readonly selectionSummaryByOp = signal<Record<number, SelectionSummary>>({});
+
+  protected setSelectionSummary(opRowid: number, summary: SelectionSummary): void {
+    this.selectionSummaryByOp.update((byOp) => ({ ...byOp, [opRowid]: summary }));
+  }
+
+  // One row per OP of the work center with units selected, for the table at the top of the integrate modal.
+  protected selectionRows(): { op: string; units: number; minutes: number }[] {
+    const byOp = this.selectionSummaryByOp();
+    return (this.rowObject.documents ?? [])
+      .filter((doc) => (byOp[doc.op_rowid]?.units ?? 0) > 0)
+      .map((doc) => {
+        const { units, hours, minutes } = byOp[doc.op_rowid];
+        return { op: `${doc.op_type} ${doc.op_number}`, units, minutes: hours * 60 + minutes };
+      });
+  }
+
+  protected selectionTotals(rows: { units: number; minutes: number }[]): { units: number; minutes: number } {
+    return {
+      units: rows.reduce((sum, row) => sum + row.units, 0),
+      minutes: rows.reduce((sum, row) => sum + row.minutes, 0),
+    };
+  }
+
+  protected formatTime(totalMinutes: number): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(Math.floor(totalMinutes / 60))}:${pad(totalMinutes % 60)}`;
+  }
+
   protected override closeModelForm(): void {
     this.expandedDocumentIndexes.set(new Set());
+    this.selectionSummaryByOp.set({});
+    this.selectedSkuIdsByOp.set({});
     super.closeModelForm();
   }
 

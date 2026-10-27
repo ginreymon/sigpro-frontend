@@ -68,6 +68,42 @@
     <p class="text-sm text-slate-500 mb-0.5"> OPs : {{ rowObject.documents_count }} </p>
   </div>
 
+  <div class="mb-4">
+    @let rows = selectionRows();
+    @let totals = selectionTotals(rows);
+    <table class="mt-4 w-full text-sm border border-slate-200 rounded-lg overflow-hidden border-separate border-spacing-0">
+      <thead class="bg-slate-100 text-slate-600 text-xs">
+        <tr>
+          <th class="px-3 py-2 text-left font-semibold">OP</th>
+          <th class="px-3 py-2 text-right font-semibold">Unidades</th>
+          <th class="px-3 py-2 text-right font-semibold">Tiempo (HH:MM)</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        @for (row of rows; track row.op) {
+          <tr>
+            <td class="px-3 py-1.5 text-gray-700">{{ row.op }}</td>
+            <td class="px-3 py-1.5 text-right tabular-nums">{{ row.units }}</td>
+            <td class="px-3 py-1.5 text-right tabular-nums">{{ formatTime(row.minutes) }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="3" class="px-3 py-2 text-center text-slate-400">Sin unidades seleccionadas</td>
+          </tr>
+        }
+      </tbody>
+      @if (rows.length > 1) {
+        <tfoot class="bg-slate-50 font-semibold text-gray-800">
+          <tr>
+            <td class="px-3 py-1.5">Total</td>
+            <td class="px-3 py-1.5 text-right tabular-nums">{{ totals.units }}</td>
+            <td class="px-3 py-1.5 text-right tabular-nums">{{ formatTime(totals.minutes) }}</td>
+          </tr>
+        </tfoot>
+      }
+    </table>
+  </div> 
+
   <ng-container *ngTemplateOutlet="documentsList; context: { placeholder: true }"></ng-container>
 
 </app-modal-layout>
@@ -89,14 +125,20 @@
           <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
         </div>
 
-        <app-ui-badge [active]="item.erp_quantity_discrepancy == 0" activeText="Integrar" inactiveText="Incompleto"></app-ui-badge>
+        @if (placeholder && selectedSkuIdsOf(item.op_rowid).length) {
+          <app-ui-badge intent="default" label="Por integrar"></app-ui-badge>
+        } @else {
+          <app-ui-badge [active]="item.erp_quantity_discrepancy == 0" activeText="Integrar" inactiveText="Incompleto"></app-ui-badge>
+        }
       </ng-container>
 
       @if (placeholder) {
         <div accordion-body>
           @if (expandedDocumentIndexes().has($index)) {
             @if (item.detail?.colorRows?.length) {
-              <app-document-integration-matrix [document]="item"></app-document-integration-matrix>
+              <app-document-integration-matrix [document]="item" [selectedSkuIds]="selectedSkuIdsOf(item.op_rowid)"
+                (selectedSkuIdsChange)="setSelectedSkuIds(item.op_rowid, $event)"
+                (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-matrix>
             } @else {
               <p class="text-sm text-slate-500">Sin detalle por SKU</p>
             }

@@ -29,8 +29,16 @@ const sku = (size: string, skuRowId: number, extra: Partial<SkuDetail> = {}): Sk
 
 const totals = { orderedQty: 30, plannedQty: 30, completedQty: 20, wasteQty: 0, rejectedQty: 0 };
 
-function documentWith(skus: SkuDetail[]): WorkCenterDocument {
-  return { detail: { colorRows: [{ color: 'AZUL', totals, skus }] } } as unknown as WorkCenterDocument;
+function documentWith(
+  skus: SkuDetail[],
+  secondsByUnit: number | null = null,
+  additionalSecondsByUnit: number | null = null,
+): WorkCenterDocument {
+  return {
+    seconds_by_unit: secondsByUnit,
+    additional_seconds_by_unit: additionalSecondsByUnit,
+    detail: { colorRows: [{ color: 'AZUL', totals, skus }] },
+  } as unknown as WorkCenterDocument;
 }
 
 function render(document: WorkCenterDocument) {
@@ -149,6 +157,100 @@ describe('DocumentIntegrationMatrix', () => {
     click(fixture, chip);
 
     expect(fixture.componentInstance.selectedSkuIds()).toEqual([1, 2]);
+  });
+
+  describe('time of the selection', () => {
+    const readyDoc = () =>
+      documentWith(
+        [
+          sku('S', 1, { tepProcessed: false, completedQty: 10, orderedQty: 10 }),
+          sku('M', 2, { tepProcessed: false, completedQty: 20, orderedQty: 20 }),
+        ],
+        150,
+      );
+    const inputs = (fixture: ComponentFixture<DocumentIntegrationMatrix>) =>
+      Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('app-ui-hour-input input')) as HTMLInputElement[];
+
+    // Types into the hours (0) or minutes (1) input like the user would.
+    const type = (fixture: ComponentFixture<DocumentIntegrationMatrix>, index: number, value: string) => {
+      const input = inputs(fixture)[index];
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+    };
+
+    it('shows no time inputs until a cell is selected', () => {
+      expect(inputs(render(readyDoc()))).toHaveLength(0);
+    });
+
+    it('preloads hours and minutes with selected completed units x seconds_by_unit', () => {
+      const fixture = render(readyDoc());
+      const cells = cellButtons(fixture);
+
+      click(fixture, cells[0]); // 10 und x 150 s = 1500 s = 25 min
+      expect(inputs(fixture).map((input) => input.value)).toEqual(['00', '25']);
+
+      click(fixture, cells[1]); // 30 und x 150 s = 4500 s = 1 h 15 min
+      expect(inputs(fixture).map((input) => input.value)).toEqual(['01', '15']);
+    });
+
+    it('adds additional_seconds_by_unit to seconds_by_unit', () => {
+      const fixture = render(
+        documentWith([sku('S', 1, { tepProcessed: false, completedQty: 10, orderedQty: 10 })], 100, 50),
+      );
+
+      click(fixture, cellButtons(fixture)[0]); // 10 und x (100 + 50) s = 1500 s = 25 min
+
+      expect(inputs(fixture).map((input) => input.value)).toEqual(['00', '25']);
+    });
+
+    it('keeps manual edits until the selection changes, then shows the calculated value again', () => {
+      const fixture = render(
+        documentWith(
+          [
+            sku('S', 1, { tepProcessed: false, completedQty: 10, orderedQty: 10 }),
+            sku('M', 2, { tepProcessed: false, completedQty: 0, orderedQty: 0 }), // adds 0 units
+          ],
+          150,
+        ),
+      );
+      const cells = cellButtons(fixture);
+      click(fixture, cells[0]);
+
+      type(fixture, 0, '7');
+      type(fixture, 1, '45');
+      expect(inputs(fixture).map((input) => input.value)).toEqual(['07', '45']);
+
+      click(fixture, cells[1]); // calculated time is unchanged (25 min) but the selection changed
+      expect(inputs(fixture).map((input) => input.value)).toEqual(['00', '25']);
+
+      type(fixture, 0, '3');
+      click(fixture, cells[1]); // deselect
+      expect(inputs(fixture).map((input) => input.value)).toEqual(['00', '25']);
+    });
+
+    it('emits the units and the time shown in the inputs, including manual edits', () => {
+      const fixture = render(readyDoc());
+      const summaries: { units: number; hours: number; minutes: number }[] = [];
+      fixture.componentInstance.selectionSummary.subscribe((summary) => summaries.push(summary));
+
+      click(fixture, cellButtons(fixture)[0]); // 10 und -> 00:25
+      expect(summaries.at(-1)).toEqual({ units: 10, hours: 0, minutes: 25 });
+
+      type(fixture, 0, '2'); // hours edited by hand
+      expect(summaries.at(-1)).toEqual({ units: 10, hours: 2, minutes: 25 });
+
+      click(fixture, cellButtons(fixture)[0]); // deselect
+      expect(summaries.at(-1)?.units).toBe(0);
+    });
+
+    it('falls back to 00:00 when the OP has no seconds_by_unit', () => {
+      const fixture = render(documentWith([sku('S', 1, { tepProcessed: false })]));
+
+      click(fixture, cellButtons(fixture)[0]);
+
+      expect(inputs(fixture).map((input) => input.value)).toEqual(['00', '00']);
+    });
   });
 
   it('counts the SKUs per state in the legend', () => {
