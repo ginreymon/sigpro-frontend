@@ -14,6 +14,7 @@ export class ProgressBar {
   progressColor: string = 'hsl(0, 100%, 50%)';
 
   @Input() color: string | null = null;
+  @Input() heightClass = 'h-2';
 
   @Input()
   set max(value: number) {

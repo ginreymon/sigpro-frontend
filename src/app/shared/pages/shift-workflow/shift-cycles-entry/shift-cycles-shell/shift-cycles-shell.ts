@@ -4,6 +4,7 @@ import { InfoCardTemplate } from '../../../../../template/info-card-template/inf
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { StampingShiftSummary } from '../../../../components/production/cards/stamping-shift-summary/stamping-shift-summary';
+import { StampingProgressSummary } from '../../../../components/production/cards/stamping-progress-summary/stamping-progress-summary';
 import { WorkShiftSummary } from '../../../../components/production/cards/work-shift-summary/work-shift-summary';
 import { OrderHeader } from '../../../../components/production/cards/order-header/order-header';
 import { ProductionOrdersTable } from '../../../../components/production/tables/production-orders-table/production-orders-table';
@@ -32,7 +33,7 @@ import type { ShiftCycles } from '../shift-cycles/shift-cycles';
   imports: [
     WorkSpaceLayout, InfoCardTemplate, UiButton, UiIcon, StampingShiftSummary, WorkShiftSummary, OrderHeader,
     ProductionOrdersTable, TableTemplate, ShiftCyclesFab, OrderSearcher, RecentRecordsCard, EmployeesModal,
-    BalanceModal, StampingBalanceModal, PauseModal, ShiftTimeAlert,
+    BalanceModal, StampingBalanceModal, PauseModal, ShiftTimeAlert, StampingProgressSummary,
   ],
   templateUrl: './shift-cycles-shell.html',
 })

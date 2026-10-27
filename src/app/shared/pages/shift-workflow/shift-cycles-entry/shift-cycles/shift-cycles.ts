@@ -102,17 +102,34 @@ export class ShiftCycles extends BaseProductionOrderPage {
   lastRecordTrigger = signal(0);
   selectedSKU = signal<SkuTaskDetail | null>(null);
 
-  // Piezas a estampar = suma de stamped_pieces de cada referencia (SAM) que
-  // ya tiene cantidades ingresadas (stamped_qty > 0) según el backend —
-  // no depende de lo que se seleccionó en esta sesión de UI.
-  totalStampingFactor = computed(() => {
+  // SAMs (references) of the order that already have quantities entered
+  // (stamped_qty > 0) according to the backend, narrowed by machine type —
+  // independent of what was selected in this UI session.
+  private samsWithStampedQty = computed(() => {
     const referenceSams = this.productionOrder()?.referenceSams;
-    if (!referenceSams) return null;
+    if (!referenceSams) return [];
     const machineTypeId = this.contextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
-    const sams = filterByMachineType(referenceSams, machineTypeId)
+    return filterByMachineType(referenceSams, machineTypeId)
       .filter((sam) => Number(sam.stamped_qty) > 0);
+  });
+
+  // Pieces to stamp per ordered unit = sum of stamped_pieces of those SAMs.
+  totalStampingFactor = computed(() => {
+    const sams = this.samsWithStampedQty();
     if (!sams.length) return null;
     return sams.reduce((sum, sam) => sum + Number(sam.stamped_pieces), 0);
+  });
+
+  // OP-level stamping progress in pieces: ordered units * stamping factor vs.
+  // pieces already stamped (same SAM set that defines the factor).
+  stampingProgress = computed(() => {
+    const factor = this.totalStampingFactor();
+    const orderedQty = this.productionOrder()?.orderedQty;
+    if (factor == null || orderedQty == null) return null;
+    return {
+      totalPieces: Number(orderedQty) * factor,
+      stampedPieces: this.samsWithStampedQty().reduce((sum, sam) => sum + Number(sam.stamped_qty), 0),
+    };
   });
 
   // Columna "Piezas" solo aplica a máquinas sin uses_processes_search: en

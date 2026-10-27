@@ -1,4 +1,4 @@
-<div class="w-full bg-gray-100 h-2 overflow-hidden">
+<div [class]="'w-full bg-gray-100 overflow-hidden ' + heightClass">
     <div class="h-full transition-all duration-500 ease-linear"
         [style.width.%]="progressPercent"
         [style.background]="resolvedColor">
