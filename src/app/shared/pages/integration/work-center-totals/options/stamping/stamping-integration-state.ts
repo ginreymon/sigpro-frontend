@@ -37,16 +37,3 @@ export function pendingSamRecords(sam: IntegrationReferenceSam): SkuRecord[] {
 export function pendingSamUnits(sam: IntegrationReferenceSam): number {
   return pendingSamRecords(sam).reduce((sum, record) => sum + Number(record.recorded_quantity ?? 0), 0);
 }
-
-// Ordered units of the SAM, in pieces: OP ordered quantity x stamped_pieces. The API does not send
-// it, but fn_referencias_sam_estampacion_op defines pending_qty = ordered x pieces - stamped_qty,
-// so ordered = stamped_qty + pending_qty (same figure app-stamping-record works with).
-export function samOrderedQty(sam: IntegrationReferenceSam): number {
-  return Number(sam.stamped_qty ?? 0) + Number(sam.pending_qty ?? 0);
-}
-
-// Units still to stamp ("Por hacer"). pending_qty goes negative when more than ordered was
-// stamped; the card never shows less than 0.
-export function samPendingQty(sam: IntegrationReferenceSam): number {
-  return Math.max(Number(sam.pending_qty ?? 0), 0);
-}

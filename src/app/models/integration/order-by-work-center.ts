@@ -21,6 +21,15 @@ export interface IntegrationReferenceSam {
   records?: SkuRecord[];
 }
 
+// Totals of a stamping OP computed by the database (detail.totals): stamped / pending / total
+// quantities of the OP in whole units: total_qty = ordered quantity of the OP, stamped_qty = stamped / stamping_factor
+// rounded, pending_qty = total_qty - stamped_qty (always sums to the total). pending_qty can be negative.
+export interface StampingDetailTotals {
+  stamped_qty: number;
+  pending_qty: number;
+  total_qty: number;
+}
+
 // One `documents` item of sp_totales_registrados_por_op_work_center_json: the OP
 // columns of the approval table, plus `detail` (only for origin_id = 1; null in
 // the other origins, same colorRows shape as production-orders/detail) and with
@@ -33,6 +42,7 @@ export interface WorkCenterDocument extends Omit<OrderToBeOutboundDetail, 'total
     referenceSams?: IntegrationReferenceSam[];
     // Pieces to stamp per ordered unit (sum of stamped_pieces of the SAMs); null when no SAM qualifies.
     stamping_factor?: number | null;
+    totals?: StampingDetailTotals | null;
   } | null;
 }
 

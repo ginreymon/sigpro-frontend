@@ -1,61 +1,55 @@
 @if (sams().length) {
   <div class="flex flex-col gap-2">
 
-    <div class="flex flex-wrap items-center gap-2 text-xs">
-      @for (state of samStates; track state) {
-        @if (state === 'ready') {
-          <button type="button" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium cursor-pointer"
-            [class]="stateClasses[state]" (click)="toggleAllReady()">
-            {{ stateLabels[state] }} · {{ counts()[state] }}
-          </button>
-        } @else {
-          <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium" [class]="stateClasses[state]">
-            {{ stateLabels[state] }} · {{ counts()[state] }}
+    <button type="button" data-testid="stamping-op"
+      class="w-full text-left rounded-lg border px-4 py-3 flex flex-col gap-3"
+      [class]="blockClasses()" [disabled]="!isSelectable()"
+      [attr.aria-pressed]="isSelectable() ? isSelected() : null" (click)="toggleOp()">
+
+      <span class="flex items-center justify-between gap-2">
+        <span class="text-sm font-semibold">{{ stateLabel() }}</span>
+        @if (factor() !== null) {
+          <span data-testid="stamping-pieces" class="rounded-full border border-current/30 px-2 py-0.5 text-[11px] font-medium">
+            {{ factor() }} {{ factor() === 1 ? 'pieza estampada' : 'piezas estampadas' }}
           </span>
         }
-      }
-    </div>
+      </span>
 
-    <div class="flex flex-col gap-2">
-      @for (sam of sams(); track sam.id) {
-        <button type="button" data-testid="sam-card"
-          class="w-full text-left rounded-md border px-3 py-2 flex flex-col gap-1"
-          [class]="cardClasses(sam)" [disabled]="!isSelectable(sam)"
-          [attr.aria-pressed]="isSelectable(sam) ? isSelected(sam) : null" (click)="toggleSelected(sam)">
-
-          <span class="flex items-center justify-between gap-2">
-            <span class="font-semibold text-sm">{{ sam.reference_code }}</span>
-            <span class="text-xs">{{ sam.machine_type_name || '—' }} · {{ sam.task_people_count }} {{ sam.task_people_count === 1 ? 'persona' : 'personas' }}</span>
+      @if (totals(); as t) {
+        <span data-testid="stamping-totals" class="grid grid-cols-3 gap-2 text-center">
+          <span class="flex flex-col" data-testid="stat-stamped">
+            <span class="text-[11px] uppercase tracking-wide opacity-70">Estampadas</span>
+            <span class="text-xl font-semibold tabular-nums">{{ t.stamped_qty | number: '1.0-0' }}</span>
           </span>
-
-          <span class="flex flex-wrap gap-x-4 text-xs tabular-nums">
-            <span>SAM {{ sam.sam }}</span>
-            <span>{{ sam.tasks_per_hour | number: '1.0-2' }} /h</span>
-            <span>Ordenadas {{ orderedQty(sam) }}</span>
-            <span>Estampadas {{ sam.stamped_qty }}</span>
-            <span>Por hacer {{ pendingQty(sam) }}</span>
-            <span class="font-semibold">Por integrar {{ pendingUnits(sam) }} und</span>
+          <span class="flex flex-col" data-testid="stat-pending">
+            <span class="text-[11px] uppercase tracking-wide opacity-70">Por hacer</span>
+            <span class="text-xl font-semibold tabular-nums">{{ pendingQty() | number: '1.0-0' }}</span>
           </span>
+          <span class="flex flex-col" data-testid="stat-total">
+            <span class="text-[11px] uppercase tracking-wide opacity-70">Total</span>
+            <span class="text-xl font-semibold tabular-nums">{{ t.total_qty | number: '1.0-0' }}</span>
+          </span>
+        </span>
 
-          @if (sam.records?.length) {
-            <span class="flex flex-wrap gap-1 text-[11px] tabular-nums">
-              @for (record of sam.records ?? []; track record.id) {
-                <span class="rounded border px-1.5 py-0.5" [class.border-green-500]="record.tep_processed"
-                  [title]="record.tep_processed ? 'Integrado' : 'Por integrar'">
-                  {{ record.recorded_quantity }}
-                </span>
-              }
-            </span>
-          }
-        </button>
+        <span class="flex items-center gap-2">
+          <span class="h-1.5 flex-1 overflow-hidden rounded-full bg-current/20" role="progressbar"
+            [attr.aria-valuenow]="progress()" aria-valuemin="0" aria-valuemax="100" aria-label="Avance de estampado">
+            <span data-testid="stamping-progress" class="block h-full rounded-full bg-current" [style.width.%]="progress()"></span>
+          </span>
+          <span class="text-[11px] tabular-nums opacity-70">{{ progress() | number: '1.0-0' }}%</span>
+        </span>
+      } @else {
+        <span class="text-xs opacity-70">Sin factor de estampado</span>
       }
-    </div>
+
+      <span class="text-xs font-semibold tabular-nums">Por integrar {{ pendingUnits() }} und</span>
+    </button>
 
     <app-integration-time-inputs [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
-      [selection]="selectedSamIds()" [visible]="selectedSams().length > 0"
+      [selection]="selectedSamIds()" [visible]="selectedSamIds().length > 0"
       (summary)="selectionSummary.emit($event)"></app-integration-time-inputs>
 
   </div>
 } @else {
-  <p class="text-sm text-slate-500">Sin SAM para esta referencia</p>
+  <p class="text-sm text-slate-500">Sin registros de estampación</p>
 }

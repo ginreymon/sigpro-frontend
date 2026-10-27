@@ -1,12 +1,6 @@
 import { IntegrationReferenceSam } from '../../../../../../models/integration/order-by-work-center';
 import { SkuRecord } from '../../../../../../models/production/sku-detail';
-import {
-  pendingSamRecords,
-  pendingSamUnits,
-  samIntegrationState,
-  samOrderedQty,
-  samPendingQty,
-} from './stamping-integration-state';
+import { pendingSamRecords, pendingSamUnits, samIntegrationState } from './stamping-integration-state';
 
 const record = (id: number, processed: boolean, units = 10): SkuRecord =>
   ({ id, recorded_quantity: units, tep_processed: processed }) as unknown as SkuRecord;
@@ -47,31 +41,6 @@ describe('stamping integration state', () => {
     it('is 0 when there is nothing pending', () => {
       expect(pendingSamUnits(sam([record(1, true)]))).toBe(0);
       expect(pendingSamUnits(sam([]))).toBe(0);
-    });
-  });
-
-  describe('ordered and pending quantity', () => {
-    // OP ordered 5791 x 2 pieces = 11582 for the SAM; 4185 already stamped; pending_qty as the SQL computes it.
-    const stamped = { stamped_qty: 4185, pending_qty: 7397 } as unknown as IntegrationReferenceSam;
-
-    it('derives the ordered quantity of the SAM as stamped + pending (ordered x pieces)', () => {
-      expect(samOrderedQty(stamped)).toBe(11582);
-    });
-
-    it('returns the pending quantity as it comes', () => {
-      expect(samPendingQty(stamped)).toBe(7397);
-    });
-
-    it('never shows a negative pending quantity when more than ordered was stamped', () => {
-      const over = { stamped_qty: 5000, pending_qty: -200 } as unknown as IntegrationReferenceSam;
-      expect(samPendingQty(over)).toBe(0);
-      expect(samOrderedQty(over)).toBe(4800);
-    });
-
-    it('treats missing quantities as 0', () => {
-      const empty = {} as unknown as IntegrationReferenceSam;
-      expect(samOrderedQty(empty)).toBe(0);
-      expect(samPendingQty(empty)).toBe(0);
     });
   });
 });
