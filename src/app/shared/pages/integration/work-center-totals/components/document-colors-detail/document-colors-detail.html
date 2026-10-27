@@ -1,8 +1,0 @@
-@if (document().detail?.colorRows?.length) {
-  <app-document-section title="Colores">
-    @for (color of document().detail!.colorRows; track color.color) {
-      <app-document-stat [label]="color.color"
-        [value]="color.totals.completedQty + ' / ' + color.totals.orderedQty"></app-document-stat>
-    }
-  </app-document-section>
-}

@@ -1,0 +1,56 @@
+@if (matrix(); as m) {
+  <div class="flex flex-col gap-2">
+
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      @for (item of legend; track item.state) {
+        @if (item.state === 'ready') {
+          <button type="button" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium cursor-pointer"
+            [class]="item.classes" (click)="toggleAllReady()">
+            {{ item.label }} · {{ counts()[item.state] }}
+          </button>
+        } @else {
+          <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium" [class]="item.classes">
+            {{ item.label }} · {{ counts()[item.state] }}
+          </span>
+        }
+      }
+    </div>
+
+    <div class="overflow-x-auto rounded-md border border-slate-200">
+      <table class="w-full text-xs text-left border-collapse">
+        <thead class="bg-slate-100 text-slate-600">
+          <tr>
+            <th class="px-2 py-1.5 font-semibold">Color</th>
+            @for (size of m.sizes; track size) {
+              <th class="px-2 py-1.5 font-semibold text-center">{{ size }}</th>
+            }
+            <th class="px-2 py-1.5 font-semibold text-right">Comp / Ord</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          @for (row of m.skuColors; track row.color) {
+            <tr>
+              <td class="px-2 py-1.5 font-medium text-gray-700">{{ row.color }}</td>
+              @for (sku of row.skus; track $index) {
+                <td class="p-1 text-center" [title]="tooltip(sku)">
+                  @if (isRealSku(sku)) {
+                    <button type="button" class="relative mx-auto block size-12 rounded border font-semibold tabular-nums"
+                      [class]="cellClasses(sku)" [disabled]="!isSelectable(sku)" [attr.aria-label]="tooltip(sku)"
+                      [attr.aria-pressed]="isSelectable(sku) ? isSelected(sku) : null" (click)="toggleSelected(sku)">
+                      <span class="absolute left-0.5 top-0.5 text-sm leading-none">{{ producedQty(sku) }}</span>
+                      <span class="absolute bottom-0.5 right-0.5 text-sm leading-none">{{ sku.orderedQty }}</span>
+                    </button>
+                  }
+                </td>
+              }
+              <td class="px-2 py-1.5 text-right font-semibold tabular-nums">
+                {{ row.totals.completedQty }} / {{ row.totals.orderedQty }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+}

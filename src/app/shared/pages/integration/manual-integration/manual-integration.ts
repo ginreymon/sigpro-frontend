@@ -16,6 +16,7 @@ import { formatSecondsAsHHmm, toLocalDate } from '../../../../common/functions/t
 import { UiButton } from '../../../elements/ui-button/ui-button';
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { OpTotalsTable } from '../../../components/widgets/op-totals-table/op-totals-table';
+import { OpSkuIntegration } from '../../../components/widgets/op-sku-integration/op-sku-integration';
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
@@ -46,6 +47,7 @@ import { apiErrorDetail, apiFieldErrors } from '../../../../common/functions/api
     UiButton,
     UiLabelButton,
     OpTotalsTable,
+    OpSkuIntegration,
     CharSquare
 ],
   templateUrl: './manual-integration.html',
@@ -147,6 +149,7 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   // El ojo (solo lectura) usa el modal lateral (BaseCrudPage); Integrar (horas + envío) usa el modal central.
   protected approve(row: OrderToBeOutbound): void {
     this.rowObject = row;
+    this.expandedSkuIndexes.set(new Set());
     this.dialogService.openModal('Integrar OPs', 'Aceptar');
   }
 
@@ -226,6 +229,21 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
     const completed = row.detail.filter((item) => !!item.erp_completed_operation).length;
     if (completed === row.detail.length) return 'text-green-700 bg-green-100';
     return completed > 0 ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100';
+  }
+
+  // Expanded OPs of the SKU integration section of the Integrar modal.
+  protected expandedSkuIndexes = signal<Set<number>>(new Set());
+
+  protected isSkuExpanded(index: number): boolean {
+    return this.expandedSkuIndexes().has(index);
+  }
+
+  protected toggleSkuExpanded(index: number): void {
+    const expanded = new Set(this.expandedSkuIndexes());
+    if (!expanded.delete(index)) {
+      expanded.add(index);
+    }
+    this.expandedSkuIndexes.set(expanded);
   }
 
   protected expandedDetailIndexes = signal<Set<number>>(new Set());

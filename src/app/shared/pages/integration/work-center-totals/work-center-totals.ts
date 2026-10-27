@@ -12,13 +12,13 @@ import { toLocalDate } from '../../../../common/functions/time-range';
 
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
+import { DocumentIntegrationMatrix } from './options/production/document-integration-matrix/document-integration-matrix';
 import { DocumentDetail } from './components/document-detail/document-detail';
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
 import { CharSquare } from '../../../components/widgets/char-square/char-square';
 import { TableTemplate } from '../../../../directives/table-template';
 import { OrderByWorkCenter } from '../../../../models/integration/order-by-work-center';
-import { OPERATIONS_LABEL } from '../../../../models/integration/order-to-be-outbound';
 import { PaginatedResponse } from '../../../../common/interfaces/paginated-response';
 import { OrdersByWorkCenterService } from '../../../../services/integration/orders-by-work-center-service';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
@@ -38,11 +38,12 @@ import { UiIcon } from '../../../elements/ui-icon/ui-icon';
     UiAccordionItem,
     UiBadge,
     DocumentDetail,
+    DocumentIntegrationMatrix,
     UiLabelButton,
     UiOriginBadge,
     CharSquare,
-    UiIcon
-],
+    UiIcon,
+  ],
   templateUrl: './work-center-totals.html',
 })
 export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
@@ -53,7 +54,6 @@ export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
   // first_start/last_end arrive in UTC without a zone suffix: toLocalDate marks
   // them as UTC so DatePipe shows local time.
   protected readonly toLocalDate = toLocalDate;
-  protected readonly operationsLabel = OPERATIONS_LABEL;
 
   protected override get actions(): TableActions {
     return {

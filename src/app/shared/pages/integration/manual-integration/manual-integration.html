@@ -155,7 +155,7 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout classNames="max-w-xl" (onAccept)="confirmSend()">
+<app-modal-layout classNames="max-w-4xl" (onAccept)="confirmSend()">
 
   <div modal-top>
     <ng-container *ngTemplateOutlet="rowTitle"></ng-container>
@@ -163,6 +163,30 @@
 
   <app-op-totals-table [detail]="rowObject.detail ?? []" [hours]="opHours()[opHoursKey(rowObject)] ?? {}"
     (hoursChange)="setOpHours(rowObject, $event)"></app-op-totals-table>
+
+  @if (rowObject.detail?.length) {
+  <section>
+    <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">SKUs integrados por OP</h4>
+    <div class="divide-y divide-slate-200 border border-slate-200 rounded-lg">
+      @for (item of rowObject.detail; track item.op_rowid; let i = $index) {
+      <app-ui-accordion-item [expanded]="isSkuExpanded(i)" (toggle)="toggleSkuExpanded(i)">
+        <ng-container accordion-header>
+          <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="item.erp_completed_operation" [class.bg-gray-300]="!item.erp_completed_operation"></span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }} {{ item.op_number }}</p>
+            <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
+          </div>
+        </ng-container>
+
+        <div accordion-body>
+          <app-op-sku-integration [opRowid]="item.op_rowid" [originId]="rowObject.origin_id ?? 0"
+            [workCenterCode]="rowObject.code ?? ''"></app-op-sku-integration>
+        </div>
+      </app-ui-accordion-item>
+      }
+    </div>
+  </section>
+  }
 
 </app-modal-layout>
 
