@@ -142,6 +142,10 @@
               <app-document-integration-matrix [document]="item" [selectedSkuIds]="selectedSkuIdsOf(item.op_rowid)"
                 (selectedSkuIdsChange)="setSelectedSkuIds(item.op_rowid, $event)"
                 (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-matrix>
+            } @else if (item.detail?.referenceSams) {
+              <app-document-integration-stamping [document]="item" [selectedSamIds]="selectedSkuIdsOf(item.op_rowid)"
+                (selectedSamIdsChange)="setSelectedSkuIds(item.op_rowid, $event)"
+                (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-stamping>
             } @else {
               <p class="text-sm text-slate-500">Sin detalle por SKU</p>
             }

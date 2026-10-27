@@ -1,12 +1,7 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, computed, DestroyRef, effect, inject, input, model, output, untracked } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { merge } from 'rxjs';
+import { Component, computed, input, model, output } from '@angular/core';
 import { WorkCenterDocument } from '../../../../../../../models/integration/order-by-work-center';
 import { ProductionOrder } from '../../../../../../../models/production/production-order';
 import { SkuDetail } from '../../../../../../../models/production/sku-detail';
-import { UiHourInput } from '../../../../../../elements/ui-hour-input/ui-hour-input';
 import { buildColorSizeMatrix } from '../../../../../../components/production/tables/production-orders-table/color-size-matrix';
 import {
   CELL_SELECTED_CLASSES,
@@ -18,20 +13,14 @@ import {
   skuCellState,
   SkuCellState,
 } from '../integration-state';
-
-// Units and time (as shown in the inputs) of the SKUs picked in one OP.
-export interface SelectionSummary {
-  units: number;
-  hours: number;
-  minutes: number;
-}
+import { IntegrationTimeInputs, SelectionSummary } from '../../../components/integration-time-inputs/integration-time-inputs';
 
 // Confección view detail (origin_id = 1): color x size grid of the OP where every SKU shows
 // whether it was already integrated, is ready to be integrated (selectable) or is still being
 // produced. Same pivot as ProductionOrdersTable (buildColorSizeMatrix).
 @Component({
   selector: 'app-document-integration-matrix',
-  imports: [DecimalPipe, ReactiveFormsModule, UiHourInput],
+  imports: [IntegrationTimeInputs],
   templateUrl: './document-integration-matrix.html',
 })
 export class DocumentIntegrationMatrix {
@@ -86,42 +75,6 @@ export class DocumentIntegrationMatrix {
   protected readonly secondsPerUnit = computed(
     () => Number(this.document().seconds_by_unit ?? 0) + Number(this.document().additional_seconds_by_unit ?? 0),
   );
-
-  // Completed units of the selection x seconds per unit, as hours and minutes (rounded to the minute).
-  private readonly defaultTime = computed(() => {
-    const totalMinutes = Math.round((this.selectedUnits() * this.secondsPerUnit()) / 60);
-    return { hours: Math.floor(totalMinutes / 60), minutes: totalMinutes % 60 };
-  });
-
-  // Editable time inputs; reloaded with the calculated value every time a cell is selected or deselected.
-  protected readonly hoursControl = new FormControl<number | null>(0);
-  protected readonly minutesControl = new FormControl<number | null>(0);
-
-  constructor() {
-    effect(() => {
-      this.selectedSkuIds(); // also reload when the selection changes but the calculated time does not
-      const { hours, minutes } = this.defaultTime();
-      const units = this.selectedUnits();
-      untracked(() => {
-        this.hoursControl.setValue(hours);
-        this.minutesControl.setValue(minutes);
-        this.emitSummary(units);
-      });
-    });
-
-    // Manual edits of the time also reach the parent.
-    merge(this.hoursControl.valueChanges, this.minutesControl.valueChanges)
-      .pipe(takeUntilDestroyed(inject(DestroyRef)))
-      .subscribe(() => this.emitSummary(this.selectedUnits()));
-  }
-
-  private emitSummary(units: number): void {
-    this.selectionSummary.emit({
-      units,
-      hours: this.hoursControl.value ?? 0,
-      minutes: this.minutesControl.value ?? 0,
-    });
-  }
 
   protected readonly isRealSku = isRealSku;
   protected readonly state = skuCellState;

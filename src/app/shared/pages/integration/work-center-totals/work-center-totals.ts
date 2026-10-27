@@ -12,10 +12,9 @@ import { toLocalDate } from '../../../../common/functions/time-range';
 
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
-import {
-  DocumentIntegrationMatrix,
-  SelectionSummary,
-} from './options/production/document-integration-matrix/document-integration-matrix';
+import { DocumentIntegrationMatrix } from './options/production/document-integration-matrix/document-integration-matrix';
+import { DocumentIntegrationStamping } from './options/stamping/document-integration-stamping/document-integration-stamping';
+import { SelectionSummary } from './components/integration-time-inputs/integration-time-inputs';
 import { DocumentDetail } from './components/document-detail/document-detail';
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
@@ -28,6 +27,9 @@ import { UiIcon } from '../../../elements/ui-icon/ui-icon';
 
 // Read-only view of orders-to-be-outbound/by-work-center: totals per work center
 // with their documents (OPs), no day split.
+// Same reference for every OP without selection, so the bound input does not change on each check.
+const NO_SELECTION: number[] = [];
+
 @Component({
   selector: 'app-work-center-totals',
   imports: [
@@ -42,6 +44,7 @@ import { UiIcon } from '../../../elements/ui-icon/ui-icon';
     UiBadge,
     DocumentDetail,
     DocumentIntegrationMatrix,
+    DocumentIntegrationStamping,
     UiLabelButton,
     UiOriginBadge,
     CharSquare,
@@ -102,7 +105,7 @@ export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
   protected readonly selectedSkuIdsByOp = signal<Record<number, number[]>>({});
 
   protected selectedSkuIdsOf(opRowid: number): number[] {
-    return this.selectedSkuIdsByOp()[opRowid] ?? [];
+    return this.selectedSkuIdsByOp()[opRowid] ?? NO_SELECTION;
   }
 
   protected setSelectedSkuIds(opRowid: number, ids: number[]): void {
