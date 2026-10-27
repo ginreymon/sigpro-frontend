@@ -117,13 +117,18 @@ export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
   }
 
   // One row per OP of the work center with units selected, for the table at the top of the integrate modal.
-  protected selectionRows(): { op: string; units: number; minutes: number }[] {
+  protected selectionRows(): { op: string; reference: string; units: number; minutes: number }[] {
     const byOp = this.selectionSummaryByOp();
     return (this.rowObject.documents ?? [])
       .filter((doc) => (byOp[doc.op_rowid]?.units ?? 0) > 0)
       .map((doc) => {
         const { units, hours, minutes } = byOp[doc.op_rowid];
-        return { op: `${doc.op_type} ${doc.op_number}`, units, minutes: hours * 60 + minutes };
+        return {
+          op: `${doc.op_type} ${doc.op_number}`,
+          reference: doc.reference || '—',
+          units,
+          minutes: hours * 60 + minutes,
+        };
       });
   }
 
