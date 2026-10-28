@@ -1,8 +1,7 @@
 import { Component, inject, LOCALE_ID, signal } from '@angular/core';
-import { DatePipe, formatDate, NgTemplateOutlet } from '@angular/common';
+import { formatDate, NgTemplateOutlet } from '@angular/common';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
-import { SideModalLayout } from '../../../components/layout/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../components/layout/modal-layout/modal-layout';
 import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
 import { TableColumn } from '../../../../common/interfaces/table-column';
@@ -15,15 +14,15 @@ import { UiBadge } from '../../../elements/ui-badge/ui-badge';
 import { DocumentIntegrationMatrix } from './options/production/document-integration-matrix/document-integration-matrix';
 import { DocumentIntegrationStamping } from './options/stamping/document-integration-stamping/document-integration-stamping';
 import { SelectionSummary } from './components/integration-time-inputs/integration-time-inputs';
-import { DocumentDetail } from './components/document-detail/document-detail';
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
-import { CharSquare } from '../../../components/widgets/char-square/char-square';
 import { TableTemplate } from '../../../../directives/table-template';
 import { OrderByWorkCenter } from '../../../../models/integration/order-by-work-center';
 import { PaginatedResponse } from '../../../../common/interfaces/paginated-response';
 import { OrdersByWorkCenterService } from '../../../../services/integration/orders-by-work-center-service';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
+import { TepSendDetail, TepSendRequest } from '../../../../models/integration/tep-send';
+import { buildTepDetail, buildTepRequest, PickedOp } from './tep-payload';
 
 // Read-only view of orders-to-be-outbound/by-work-center: totals per work center
 // with their documents (OPs), no day split.
@@ -35,35 +34,25 @@ const NO_SELECTION: number[] = [];
   imports: [
     WorkSpaceLayout,
     DataTable,
-    SideModalLayout,
     ModalLayout,
-    DatePipe,
     TableTemplate,
     NgTemplateOutlet,
     UiAccordionItem,
     UiBadge,
-    DocumentDetail,
     DocumentIntegrationMatrix,
     DocumentIntegrationStamping,
     UiLabelButton,
     UiOriginBadge,
-    CharSquare,
     UiIcon,
   ],
   templateUrl: './work-center-totals.html',
 })
 export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
   protected override entityName: string = 'Centro de trabajo';
-  protected readonly sourceName: string = 'SIESA';
-  protected readonly targetName: string = 'SIGPRO';
-
-  // first_start/last_end arrive in UTC without a zone suffix: toLocalDate marks
-  // them as UTC so DatePipe shows local time.
-  protected readonly toLocalDate = toLocalDate;
 
   protected override get actions(): TableActions {
     return {
-      view: { enabled: true, title: 'Detalle Centro de Trabajo', iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: false },
       edit: { enabled: false },
       delete: { enabled: false },
       create: { enabled: false },
@@ -96,10 +85,33 @@ export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
   // The central modal (ModalLayout) shows what will be integrated for the work center.
   protected integrate(row: OrderByWorkCenter): void {
     this.rowObject = row;
-    this.dialogService.openModal('Integrar OPs', 'Aceptar');
+    this.dialogService.openModal('Integrar OPs', 'Integrar');
+  }
+
+  // "Integrar" button of the central modal: asks for confirmation first. The integration itself is not
+  // implemented yet, so confirming only closes the dialogs and clears the selection.
+  protected confirmIntegration(): void {
+    // Every picked OP must have its required fields filled (subprocess, its extra time and the time).
+    if (this.pickedOps().some((picked) => !picked.summary.valid)) {
+      this.submitted.set(true);
+      this.dialogService.openToast('Datos incompletos', 'Complete los campos requeridos de cada OP a integrar.', 'fail');
+      return;
+    }
+    this.dialogService.openConfirm(
+      'Integrar',
+      'Al realizar esta acción ya no se podrá revertir. ¿Desea continuar con la integración?',
+      'Integrar',
+      () => {
+        this.dialogService.closeConfirm();
+        this.closeModelForm();
+      },
+    );
   }
 
   protected expandedDocumentIndexes = signal<Set<number>>(new Set());
+
+  // Set when integrating with missing data, so the time inputs of every OP show their errors.
+  protected readonly submitted = signal(false);
 
   // SKUs picked in the integration matrix of each OP (by op_rowid), kept here so they survive collapsing the accordion.
   protected readonly selectedSkuIdsByOp = signal<Record<number, number[]>>({});
@@ -119,20 +131,29 @@ export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
     this.selectionSummaryByOp.update((byOp) => ({ ...byOp, [opRowid]: summary }));
   }
 
-  // One row per OP of the work center with units selected, for the table at the top of the integrate modal.
-  protected selectionRows(): { op: string; reference: string; units: number; minutes: number }[] {
+  // OPs of the work center with units selected, with what the user picked and the units/time of it.
+  private pickedOps(): PickedOp[] {
     const byOp = this.selectionSummaryByOp();
     return (this.rowObject.documents ?? [])
       .filter((doc) => (byOp[doc.op_rowid]?.units ?? 0) > 0)
-      .map((doc) => {
-        const { units, hours, minutes } = byOp[doc.op_rowid];
-        return {
-          op: `${doc.op_type} ${doc.op_number}`,
-          reference: doc.reference || '—',
-          units,
-          minutes: hours * 60 + minutes,
-        };
-      });
+      .map((doc) => ({ document: doc, selectedIds: this.selectedSkuIdsOf(doc.op_rowid), summary: byOp[doc.op_rowid] }));
+  }
+
+  // One row per picked OP, for the table at the top of the integrate modal. `tep` is the item of the
+  // `details` of the TEP payload for that row, already built.
+  protected selectionRows(): { op: string; reference: string; units: number; minutes: number; tep: TepSendDetail }[] {
+    return this.pickedOps().map((picked) => ({
+      op: `${picked.document.op_type} ${picked.document.op_number}`,
+      reference: picked.document.reference || '—',
+      units: picked.summary.units,
+      minutes: picked.summary.hours * 60 + picked.summary.minutes,
+      tep: buildTepDetail(this.rowObject as OrderByWorkCenter, picked),
+    }));
+  }
+
+  // Body of POST integration/tep/send/ for what is shown in the table (the send itself is not wired yet).
+  protected tepRequest(): TepSendRequest {
+    return buildTepRequest(this.rowObject as OrderByWorkCenter, this.pickedOps());
   }
 
   protected selectionTotals(rows: { units: number; minutes: number }[]): { units: number; minutes: number } {
@@ -149,6 +170,7 @@ export class WorkCenterTotals extends BaseCrudPage<OrderByWorkCenter> {
 
   protected override closeModelForm(): void {
     this.expandedDocumentIndexes.set(new Set());
+    this.submitted.set(false);
     this.selectionSummaryByOp.set({});
     this.selectedSkuIdsByOp.set({});
     super.closeModelForm();

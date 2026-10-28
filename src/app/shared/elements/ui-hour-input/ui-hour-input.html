@@ -12,7 +12,8 @@
     (input)="handleInput($event)"
     (blur)="onTouched()"
     [class]="`
-      w-full text-center text-3xl font-bold py-4 rounded-lg
+      w-full text-center font-bold
+      ${compact ? 'text-base font-semibold py-1.5 rounded-md' : 'text-3xl py-4 rounded-lg'}
       text-brand-700
      bg-slate-50     
       border

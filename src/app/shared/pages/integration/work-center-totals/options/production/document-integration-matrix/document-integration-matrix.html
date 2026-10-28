@@ -53,7 +53,7 @@
     </div>
 
     <app-integration-time-inputs [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
-      [selection]="selectedSkuIds()" [visible]="selectedSkus().length > 0"
+      [selection]="selectedSkuIds()" [visible]="selectedSkus().length > 0" [askSubprocess]="true" [submitted]="submitted()"
       (summary)="selectionSummary.emit($event)"></app-integration-time-inputs>
 
   </div>

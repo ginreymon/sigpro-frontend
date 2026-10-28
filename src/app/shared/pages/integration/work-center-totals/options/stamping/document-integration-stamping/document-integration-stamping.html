@@ -1,52 +1,40 @@
 @if (sams().length) {
   <div class="flex flex-col gap-2">
 
-    <button type="button" data-testid="stamping-op"
-      class="w-full text-left rounded-lg border px-4 py-3 flex flex-col gap-3"
-      [class]="blockClasses()" [disabled]="!isSelectable()"
-      [attr.aria-pressed]="isSelectable() ? isSelected() : null" (click)="toggleOp()">
+    @if (totals(); as t) {
+      <div class="overflow-x-auto rounded-md border border-slate-200">
+        <table data-testid="stamping-totals" class="w-full text-xs text-left border-collapse">
+          <thead class="bg-slate-100 text-slate-600">
+            <tr>
+              <th class="px-2 py-1.5 font-semibold text-center">Ejecutado (ERP)</th>
+              <th class="px-2 py-1.5 font-semibold text-center">Por integrar</th>
+              <th class="px-2 py-1.5 font-semibold text-center">Por estampar</th>
+              <th class="px-2 py-1.5 font-semibold text-center">Total OP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="text-center text-base font-semibold tabular-nums text-gray-700">
+              <td class="px-2 py-1.5" data-testid="stat-erp">{{ erpExecutionQty() | number: '1.0-0' }}</td>
+              <td class="px-2 py-1.5" data-testid="stat-stamped">{{ toIntegrateQty() | number: '1.0-0' }}</td>
+              <td class="px-2 py-1.5" data-testid="stat-pending">{{ pendingQty() | number: '1.0-0' }}</td>
+              <td class="px-2 py-1.5" data-testid="stat-total">{{ t.total_qty | number: '1.0-0' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    }
 
-      <span class="flex items-center justify-between gap-2">
-        <span class="text-sm font-semibold">{{ stateLabel() }}</span>
-        @if (factor() !== null) {
-          <span data-testid="stamping-pieces" class="rounded-full border border-current/30 px-2 py-0.5 text-[11px] font-medium">
-            {{ factor() }} {{ factor() === 1 ? 'pieza estampada' : 'piezas estampadas' }}
-          </span>
-        }
-      </span>
-
-      @if (totals(); as t) {
-        <span data-testid="stamping-totals" class="grid grid-cols-3 gap-2 text-center">
-          <span class="flex flex-col" data-testid="stat-stamped">
-            <span class="text-[11px] uppercase tracking-wide opacity-70">Estampadas</span>
-            <span class="text-xl font-semibold tabular-nums">{{ t.stamped_qty | number: '1.0-0' }}</span>
-          </span>
-          <span class="flex flex-col" data-testid="stat-pending">
-            <span class="text-[11px] uppercase tracking-wide opacity-70">Por hacer</span>
-            <span class="text-xl font-semibold tabular-nums">{{ pendingQty() | number: '1.0-0' }}</span>
-          </span>
-          <span class="flex flex-col" data-testid="stat-total">
-            <span class="text-[11px] uppercase tracking-wide opacity-70">Total</span>
-            <span class="text-xl font-semibold tabular-nums">{{ t.total_qty | number: '1.0-0' }}</span>
-          </span>
-        </span>
-
-        <span class="flex items-center gap-2">
-          <span class="h-1.5 flex-1 overflow-hidden rounded-full bg-current/20" role="progressbar"
-            [attr.aria-valuenow]="progress()" aria-valuemin="0" aria-valuemax="100" aria-label="Avance de estampado">
-            <span data-testid="stamping-progress" class="block h-full rounded-full bg-current" [style.width.%]="progress()"></span>
-          </span>
-          <span class="text-[11px] tabular-nums opacity-70">{{ progress() | number: '1.0-0' }}%</span>
-        </span>
-      } @else {
-        <span class="text-xs opacity-70">Sin factor de estampado</span>
-      }
-
-      <span class="text-xs font-semibold tabular-nums">Por integrar {{ pendingUnits() }} und</span>
-    </button>
+    @if (toIntegrateQty() > 0) {
+      <button type="button" data-testid="stamping-op"
+        class="block h-12 w-full rounded border text-lg font-semibold tabular-nums"
+        [class]="blockClasses()" [disabled]="!isSelectable()" [title]="tooltip()" [attr.aria-label]="tooltip()"
+        [attr.aria-pressed]="isSelectable() ? isSelected() : null" (click)="toggleOp()">
+        {{ toIntegrateQty() | number: '1.0-0' }}
+      </button>
+    }
 
     <app-integration-time-inputs [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
-      [selection]="selectedSamIds()" [visible]="selectedSamIds().length > 0"
+      [selection]="selectedSamIds()" [visible]="selectedSamIds().length > 0" [submitted]="submitted()"
       (summary)="selectionSummary.emit($event)"></app-integration-time-inputs>
 
   </div>

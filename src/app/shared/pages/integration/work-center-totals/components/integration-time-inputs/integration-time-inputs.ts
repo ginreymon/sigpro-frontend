@@ -1,23 +1,33 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, computed, DestroyRef, effect, inject, input, output, untracked } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { merge } from 'rxjs';
+import { UiFormField } from '../../../../../elements/ui-form-field/ui-form-field';
 import { UiHourInput } from '../../../../../elements/ui-hour-input/ui-hour-input';
+import { UiInput } from '../../../../../elements/ui-input/ui-input';
+import { UiSelect } from '../../../../../elements/ui-select/ui-select';
+import { TEP_SUBPROCESS_OPTIONS, TepSubprocess } from '../../../../../../models/integration/tep-send';
 
-// Units and time (as shown in the inputs) of what was picked in one OP.
+// Units, time (as shown in the inputs) and subprocess of what was picked in one OP.
+// `subprocess` stays null until picked, and always when the origin does not ask for it.
+// `valid` is false while a required field is missing or wrong.
 export interface SelectionSummary {
   units: number;
   hours: number;
   minutes: number;
+  subprocess: TepSubprocess | null;
+  valid: boolean;
 }
+
+// Only digits with an optional decimal part (the number input also lets "e" and signs through).
+const POSITIVE_NUMBER = /^\d*\.?\d+$/;
 
 // Hours/minutes inputs of the integrate modal, shared by every origin (Confección matrix,
 // Estampación). They are preloaded with units x seconds per unit every time the selection
 // changes, stay editable in between, and report units + time through `summary`.
 @Component({
   selector: 'app-integration-time-inputs',
-  imports: [DecimalPipe, ReactiveFormsModule, UiHourInput],
+  imports: [ReactiveFormsModule, UiFormField, UiHourInput, UiSelect, UiInput],
   templateUrl: './integration-time-inputs.html',
 })
 export class IntegrationTimeInputs {
@@ -33,40 +43,99 @@ export class IntegrationTimeInputs {
   readonly selection = input<unknown>();
   // The inputs are only drawn when there is something selected; the summary is emitted either way.
   readonly visible = input(false);
+  // Confección only: asks for the mandatory subprocess (no default, the user has to pick one).
+  readonly askSubprocess = input(false);
+  // The parent tried to integrate: show the errors of every field, touched or not.
+  readonly submitted = input(false);
   readonly summary = output<SelectionSummary>();
 
-  // Units x seconds per unit, as hours and minutes (rounded to the minute).
+  protected readonly subprocessOptions = TEP_SUBPROCESS_OPTIONS;
+
+  protected readonly form = new FormGroup({
+    subprocess: new FormControl<TepSubprocess | null>(null, Validators.required),
+    // Extra seconds per unit typed by the user; only asked when a subprocess other than "none" is picked.
+    additionalSeconds: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.pattern(POSITIVE_NUMBER),
+      Validators.min(0.01),
+    ]),
+    hours: new FormControl<number | null>(0, [Validators.required, Validators.min(0), Validators.max(99)]),
+    minutes: new FormControl<number | null>(0, [Validators.required, Validators.min(0), Validators.max(59)]),
+  });
+
+  private readonly subprocess = signal<TepSubprocess | null>(null);
+  private readonly additionalSeconds = signal(0);
+  protected readonly needsAdditionalTime = computed(
+    () => this.askSubprocess() && !!this.subprocess() && this.subprocess() !== 'none',
+  );
+
+  // Units x (seconds per unit + additional seconds per unit), as hours and minutes (rounded to the minute).
   private readonly defaultTime = computed(() => {
-    const totalMinutes = Math.round((this.units() * this.secondsPerUnit()) / 60);
+    const extra = this.needsAdditionalTime() ? this.additionalSeconds() : 0;
+    const totalMinutes = Math.round((this.units() * (this.secondsPerUnit() + extra)) / 60);
     return { hours: Math.floor(totalMinutes / 60), minutes: totalMinutes % 60 };
   });
 
-  protected readonly hoursControl = new FormControl<number | null>(0);
-  protected readonly minutesControl = new FormControl<number | null>(0);
-
   constructor() {
+    const destroyRef = inject(DestroyRef);
+    const { subprocess, additionalSeconds, hours, minutes } = this.form.controls;
+
     effect(() => {
       this.selection();
-      const { hours, minutes } = this.defaultTime();
+      const time = this.defaultTime();
       const units = this.units();
       untracked(() => {
-        this.hoursControl.setValue(hours, { emitEvent: false });
-        this.minutesControl.setValue(minutes, { emitEvent: false });
+        hours.setValue(time.hours, { emitEvent: false });
+        minutes.setValue(time.minutes, { emitEvent: false });
         this.emitSummary(units);
       });
     });
 
-    // Manual edits of the time also reach the parent.
-    merge(this.hoursControl.valueChanges, this.minutesControl.valueChanges)
-      .pipe(takeUntilDestroyed(inject(DestroyRef)))
+    // A disabled control does not count for the validity: only ask for what applies.
+    effect(() => {
+      const ask = this.askSubprocess();
+      const needsAdditional = this.needsAdditionalTime();
+      untracked(() => {
+        this.toggle(subprocess, ask);
+        this.toggle(additionalSeconds, needsAdditional);
+        this.emitSummary(this.units());
+      });
+    });
+
+    effect(() => {
+      if (this.submitted()) this.form.markAllAsTouched();
+    });
+
+    subprocess.valueChanges.pipe(takeUntilDestroyed(destroyRef)).subscribe((value) => {
+      this.subprocess.set(value);
+      if (value === 'none') {
+        additionalSeconds.reset(null, { emitEvent: false });
+        this.additionalSeconds.set(0);
+      }
+    });
+    additionalSeconds.valueChanges
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe((value) => this.additionalSeconds.set(Number(value) || 0));
+
+    // Manual edits also reach the parent.
+    merge(hours.valueChanges, minutes.valueChanges, subprocess.valueChanges, additionalSeconds.valueChanges)
+      .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => this.emitSummary(this.units()));
   }
 
+  private toggle(control: FormControl, enabled: boolean): void {
+    if (enabled) control.enable({ emitEvent: false });
+    else control.disable({ emitEvent: false });
+  }
+
   private emitSummary(units: number): void {
+    const { subprocess, hours, minutes } = this.form.getRawValue();
     this.summary.emit({
       units,
-      hours: this.hoursControl.value ?? 0,
-      minutes: this.minutesControl.value ?? 0,
+      hours: hours ?? 0,
+      minutes: minutes ?? 0,
+      subprocess: this.askSubprocess() ? subprocess : null,
+      valid: this.form.valid,
     });
   }
 }

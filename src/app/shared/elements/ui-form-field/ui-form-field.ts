@@ -10,7 +10,14 @@ import { FormFieldConfig } from '../../../common/interfaces/form-field-config';
   styleUrl: './ui-form-field.css',
 })
 export class UiFormField {
-  @Input() layout: 'vertical' | 'horizontal' = 'vertical';
+  /**
+   * vertical: label above the control.
+   * horizontal: control first, label after (toggles/checkboxes).
+   * inline: label on the left, control on the right; errors render below the row.
+   */
+  @Input() layout: 'vertical' | 'horizontal' | 'inline' = 'vertical';
+  /** DOM id of the projected control; the label `for` falls back to controlName. */
+  @Input() inputId: string | null = null;
   @Input() controls: Partial<FormFieldConfig>[] = [];
   @Input() groupLabel: string | null = null;
   @Input() hideLabel = false;

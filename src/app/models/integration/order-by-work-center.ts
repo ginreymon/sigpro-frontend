@@ -3,7 +3,7 @@ import { ColorRowDetail } from '../production/color-row-detail';
 import { OrderToBeOutboundDetail } from './order-to-be-outbound';
 import { SkuRecord } from '../production/sku-detail';
 
-// Candidate SAM of a stamping OP inside `detail.referenceSams` (fn_detalle_estampacion_op_json),
+// Candidate SAM of a stamping OP inside `detail.referenceSams` (fn_detalle_integracion_op_estampacion),
 // with its stamping records. snake_case like StampingReferenceSam; the TEP state keys are
 // translated by the backend (Tep_Procesado -> tepProcessed, Records -> records).
 export interface IntegrationReferenceSam {

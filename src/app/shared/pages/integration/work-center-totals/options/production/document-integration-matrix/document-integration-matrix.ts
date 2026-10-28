@@ -3,16 +3,13 @@ import { WorkCenterDocument } from '../../../../../../../models/integration/orde
 import { ProductionOrder } from '../../../../../../../models/production/production-order';
 import { SkuDetail } from '../../../../../../../models/production/sku-detail';
 import { buildColorSizeMatrix } from '../../../../../../components/production/tables/production-orders-table/color-size-matrix';
+import { isRealSku, pendingRecords, producedUnits, skuCellState } from '../integration-state';
 import {
   CELL_SELECTED_CLASSES,
   CELL_STATE_CLASSES,
   CELL_STATE_LABELS,
-  isRealSku,
-  pendingRecords,
-  producedUnits,
-  skuCellState,
   SkuCellState,
-} from '../integration-state';
+} from '../../../components/integration-cell-style';
 import { IntegrationTimeInputs, SelectionSummary } from '../../../components/integration-time-inputs/integration-time-inputs';
 
 // Confección view detail (origin_id = 1): color x size grid of the OP where every SKU shows
@@ -29,6 +26,8 @@ export class DocumentIntegrationMatrix {
   readonly selectedSkuIds = model<number[]>([]);
   // Units and time of the selection; emitted when the selection or the time inputs change.
   readonly selectionSummary = output<SelectionSummary>();
+  // The user tried to integrate: the time inputs show their errors.
+  readonly submitted = input(false);
 
   // `open` and `complete` are not listed in the legend; their cells keep their own look.
   protected readonly legend = (Object.keys(CELL_STATE_LABELS) as SkuCellState[])

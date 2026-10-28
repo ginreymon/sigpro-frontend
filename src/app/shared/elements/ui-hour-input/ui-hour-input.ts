@@ -19,6 +19,8 @@ export class UiHourInput extends BaseControlValueAccessor<number | null> {
   @Input() max = 23;
   @Input() min = 0;
   @Input() title = '';
+  // Shorter variant (smaller digits and padding) for dense forms.
+  @Input() compact = false;
 
   get displayValue(): string {
     if (this.value === null || this.value === undefined || this.value === ('' as any)) return '';

@@ -35,32 +35,7 @@
     </div>
 </app-work-space-layout>
 
-<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
-
-  <div class="mb-4 flex items-center gap-4">
-
-    <app-char-square>
-      {{ rowObject.code?.trim()?.charAt(0) }}
-    </app-char-square>
-
-    <div>
-      <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ `${rowObject.code?.trim()} · ${rowObject.description?.trim()}` }} </h3>
-      <p class="text-sm text-slate-500 mb-0.5"> {{ rowObject.origin }} </p>
-      <p class="text-sm text-slate-500 mb-0.5"> OPs : {{ rowObject.documents_count }} </p>
-    </div>
-
-  </div>
-
-  <div class="mb-4 px-4 grid grid-cols-2 gap-x-4 gap-y-2 p-3 rounded-lg border border-slate-200 text-sm text-slate-600">
-    <p> <strong>Inicio:</strong> {{ rowObject.first_start ? (toLocalDate(rowObject.first_start) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
-    <p> <strong>Finalización:</strong> {{ rowObject.last_end ? (toLocalDate(rowObject.last_end) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
-  </div>
-
-  <ng-container *ngTemplateOutlet="documentsList"></ng-container>
-
-</app-side-modal-layout>
-
-<app-modal-layout classNames="max-w-xl" (onAccept)="closeModelForm()">
+<app-modal-layout classNames="max-w-xl" (onAccept)="confirmIntegration()">
 
   <div modal-top>
     <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ `${rowObject.code?.trim()} · ${rowObject.description?.trim()}` }} </h3>
@@ -105,14 +80,14 @@
         </tfoot>
       }
     </table>
-  </div> 
+  </div>
 
-  <ng-container *ngTemplateOutlet="documentsList; context: { placeholder: true }"></ng-container>
+  <ng-container *ngTemplateOutlet="documentsList"></ng-container>
 
 </app-modal-layout>
 
-<!-- OP accordion of both modals. `placeholder` (central modal) swaps the detail for the per-OP integration matrix. -->
-<ng-template #documentsList let-placeholder="placeholder">
+<!-- OP accordion of the integrate modal, with the per-OP integration matrix. -->
+<ng-template #documentsList>
   @if(rowObject.documents?.length){
   <div class="mt-4 mb-2 divide-y divide-slate-200 border border-slate-200 rounded-lg">
 
@@ -128,33 +103,24 @@
           <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
         </div>
 
-        @if (placeholder && selectedSkuIdsOf(item.op_rowid).length) {
-          <app-ui-badge intent="default" label="Por integrar"></app-ui-badge>
-        } @else {
-          <app-ui-badge [active]="item.erp_quantity_discrepancy == 0" activeText="Integrar" inactiveText="Incompleto"></app-ui-badge>
-        }
+        <app-ui-badge [active]="selectedSkuIdsOf(item.op_rowid).length > 0" activeText="Por integrar" inactiveText="Sin seleccionar"></app-ui-badge>
       </ng-container>
 
-      @if (placeholder) {
-        <div accordion-body>
-          @if (expandedDocumentIndexes().has($index)) {
-            @if (item.detail?.colorRows?.length) {
-              <app-document-integration-matrix [document]="item" [selectedSkuIds]="selectedSkuIdsOf(item.op_rowid)"
-                (selectedSkuIdsChange)="setSelectedSkuIds(item.op_rowid, $event)"
-                (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-matrix>
-            } @else if (item.detail?.referenceSams) {
-              <app-document-integration-stamping [document]="item" [selectedSamIds]="selectedSkuIdsOf(item.op_rowid)"
-                (selectedSamIdsChange)="setSelectedSkuIds(item.op_rowid, $event)"
-                (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-stamping>
-            } @else {
-              <p class="text-sm text-slate-500">Sin detalle por SKU</p>
-            }
+      <div accordion-body>
+        @if (expandedDocumentIndexes().has($index)) {
+          @if (item.detail?.colorRows?.length) {
+            <app-document-integration-matrix [document]="item" [selectedSkuIds]="selectedSkuIdsOf(item.op_rowid)" [submitted]="submitted()"
+              (selectedSkuIdsChange)="setSelectedSkuIds(item.op_rowid, $event)"
+              (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-matrix>
+          } @else if (item.detail?.referenceSams) {
+            <app-document-integration-stamping [document]="item" [selectedSamIds]="selectedSkuIdsOf(item.op_rowid)" [submitted]="submitted()"
+              (selectedSamIdsChange)="setSelectedSkuIds(item.op_rowid, $event)"
+              (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-stamping>
+          } @else {
+            <p class="text-sm text-slate-500">Sin detalle por SKU</p>
           }
-        </div>
-      } @else {
-        <app-document-detail accordion-body [document]="item" [originId]="rowObject.origin_id"
-          [sourceName]="sourceName" [targetName]="targetName"></app-document-detail>
-      }
+        }
+      </div>
 
     </app-ui-accordion-item>
 
