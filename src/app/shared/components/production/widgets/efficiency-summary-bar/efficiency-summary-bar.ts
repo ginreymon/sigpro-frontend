@@ -15,6 +15,8 @@ export class EfficiencySummaryBar {
   @Input() status = 'INACTIVE';
   @Input() completed = 0;
   @Input() activeModules?: number;
+  // When false the bar renders without its own border (used inside cards that already have one).
+  @Input() bordered = true;
   @Input() showFilterButton = false;
   @Input() filterActive = false;
   @Output() filterToggle = new EventEmitter<void>();

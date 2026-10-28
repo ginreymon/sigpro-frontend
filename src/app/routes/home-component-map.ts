@@ -5,6 +5,7 @@ import { HomeProductionCoordinator } from '../pages/home/views/home-production-c
 import { HomeStampingCoordinator } from '../pages/home/views/home-stamping-coordinator/home-stamping-coordinator';
 import { HomeEngineer } from '../pages/home/views/home-engineer/home-engineer';
 import { HomeScreenPrinter } from '../pages/home/views/home-screen-printer/home-screen-printer';
+import { HomeAdmin } from '../pages/home/views/home-admin/home-admin';
 
 // Keys must match core.HomeView.key rows (assigned per role via core.RoleHomeView).
 // Add a new entry here when a new role needs its own home view.
@@ -14,6 +15,7 @@ export const homeComponentMap: Record<string, Type<any>> = {
   "HomeStampingCoordinator": HomeStampingCoordinator,
   "HomeEngineer": HomeEngineer,
   "HomeScreenPrinter": HomeScreenPrinter,
+  "HomeAdmin": HomeAdmin,
 };
 
 export { HomeDefault };

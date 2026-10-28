@@ -1,0 +1,20 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <app-daily-trend-chart
+    [title]="'Producción diaria · ' + monthLabel()"
+    [seriesLabel]="areaLabel()"
+    [color]="color()"
+    [points]="dailyCompleted()"
+    yTitle="Completadas (und)"
+    [state]="state()">
+  </app-daily-trend-chart>
+
+  <app-daily-trend-chart
+    [title]="'Eficiencia diaria · ' + monthLabel()"
+    [seriesLabel]="areaLabel()"
+    [color]="color()"
+    [points]="dailyEfficiency()"
+    yTitle="Eficiencia (%)"
+    valueFormat="1.2-2"
+    [state]="state()">
+  </app-daily-trend-chart>
+</div>

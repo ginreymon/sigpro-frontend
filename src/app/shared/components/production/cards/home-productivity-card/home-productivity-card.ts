@@ -8,7 +8,7 @@ const STATUS_BADGES: Record<string, { intent: BadgeIntent; label: string }> = {
   PAUSED: { intent: 'paused', label: 'Pausado' },
 };
 const INACTIVE_BADGE = { intent: 'inactive' as BadgeIntent, label: 'Inactivo' };
-const COUNT_UP_MS = 800;
+const COUNT_UP_MS = 1000;
 
 @Component({
   selector: 'app-home-productivity-card',
@@ -54,9 +54,10 @@ export class HomeProductivityCard implements OnChanges, OnDestroy {
     this.cancelAnimation();
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const fromEfficiency = this.shownEfficiency;
-    const fromCompleted = this.shownCompleted;
-    if (reduceMotion || (fromEfficiency === efficiency && fromCompleted === completed)) {
+    // Every new API value counts up from zero so the change is visible without a loader.
+    const fromEfficiency = 0;
+    const fromCompleted = 0;
+    if (reduceMotion) {
       this.shownEfficiency = efficiency;
       this.shownCompleted = completed;
       return;

@@ -1,0 +1,28 @@
+<app-dashboard-section [title]="title()" [state]="state()">
+  <div class="h-64">
+    @if (state() === 'ready') {
+      <app-ui-chart
+        class="h-full"
+        [config]="config()"
+        [ariaLabel]="title() + ' · ' + seriesLabel()">
+      </app-ui-chart>
+      <table class="sr-only">
+        <caption>{{ title() }} · {{ seriesLabel() }} ({{ yTitle() }})</caption>
+        <thead>
+          <tr>
+            <th scope="col">Día</th>
+            <th scope="col">{{ yTitle() }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (point of points(); track point.date) {
+            <tr>
+              <th scope="row">{{ point.date }}</th>
+              <td>{{ point.value === null ? 'No disponible' : (point.value | number: valueFormat()) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</app-dashboard-section>

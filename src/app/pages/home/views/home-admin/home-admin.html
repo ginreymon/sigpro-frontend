@@ -1,0 +1,14 @@
+<!-- relative: contains the absolutely positioned sr-only tables so they do not add a page-level scroll -->
+<div class="relative flex flex-col gap-4">
+  <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)"></app-ui-tabs>
+
+  <ng-container *ngComponentOutlet="active().cards" />
+
+  <app-area-daily-charts
+    [areaLabel]="active().label"
+    [color]="active().color"
+    [monthLabel]="monthLabel"
+    [rows]="active().rows"
+    [state]="active().state">
+  </app-area-daily-charts>
+</div>
