@@ -17,6 +17,9 @@ function loadChartJs(): Promise<typeof import('chart.js')> {
       lib.LineController,
       lib.LineElement,
       lib.PointElement,
+      lib.RadarController,
+      lib.RadialLinearScale,
+      lib.Filler,
       lib.Tooltip,
     );
     lib.Chart.defaults.maintainAspectRatio = false;

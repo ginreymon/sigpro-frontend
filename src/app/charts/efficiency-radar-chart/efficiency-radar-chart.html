@@ -1,0 +1,28 @@
+<app-dashboard-section [title]="title()" [state]="effectiveState()" [emptyMessage]="emptyMessage()">
+  <div class="h-80">
+    @if (effectiveState() === 'ready') {
+      <app-ui-chart
+        class="h-full"
+        [config]="config()"
+        [ariaLabel]="title() + ' · ' + areaLabel()">
+      </app-ui-chart>
+      <table class="sr-only">
+        <caption>{{ title() }} · {{ areaLabel() }} (%)</caption>
+        <thead>
+          <tr>
+            <th scope="col">Módulo</th>
+            <th scope="col">Eficiencia (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (label of labels(); track $index) {
+            <tr>
+              <th scope="row">{{ label }}</th>
+              <td>{{ values()[$index] === null ? 'No disponible' : (values()[$index] | number: '1.2-2') }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</app-dashboard-section>

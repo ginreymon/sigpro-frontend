@@ -11,4 +11,15 @@
     [rows]="active().rows"
     [state]="active().state">
   </app-area-daily-charts>
+
+  <app-efficiency-radar-chart
+    [title]="'Eficiencia por módulo · ' + monthLabel"
+    [areaLabel]="active().label"
+    [color]="active().color"
+    [labels]="moduleLabels()"
+    [values]="moduleValues()"
+    [target]="appConfig.highEfficiencyLimit"
+    targetLabel="Meta de eficiencia"
+    [state]="active().state">
+  </app-efficiency-radar-chart>
 </div>

@@ -53,3 +53,34 @@ export function aggregateDailyCompleted(rows: ModuleEfficiencyRow[]): DailyPoint
     value: sumOrNull(dayRows.map((r) => r.total_completed)),
   }));
 }
+
+export interface ModuleEfficiencyPoint {
+  moduleId: number;
+  label: string;
+  value: number | null;
+}
+
+/**
+ * Efficiency per module over the given rows, sorted by module number. Same rule as the daily
+ * and monthly figures: mean of the row efficiencies above 0, rounded to 2 decimals; a module
+ * without such rows is null. The backend returns one row per shift and module.
+ */
+export function aggregateEfficiencyByModule(rows: ModuleEfficiencyRow[]): ModuleEfficiencyPoint[] {
+  const byModule = new Map<number, ModuleEfficiencyRow[]>();
+  for (const row of rows) {
+    byModule.set(row.module_id, [...(byModule.get(row.module_id) ?? []), row]);
+  }
+  return [...byModule.entries()]
+    .sort(([, a], [, b]) => a[0].module_number - b[0].module_number)
+    .map(([moduleId, moduleRows]) => {
+      const withData = moduleRows.filter((r) => (r.efficiency ?? 0) > 0);
+      const avg = withData.length
+        ? withData.reduce((sum, r) => sum + r.efficiency, 0) / withData.length
+        : null;
+      return {
+        moduleId,
+        label: moduleRows[0].module_name || `Módulo ${moduleRows[0].module_number}`,
+        value: avg === null ? null : Math.round(avg * 100) / 100,
+      };
+    });
+}

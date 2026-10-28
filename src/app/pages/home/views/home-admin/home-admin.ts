@@ -9,6 +9,9 @@ import { StampingProductivityService } from '../../../../services/stamping/stamp
 import { currentMonthLabel, currentMonthRange } from '../../../../common/functions/date-utils';
 import { CHART_COLORS } from '../../../../charts/chart-palette';
 import { AreaDailyCharts } from '../../../../charts/area-daily-charts/area-daily-charts';
+import { EfficiencyRadarChart } from '../../../../charts/efficiency-radar-chart/efficiency-radar-chart';
+import { aggregateEfficiencyByModule } from '../../../../common/functions/dashboard-aggregate';
+import { AppConfigService } from '../../../../services/core/app-config-service';
 import { TabItem, UiTabs } from '../../../../shared/elements/ui-tabs/ui-tabs';
 import { HomeProductionCoordinator } from '../home-production-coordinator/home-production-coordinator';
 import { HomeStampingCoordinator } from '../home-stamping-coordinator/home-stamping-coordinator';
@@ -37,7 +40,7 @@ const loading = <T>(): Load<T> => ({ status: 'loading', data: null });
 // homes. To add an area, add an entry to `sources` (and to the `rows` initial state).
 @Component({
   selector: 'app-home-admin',
-  imports: [NgComponentOutlet, UiTabs, AreaDailyCharts],
+  imports: [NgComponentOutlet, UiTabs, AreaDailyCharts, EfficiencyRadarChart],
   templateUrl: './home-admin.html',
 })
 export class HomeAdmin {
@@ -76,6 +79,13 @@ export class HomeAdmin {
     const data = load.data ?? [];
     return { ...source, rows: data, state: this.toState(load, data.length) };
   });
+
+  // One radar axis per module of the selected area; the area is implied by the endpoint used.
+  protected readonly modulePoints = computed(() => aggregateEfficiencyByModule(this.active().rows));
+  protected readonly moduleLabels = computed(() => this.modulePoints().map((p) => p.label));
+  protected readonly moduleValues = computed(() => this.modulePoints().map((p) => p.value));
+  // Read lazily in the template: the limit is an app setting that may load after this view.
+  protected readonly appConfig = inject(AppConfigService);
 
   constructor() {
     this.sources.forEach((source) => this.loadArea(source.key));
