@@ -1,5 +1,7 @@
 import { Component, inject, LOCALE_ID, signal } from '@angular/core';
 import { formatDate, NgTemplateOutlet } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
 import { ModalLayout } from '../../../components/layout/modal-layout/modal-layout';
@@ -20,6 +22,8 @@ import { TableTemplate } from '../../../../directives/table-template';
 import { OrderByWorkCenter } from '../../../../models/integration/order-by-work-center';
 import { PaginatedResponse } from '../../../../common/interfaces/paginated-response';
 import { OrdersByWorkCenterService } from '../../../../services/integration/orders-by-work-center-service';
+import { TepService } from '../../../../services/integration/tep-service';
+import { tepErrorMessage } from '../../../../common/functions/tep-error';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
 import { UiAlert } from '../../../elements/ui-alert/ui-alert';
 import { TepSendDetail, TepSendRequest } from '../../../../models/integration/tep-send';
@@ -68,7 +72,10 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     addItem: { enabled: false },
   };
 
-  constructor(ordersByWorkCenterService: OrdersByWorkCenterService) {
+  constructor(
+    ordersByWorkCenterService: OrdersByWorkCenterService,
+    private tepService: TepService,
+  ) {
     super(ordersByWorkCenterService);
   }
 
@@ -90,11 +97,10 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     this.dialogService.openModal('Integrar OPs', 'Integrar');
   }
 
-  // "Integrar" button of the central modal: asks for confirmation first. The integration itself is not
-  // implemented yet, so confirming only closes the dialogs and clears the selection.
+  // "Integrar" button of the central modal: asks for confirmation first, then sends the TEP.
   protected confirmIntegration(): void {
     // The button is disabled in these cases; this only guards against a call that bypasses it.
-    if (!this.canIntegrate()) {
+    if (!this.canIntegrate() || this.sending()) {
       this.submitted.set(true);
       return;
     }
@@ -102,11 +108,40 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
       'Integrar',
       'Al realizar esta acción ya no se podrá revertir. ¿Desea continuar con la integración?',
       'Integrar',
-      () => {
-        this.dialogService.closeConfirm();
-        this.closeModelForm();
-      },
+      () => this.sendTep(),
     );
+  }
+
+  // A request is in flight: keeps the button disabled so the TEP is not sent twice.
+  protected readonly sending = signal(false);
+
+  // One POST to integration/tep/send/ with every picked OP (the same endpoint and body as work-center-totals).
+  // The selection is only cleared when the API confirms the send; on an error it is kept to retry.
+  private sendTep(): void {
+    const request = this.tepRequest();
+    this.dialogService.closeConfirm();
+    this.sending.set(true);
+    this.loaderService.showLoader();
+    this.tepService
+      .send(request)
+      .pipe(
+        finalize(() => {
+          this.sending.set(false);
+          this.reload(() => this.loaderService.hideLoader());
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.ok === false) {
+            this.dialogService.openToast('No se pudo enviar', `SIESA rechazó el envío (tipo de error ${res.error_type ?? 's/d'}).`, 'fail');
+            return;
+          }
+          this.closeModelForm();
+          this.dialogService.openToast('Proceso exitoso', 'El TEP fue enviado correctamente.', 'check');
+        },
+        error: (err: HttpErrorResponse) =>
+          this.dialogService.openToast('No se pudo enviar', tepErrorMessage(err), 'fail'),
+      });
   }
 
   protected expandedDocumentIndexes = signal<Set<number>>(new Set());
@@ -182,7 +217,7 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     }));
   }
 
-  // Body of POST integration/tep/send/ for what is shown in the table (the send itself is not wired yet).
+  // Body of POST integration/tep/send/ for what is shown in the table.
   protected tepRequest(): TepSendRequest {
     return buildTepRequest(this.rowObject as OrderByWorkCenter, this.pickedOps());
   }

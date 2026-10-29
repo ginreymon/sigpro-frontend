@@ -1,5 +1,6 @@
 import { OrderByWorkCenter, WorkCenterDocument } from '../../../../models/integration/order-by-work-center';
 import { TepSendDetail, TepSendRequest } from '../../../../models/integration/tep-send';
+import { SkuRecord } from '../../../../models/production/sku-detail';
 import { ProductionOrder } from '../../../../models/production/production-order';
 import { buildColorSizeMatrix } from '../../../components/production/tables/production-orders-table/color-size-matrix';
 import { SelectionSummary } from './components/integration-time-inputs/integration-time-inputs';
@@ -21,6 +22,16 @@ export function decimalHours({ hours, minutes }: Pick<SelectionSummary, 'hours' 
   return Math.round((hours + minutes / 60) * 100) / 100;
 }
 
+// Production records still to be integrated inside the SKUs the user picked in a Confección OP.
+function pickedProductionRecords(document: WorkCenterDocument, selectedIds: number[]): SkuRecord[] {
+  const colorRows = document.detail?.colorRows;
+  if (!colorRows?.length) return [];
+  return buildColorSizeMatrix({ colorRows } as ProductionOrder)
+    .skuColors.flatMap((row) => row.skus)
+    .filter((sku) => selectedIds.includes(sku.skuRowId))
+    .flatMap((sku) => pendingRecords(sku));
+}
+
 // Ids of the production/stamping records still to be integrated inside what the user picked.
 export function pickedRegisterIds(originId: number, document: WorkCenterDocument, selectedIds: number[]): number[] {
   if (originId === STAMPING_ORIGIN_ID) {
@@ -28,19 +39,24 @@ export function pickedRegisterIds(originId: number, document: WorkCenterDocument
       .filter((sam) => selectedIds.includes(sam.id))
       .flatMap((sam) => pendingSamRecords(sam).map((record) => record.id));
   }
-  const colorRows = document.detail?.colorRows;
-  if (!colorRows?.length) return [];
-  return buildColorSizeMatrix({ colorRows } as ProductionOrder)
-    .skuColors.flatMap((row) => row.skus)
-    .filter((sku) => selectedIds.includes(sku.skuRowId))
-    .flatMap((sku) => pendingRecords(sku).map((record) => record.id));
+  return pickedProductionRecords(document, selectedIds).map((record) => record.id);
 }
 
 // completed_quantity: Estampación sends the units to integrate (stamped - erp completed, already in whole OP
-// units); Confección sends the picked units over the pieces of the OP, like the Approval flow does.
-function completedQuantity(originId: number, document: WorkCenterDocument, units: number): number {
+// units). Confección sends the completed quantity of the records it integrates over the pieces of the OP: the
+// backend checks it against that sum, so scrap and rejected units (which the picked units include) stay out.
+function completedQuantity(
+  originId: number,
+  document: WorkCenterDocument,
+  units: number,
+  selectedIds: number[],
+): number {
   if (originId === STAMPING_ORIGIN_ID) return units;
-  return Math.round((units / (document.pieces || 1)) * 10000) / 10000;
+  const completed = pickedProductionRecords(document, selectedIds).reduce(
+    (sum, record) => sum + Number(record.completed_quantity ?? 0),
+    0,
+  );
+  return Math.round((completed / (document.pieces || 1)) * 10000) / 10000;
 }
 
 export function buildTepDetail(row: OrderByWorkCenter, { document, selectedIds, summary }: PickedOp): TepSendDetail {
@@ -50,12 +66,11 @@ export function buildTepDetail(row: OrderByWorkCenter, { document, selectedIds, 
     op_document_number: document.op_number,
     operation_number: document.operation_number,
     operation_work_center_id: workCenter,
-    completed_quantity: completedQuantity(row.origin_id, document, summary.units),
+    completed_quantity: completedQuantity(row.origin_id, document, summary.units, selectedIds),
     hours: decimalHours(summary),
     operation_completed: document.erp_completed_operation ? 1 : 0,
     register_ids: pickedRegisterIds(row.origin_id, document, selectedIds),
     origin_id: row.origin_id,
-    ...(summary.subprocess && { subprocess: summary.subprocess }),
   };
 }
 

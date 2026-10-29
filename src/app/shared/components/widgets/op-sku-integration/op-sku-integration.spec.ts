@@ -12,8 +12,14 @@ const sku = (size: string, skuRowId: number, tepProcessed: boolean) => ({
   completedQty: 10,
   wasteQty: 0,
   rejectedQty: 0,
-  tepProcessed,
-  records: [{ id: skuRowId, recorded_quantity: 10, tep_submission_id: tepProcessed ? 9 : null, tep_processed: tepProcessed }],
+  // Quantities the endpoint returns: everything recorded, and what was already integrated.
+  recordedQuantity: 10,
+  integratedQuantity: tepProcessed ? 10 : 0,
+  totalTepProcessed: tepProcessed,
+  tepProcessedAndComplete: tepProcessed,
+  records: [
+    { id: skuRowId, completed_quantity: 10, recorded_quantity: 10, tep_submission_id: tepProcessed ? 9 : null, tep_processed: tepProcessed },
+  ],
 });
 
 const response = {
