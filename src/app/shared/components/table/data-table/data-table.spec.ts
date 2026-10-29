@@ -173,4 +173,63 @@ describe('DataTable special first row', () => {
     expect(fixture.componentInstance['totalItems']).toBe(45);
     expect(cells(bodyRows(el)[1])[0]).toBe('7');
   });
+
+  it('names the summary row for screen readers on desktop and mobile', () => {
+    const { el } = render({ summaryRow: SUMMARY, summaryLabel: 'Total' });
+    expect(bodyRows(el)[0].getAttribute('aria-label')).toBe('Resumen: Total');
+    expect(el.querySelector('details[data-summary-row]')?.getAttribute('aria-label')).toBe('Resumen: Total');
+    expect(bodyRows(el)[1].hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('does not add an aria-label to the footer row', () => {
+    const { el } = render({ footer: [{ name: 'x', qty: 1, eff: 1 }] });
+    expect(footRows(el)[0].hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('appears and disappears when summaryRow is turned on and off', () => {
+    const { fixture, el } = render();
+    expect(el.querySelector('[data-summary-row]')).toBeNull();
+    fixture.componentRef.setInput('summaryRow', SUMMARY);
+    fixture.detectChanges();
+    expect(bodyRows(el)[0].hasAttribute('data-summary-row')).toBe(true);
+    expect(bodyRows(el)).toHaveLength(4);
+    fixture.componentRef.setInput('summaryRow', null);
+    fixture.detectChanges();
+    expect(el.querySelector('[data-summary-row]')).toBeNull();
+    expect(bodyRows(el)).toHaveLength(3);
+  });
+
+  it('follows summaryRow and summaryLabel changes', () => {
+    const { fixture, el } = render({ summaryRow: SUMMARY, summaryLabel: 'Total' });
+    fixture.componentRef.setInput('summaryLabel', 'Resumen');
+    fixture.componentRef.setInput('summaryRow', { qty: 99, eff: 50 });
+    fixture.detectChanges();
+    expect(cells(bodyRows(el)[0])).toEqual(['Resumen', '', '99', '50.00%']);
+  });
+
+  it('skips hidden columns in the summary row, like in the records', () => {
+    const columns = COLUMNS.map(c => (c.field === 'qty' ? { ...c, hidden: true } : c));
+    const { el } = render({ columns, summaryRow: SUMMARY });
+    const [summary, first] = bodyRows(el);
+    expect(cells(summary)).toEqual(['TOTAL', '', '80.00%']);
+    expect(cells(summary)).toHaveLength(cells(first).length);
+  });
+
+  it('renders the summary row when there are no columns configured besides the index', () => {
+    const { el } = render({ columns: [], summaryRow: SUMMARY });
+    expect(cells(bodyRows(el)[0])).toEqual(['TOTAL']);
+  });
+
+  it('keeps the data input array and row objects untouched', () => {
+    const data = ROWS.map(r => ({ ...r, obj: { ...r.obj } }));
+    const snapshot = JSON.stringify(data);
+    render({ data, summaryRow: SUMMARY });
+    expect(JSON.stringify(data)).toBe(snapshot);
+  });
+
+  it('works when data is null or undefined', () => {
+    const { el } = render({ data: undefined, summaryRow: SUMMARY });
+    expect(bodyRows(el)[0].hasAttribute('data-summary-row')).toBe(true);
+    expect(el.textContent).toContain('No hay registros para mostrar');
+  });
 });

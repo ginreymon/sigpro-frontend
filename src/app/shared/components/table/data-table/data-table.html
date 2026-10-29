@@ -43,7 +43,7 @@
     </ng-template>
 
     <ng-template #specialRowDesktop let-row="row" let-label="label" let-rowClass="rowClass" let-summary="summary">
-        <tr [class]="rowClass" [attr.data-summary-row]="summary ? '' : null">
+        <tr [class]="rowClass" [attr.data-summary-row]="summary ? '' : null" [attr.aria-label]="summary ? 'Resumen: ' + label : null">
             @for (col of _columns; track $index) {
                 @if(!col.hidden){
                 <td [class]="`px-6 py-3 ${getAlignment(col.align)} ${col.classes}`">
@@ -58,7 +58,7 @@
     </ng-template>
 
     <ng-template #specialRowMobile let-row="row" let-label="label" let-summary="summary">
-        <details class="group" open [attr.data-summary-row]="summary ? '' : null">
+        <details class="group" open [attr.data-summary-row]="summary ? '' : null" [attr.aria-label]="summary ? 'Resumen: ' + label : null">
             <summary [class]="'flex justify-between items-center gap-3 px-4 py-3 cursor-pointer list-none font-semibold ' + (summary ? 'bg-brand-50 text-gray-800 hover:bg-brand-100' : 'text-gray-700 hover:bg-gray-50')">
                 <span class="flex items-center gap-2 min-w-0">
                     <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4 text-gray-400 shrink-0 transition-transform group-open:rotate-90'"></app-ui-icon>
