@@ -1,0 +1,17 @@
+<div class="border border-slate-200 rounded-lg bg-white">
+
+  <div class="flex items-center gap-2 pr-4">
+    <button type="button" (click)="toggle()"
+      [attr.aria-expanded]="open()" [attr.aria-controls]="contentId"
+      class="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 text-left cursor-pointer rounded-lg hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200">
+      <span class="flex-1 min-w-0 truncate text-sm font-semibold text-gray-900">{{ title() }}</span>
+      <app-ui-icon [iconName]="open() ? 'angleUp' : 'angleDown'" [class]="'h-4 w-4 text-slate-500 shrink-0'" aria-hidden="true"></app-ui-icon>
+    </button>
+    <ng-content select="[collapsible-header-actions]"></ng-content>
+  </div>
+
+  <div [id]="contentId" [hidden]="!open()" class="px-4 pb-4">
+    <ng-content></ng-content>
+  </div>
+
+</div>
