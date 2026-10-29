@@ -40,10 +40,12 @@ function loadChartJs(): Promise<typeof import('chart.js')> {
       <canvas #canvas role="img" [attr.aria-label]="ariaLabel()"></canvas>
     </div>
     @if (failed()) {
-      <p class="text-sm text-red-700" role="alert">No se pudo mostrar el gráfico.</p>
+      <p class="absolute inset-0 flex items-center justify-center text-center text-sm text-slate-500" role="alert">
+        No se pudo mostrar el gráfico.
+      </p>
     }
   `,
-  host: { class: 'block' },
+  host: { class: 'relative block' },
 })
 export class UiChart {
   readonly config = input.required<ChartConfiguration>();

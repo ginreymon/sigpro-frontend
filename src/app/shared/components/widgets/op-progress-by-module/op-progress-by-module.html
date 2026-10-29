@@ -1,0 +1,175 @@
+<app-dashboard-section [title]="title()" [state]="state()" emptyMessage="No hay órdenes de producción para este período.">
+  <div sectionFilters class="flex flex-col gap-1">
+    <div class="flex flex-wrap items-start gap-3">
+      <app-ui-form-field label="Área" inputId="op-progress-area">
+        <app-ui-select
+          id="op-progress-area"
+          className="min-w-44"
+          [items]="areaOptions()"
+          key="label"
+          keyValue="id"
+          [showDefaultOption]="true"
+          placeholder="Todas las áreas"
+          [ngModel]="areaId()"
+          (ngModelChange)="onArea($event)"></app-ui-select>
+      </app-ui-form-field>
+      <app-ui-form-field label="Fecha de inicio" inputId="op-progress-start">
+        <app-ui-date-picker
+          id="op-progress-start"
+          [ngModel]="startDate()"
+          (ngModelChange)="onStartDate($event)"></app-ui-date-picker>
+      </app-ui-form-field>
+      <app-ui-form-field label="Fecha de fin" inputId="op-progress-end">
+        <app-ui-date-picker
+          id="op-progress-end"
+          [ngModel]="endDate()"
+          (ngModelChange)="onEndDate($event)"></app-ui-date-picker>
+      </app-ui-form-field>
+      <app-ui-form-field label="Buscar OP o referencia" inputId="op-progress-search">
+        <app-ui-input
+          id="op-progress-search"
+          type="search"
+          className="sm:w-64"
+          placeholder="Ej. 1234 o REF-001"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event ?? '')"></app-ui-input>
+      </app-ui-form-field>
+      <app-ui-form-field label="Estado" inputId="op-progress-status">
+        <app-ui-select
+          id="op-progress-status"
+          className="min-w-36"
+          [items]="statusOptions"
+          key="label"
+          keyValue="key"
+          [ngModel]="status()"
+          (ngModelChange)="status.set($event)"></app-ui-select>
+      </app-ui-form-field>
+    </div>
+    @if (rangeError()) {
+      <app-ui-error-message role="alert">{{ rangeError() }}</app-ui-error-message>
+    }
+  </div>
+
+  <div class="flex flex-col gap-6">
+    @if (!hasRows()) {
+      <div class="flex items-center gap-3 text-sm text-slate-500">
+        <span>No hay resultados para estos filtros.</span>
+        <app-ui-button intent="label" (onClick)="clearFilters()">Limpiar filtros</app-ui-button>
+      </div>
+    }
+
+    @for (area of groups(); track area.areaId) {
+      <section class="border border-slate-200 rounded-lg overflow-hidden" [attr.aria-label]="'Área ' + area.areaName">
+        <app-ui-accordion-item class="block bg-slate-50" [expanded]="isAreaOpen(area.areaId)" (toggle)="toggleArea(area.areaId)">
+          <div accordion-header class="flex flex-col gap-2 grow min-w-0">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 class="text-sm font-semibold text-slate-900">{{ area.areaName }}</h3>
+              <span class="text-xs text-slate-500 tabular-nums">
+                {{ opCount(area) }} {{ opCount(area) === 1 ? 'orden' : 'órdenes' }} · {{ area.modules.length }}
+                {{ area.modules.length === 1 ? 'módulo' : 'módulos' }}
+              </span>
+            </div>
+            @if (area.pct !== null) {
+              <div class="flex items-center gap-3">
+                <div class="grow rounded-full overflow-hidden"
+                  role="progressbar"
+                  [attr.aria-label]="'Avance del área ' + area.areaName"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  [attr.aria-valuenow]="area.pct">
+                  <app-progress-bar [progress]="area.pct" [max]="100" [color]="barColor"></app-progress-bar>
+                </div>
+                <span class="text-xs text-slate-500 tabular-nums whitespace-nowrap">
+                  <span class="text-sm font-semibold text-slate-900">{{ area.pct | number: '1.0-1' }} %</span>
+                  · {{ area.done | number: '1.0-0' }} de {{ area.total | number: '1.0-0' }} und
+                </span>
+              </div>
+            } @else {
+              <p class="text-xs text-slate-500">Sin datos suficientes</p>
+            }
+          </div>
+
+          <div accordion-body class="flex flex-col gap-3">
+            @for (mod of area.modules; track mod.moduleId) {
+              <div class="border border-slate-200 rounded-lg bg-white">
+                <app-ui-accordion-item
+                  [expanded]="isModuleOpen(area.areaId, mod.moduleId)"
+                  (toggle)="toggleModule(area.areaId, mod.moduleId)">
+                  <div accordion-header class="flex flex-wrap items-center justify-between gap-2 grow min-w-0">
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      {{ mod.moduleName }}
+                      <span class="font-normal normal-case tracking-normal">· {{ mod.rows.length }} {{ mod.rows.length === 1 ? 'orden' : 'órdenes' }}</span>
+                    </h4>
+                    <span class="text-xs text-slate-500 tabular-nums">
+                      @if (mod.pct !== null) {
+                        {{ mod.pct | number: '1.0-1' }} % · pendientes {{ mod.pending | number: '1.0-0' }} und
+                      } @else {
+                        Sin datos suficientes
+                      }
+                    </span>
+                  </div>
+
+                  <div accordion-body class="grid gap-2 grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3">
+                  @for (row of mod.rows; track row.op_type + '-' + row.op_number) {
+                    <article class="border border-slate-200 rounded-lg p-3 flex flex-col gap-2">
+                      <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                          <p class="text-sm font-semibold text-slate-900">{{ row.op_type }}-{{ row.op_number }}</p>
+                          <p class="text-xs text-slate-500 truncate" [title]="(row.reference_code ?? 'Referencia no disponible') + (row.reference_description ? ' · ' + row.reference_description : '')">
+                            {{ row.reference_code ?? 'Referencia no disponible' }}@if (row.reference_description) { · {{ row.reference_description }} }
+                          </p>
+                        </div>
+                        @if (row.progress_pct === null) {
+                          <app-ui-badge intent="inactive" label="Sin datos"></app-ui-badge>
+                        } @else if (row.progress_pct >= 100) {
+                          <app-ui-badge intent="active" label="Completada"></app-ui-badge>
+                        } @else {
+                          <app-ui-badge intent="default" label="En curso"></app-ui-badge>
+                        }
+                      </div>
+
+                      @if (row.progress_pct !== null) {
+                        <div class="flex items-center gap-2">
+                          <div class="grow rounded-full overflow-hidden"
+                            role="progressbar"
+                            [attr.aria-label]="'Avance de la OP ' + row.op_type + '-' + row.op_number"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            [attr.aria-valuenow]="row.progress_pct">
+                            <app-progress-bar [progress]="row.progress_pct" [max]="100" [color]="barColor"></app-progress-bar>
+                          </div>
+                          <span class="text-sm font-semibold text-slate-900 tabular-nums w-14 text-right">{{ row.progress_pct | number: '1.0-1' }} %</span>
+                        </div>
+                      } @else {
+                        <p class="text-xs text-slate-500">Sin datos suficientes</p>
+                      }
+
+                      <dl class="grid grid-cols-3 gap-2 text-xs">
+                        <div class="flex flex-col items-end">
+                          <dt class="text-slate-500">Realizadas (und)</dt>
+                          <dd class="text-sm font-medium text-slate-900 tabular-nums">{{ row.done_qty === null ? '—' : (row.done_qty | number: '1.0-0') }}</dd>
+                        </div>
+                        <div class="flex flex-col items-end">
+                          <dt class="text-slate-500">Total (und)</dt>
+                          <dd class="text-sm font-medium text-slate-900 tabular-nums">{{ row.total_qty === null ? '—' : (row.total_qty | number: '1.0-0') }}</dd>
+                        </div>
+                        <div class="flex flex-col items-end">
+                          <dt class="text-slate-500">Pendientes (und)</dt>
+                          <dd class="text-sm font-medium text-slate-900 tabular-nums flex items-center gap-1">
+                            {{ pending(row) === null ? '—' : (pending(row) | number: '1.0-0') }}
+                            @if (isOver(row)) { <app-ui-badge intent="warning" label="Excedente"></app-ui-badge> }
+                          </dd>
+                        </div>
+                      </dl>
+                    </article>
+                  }
+                  </div>
+                </app-ui-accordion-item>
+              </div>
+            }
+          </div>
+        </app-ui-accordion-item>
+      </section>
+    }
+  </div>
+</app-dashboard-section>

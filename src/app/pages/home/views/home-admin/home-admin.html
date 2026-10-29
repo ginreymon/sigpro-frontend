@@ -2,6 +2,18 @@
 <div class="relative flex flex-col gap-4">
   <app-ui-tabs [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)"></app-ui-tabs>
 
+@if (isOpTab()) {
+  <app-op-progress-by-module
+    title="Avance de OP por módulo"
+    [rows]="opProgress().rows"
+    [state]="opProgress().state"
+    [areaOptions]="opAreaOptions"
+    [areaId]="opFilters().areaId"
+    [startDate]="opFilters().startDate"
+    [endDate]="opFilters().endDate"
+    (filtersChange)="onOpFiltersChange($event)">
+  </app-op-progress-by-module>
+} @else {
   <ng-container *ngComponentOutlet="active().cards" />
 
   <app-area-daily-charts
@@ -22,4 +34,5 @@
     targetLabel="Meta de eficiencia"
     [state]="active().state">
   </app-efficiency-radar-chart>
+}
 </div>
