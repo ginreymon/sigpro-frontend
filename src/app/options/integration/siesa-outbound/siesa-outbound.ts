@@ -14,6 +14,7 @@ import { TableToolsButtons } from '../../../common/interfaces/table-tools-button
 import { TepSubmission, TepSubmissionStatus } from '../../../models/integration/tep-submission';
 import { TepSubmissionService } from '../../../services/integration/tep-submission-service';
 import { CharSquare } from '../../../shared/components/widgets/char-square/char-square';
+import { OpSkuMatrixReadonly } from '../../../shared/components/widgets/op-sku-matrix-readonly/op-sku-matrix-readonly';
 
 const STATUS_INTENT: Record<TepSubmissionStatus, BadgeIntent> = {
   pending: 'warning',
@@ -28,7 +29,7 @@ const ORIGIN_LABEL: Record<number, string> = {
 
 @Component({
   selector: 'app-siesa-outbound',
-  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, UiAccordionItem, TableTemplate, DatePipe, CharSquare],
+  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, UiAccordionItem, TableTemplate, DatePipe, CharSquare, OpSkuMatrixReadonly],
   templateUrl: './siesa-outbound.html',
 })
 export class SiesaOutbound extends BaseCrudPage<TepSubmission> {

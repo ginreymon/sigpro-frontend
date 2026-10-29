@@ -3,7 +3,7 @@
 
     <div class="flex flex-wrap items-center gap-2 text-xs">
       @for (item of legend; track item.state) {
-        @if (isBulkSelectState(item.state)) {
+        @if (isBulkSelectState(item.state) && !readOnly()) {
           <button type="button" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium cursor-pointer"
             [class]="item.classes" (click)="toggleAllSelectable(item.state)">
             {{ item.label }} · {{ counts()[item.state] }}
@@ -35,6 +35,7 @@
                 <td class="p-1 text-center" [title]="tooltip(sku)">
                   @if (isRealSku(sku)) {
                     <button type="button" class="relative mx-auto block size-12 rounded border font-semibold tabular-nums"
+                      [class.pointer-events-none]="readOnly()"
                       [class]="cellClasses(sku)" [disabled]="!isSelectable(sku)" [attr.aria-label]="tooltip(sku)"
                       [attr.aria-pressed]="isSelectable(sku) ? isSelected(sku) : null" (click)="toggleSelected(sku)">
                       <svg class="pointer-events-none absolute inset-0 size-full opacity-40" viewBox="0 0 100 100"

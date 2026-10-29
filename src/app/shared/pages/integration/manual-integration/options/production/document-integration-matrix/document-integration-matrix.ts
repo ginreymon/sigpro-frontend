@@ -29,6 +29,8 @@ export class DocumentIntegrationMatrix {
   readonly selectionSummary = output<SelectionSummary>();
   // The user tried to integrate: the time inputs show their errors.
   readonly submitted = input(false);
+  // Display only (e.g. the detail of a sent submission): no cell can be picked and nothing is integrated.
+  readonly readOnly = input(false);
 
   // `open` and `complete` are not listed in the legend; their cells keep their own look.
   protected readonly legend = (Object.keys(CELL_STATE_LABELS) as SkuCellState[])
@@ -86,7 +88,7 @@ export class DocumentIntegrationMatrix {
   // Only cells with a quantity left to integrate can be picked: ready (completes the SKU) or partial
   // (integrates what is recorded, the SKU stays incomplete). The SKU must list records.
   protected isSelectable(sku: SkuDetail): boolean {
-    if (!sku.records?.length || quantityToIntegrate(sku) <= 0) return false;
+    if (this.readOnly() || !sku.records?.length || quantityToIntegrate(sku) <= 0) return false;
     const state = this.state(sku);
     return state === 'ready' || state === 'partial';
   }

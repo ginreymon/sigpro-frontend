@@ -115,6 +115,12 @@
                 <p class="text-green-600"> <strong>Cantidad:</strong> {{ detail.completed_quantity }} </p>
                 <p> <strong>Horas:</strong> {{ detail.hours }} </p>
                 <p class="col-span-2"> <strong>Registros:</strong> {{ detail.register_ids.join(', ') || '—' }} </p>
+
+                @if (detail.origin_id === 1) {
+                <div class="col-span-2 mt-2">
+                    <app-op-sku-matrix-readonly [opType]="detail.op_document_type_id" [opNumber]="detail.op_document_number"></app-op-sku-matrix-readonly>
+                </div>
+                }
             </div>
 
         </app-ui-accordion-item>
