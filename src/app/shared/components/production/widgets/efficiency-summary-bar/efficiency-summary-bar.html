@@ -27,11 +27,12 @@
   }
   @if (showFilterButton) {
     <div class="w-px bg-gray-200"></div>
-    <button type="button" (click)="filterToggle.emit()"
-      class="flex items-center justify-center px-2.5 lg:px-3.5 cursor-pointer transition-colors"
-      [class]="filterActive ? 'bg-brand-50 text-brand-600' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'">
+    <button type="button" (click)="filterToggle.emit()" [attr.aria-pressed]="filterActive"
+      class="flex items-center justify-center gap-1.5 px-2.5 lg:px-3.5 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-brand-200 focus-visible:outline-none"
+      [class]="filterActive ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-gray-50 hover:text-gray-800'">
       <app-ui-icon [iconName]="'filter'" class="w-4 h-4 lg:w-5 lg:h-5"></app-ui-icon>
-      <span class="sr-only">Filtrar</span>
+      <span class="hidden lg:inline text-xs font-medium">{{ filterActive ? 'Ver en vivo' : 'Consultar período' }}</span>
+      <span class="sr-only lg:hidden">{{ filterActive ? 'Ver en vivo' : 'Consultar período' }}</span>
     </button>
   }
 </div>

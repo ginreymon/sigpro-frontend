@@ -5,14 +5,13 @@ import { ModuleEfficiencyStatus } from '../../../models/production/module-effici
 import { computePlantaStats } from '../../../common/functions/planta-summary';
 import { EfficiencySummaryBar } from '../../../shared/components/production/widgets/efficiency-summary-bar/efficiency-summary-bar';
 import { PanelLayout } from '../../../shared/components/layout/panel-layout/panel-layout';
-import { DateRangeForm } from '../../../shared/components/form-controls/date-range-form/date-range-form';
 import { ModuleEfficiencyCard } from '../../../shared/components/production/cards/module-efficiency-card/module-efficiency-card';
-import { RangeEfficiencyCard } from '../../../shared/components/production/cards/range-efficiency-card/range-efficiency-card';
+import { RangeResultsPanel } from '../../../shared/components/production/widgets/range-results-panel/range-results-panel';
 import { ModuleRangePanelBase } from '../../../common/classes/module-range-panel-base';
 
 @Component({
   selector: 'app-module-panel',
-  imports: [ModuleDetailModal, EfficiencySummaryBar, PanelLayout, DateRangeForm, ModuleEfficiencyCard, RangeEfficiencyCard],
+  imports: [ModuleDetailModal, EfficiencySummaryBar, PanelLayout, ModuleEfficiencyCard, RangeResultsPanel],
   templateUrl: './module-panel.html',
 })
 export class ModulePanel extends ModuleRangePanelBase {

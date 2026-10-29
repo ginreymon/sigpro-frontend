@@ -1,14 +1,23 @@
-<form [formGroup]="form" class="flex flex-row items-start gap-1 w-full">
+<form [formGroup]="form" class="flex flex-col sm:flex-row sm:items-start gap-3 w-full">
 
-  <app-date-range-fields startCtrl="start_date" endCtrl="end_date" [limitToOneMonth]="limitToOneMonth" class="flex-1"></app-date-range-fields>
+  <ng-content select="[filter-extra]"></ng-content>
 
-  <app-ui-button
-    [classNames]="'mt-5'"
-    [disabled]="form.invalid"
-    [type]="'button'"
-    (onClick)="submit()">
-    <app-ui-icon [iconName]="'magnifyingGlass'" [class]="'w-4 h-4'"></app-ui-icon>
-    Consultar
-  </app-ui-button>
+  <app-date-range-fields startCtrl="start_date" endCtrl="end_date" [limitToOneMonth]="limitToOneMonth" class="flex-1 sm:max-w-xl"></app-date-range-fields>
+
+  <!-- grid wrapper avoids the inline baseline offset; sm:pt-4 = label height (16px) so the button lines up with the h-8 controls -->
+  <div class="grid sm:pt-4">
+    <app-ui-button
+      [classNames]="'w-full sm:w-auto'"
+      [disabled]="form.invalid || loading"
+      [type]="'button'"
+      (onClick)="submit()">
+      @if (loading) {
+        <span class="h-4 w-4 border-2 border-white/40 border-t-white rounded-full motion-safe:animate-spin" aria-hidden="true"></span>
+      } @else {
+        <app-ui-icon [iconName]="'magnifyingGlass'" [class]="'w-4 h-4'"></app-ui-icon>
+      }
+      {{ loading ? 'Consultando…' : 'Consultar' }}
+    </app-ui-button>
+  </div>
 
 </form>

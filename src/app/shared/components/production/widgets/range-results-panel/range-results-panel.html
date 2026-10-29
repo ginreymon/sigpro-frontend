@@ -1,0 +1,95 @@
+<section class="flex flex-col gap-3" aria-label="Consulta por período">
+
+  <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+    <div class="mb-3">
+      <h2 class="text-sm font-semibold text-gray-800">Consulta por período</h2>
+      <p class="text-xs text-slate-600">
+        Elige el rango de fechas y pulsa Consultar.
+      </p>
+    </div>
+
+    <app-date-range-form [initialRange]="defaultRange" [loading]="loading" (onSearch)="search.emit($event)">
+      <div filter-extra class="flex flex-col mb-2 sm:w-56" [class.hidden]="!unitOptions().length">
+        <label for="range-unit-filter" class="text-xs font-medium text-slate-600">{{ unitLabel() }}</label>
+        <app-ui-select
+          [id]="'range-unit-filter'"
+          [className]="'w-full'"
+          [items]="unitItems()"
+          key="name"
+          keyValue="id"
+          [ngModel]="selectedUnitId()"
+          (ngModelChange)="selectedUnitId.set($event)">
+        </app-ui-select>
+      </div>
+    </app-date-range-form>
+  </div>
+
+  @if (loading) {
+    <div class="flex flex-col gap-1" role="status" aria-busy="true">
+      <span class="sr-only">Cargando resultados</span>
+      @for (row of [1, 2, 3, 4]; track row) {
+        <div class="h-10 skeleton rounded-md"></div>
+      }
+    </div>
+  } @else if (error) {
+    <div class="flex flex-col items-center justify-center gap-2 py-12 text-center" role="alert">
+      <app-ui-icon iconName="triangleExclamation" class="h-6 w-6 text-red-600" aria-hidden="true"></app-ui-icon>
+      <p class="text-sm font-medium text-slate-700">No se pudo consultar el período</p>
+      <p class="text-xs text-slate-600">Revisa tu conexión e inténtalo de nuevo.</p>
+      <app-ui-button [intent]="'black'" (onClick)="retry.emit()">Reintentar</app-ui-button>
+    </div>
+  } @else if (searched && summaries().length === 0) {
+    <div class="flex flex-col items-center justify-center gap-2 py-12 text-center">
+      <app-ui-icon iconName="calendar" class="h-6 w-6 text-slate-400" aria-hidden="true"></app-ui-icon>
+      <p class="text-sm font-medium text-slate-600">Sin registros para el período seleccionado</p>
+      <p class="text-xs text-slate-600">Prueba con otro rango de fechas.</p>
+    </div>
+  } @else if (searched && visibleSummaries().length === 0) {
+    <div class="flex flex-col items-center justify-center gap-2 py-12 text-center">
+      <app-ui-icon iconName="magnifyingGlass" class="h-6 w-6 text-slate-400" aria-hidden="true"></app-ui-icon>
+      <p class="text-sm font-medium text-slate-600">Sin registros para este filtro</p>
+      <app-ui-button [intent]="'black'" (onClick)="clearUnitFilter()">Limpiar filtros</app-ui-button>
+    </div>
+  } @else if (searched) {
+    <div class="border border-slate-200 rounded-lg overflow-auto max-h-[60vh] bg-white">
+      <table class="w-full min-w-[32rem] text-sm text-left">
+        <caption class="sr-only">Resumen de eficiencia del período por {{ unitLabel().toLowerCase() }}</caption>
+        <thead class="sticky top-0 bg-slate-50 text-xs font-semibold text-slate-600 uppercase tracking-wide">
+          <tr class="border-b border-slate-200">
+            <th scope="col" class="px-3 py-2">{{ unitLabel() }}</th>
+            <th scope="col" class="px-3 py-2 text-right hidden md:table-cell">Encomendados</th>
+            <th scope="col" class="px-3 py-2 text-right">Eficiencia (%)</th>
+            <th scope="col" class="px-3 py-2 text-right">Completadas (und)</th>
+            <th scope="col" class="px-3 py-2 text-right">Saldos (und)</th>
+            <th scope="col" class="px-3 py-2 text-right">Bajas (und)</th>
+            <th scope="col" class="px-3 py-2 text-right hidden md:table-cell">Meta (und)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @for (s of visibleSummaries(); track s.moduleId) {
+            <tr [class]="s.moduleId === 0 ? 'bg-brand-50 font-semibold' : 'hover:bg-gray-50 transition-colors'">
+              <th scope="row" class="px-3 py-2 font-medium text-left">
+                @if (s.moduleId === 0) {
+                  <span class="text-brand-700">{{ s.name }}</span>
+                  <span class="ml-2 text-xs font-medium text-brand-600">Resumen general</span>
+                } @else {
+                  <span class="text-xs text-slate-600 mr-1.5">{{ padNumber(s.number) }}</span>
+                  <span class="text-gray-800">{{ s.name }}</span>
+                }
+              </th>
+              <td class="px-3 py-2 text-right tabular-nums hidden md:table-cell">{{ s.operatorCount | number }}</td>
+              <td class="px-3 py-2 text-right tabular-nums font-semibold" [class]="efficiencyColor(s.efficiency)">
+                {{ s.efficiency | number: '1.2-2' }}
+              </td>
+              <td class="px-3 py-2 text-right tabular-nums text-green-700">{{ s.totalCompleted | number }}</td>
+              <td class="px-3 py-2 text-right tabular-nums text-amber-700">{{ s.totalRejected | number }}</td>
+              <td class="px-3 py-2 text-right tabular-nums text-red-700">{{ s.totalScrap | number }}</td>
+              <td class="px-3 py-2 text-right tabular-nums text-slate-600 hidden md:table-cell">{{ s.unitTarget | number }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</section>

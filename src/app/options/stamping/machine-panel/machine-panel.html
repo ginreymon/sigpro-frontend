@@ -16,39 +16,23 @@
       </app-efficiency-summary-bar>
     </div>
 
-    @if (showDateFilter()) {
-      <div class="bg-slate-50 border border-gray-200 rounded-lg p-4">
-        <app-date-range-form (onSearch)="onRangeSearch($event)"></app-date-range-form>
-      </div>
-    }
-
   </div>
 
   <div panel-content>
 
     @if (showDateFilter()) {
 
-      @if (rangeLoading()) {
-        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
-          @for (skeleton of [1, 2, 3]; track skeleton) {
-            <div class="h-56 skeleton rounded-xl"></div>
-          }
-        </div>
-      } @else if (rangeSearched() && rangeAllSummaries().length === 0) {
-        <div class="flex flex-col items-center justify-center gap-3 text-gray-300 py-12">
-          <p class="text-sm text-gray-400">Sin registros para el período seleccionado</p>
-        </div>
-      } @else if (rangeSearched()) {
-        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
-          @for (summary of rangeAllSummaries(); track summary.moduleId) {
-            <app-range-efficiency-card [summary]="summary" unitLabel="MÁQUINA"></app-range-efficiency-card>
-          }
-        </div>
-      } @else {
-        <div class="flex flex-col items-center justify-center gap-3 text-gray-300 py-12">
-          <p class="text-sm text-gray-400">Selecciona un rango de fechas para consultar</p>
-        </div>
-      }
+      <app-range-results-panel
+        [summaries]="rangeAllSummaries()"
+        [unitOptions]="unitOptions()"
+        unitLabel="Máquina"
+        [defaultRange]="defaultRange()"
+        [loading]="rangeLoading()"
+        [searched]="rangeSearched()"
+        [error]="rangeError()"
+        (search)="onRangeSearch($event)"
+        (retry)="retryRangeSearch()">
+      </app-range-results-panel>
 
     } @else {
 

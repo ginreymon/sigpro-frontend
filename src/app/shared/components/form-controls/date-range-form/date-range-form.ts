@@ -22,6 +22,9 @@ export class DateRangeForm implements OnInit {
   // Bloquea Consultar cuando el rango supera un mes.
   @Input() limitToOneMonth: boolean = false;
 
+  // Disables Consultar while a request is in flight, so it cannot be double-submitted.
+  @Input() loading: boolean = false;
+
   private fb = inject(FormBuilder);
 
   form: FormGroup = this.fb.group({
