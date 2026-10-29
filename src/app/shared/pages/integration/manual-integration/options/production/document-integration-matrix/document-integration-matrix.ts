@@ -45,7 +45,7 @@ export class DocumentIntegrationMatrix {
   });
 
   protected readonly counts = computed(() => {
-    const counts: Record<SkuCellState, number> = { integrated: 0, ready: 0, complete: 0, open: 0, partial: 0, none: 0 };
+    const counts: Record<SkuCellState, number> = { integrated: 0, ready: 0, complete: 0, open: 0, partial: 0, warning: 0, none: 0 };
     (this.matrix()?.skuColors ?? []).forEach((row) =>
       row.skus.filter((sku) => this.isRealSku(sku)).forEach((sku) => counts[this.state(sku)]++),
     );

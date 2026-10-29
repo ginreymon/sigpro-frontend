@@ -23,12 +23,13 @@ export function producedUnits(sku: SkuDetail): number {
 
 // After integrating, the integrated total becomes the recorded one, so it is compared with the ordered
 // quantity: equal = ready (completes the SKU), lower = partial. Without records (quantities coming only
-// from the ERP) nothing can be integrated and the cell keeps the produced-based look.
+// from the ERP) nothing can be integrated: completed units without records are a warning.
 export function skuCellState(sku: SkuDetail): SkuCellState {
   const ordered = Number(sku.orderedQty);
   const recorded = Number(sku.recordedQuantity ?? 0);
   if (sku.tepProcessedAndComplete === true) return 'integrated';
   if (sku.hasOpenRecords === true) return 'open';
+  if (!sku.records?.length && Number(sku.completedQty) > 0) return 'warning';
   if (recorded > 0 && recorded < ordered) return 'partial';
   if (recorded > 0 && recorded === ordered) return quantityToIntegrate(sku) > 0 ? 'ready' : 'complete';
   if (producedUnits(sku) === ordered) return 'complete';
