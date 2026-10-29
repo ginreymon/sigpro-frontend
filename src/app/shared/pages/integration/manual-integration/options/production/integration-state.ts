@@ -10,16 +10,10 @@ export function pendingRecords(sku: SkuDetail): SkuRecord[] {
   return (sku.records ?? []).filter((record) => !record.tep_processed);
 }
 
-// Completed units of the SKU records that were not sent to TEP yet.
-function pendingCompletedUnits(sku: SkuDetail): number {
-  return pendingRecords(sku).reduce((sum, record) => sum + Number(record.completed_quantity ?? 0), 0);
-}
-
-// Units a picked cell adds to the integration: every completed unit of a ready cell, only the
-// still-pending completed units of a partial one (part of it may have been integrated before).
-// A partial cell with no records has none, so it cannot be picked.
-export function unitsToIntegrate(sku: SkuDetail): number {
-  return skuCellState(sku) === 'ready' ? Number(sku.completedQty) : pendingCompletedUnits(sku);
+// Quantity the next integration sends: what the SKU records hold (completed + scrap + rejected)
+// minus what was already integrated. Both come from fn_cantidad_registrada_sku_op.
+export function quantityToIntegrate(sku: SkuDetail): number {
+  return Number(sku.recordedQuantity ?? 0) - Number(sku.integratedQuantity ?? 0);
 }
 
 // Completed + rejected + scrap units of the SKU.
@@ -27,14 +21,17 @@ export function producedUnits(sku: SkuDetail): number {
   return Number(sku.completedQty) + Number(sku.rejectedQty) + Number(sku.wasteQty);
 }
 
+// After integrating, the integrated total becomes the recorded one, so it is compared with the ordered
+// quantity: equal = ready (completes the SKU), lower = partial. Without records (quantities coming only
+// from the ERP) nothing can be integrated and the cell keeps the produced-based look.
 export function skuCellState(sku: SkuDetail): SkuCellState {
   const ordered = Number(sku.orderedQty);
-  if (Number(sku.completedQty) === ordered) {
-    if (sku.totalTepProcessed === true) return 'integrated';
-    if (sku.totalTepProcessed === false) return 'ready';
-  }
-  if (producedUnits(sku) === ordered) return 'complete';
+  const recorded = Number(sku.recordedQuantity ?? 0);
+  if (sku.tepProcessedAndComplete === true) return 'integrated';
   if (sku.hasOpenRecords === true) return 'open';
+  if (recorded > 0 && recorded < ordered) return 'partial';
+  if (recorded > 0 && recorded === ordered) return quantityToIntegrate(sku) > 0 ? 'ready' : 'complete';
+  if (producedUnits(sku) === ordered) return 'complete';
   if (producedUnits(sku) > 0) return 'partial';
   return 'none';
 }

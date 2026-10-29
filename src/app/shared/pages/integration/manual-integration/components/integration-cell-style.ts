@@ -1,13 +1,15 @@
 // Labels and looks of the selector cells of the integrate modal, shared by every origin (the Confección
 // matrix cells and the Estampación OP selector), so each origin option stays independent of the others.
 
-// Matrix cell state. The first two use the TEP flag, the rest follow getButtonIntent
-// (production-orders-table):
-//   integrated = completed = ordered and already processed by TEP,
-//   ready      = completed = ordered and not processed yet (selectable),
-//   complete   = produced (completed + rejected + scrap) = ordered   ('cancel' intent),
+// Matrix cell state, from the SKU quantities of the integration endpoint (recordedQuantity,
+// integratedQuantity, tepProcessedAndComplete). "To integrate" = recorded - integrated:
+//   integrated = tepProcessedAndComplete (ordered = integrated),
+//   ready      = recorded = ordered with something left to integrate: integrating completes the SKU
+//                (selectable),
+//   partial    = 0 < recorded < ordered: integrating leaves the SKU incomplete (selectable when
+//                there is something left to integrate; 'danger' intent),
+//   complete   = nothing to integrate and produced (completed + rejected + scrap) = ordered ('cancel' intent),
 //   open       = has open records                                    ('action' intent),
-//   partial    = something produced; selectable when it has completed units not sent to TEP ('danger' intent),
 //   none       = nothing produced (outline only: gray border, no fill).
 export type SkuCellState = 'integrated' | 'ready' | 'complete' | 'open' | 'partial' | 'none';
 

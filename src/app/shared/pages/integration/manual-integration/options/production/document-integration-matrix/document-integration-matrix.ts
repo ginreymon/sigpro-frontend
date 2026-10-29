@@ -3,7 +3,7 @@ import { WorkCenterDocument } from '../../../../../../../models/integration/orde
 import { ProductionOrder } from '../../../../../../../models/production/production-order';
 import { SkuDetail } from '../../../../../../../models/production/sku-detail';
 import { buildColorSizeMatrix } from '../../../../../../components/production/tables/production-orders-table/color-size-matrix';
-import { isRealSku, pendingRecords, producedUnits, skuCellState, unitsToIntegrate } from '../integration-state';
+import { isRealSku, pendingRecords, quantityToIntegrate, skuCellState } from '../integration-state';
 import {
   CELL_SELECTED_CLASSES,
   CELL_SELECTED_PARTIAL_CLASSES,
@@ -68,7 +68,7 @@ export class DocumentIntegrationMatrix {
   );
 
   protected readonly selectedUnits = computed(() =>
-    this.selectedSkus().reduce((sum, sku) => sum + unitsToIntegrate(sku), 0),
+    this.selectedSkus().reduce((sum, sku) => sum + quantityToIntegrate(sku), 0),
   );
 
   // Seconds per unit of the OP: seconds_by_unit plus additional_seconds_by_unit (either may be null).
@@ -83,12 +83,12 @@ export class DocumentIntegrationMatrix {
     return this.selectedSkuIds().includes(sku.skuRowId);
   }
 
-  // Cells ready to integrate and partial cells with completed units still pending can be picked,
-  // as long as the SKU lists records (without them there is nothing to send).
+  // Only cells with a quantity left to integrate can be picked: ready (completes the SKU) or partial
+  // (integrates what is recorded, the SKU stays incomplete). The SKU must list records.
   protected isSelectable(sku: SkuDetail): boolean {
-    if (!sku.records?.length) return false;
+    if (!sku.records?.length || quantityToIntegrate(sku) <= 0) return false;
     const state = this.state(sku);
-    return state === 'ready' || (state === 'partial' && unitsToIntegrate(sku) > 0);
+    return state === 'ready' || state === 'partial';
   }
 
   protected toggleSelected(sku: SkuDetail): void {
@@ -118,13 +118,14 @@ export class DocumentIntegrationMatrix {
     return this.state(sku) === 'partial' ? CELL_SELECTED_PARTIAL_CLASSES : CELL_SELECTED_CLASSES;
   }
 
-  protected producedQty(sku: SkuDetail): number {
-    return producedUnits(sku);
+  // Quantity the cell adds to the next integration (never negative).
+  protected toIntegrateQty(sku: SkuDetail): number {
+    return Math.max(0, quantityToIntegrate(sku));
   }
 
   protected tooltip(sku: SkuDetail): string {
     if (!this.isRealSku(sku)) return '';
-    const base = `${CELL_STATE_LABELS[this.state(sku)]} · producido ${this.producedQty(sku)} / ordenado ${sku.orderedQty}`;
+    const base = `${CELL_STATE_LABELS[this.state(sku)]} · por integrar ${this.toIntegrateQty(sku)} / ordenado ${sku.orderedQty}`;
     const pending = pendingRecords(sku).map((record) => record.id);
     return pending.length ? `${base} · registros por integrar: ${pending.join(', ')}` : base;
   }
