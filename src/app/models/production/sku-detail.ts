@@ -25,6 +25,8 @@ export interface SkuDetail extends Totals {
   hasProcessedRecords?: boolean;
   // Completed + scrap + rejected summed from the SKU records.
   recordedQuantity?: number;
+  // Same sum, only the records already sent to TEP.
+  integratedQuantity?: number;
   // recordedQuantity equals the SKU ordered quantity.
   recordsQuantityComplete?: boolean;
   // totalTepProcessed AND recordsQuantityComplete.
