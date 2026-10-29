@@ -21,6 +21,7 @@ import { OrderByWorkCenter } from '../../../../models/integration/order-by-work-
 import { PaginatedResponse } from '../../../../common/interfaces/paginated-response';
 import { OrdersByWorkCenterService } from '../../../../services/integration/orders-by-work-center-service';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
+import { UiAlert } from '../../../elements/ui-alert/ui-alert';
 import { TepSendDetail, TepSendRequest } from '../../../../models/integration/tep-send';
 import { buildTepDetail, buildTepRequest, PickedOp } from './tep-payload';
 
@@ -44,6 +45,7 @@ const NO_SELECTION: number[] = [];
     UiLabelButton,
     UiOriginBadge,
     UiIcon,
+    UiAlert,
   ],
   templateUrl: './manual-integration.html',
 })
@@ -91,10 +93,9 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
   // "Integrar" button of the central modal: asks for confirmation first. The integration itself is not
   // implemented yet, so confirming only closes the dialogs and clears the selection.
   protected confirmIntegration(): void {
-    // Every picked OP must have its required fields filled (subprocess, its extra time and the time).
-    if (this.pickedOps().some((picked) => !picked.summary.valid)) {
+    // The button is disabled in these cases; this only guards against a call that bypasses it.
+    if (!this.canIntegrate()) {
       this.submitted.set(true);
-      this.dialogService.openToast('Datos incompletos', 'Complete los campos requeridos de cada OP a integrar.', 'fail');
       return;
     }
     this.dialogService.openConfirm(
@@ -113,6 +114,35 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
   // Set when integrating with missing data, so the time inputs of every OP show their errors.
   protected readonly submitted = signal(false);
 
+  // The user closed the alert of the integrate modal; it shows again when the selection changes.
+  protected readonly invalidAlertDismissed = signal(false);
+
+  // At least one OP is picked and every picked OP has its required fields filled (subprocess, its extra
+  // time and the time). "Integrar" is disabled otherwise.
+  protected canIntegrate(): boolean {
+    const picked = this.pickedOps();
+    return picked.length > 0 && picked.every((op) => op.summary.valid);
+  }
+
+  // Picked OPs with missing or wrong data (subprocess, its extra time or the time).
+  private invalidOps(): PickedOp[] {
+    return this.pickedOps().filter((op) => !op.summary.valid);
+  }
+
+  // The time inputs of every OP show their errors (touched) while an OP has invalid data, because the
+  // disabled "Integrar" button leaves no click to trigger them.
+  protected hasInvalidSelection(): boolean {
+    return this.invalidOps().length > 0;
+  }
+
+  // Message of the alert in the header of the integrate modal, naming the OPs that have errors.
+  protected invalidSelectionMessage(): string | null {
+    const invalid = this.invalidOps();
+    if (this.invalidAlertDismissed() || !invalid.length) return null;
+    const ops = invalid.map((op) => `${op.document.op_type} ${op.document.op_number}`).join(', ');
+    return `Complete los campos requeridos (subproceso y tiempos) en: ${ops}.`;
+  }
+
   // SKUs picked in the integration matrix of each OP (by op_rowid), kept here so they survive collapsing the accordion.
   protected readonly selectedSkuIdsByOp = signal<Record<number, number[]>>({});
 
@@ -121,6 +151,7 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
   }
 
   protected setSelectedSkuIds(opRowid: number, ids: number[]): void {
+    this.invalidAlertDismissed.set(false);
     this.selectedSkuIdsByOp.update((byOp) => ({ ...byOp, [opRowid]: ids }));
   }
 
@@ -171,6 +202,7 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
   protected override closeModelForm(): void {
     this.expandedDocumentIndexes.set(new Set());
     this.submitted.set(false);
+    this.invalidAlertDismissed.set(false);
     this.selectionSummaryByOp.set({});
     this.selectedSkuIdsByOp.set({});
     super.closeModelForm();

@@ -34,7 +34,7 @@
       }
     
       @if(!hideAccept){
-      <app-ui-button [formId]="formId" [type]="submit?'submit':'button'" (onClick)="accept()">
+      <app-ui-button [formId]="formId" [type]="submit?'submit':'button'" [disabled]="acceptDisabled" (onClick)="accept()">
         {{ acceptLabel ?? 'Aceptar'}}
       </app-ui-button>
       }
