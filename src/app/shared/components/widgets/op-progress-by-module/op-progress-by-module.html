@@ -111,57 +111,57 @@
 
                   <div accordion-body class="grid gap-2 grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3">
                   @for (row of mod.rows; track row.op_type + '-' + row.op_number) {
-                    <article class="border border-slate-200 rounded-lg p-3 flex flex-col gap-2">
-                      <div class="flex items-start justify-between gap-2">
-                        <div class="min-w-0">
-                          <p class="text-sm font-semibold text-slate-900">{{ row.op_type }}-{{ row.op_number }}</p>
-                          <p class="text-xs text-slate-500 truncate" [title]="(row.reference_code ?? 'Referencia no disponible') + (row.reference_description ? ' · ' + row.reference_description : '')">
+                    <app-dashboard-section [title]="row.op_type + '-' + row.op_number">
+                      <div class="flex flex-col gap-3">
+                        <div class="flex items-start justify-between gap-2">
+                          <p class="text-xs text-slate-500 truncate min-w-0" [title]="(row.reference_code ?? 'Referencia no disponible') + (row.reference_description ? ' · ' + row.reference_description : '')">
                             {{ row.reference_code ?? 'Referencia no disponible' }}@if (row.reference_description) { · {{ row.reference_description }} }
                           </p>
+                          @if (row.progress_pct === null) {
+                            <app-ui-badge intent="inactive" label="Sin datos"></app-ui-badge>
+                          } @else if (row.progress_pct >= 100) {
+                            <app-ui-badge intent="active" label="Completada"></app-ui-badge>
+                          } @else {
+                            <app-ui-badge intent="default" label="En curso"></app-ui-badge>
+                          }
                         </div>
-                        @if (row.progress_pct === null) {
-                          <app-ui-badge intent="inactive" label="Sin datos"></app-ui-badge>
-                        } @else if (row.progress_pct >= 100) {
-                          <app-ui-badge intent="active" label="Completada"></app-ui-badge>
-                        } @else {
-                          <app-ui-badge intent="default" label="En curso"></app-ui-badge>
-                        }
-                      </div>
 
-                      @if (row.progress_pct !== null) {
-                        <div class="flex items-center gap-2">
-                          <div class="grow rounded-full overflow-hidden"
-                            role="progressbar"
-                            [attr.aria-label]="'Avance de la OP ' + row.op_type + '-' + row.op_number"
-                            aria-valuemin="0"
-                            aria-valuemax="100"
-                            [attr.aria-valuenow]="row.progress_pct">
-                            <app-progress-bar [progress]="row.progress_pct" [max]="100" [color]="barColor"></app-progress-bar>
+                        @if (row.progress_pct !== null) {
+                          <div class="flex items-center gap-2">
+                            <div class="grow rounded-full overflow-hidden"
+                              role="progressbar"
+                              [attr.aria-label]="'Avance de la OP ' + row.op_type + '-' + row.op_number"
+                              aria-valuemin="0"
+                              aria-valuemax="100"
+                              [attr.aria-valuenow]="row.progress_pct">
+                              <app-progress-bar [progress]="row.progress_pct" [max]="100" [color]="barColor"></app-progress-bar>
+                            </div>
+                            <span class="text-sm font-semibold text-slate-900 tabular-nums w-14 text-right">{{ row.progress_pct | number: '1.0-1' }} %</span>
                           </div>
-                          <span class="text-sm font-semibold text-slate-900 tabular-nums w-14 text-right">{{ row.progress_pct | number: '1.0-1' }} %</span>
-                        </div>
-                      } @else {
-                        <p class="text-xs text-slate-500">Sin datos suficientes</p>
-                      }
+                        } @else {
+                          <p class="text-xs text-slate-500">Sin datos suficientes</p>
+                        }
 
-                      <dl class="grid grid-cols-3 gap-2 text-xs">
-                        <div class="flex flex-col items-end">
-                          <dt class="text-slate-500">Realizadas (und)</dt>
-                          <dd class="text-sm font-medium text-slate-900 tabular-nums">{{ row.done_qty === null ? '—' : (row.done_qty | number: '1.0-0') }}</dd>
-                        </div>
-                        <div class="flex flex-col items-end">
-                          <dt class="text-slate-500">Total (und)</dt>
-                          <dd class="text-sm font-medium text-slate-900 tabular-nums">{{ row.total_qty === null ? '—' : (row.total_qty | number: '1.0-0') }}</dd>
-                        </div>
-                        <div class="flex flex-col items-end">
-                          <dt class="text-slate-500">Pendientes (und)</dt>
-                          <dd class="text-sm font-medium text-slate-900 tabular-nums flex items-center gap-1">
-                            {{ pending(row) === null ? '—' : (pending(row) | number: '1.0-0') }}
-                            @if (isOver(row)) { <app-ui-badge intent="warning" label="Excedente"></app-ui-badge> }
-                          </dd>
-                        </div>
-                      </dl>
-                    </article>
+                        <!-- Three equal columns: each quantity takes exactly one third of the card. -->
+                        <dl class="grid grid-cols-3 divide-x divide-slate-200 border-t border-slate-200 pt-3 text-center">
+                          <div class="flex flex-col items-center gap-0.5 px-2">
+                            <dt class="text-xs text-slate-500">Realizadas (und)</dt>
+                            <dd class="text-sm font-semibold text-slate-900 tabular-nums">{{ row.done_qty === null ? '—' : (row.done_qty | number: '1.0-0') }}</dd>
+                          </div>
+                          <div class="flex flex-col items-center gap-0.5 px-2">
+                            <dt class="text-xs text-slate-500">Pendientes (und)</dt>
+                            <dd class="text-sm font-semibold text-slate-900 tabular-nums flex items-center gap-1">
+                              {{ pending(row) === null ? '—' : (pending(row) | number: '1.0-0') }}
+                              @if (isOver(row)) { <app-ui-badge intent="warning" label="Excedente"></app-ui-badge> }
+                            </dd>
+                          </div>
+                          <div class="flex flex-col items-center gap-0.5 px-2">
+                            <dt class="text-xs text-slate-500">Total (und)</dt>
+                            <dd class="text-sm font-semibold text-slate-900 tabular-nums">{{ row.total_qty === null ? '—' : (row.total_qty | number: '1.0-0') }}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    </app-dashboard-section>
                   }
                   </div>
                 </app-ui-accordion-item>
