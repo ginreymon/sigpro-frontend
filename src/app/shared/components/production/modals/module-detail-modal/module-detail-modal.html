@@ -29,7 +29,8 @@
           <app-data-table
             [paginatedResponse]="pagedRows()"
             [columns]="columns()"
-            [footer]="tableFooter()"
+            [summaryRow]="tableSummary()"
+            summaryLabel="TOTALES"
             [actions]="tableActions()"
             (onAction)="handleAction($event)"
             [showPager]="false"

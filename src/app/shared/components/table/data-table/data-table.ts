@@ -80,6 +80,11 @@ export class DataTable<T> {
 
   @Input() footer: T[] = [];
   @Input() footerLabel: string = 'TOTALES';
+  // Optional highlighted row rendered above the records (e.g. a total). It is not part of
+  // the data: filters, pager, index numbering and actions only act on [data]. Cells reuse
+  // each column's field, footerFormat and footerSuffix.
+  @Input() summaryRow: Partial<T> | null = null;
+  @Input() summaryLabel: string = 'TOTAL';
   @Input() showPager: boolean = true;
   @Input() showSearch: boolean = true;
 

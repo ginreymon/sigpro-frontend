@@ -82,9 +82,10 @@ export class ModuleDetailModal implements OnChanges {
     ];
   });
 
-  readonly tableFooter = computed<ModuleEfficiencyRow[]>(() => {
+  // Totals row shown above the records through the table's summaryRow.
+  readonly tableSummary = computed<ModuleEfficiencyRow | null>(() => {
     const data = this.rows();
-    if (!data.length) return [];
+    if (!data.length) return null;
 
     const fmt = (iso: string) => formatDate(iso, 'dd/MM/yyyy HH:mm', 'en-US');
     const numSum = (field: keyof ModuleEfficiencyRow) =>
@@ -102,7 +103,7 @@ export class ModuleDetailModal implements OnChanges {
       ? withEff.reduce((acc, r) => acc + r.efficiency, 0) / withEff.length
       : 0;
 
-    return [{
+    return {
       module_id: 0,
       module_name: '',
       module_number: 0,
@@ -126,7 +127,7 @@ export class ModuleDetailModal implements OnChanges {
       total_rejected: numSum('total_rejected'),
       total_scrap: numSum('total_scrap'),
       efficiency: Math.round(avgEff * 100) / 100,
-    }];
+    };
   });
 
   ngOnChanges(changes: SimpleChanges): void {

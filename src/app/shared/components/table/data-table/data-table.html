@@ -22,8 +22,9 @@
         }
     </ng-template>
 
-    <ng-template #footerCellContent let-col="col" let-row="row">
-        @if(col.field && col.footerFormat){ {{ $any(row[col.field]) | number:col.footerFormat }}{{ col.footerSuffix ?? '' }} }
+    <ng-template #footerCellContent let-col="col" let-row="row" let-summary="summary">
+        @if(summary && col.field && row[col.field] == null){ }
+        @else if(col.field && col.footerFormat){ {{ $any(row[col.field]) | number:col.footerFormat }}{{ col.footerSuffix ?? '' }} }
         @else if(col.field){ {{ row[col.field] }}{{ col.footerSuffix ?? '' }} }
     </ng-template>
 
@@ -39,6 +40,48 @@
                 }
             }
         </div>
+    </ng-template>
+
+    <ng-template #specialRowDesktop let-row="row" let-label="label" let-rowClass="rowClass" let-summary="summary">
+        <tr [class]="rowClass" [attr.data-summary-row]="summary ? '' : null">
+            @for (col of _columns; track $index) {
+                @if(!col.hidden){
+                <td [class]="`px-6 py-3 ${getAlignment(col.align)} ${col.classes}`">
+                    @if(col.type == 'index'){ {{ label }} }
+                    @else if(summary && col.field && row[col.field] == null){ }
+                    @else if(col.field && col.footerFormat){ {{ $any(row[col.field]) | number:col.footerFormat }}{{ col.footerSuffix ?? '' }} }
+                    @else if(col.field){ {{ row[col.field] }}{{ col.footerSuffix ?? '' }} }
+                </td>
+                }
+            }
+        </tr>
+    </ng-template>
+
+    <ng-template #specialRowMobile let-row="row" let-label="label" let-summary="summary">
+        <details class="group" open [attr.data-summary-row]="summary ? '' : null">
+            <summary [class]="'flex justify-between items-center gap-3 px-4 py-3 cursor-pointer list-none font-semibold ' + (summary ? 'bg-brand-50 text-gray-800 hover:bg-brand-100' : 'text-gray-700 hover:bg-gray-50')">
+                <span class="flex items-center gap-2 min-w-0">
+                    <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4 text-gray-400 shrink-0 transition-transform group-open:rotate-90'"></app-ui-icon>
+                    <span class="truncate">{{ label }}</span>
+                </span>
+                @if (footerSecondaryColumn) {
+                <span class="shrink-0">
+                    <ng-container *ngTemplateOutlet="footerCellContent; context: { col: footerSecondaryColumn, row, summary }"></ng-container>
+                </span>
+                }
+            </summary>
+
+            <div [class]="'pl-10 pr-4 pb-3 divide-y divide-gray-200 ' + (summary ? 'bg-brand-50' : 'bg-gray-50')">
+                @for (col of footerDetailColumns; track $index) {
+                <div class="flex justify-between items-center gap-3 text-sm min-h-11 py-1.5">
+                    <span class="text-gray-500">{{ col.label }}</span>
+                    <span class="text-right font-semibold text-gray-700">
+                        <ng-container *ngTemplateOutlet="footerCellContent; context: { col, row, summary }"></ng-container>
+                    </span>
+                </div>
+                }
+            </div>
+        </details>
     </ng-template>
 
     <ng-template #emptyState>
@@ -77,6 +120,9 @@
             </thead>
 
             <tbody class="divide-y divide-gray-200 text-gray-600 font-medium">
+                @if (summaryRow) {
+                <ng-container *ngTemplateOutlet="specialRowDesktop; context: { row: summaryRow, label: summaryLabel, rowClass: 'bg-brand-50 font-semibold text-gray-800 border-b border-slate-200', summary: true }"></ng-container>
+                }
                 @for (row of _data; track row; let i = $index) {
                 <tr class="hover:bg-gray-50 transition-colors duration-150">
 
@@ -103,17 +149,7 @@
 
             <tfoot class="border-t border-gray-300 divide-y divide-gray-200">
                 @for (row of footer; track row) {
-                <tr class="bg-gray-50 font-semibold text-gray-700">
-                    @for (col of _columns; track $index) {
-                        @if(!col.hidden){
-                        <td [class]="`px-6 py-3 ${getAlignment(col.align)} ${col.classes}`">
-                            @if(col.type == 'index'){ {{ footerLabel }} }
-                            @else if(col.field && col.footerFormat){ {{ $any(row[col.field]) | number:col.footerFormat }}{{ col.footerSuffix ?? '' }} }
-                            @else if(col.field){ {{ row[col.field] }}{{ col.footerSuffix ?? '' }} }
-                        </td>
-                        }
-                    }
-                </tr>
+                <ng-container *ngTemplateOutlet="specialRowDesktop; context: { row, label: footerLabel, rowClass: 'bg-gray-50 font-semibold text-gray-700', summary: false }"></ng-container>
                 }
             </tfoot>
 
@@ -141,6 +177,12 @@
             } @else if (mobileSecondaryColumn) {
             <span>{{ mobileSecondaryColumn.label }}</span>
             }
+        </div>
+        }
+
+        @if (summaryRow) {
+        <div class="border-b border-slate-200">
+            <ng-container *ngTemplateOutlet="specialRowMobile; context: { row: summaryRow, label: summaryLabel, summary: true }"></ng-container>
         </div>
         }
 
@@ -187,30 +229,7 @@
         @if (footer.length) {
         <div class="divide-y divide-gray-200 border-t border-gray-300">
             @for (row of footer; track row) {
-            <details class="group" open>
-                <summary class="flex justify-between items-center gap-3 px-4 py-3 cursor-pointer list-none hover:bg-gray-50 font-semibold text-gray-700">
-                    <span class="flex items-center gap-2 min-w-0">
-                        <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4 text-gray-400 shrink-0 transition-transform group-open:rotate-90'"></app-ui-icon>
-                        <span class="truncate">{{ footerLabel }}</span>
-                    </span>
-                    @if (footerSecondaryColumn) {
-                    <span class="shrink-0">
-                        <ng-container *ngTemplateOutlet="footerCellContent; context: { col: footerSecondaryColumn, row }"></ng-container>
-                    </span>
-                    }
-                </summary>
-
-                <div class="pl-10 pr-4 pb-3 divide-y divide-gray-200 bg-gray-50">
-                    @for (col of footerDetailColumns; track $index) {
-                    <div class="flex justify-between items-center gap-3 text-sm min-h-11 py-1.5">
-                        <span class="text-gray-500">{{ col.label }}</span>
-                        <span class="text-right font-semibold text-gray-700">
-                            <ng-container *ngTemplateOutlet="footerCellContent; context: { col, row }"></ng-container>
-                        </span>
-                    </div>
-                    }
-                </div>
-            </details>
+            <ng-container *ngTemplateOutlet="specialRowMobile; context: { row, label: footerLabel, summary: false }"></ng-container>
             }
         </div>
         }
