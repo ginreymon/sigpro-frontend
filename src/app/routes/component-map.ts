@@ -23,9 +23,9 @@ import { SewingConfig } from '../options/production/sewing-config/sewing-config'
 import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
 import { StampingAuditory } from '../options/stamping/auditory/auditory';
 import { SiesaOutbound } from '../options/integration/siesa-outbound/siesa-outbound';
-import { WorkCenterTotals } from '../shared/pages/integration/work-center-totals/work-center-totals';
-// ManualIntegration (shared/pages/integration/manual-integration) is kept but
-// disconnected from the router; WorkCenterTotals now serves its menu route.
+import { ManualIntegration } from '../shared/pages/integration/manual-integration/manual-integration';
+// WorkCenterTotals (shared/pages/integration/work-center-totals) is kept but
+// disconnected from the router; ManualIntegration now serves its menu route.
 
 export const componentMap: Record<string, Type<any>> = {
   'configuration/app-settings': AppSettings,
@@ -56,5 +56,5 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/machine-panel': MachinePanel,
   'stamping/auditory': StampingAuditory,
   'integration/siesa-outbound': SiesaOutbound,
-  'integration/manual-integration': WorkCenterTotals,
+  'integration/manual-integration': ManualIntegration,
 };

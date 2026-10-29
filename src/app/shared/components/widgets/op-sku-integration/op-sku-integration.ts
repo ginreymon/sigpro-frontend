@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/c
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WorkCenterDocument } from '../../../../models/integration/order-by-work-center';
 import { OrdersByWorkCenterService } from '../../../../services/integration/orders-by-work-center-service';
-import { DocumentIntegrationMatrix } from '../../../pages/integration/work-center-totals/options/production/document-integration-matrix/document-integration-matrix';
+import { DocumentIntegrationMatrix } from '../../../pages/integration/manual-integration/options/production/document-integration-matrix/document-integration-matrix';
 
 // Origin whose records carry a SKU (Confección). Other origins have no per-SKU detail.
 const SKU_ORIGIN_ID = 1;

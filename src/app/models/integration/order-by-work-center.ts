@@ -63,7 +63,7 @@ export interface OrderByWorkCenter extends BaseEntity {
   documents: WorkCenterDocument[];
 
   // Local date (dd/MM/yyyy) of `last_end`, computed by the frontend on load
-  // (WorkCenterTotals.mapResponse); it does not come from the API. The column
+  // (ManualIntegration.mapResponse); it does not come from the API. The column
   // filter works on it, so it lists days instead of every timestamp.
   end_date?: string;
 }
