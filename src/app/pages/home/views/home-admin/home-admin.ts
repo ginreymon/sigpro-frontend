@@ -6,11 +6,15 @@ import { ModuleEfficiencyRow } from '../../../../models/production/module-effici
 import { ModuleProductivityService } from '../../../../common/interfaces/module-productivity-service';
 import { ProductivityService } from '../../../../services/production/productivity-service';
 import { StampingProductivityService } from '../../../../services/stamping/stamping-productivity-service';
-import { currentMonthLabel, currentMonthRange } from '../../../../common/functions/date-utils';
+import { currentMonthLabel, currentMonthRange, localTodayStr } from '../../../../common/functions/date-utils';
 import { CHART_COLORS } from '../../../../charts/chart-palette';
 import { AreaDailyCharts } from '../../../../charts/area-daily-charts/area-daily-charts';
+import { DailyEfficiencyRadar } from '../../../../charts/daily-efficiency-radar/daily-efficiency-radar';
 import { EfficiencyRadarChart } from '../../../../charts/efficiency-radar-chart/efficiency-radar-chart';
-import { aggregateEfficiencyByModule } from '../../../../common/functions/dashboard-aggregate';
+import {
+  aggregateEfficiencyByModule,
+  aggregateWeightedEfficiencyByModule,
+} from '../../../../common/functions/dashboard-aggregate';
 import { AppConfigService } from '../../../../services/core/app-config-service';
 import { TabItem, UiTabs } from '../../../../shared/elements/ui-tabs/ui-tabs';
 import { HomeProductionCoordinator } from '../home-production-coordinator/home-production-coordinator';
@@ -53,7 +57,14 @@ const loading = <T>(): Load<T> => ({ status: 'loading', data: null });
 // homes. To add an area, add an entry to `sources` (and to the `rows` initial state).
 @Component({
   selector: 'app-home-admin',
-  imports: [NgComponentOutlet, UiTabs, AreaDailyCharts, EfficiencyRadarChart, OpProgressByModule],
+  imports: [
+    NgComponentOutlet,
+    UiTabs,
+    AreaDailyCharts,
+    DailyEfficiencyRadar,
+    EfficiencyRadarChart,
+    OpProgressByModule,
+  ],
   templateUrl: './home-admin.html',
 })
 export class HomeAdmin {
@@ -78,7 +89,8 @@ export class HomeAdmin {
     },
   ];
 
-  readonly monthLabel = currentMonthLabel();
+  // Month and year for the chart titles (the x axes show only the day of the month).
+  readonly monthLabel = `${currentMonthLabel()} ${new Date().getFullYear()}`;
   readonly tabs: TabItem[] = [
     ...this.sources.map(({ key, label }) => ({ key, label })),
     { key: OP_TAB_KEY, label: 'Órdenes' },
@@ -90,6 +102,12 @@ export class HomeAdmin {
     production: loading(),
     stamping: loading(),
   });
+  // Today's rows per area (same endpoint, start = end = local today); kept apart from the month rows.
+  private readonly todayRows = signal<Record<AreaKey, Load<ModuleEfficiencyRow[]>>>({
+    production: loading(),
+    stamping: loading(),
+  });
+  protected readonly today = signal(localTodayStr());
 
   // OP progress filters; area and dates are applied by the endpoint (current month by default).
   protected readonly opAreaOptions: OpProgressAreaOption[] = this.sources.map(
@@ -120,6 +138,14 @@ export class HomeAdmin {
   protected readonly modulePoints = computed(() => aggregateEfficiencyByModule(this.active().rows));
   protected readonly moduleLabels = computed(() => this.modulePoints().map((p) => p.label));
   protected readonly moduleValues = computed(() => this.modulePoints().map((p) => p.value));
+  // Today's radar: target-weighted efficiency per module (official formula), not a mean of rows.
+  protected readonly todayRadar = computed(() => {
+    const load = this.todayRows()[this.lastAreaKey()];
+    const data = load.data ?? [];
+    const points = aggregateWeightedEfficiencyByModule(data);
+    // Count only axes with data: all-null points would draw an empty polygon.
+    return { points, state: this.toState(load, points.filter((p) => p.value !== null).length) };
+  });
   // Read lazily in the template: the limit is an app setting that may load after this view.
   protected readonly appConfig = inject(AppConfigService);
 
@@ -146,6 +172,13 @@ export class HomeAdmin {
     const { startDate, endDate } = currentMonthRange();
     this.fetch(source.service.getModuleEfficiency(startDate, endDate), (load) =>
       this.rows.update((current) => ({ ...current, [key]: load })),
+    );
+    // Local date, not currentMonthRange().endDate (UTC date: tomorrow after 19:00 in Colombia).
+    // Refreshed on every load so a dashboard kept open past midnight does not label old data as today.
+    this.today.set(localTodayStr());
+    const today = this.today();
+    this.fetch(source.service.getModuleEfficiency(today, today), (load) =>
+      this.todayRows.update((current) => ({ ...current, [key]: load })),
     );
   }
 

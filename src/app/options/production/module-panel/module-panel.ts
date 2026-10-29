@@ -30,7 +30,7 @@ export class ModulePanel extends ModuleRangePanelBase {
     return {
       module_id: 0,
       number: 0,
-      name: 'PLANTA',
+      name: this.plantaLabel,
       location: ref?.location ?? '',
       module_enabled: true,
       work_shift_id: 0,

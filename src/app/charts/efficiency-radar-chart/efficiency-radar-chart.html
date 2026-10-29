@@ -1,8 +1,21 @@
-<app-dashboard-section [title]="title()" [state]="effectiveState()" [emptyMessage]="emptyMessage()">
-  <div class="h-80">
-    @if (effectiveState() === 'ready') {
+<app-dashboard-section [title]="title()" [state]="state()" bodyClass="h-80">
+  <div class="flex h-full w-full flex-col gap-2">
+    @if (state() === 'ready') {
+      @if (canShowRadar()) {
+        <div class="flex justify-end gap-1 rounded-md bg-slate-100 p-1 self-end" role="group" aria-label="Tipo de gráfico">
+          @for (view of views; track view.key) {
+            <button type="button"
+              class="rounded px-2 py-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-brand-200"
+              [class]="activeView() === view.key ? 'bg-white text-brand shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+              [attr.aria-pressed]="activeView() === view.key"
+              (click)="selectedView.set(view.key)">
+              {{ view.label }}
+            </button>
+          }
+        </div>
+      }
       <app-ui-chart
-        class="h-full"
+        class="min-h-0 flex-1"
         [config]="config()"
         [ariaLabel]="title() + ' · ' + areaLabel()">
       </app-ui-chart>

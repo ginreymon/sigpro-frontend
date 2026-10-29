@@ -4,6 +4,7 @@
     [seriesLabel]="areaLabel()"
     [color]="color()"
     [points]="dailyCompleted()"
+    [series]="completedByModule()"
     yTitle="Completadas (und)"
     [state]="state()">
   </app-daily-trend-chart>
@@ -13,6 +14,7 @@
     [seriesLabel]="areaLabel()"
     [color]="color()"
     [points]="dailyEfficiency()"
+    [series]="efficiencyByModule()"
     yTitle="Eficiencia (%)"
     valueFormat="1.2-2"
     [state]="state()">

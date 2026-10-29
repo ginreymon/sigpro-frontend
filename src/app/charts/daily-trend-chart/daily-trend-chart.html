@@ -1,8 +1,27 @@
-<app-dashboard-section [title]="title()" [state]="state()">
-  <div class="h-64">
+<app-dashboard-section [title]="title()" [state]="state()" bodyClass="h-72">
+  <div class="flex h-full w-full flex-col gap-2">
     @if (state() === 'ready') {
+      @if (series().length) {
+        <div class="flex max-h-16 flex-wrap items-center gap-1 overflow-y-auto" role="group" aria-label="Módulos visibles">
+          <span class="inline-flex items-center gap-1.5 rounded px-2 py-1 text-xs font-semibold text-slate-700">
+            <span class="h-1 w-4 rounded" [style.background-color]="color()"></span>{{ seriesLabel() }}
+          </span>
+          @for (chip of chips(); track chip.series.moduleId) {
+            <button type="button"
+              class="inline-flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-brand-200"
+              [class]="chip.visible ? 'bg-slate-100 text-slate-700' : 'text-slate-500 line-through hover:bg-slate-50'"
+              [attr.aria-pressed]="chip.visible"
+              (click)="toggle(chip.series.moduleId)">
+              <span class="h-2 w-2 rounded-full" [style.background-color]="chip.visible ? chip.color : '#cbd5e1'"></span>
+              {{ chip.series.label }}
+            </button>
+          }
+          <button type="button" class="rounded px-2 py-1 text-xs font-medium text-brand hover:underline focus-visible:ring-2 focus-visible:ring-brand-200" (click)="showAll()">Todos</button>
+          <button type="button" class="rounded px-2 py-1 text-xs font-medium text-brand hover:underline focus-visible:ring-2 focus-visible:ring-brand-200" (click)="hideAll()">Ninguno</button>
+        </div>
+      }
       <app-ui-chart
-        class="h-full"
+        class="min-h-0 flex-1"
         [config]="config()"
         [ariaLabel]="title() + ' · ' + seriesLabel()">
       </app-ui-chart>
@@ -11,7 +30,10 @@
         <thead>
           <tr>
             <th scope="col">Día</th>
-            <th scope="col">{{ yTitle() }}</th>
+            <th scope="col">{{ seriesLabel() }}</th>
+            @for (s of series(); track s.moduleId) {
+              <th scope="col">{{ s.label }}</th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -19,6 +41,10 @@
             <tr>
               <th scope="row">{{ point.date }}</th>
               <td>{{ point.value === null ? 'No disponible' : (point.value | number: valueFormat()) }}</td>
+              @for (s of series(); track s.moduleId) {
+                @let value = valueOn(s, point.date);
+                <td>{{ value === null ? 'No disponible' : (value | number: valueFormat()) }}</td>
+              }
             </tr>
           }
         </tbody>

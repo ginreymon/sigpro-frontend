@@ -1,17 +1,17 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import {
   DashboardSection,
   DashboardSectionState,
 } from '../../shared/components/widgets/dashboard-section/dashboard-section';
 import { UiChart } from '../ui-chart/ui-chart';
-import { buildEfficiencyRadarConfig } from './efficiency-radar-chart.config';
+import { buildEfficiencyBarConfig, buildEfficiencyRadarConfig } from './efficiency-radar-chart.config';
 
-// A radar needs at least 3 axes to form a polygon.
+// A radar needs at least 3 axes to form a polygon; with fewer, horizontal bars are shown.
 const MIN_AXES = 3;
 
-// Efficiency (%) per module/machine of one area, inside a titled section with its loading /
-// error / empty states and a screen-reader table with the same values (WCAG 1.1.1).
+// Efficiency (%) per module/machine of one area as a radar or horizontal bars, inside a titled
+// section with its loading / error / empty states and a screen-reader table with the same values (WCAG 1.1.1).
 @Component({
   selector: 'app-efficiency-radar-chart',
   imports: [DecimalPipe, DashboardSection, UiChart],
@@ -29,25 +29,24 @@ export class EfficiencyRadarChart {
   readonly targetLabel = input('Meta');
   readonly state = input<DashboardSectionState>('ready');
 
-  protected readonly tooFewAxes = computed(
-    () => this.labels().length > 0 && this.labels().length < MIN_AXES,
-  );
-  protected readonly effectiveState = computed<DashboardSectionState>(() =>
-    this.state() === 'ready' && this.tooFewAxes() ? 'empty' : this.state(),
-  );
-  protected readonly emptyMessage = computed(() =>
-    this.tooFewAxes()
-      ? `El radar necesita al menos ${MIN_AXES} módulos con datos.`
-      : 'No hay datos para este período.',
-  );
-  protected readonly config = computed(() =>
-    buildEfficiencyRadarConfig(
+  // View chosen by the user; the radar is only offered with enough axes.
+  protected readonly selectedView = signal<'radar' | 'bars'>('radar');
+  protected readonly canShowRadar = computed(() => this.labels().length >= MIN_AXES);
+  protected readonly activeView = computed(() => (this.canShowRadar() ? this.selectedView() : 'bars'));
+  protected readonly views = [
+    { key: 'radar', label: 'Radar' },
+    { key: 'bars', label: 'Barras' },
+  ] as const;
+
+  protected readonly config = computed(() => {
+    const build = this.activeView() === 'radar' ? buildEfficiencyRadarConfig : buildEfficiencyBarConfig;
+    return build(
       this.labels(),
       this.values(),
       this.areaLabel(),
       this.color(),
       this.target(),
       this.targetLabel(),
-    ),
-  );
+    );
+  });
 }

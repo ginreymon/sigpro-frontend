@@ -24,15 +24,27 @@
     [state]="active().state">
   </app-area-daily-charts>
 
-  <app-efficiency-radar-chart
-    [title]="'Eficiencia por módulo · ' + monthLabel"
-    [areaLabel]="active().label"
-    [color]="active().color"
-    [labels]="moduleLabels()"
-    [values]="moduleValues()"
-    [target]="appConfig.highEfficiencyLimit"
-    targetLabel="Meta de eficiencia"
-    [state]="active().state">
-  </app-efficiency-radar-chart>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <app-daily-efficiency-radar
+      [points]="todayRadar().points"
+      [date]="today()"
+      [areaLabel]="active().label"
+      [color]="active().color"
+      [target]="appConfig.highEfficiencyLimit"
+      targetLabel="Meta de eficiencia"
+      [state]="todayRadar().state">
+    </app-daily-efficiency-radar>
+
+    <app-efficiency-radar-chart
+      [title]="'Eficiencia por módulo · ' + monthLabel"
+      [areaLabel]="active().label"
+      [color]="active().color"
+      [labels]="moduleLabels()"
+      [values]="moduleValues()"
+      [target]="appConfig.highEfficiencyLimit"
+      targetLabel="Meta de eficiencia"
+      [state]="active().state">
+    </app-efficiency-radar-chart>
+  </div>
 }
 </div>

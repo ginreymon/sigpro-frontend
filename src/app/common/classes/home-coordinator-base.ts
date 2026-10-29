@@ -26,7 +26,8 @@ export abstract class HomeCoordinatorBase {
     this.modules().filter((m) => m.status === 'ACTIVE').length,
   );
 
-  readonly monthLabel = computed(() => currentMonthLabel());
+  // Month and year, shown as the label of the monthly productivity card.
+  readonly monthLabel = computed(() => `${currentMonthLabel()} ${new Date().getFullYear()}`);
 
   readonly plantaModule = computed(() => {
     const mods = this.modules();

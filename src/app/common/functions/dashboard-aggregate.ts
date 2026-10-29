@@ -5,11 +5,11 @@ export interface DailyPoint {
   value: number | null;
 }
 
-// Sum that is null when any value is missing (e.g. stamping scrap), so the UI shows
-// "No disponible" instead of a misleading partial total or a 0.
+// Sum of the present values; null only when every value is missing, so a day is not erased by
+// one module that reports no output (SQL returns NULL for an empty sum, i.e. 0 completed).
 function sumOrNull(values: (number | null | undefined)[]): number | null {
-  if (!values.length || values.some((v) => v == null)) return null;
-  return values.reduce<number>((sum, v) => sum + (v as number), 0);
+  const present = values.filter((v): v is number => v != null);
+  return present.length ? present.reduce((sum, v) => sum + v, 0) : null;
 }
 
 function localDateKey(iso: string): string {
@@ -44,8 +44,8 @@ export function aggregateDailyEfficiency(rows: ModuleEfficiencyRow[]): DailyPoin
 }
 
 /**
- * Completed quantity per day (local time), sorted by date; a day with any missing value is
- * null. There is no hourly series in the backend.
+ * Completed quantity per day (local time), sorted by date; modules without output (null) add
+ * nothing, and a day where every value is null is null. There is no hourly series in the backend.
  */
 export function aggregateDailyCompleted(rows: ModuleEfficiencyRow[]): DailyPoint[] {
   return groupByDay(rows).map(([date, dayRows]) => ({
@@ -83,4 +83,65 @@ export function aggregateEfficiencyByModule(rows: ModuleEfficiencyRow[]): Module
         value: avg === null ? null : Math.round(avg * 100) / 100,
       };
     });
+}
+
+/**
+ * Efficiency per module over the given rows, weighted by target: sum(produced) * 100 / sum(target),
+ * the official SAM-based formula (SQL fn_eficiencia_periodo_*) applied across shifts. Sewing rows
+ * carry `total_produced` (completed + scrap + rejected); stamping rows only `total_completed`.
+ * Rows without a target or without output are ignored, so a module with no target
+ * is null ("no data") while a module with target and no output is a real 0.
+ */
+export function aggregateWeightedEfficiencyByModule(
+  rows: ModuleEfficiencyRow[],
+): ModuleEfficiencyPoint[] {
+  const byModule = new Map<number, ModuleEfficiencyRow[]>();
+  for (const row of rows) {
+    byModule.set(row.module_id, [...(byModule.get(row.module_id) ?? []), row]);
+  }
+  return [...byModule.entries()]
+    .sort(([, a], [, b]) => a[0].module_number - b[0].module_number)
+    .map(([moduleId, moduleRows]) => {
+      // A row counts only with both target and output; a missing output is no data, not 0.
+      const measured = moduleRows.filter(
+        (r) => (r.unit_target ?? 0) > 0 && (r.total_produced ?? r.total_completed) != null,
+      );
+      const target = measured.reduce((sum, r) => sum + (r.unit_target as number), 0);
+      const produced = measured.reduce(
+        (sum, r) => sum + (r.total_produced ?? (r.total_completed as number)),
+        0,
+      );
+      return {
+        moduleId,
+        label: moduleRows[0].module_name || `Módulo ${moduleRows[0].module_number}`,
+        value: target > 0 ? Math.round((produced * 10000) / target) / 100 : null,
+      };
+    });
+}
+
+export interface ModuleDailySeries {
+  moduleId: number;
+  label: string;
+  points: DailyPoint[];
+}
+
+/**
+ * Splits the rows by module and applies a daily aggregation (e.g. `aggregateDailyEfficiency`) to
+ * each one, so a module's line follows the same rule as the area line. Sorted by module number.
+ */
+export function aggregateDailyByModule(
+  rows: ModuleEfficiencyRow[],
+  aggregate: (moduleRows: ModuleEfficiencyRow[]) => DailyPoint[],
+): ModuleDailySeries[] {
+  const byModule = new Map<number, ModuleEfficiencyRow[]>();
+  for (const row of rows) {
+    byModule.set(row.module_id, [...(byModule.get(row.module_id) ?? []), row]);
+  }
+  return [...byModule.entries()]
+    .sort(([, a], [, b]) => a[0].module_number - b[0].module_number)
+    .map(([moduleId, moduleRows]) => ({
+      moduleId,
+      label: moduleRows[0].module_name || `Módulo ${moduleRows[0].module_number}`,
+      points: aggregate(moduleRows),
+    }));
 }

@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { ModuleEfficiencyRow } from '../../models/production/module-efficiency-row';
 import {
+  aggregateDailyByModule,
   aggregateDailyCompleted,
   aggregateDailyEfficiency,
 } from '../../common/functions/dashboard-aggregate';
@@ -23,4 +24,10 @@ export class AreaDailyCharts {
 
   protected readonly dailyCompleted = computed(() => aggregateDailyCompleted(this.rows()));
   protected readonly dailyEfficiency = computed(() => aggregateDailyEfficiency(this.rows()));
+  protected readonly completedByModule = computed(() =>
+    aggregateDailyByModule(this.rows(), aggregateDailyCompleted),
+  );
+  protected readonly efficiencyByModule = computed(() =>
+    aggregateDailyByModule(this.rows(), aggregateDailyEfficiency),
+  );
 }
