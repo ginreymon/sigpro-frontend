@@ -53,7 +53,7 @@ export class IntegrationTimeInputs {
 
   protected readonly form = new FormGroup({
     subprocess: new FormControl<TepSubprocess | null>(null, Validators.required),
-    // Extra seconds per unit typed by the user; only asked when a subprocess other than "none" is picked.
+    // Extra seconds for the whole selection typed by the user; only asked when a subprocess other than "none" is picked.
     additionalSeconds: new FormControl<number | null>(null, [
       Validators.required,
       Validators.pattern(POSITIVE_NUMBER),
@@ -69,10 +69,11 @@ export class IntegrationTimeInputs {
     () => this.askSubprocess() && !!this.subprocess() && this.subprocess() !== 'none',
   );
 
-  // Units x (seconds per unit + additional seconds per unit), as hours and minutes (rounded to the minute).
+  // Units x seconds per unit + the additional seconds of the whole selection (not per unit), as hours
+  // and minutes (rounded to the minute).
   private readonly defaultTime = computed(() => {
     const extra = this.needsAdditionalTime() ? this.additionalSeconds() : 0;
-    const totalMinutes = Math.round((this.units() * (this.secondsPerUnit() + extra)) / 60);
+    const totalMinutes = Math.round((this.units() * this.secondsPerUnit() + extra) / 60);
     return { hours: Math.floor(totalMinutes / 60), minutes: totalMinutes % 60 };
   });
 

@@ -13,7 +13,7 @@
           [placeholder]="'Seleccione subproceso...'"></app-ui-select>
       </app-ui-form-field>
       @if (needsAdditionalTime()) {
-        <app-ui-form-field [controlName]="'additionalSeconds'" [label]="'Tiempo adicional por unidad (s)'" [layout]="'inline'"
+        <app-ui-form-field [controlName]="'additionalSeconds'" [label]="'Tiempo total subproceso (seg)'" [layout]="'inline'"
           [inputId]="'integration-additional-' + uid">
           <app-ui-input class="block w-48" formControlName="additionalSeconds" [type]="'number'" [isFloat]="true" [control]="form.controls.additionalSeconds"
             [id]="'integration-additional-' + uid" [placeholder]="'Ej: 12'"></app-ui-input>
