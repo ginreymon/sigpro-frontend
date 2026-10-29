@@ -19,6 +19,15 @@ export interface SkuDetail extends Totals {
   hasOpenRecords?: boolean;
   baseRouteQuantity?: number;
   itemId?: string;
-  tepProcessed?: boolean;
+  // Every record of the SKU was already sent to TEP (false when any is pending or there are none).
+  totalTepProcessed?: boolean;
+  // At least one record of the SKU was already sent to TEP.
+  hasProcessedRecords?: boolean;
+  // Completed + scrap + rejected summed from the SKU records.
+  recordedQuantity?: number;
+  // recordedQuantity equals the SKU ordered quantity.
+  recordsQuantityComplete?: boolean;
+  // totalTepProcessed AND recordsQuantityComplete.
+  tepProcessedAndComplete?: boolean;
   records?: SkuRecord[];
 }

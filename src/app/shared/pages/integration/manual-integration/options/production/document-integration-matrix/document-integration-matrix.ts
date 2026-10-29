@@ -3,9 +3,10 @@ import { WorkCenterDocument } from '../../../../../../../models/integration/orde
 import { ProductionOrder } from '../../../../../../../models/production/production-order';
 import { SkuDetail } from '../../../../../../../models/production/sku-detail';
 import { buildColorSizeMatrix } from '../../../../../../components/production/tables/production-orders-table/color-size-matrix';
-import { isRealSku, pendingRecords, producedUnits, skuCellState } from '../integration-state';
+import { isRealSku, pendingRecords, producedUnits, skuCellState, unitsToIntegrate } from '../integration-state';
 import {
   CELL_SELECTED_CLASSES,
+  CELL_SELECTED_PARTIAL_CLASSES,
   CELL_STATE_CLASSES,
   CELL_STATE_LABELS,
   SkuCellState,
@@ -51,13 +52,13 @@ export class DocumentIntegrationMatrix {
     return counts;
   });
 
-  // skuRowId of every cell ready to integrate.
-  private readonly readyIds = computed(() =>
-    (this.matrix()?.skuColors ?? [])
+  // skuRowId of every selectable cell, by state (ready / partial).
+  private selectableIds(state: SkuCellState): number[] {
+    return (this.matrix()?.skuColors ?? [])
       .flatMap((row) => row.skus)
-      .filter((sku) => this.isRealSku(sku) && this.isSelectable(sku))
-      .map((sku) => sku.skuRowId),
-  );
+      .filter((sku) => this.isRealSku(sku) && this.state(sku) === state && this.isSelectable(sku))
+      .map((sku) => sku.skuRowId);
+  }
 
   // Cells of this matrix the user picked.
   protected readonly selectedSkus = computed(() =>
@@ -67,7 +68,7 @@ export class DocumentIntegrationMatrix {
   );
 
   protected readonly selectedUnits = computed(() =>
-    this.selectedSkus().reduce((sum, sku) => sum + Number(sku.completedQty), 0),
+    this.selectedSkus().reduce((sum, sku) => sum + unitsToIntegrate(sku), 0),
   );
 
   // Seconds per unit of the OP: seconds_by_unit plus additional_seconds_by_unit (either may be null).
@@ -82,9 +83,12 @@ export class DocumentIntegrationMatrix {
     return this.selectedSkuIds().includes(sku.skuRowId);
   }
 
-  // Only cells ready to integrate can be picked.
+  // Cells ready to integrate and partial cells with completed units still pending can be picked,
+  // as long as the SKU lists records (without them there is nothing to send).
   protected isSelectable(sku: SkuDetail): boolean {
-    return this.state(sku) === 'ready';
+    if (!sku.records?.length) return false;
+    const state = this.state(sku);
+    return state === 'ready' || (state === 'partial' && unitsToIntegrate(sku) > 0);
   }
 
   protected toggleSelected(sku: SkuDetail): void {
@@ -94,17 +98,24 @@ export class DocumentIntegrationMatrix {
     );
   }
 
-  // Legend chip "Por integrar": selects every ready cell, or clears them when all are already selected.
-  protected toggleAllReady(): void {
-    const ready = this.readyIds();
-    const allSelected = ready.every((id) => this.selectedSkuIds().includes(id));
+  // Legend chips "Por integrar" / "Parcial": select every selectable cell of that state, or clear
+  // them when all are already selected.
+  protected toggleAllSelectable(state: SkuCellState): void {
+    const selectable = this.selectableIds(state);
+    const allSelected = selectable.every((id) => this.selectedSkuIds().includes(id));
     this.selectedSkuIds.update((ids) =>
-      allSelected ? ids.filter((id) => !ready.includes(id)) : [...new Set([...ids, ...ready])],
+      allSelected ? ids.filter((id) => !selectable.includes(id)) : [...new Set([...ids, ...selectable])],
     );
   }
 
+  protected isBulkSelectState(state: SkuCellState): boolean {
+    return state === 'ready' || state === 'partial';
+  }
+
   protected cellClasses(sku: SkuDetail): string {
-    return this.isSelectable(sku) && this.isSelected(sku) ? CELL_SELECTED_CLASSES : CELL_STATE_CLASSES[this.state(sku)];
+    if (!this.isSelectable(sku)) return CELL_STATE_CLASSES[this.state(sku)];
+    if (!this.isSelected(sku)) return `${CELL_STATE_CLASSES[this.state(sku)]} cursor-pointer`;
+    return this.state(sku) === 'partial' ? CELL_SELECTED_PARTIAL_CLASSES : CELL_SELECTED_CLASSES;
   }
 
   protected producedQty(sku: SkuDetail): number {

@@ -4,10 +4,10 @@
 // Matrix cell state. The first two use the TEP flag, the rest follow getButtonIntent
 // (production-orders-table):
 //   integrated = completed = ordered and already processed by TEP,
-//   ready      = completed = ordered and not processed yet (the only selectable state),
+//   ready      = completed = ordered and not processed yet (selectable),
 //   complete   = produced (completed + rejected + scrap) = ordered   ('cancel' intent),
 //   open       = has open records                                    ('action' intent),
-//   partial    = something produced                                  ('danger' intent),
+//   partial    = something produced; selectable when it has completed units not sent to TEP ('danger' intent),
 //   none       = nothing produced (outline only: gray border, no fill).
 export type SkuCellState = 'integrated' | 'ready' | 'complete' | 'open' | 'partial' | 'none';
 
@@ -33,3 +33,6 @@ export const CELL_STATE_CLASSES: Record<SkuCellState, string> = {
 
 // Replaces the `ready` look once the user picked the cell.
 export const CELL_SELECTED_CLASSES = 'bg-brand-500 text-white border-brand-500';
+
+// Same, for a picked partial cell: it keeps the red of its state.
+export const CELL_SELECTED_PARTIAL_CLASSES = 'bg-red-500 text-white border-red-500';
