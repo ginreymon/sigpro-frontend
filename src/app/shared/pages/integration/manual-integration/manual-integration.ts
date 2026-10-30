@@ -1,4 +1,4 @@
-import { Component, inject, LOCALE_ID, signal } from '@angular/core';
+import { Component, HostListener, inject, LOCALE_ID, signal } from '@angular/core';
 import { formatDate, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
@@ -144,6 +144,47 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
       });
   }
 
+  // Work center whose OPs mini-card is open, with the viewport position of its arrow.
+  // The card sits below the arrow, or above it when there is more room there; `maxHeight` keeps it
+  // inside the viewport on any screen size.
+  protected readonly opsCard = signal<{
+    row: OrderByWorkCenter;
+    left: number;
+    width: number;
+    maxHeight: number;
+    top?: number;
+    bottom?: number;
+  } | null>(null);
+
+  protected toggleOpsCard(row: OrderByWorkCenter, event: Event): void {
+    event.stopPropagation();
+    if (this.opsCard()?.row === row) {
+      this.closeOpsCard();
+      return;
+    }
+    const margin = 8;
+    const gap = 4;
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const width = Math.min(288, window.innerWidth - margin * 2);
+    const left = Math.max(margin, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - margin));
+    const spaceBelow = window.innerHeight - rect.bottom - gap - margin;
+    const spaceAbove = rect.top - gap - margin;
+    const below = spaceBelow >= 200 || spaceBelow >= spaceAbove;
+    const maxHeight = Math.min(320, below ? spaceBelow : spaceAbove);
+    this.opsCard.set(
+      below
+        ? { row, left, width, maxHeight, top: rect.bottom + gap }
+        : { row, left, width, maxHeight, bottom: window.innerHeight - rect.top + gap },
+    );
+  }
+
+  // Position is computed from the viewport when opening, so it is stale after a resize.
+  @HostListener('window:resize')
+  @HostListener('document:keydown.escape')
+  protected closeOpsCard(): void {
+    this.opsCard.set(null);
+  }
+
   protected expandedDocumentIndexes = signal<Set<number>>(new Set());
 
   // Set when integrating with missing data, so the time inputs of every OP show their errors.
@@ -190,6 +231,18 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     this.selectedSkuIdsByOp.update((byOp) => ({ ...byOp, [opRowid]: ids }));
   }
 
+  // Exact records picked in the single-quantity mode of each OP (by op_rowid); absent = matrix mode.
+  private readonly selectedRecordIdsByOp = signal<Record<number, number[] | null>>({});
+
+  protected selectedRecordIdsOf(opRowid: number): number[] | null {
+    return this.selectedRecordIdsByOp()[opRowid] ?? null;
+  }
+
+  protected setSelectedRecordIds(opRowid: number, ids: number[] | null): void {
+    this.invalidAlertDismissed.set(false);
+    this.selectedRecordIdsByOp.update((byOp) => ({ ...byOp, [opRowid]: ids }));
+  }
+
   // Units and time of the selection of each OP (by op_rowid), reported by its matrix.
   private readonly selectionSummaryByOp = signal<Record<number, SelectionSummary>>({});
 
@@ -202,7 +255,7 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     const byOp = this.selectionSummaryByOp();
     return (this.rowObject.documents ?? [])
       .filter((doc) => (byOp[doc.op_rowid]?.units ?? 0) > 0)
-      .map((doc) => ({ document: doc, selectedIds: this.selectedSkuIdsOf(doc.op_rowid), summary: byOp[doc.op_rowid] }));
+      .map((doc) => ({ document: doc, selectedIds: this.selectedSkuIdsOf(doc.op_rowid), summary: byOp[doc.op_rowid], recordIds: this.selectedRecordIdsOf(doc.op_rowid) }));
   }
 
   // One row per picked OP, for the table at the top of the integrate modal. `tep` is the item of the
@@ -240,6 +293,7 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     this.invalidAlertDismissed.set(false);
     this.selectionSummaryByOp.set({});
     this.selectedSkuIdsByOp.set({});
+    this.selectedRecordIdsByOp.set({});
     super.closeModelForm();
   }
 

@@ -15,6 +15,9 @@ export interface PickedOp {
   document: WorkCenterDocument;
   selectedIds: number[];
   summary: SelectionSummary;
+  // Confección single-quantity mode only: the exact pending records picked. null/absent = every pending
+  // record of the picked SKUs (matrix mode).
+  recordIds?: number[] | null;
 }
 
 // The API takes decimal hours (1 h 30 min = 1.5); the backend turns them into the HH.MM that SIESA expects.
@@ -23,23 +26,33 @@ export function decimalHours({ hours, minutes }: Pick<SelectionSummary, 'hours' 
 }
 
 // Production records still to be integrated inside the SKUs the user picked in a Confección OP.
-function pickedProductionRecords(document: WorkCenterDocument, selectedIds: number[]): SkuRecord[] {
+function pickedProductionRecords(
+  document: WorkCenterDocument,
+  selectedIds: number[],
+  recordIds?: number[] | null,
+): SkuRecord[] {
   const colorRows = document.detail?.colorRows;
   if (!colorRows?.length) return [];
   return buildColorSizeMatrix({ colorRows } as ProductionOrder)
     .skuColors.flatMap((row) => row.skus)
     .filter((sku) => selectedIds.includes(sku.skuRowId))
-    .flatMap((sku) => pendingRecords(sku));
+    .flatMap((sku) => pendingRecords(sku))
+    .filter((record) => !recordIds || recordIds.includes(record.id));
 }
 
 // Ids of the production/stamping records still to be integrated inside what the user picked.
-export function pickedRegisterIds(originId: number, document: WorkCenterDocument, selectedIds: number[]): number[] {
+export function pickedRegisterIds(
+  originId: number,
+  document: WorkCenterDocument,
+  selectedIds: number[],
+  recordIds?: number[] | null,
+): number[] {
   if (originId === STAMPING_ORIGIN_ID) {
     return (document.detail?.referenceSams ?? [])
       .filter((sam) => selectedIds.includes(sam.id))
       .flatMap((sam) => pendingSamRecords(sam).map((record) => record.id));
   }
-  return pickedProductionRecords(document, selectedIds).map((record) => record.id);
+  return pickedProductionRecords(document, selectedIds, recordIds).map((record) => record.id);
 }
 
 // completed_quantity: Estampación sends the units to integrate (stamped - erp completed, already in whole OP
@@ -50,26 +63,27 @@ function completedQuantity(
   document: WorkCenterDocument,
   units: number,
   selectedIds: number[],
+  recordIds?: number[] | null,
 ): number {
   if (originId === STAMPING_ORIGIN_ID) return units;
-  const completed = pickedProductionRecords(document, selectedIds).reduce(
+  const completed = pickedProductionRecords(document, selectedIds, recordIds).reduce(
     (sum, record) => sum + Number(record.completed_quantity ?? 0),
     0,
   );
   return Math.round((completed / (document.pieces || 1)) * 10000) / 10000;
 }
 
-export function buildTepDetail(row: OrderByWorkCenter, { document, selectedIds, summary }: PickedOp): TepSendDetail {
+export function buildTepDetail(row: OrderByWorkCenter, { document, selectedIds, summary, recordIds }: PickedOp): TepSendDetail {
   const workCenter = row.code.trim();
   return {
     op_document_type_id: document.op_type,
     op_document_number: document.op_number,
     operation_number: document.operation_number,
     operation_work_center_id: workCenter,
-    completed_quantity: completedQuantity(row.origin_id, document, summary.units, selectedIds),
+    completed_quantity: completedQuantity(row.origin_id, document, summary.units, selectedIds, recordIds),
     hours: decimalHours(summary),
     operation_completed: document.erp_completed_operation ? 1 : 0,
-    register_ids: pickedRegisterIds(row.origin_id, document, selectedIds),
+    register_ids: pickedRegisterIds(row.origin_id, document, selectedIds, recordIds),
     origin_id: row.origin_id,
   };
 }

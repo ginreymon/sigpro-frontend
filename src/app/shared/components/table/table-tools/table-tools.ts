@@ -14,6 +14,7 @@ export class TableTools {
   @Output() onSearch = new EventEmitter<string>();
   @Output() onClick = new EventEmitter<TableToolsButtonType>();
   @Input() live: boolean = false;
+  @Input() searchPlaceholder: string = 'Buscar';
   @Input() tableToolsButtons: TableToolsButtons = {
     filter: { enabled: false },
     columns: { enabled: false },

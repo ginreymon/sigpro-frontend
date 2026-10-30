@@ -17,6 +17,7 @@ import { debounceTime, takeUntil } from 'rxjs/operators';
 export class Searcher implements OnDestroy {
   @Input() intent: ButtonBaseType = 'accept';
   @Input() live: boolean = false;
+  @Input() placeholder: string = 'Buscar';
   @Output() onSearch = new EventEmitter<string>();
   model: string = '';
 
