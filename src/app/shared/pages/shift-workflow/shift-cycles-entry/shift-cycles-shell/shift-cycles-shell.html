@@ -79,7 +79,7 @@
         }
 
         @if(!page().productionOrder() && !page().isLoading()){
-            <app-order-searcher [preloadedDocTypes]="page().contextDocTypes()" [traceabilityMode]="page().config.searchByNumberOnly" [numberOnlySearch]="page().config.searchByNumberOnly" [restrictToOpAndOpt]="page().usesProcessesSearch()" [useStampingDetail]="page().config.showStampingRecord" (onFoundDoc)="page().setDocument($event)"></app-order-searcher>
+            <app-order-searcher [card]="true" [preloadedDocTypes]="page().contextDocTypes()" [traceabilityMode]="page().config.searchByNumberOnly" [numberOnlySearch]="page().config.searchByNumberOnly" [restrictToOpAndOpt]="page().usesProcessesSearch()" [useStampingDetail]="page().config.showStampingRecord" (onFoundDoc)="page().setDocument($event)"></app-order-searcher>
 
             <div class="flex-1 min-h-0 mt-3 bg-gray-100 rounded-md border border-gray-200 overflow-y-auto p-3">
                 <app-recent-records-card [trigger]="page().lastRecordTrigger()" [service]="page().recentRecordsService"></app-recent-records-card>
