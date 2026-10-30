@@ -298,11 +298,8 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
   }
 
   protected toggleDocumentExpanded(index: number): void {
-    const expanded = new Set(this.expandedDocumentIndexes());
-    if (!expanded.delete(index)) {
-      expanded.add(index);
-    }
-    this.expandedDocumentIndexes.set(expanded);
+    // Only one OP stays open at a time: opening another one closes the previous one.
+    this.expandedDocumentIndexes.set(this.expandedDocumentIndexes().has(index) ? new Set() : new Set([index]));
   }
 
   protected override get columns(): TableColumn<OrderByWorkCenter>[] {
