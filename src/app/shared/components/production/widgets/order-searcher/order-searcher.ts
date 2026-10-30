@@ -18,6 +18,17 @@ import { UiOptionCard } from '../../../../elements/ui-option-card/ui-option-card
 import { OPStampingService } from '../../../../../services/stamping/op-stamping-service';
 import { OrderTraceability } from '../../../../../models/stamping/order-traceability';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
+import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
+
+export type OrderSearcherArea = 'production' | 'stamping';
+export type OrderSearcherTitleColor = 'default' | 'brand';
+
+const TITLE_COLOR_CLASS: Record<OrderSearcherTitleColor, string> = {
+  default: 'text-gray-900',
+  brand: 'text-brand',
+};
+
+const CARD_CLASS = 'border border-slate-200 rounded-md p-4';
 
 @Component({
   selector: 'app-order-searcher',
@@ -49,15 +60,45 @@ export class OrderSearcher implements OnInit {
   loaderServive = inject(LoaderService);
   @Output() onFoundDoc = new EventEmitter<ProductionOrder | null>();
   @Input() preloadedDocTypes: DocType[] | null | undefined;
-  @Input() traceabilityMode = false;
-  @Input() numberOnlySearch = false;
-  // Default false conserva el comportamiento actual (todos los tipos de
-  // documento); en true, el select de tipo solo muestra OP y OPT.
+  // Area presets the search behavior (see SHIFT_CYCLES_CONFIG). The three flags
+  // below are optional overrides: when left undefined, the area value applies.
+  area = input<OrderSearcherArea>('production');
+  @Input() traceabilityMode?: boolean;
+  @Input() numberOnlySearch?: boolean;
+  // Default false keeps the current behavior (all document types); when true,
+  // the type select only shows OP and OPT.
   restrictToOpAndOpt = input<boolean>(false);
-  // Páginas de estampación (shift-cycles, auditory) deben quedarse dentro del
-  // namespace /stamping/ — nunca caer al genérico /production/production-orders/detail,
-  // aunque el módulo no tenga uses_processes_search. Ver fetchOrder().
-  @Input() useStampingDetail = false;
+  // Stamping pages (shift-cycles, auditory) must stay inside the /stamping/
+  // namespace — never fall back to the generic /production/production-orders/detail,
+  // even if the module has no uses_processes_search. See fetchOrder().
+  @Input() useStampingDetail?: boolean;
+
+  // Header customization. Defaults reproduce the original header.
+  title = input<string>('Buscar orden de producción');
+  description = input<string>('Ingrese el tipo de documento (ej. OP) y el número para realizar la búsqueda.');
+  titleColor = input<OrderSearcherTitleColor>('default');
+  showHeader = input<boolean>(true);
+  // Wraps the whole searcher in a bordered box (for when it fills its container).
+  card = input<boolean>(false);
+
+  protected titleClass = computed(() => TITLE_COLOR_CLASS[this.titleColor()]);
+  protected formClass = computed(() => (this.card() ? `w-full ${CARD_CLASS}` : 'w-full'));
+
+  private get areaConfig() {
+    return SHIFT_CYCLES_CONFIG[this.area()];
+  }
+
+  protected get isTraceability(): boolean {
+    return this.traceabilityMode ?? this.areaConfig.searchByNumberOnly;
+  }
+
+  protected get isNumberOnly(): boolean {
+    return this.numberOnlySearch ?? this.areaConfig.searchByNumberOnly;
+  }
+
+  private get isStampingDetail(): boolean {
+    return this.useStampingDetail ?? this.areaConfig.showStampingRecord;
+  }
 
   protected visibleDoctypes = computed(() =>
     this.restrictToOpAndOpt()
@@ -74,15 +115,15 @@ export class OrderSearcher implements OnInit {
 
   ngOnInit(): void {
     if (this.preloadedDocTypes?.length) {
-      // El SP de tipos de documento devuelve códigos de ancho fijo con
-      // espacios ('OP ', 'PS ') — normalizar acá igual que en getDocTypes(),
-      // o el filtro de restrictToOpAndOpt (comparación exacta) los pierde.
+      // The doc-type SP returns fixed-width codes padded with spaces
+      // ('OP ', 'PS ') — normalize here as in getDocTypes(), or the
+      // restrictToOpAndOpt filter (exact comparison) drops them.
       this.doctypes.set(this.preloadedDocTypes.map((d) => ({ ...d, doc_type: d.doc_type.trim() })));
     } else {
       this.getDocTypes();
     }
 
-    if (this.numberOnlySearch) {
+    if (this.isNumberOnly) {
       this.documentType?.setValidators([]);
       this.documentType?.updateValueAndValidity();
     }
@@ -112,16 +153,16 @@ export class OrderSearcher implements OnInit {
       });
   }
 
-  // Módulos cuya máquina de estampación tiene uses_processes_search buscan la
-  // OP vía /stamping/production-orders/processes/ en vez del endpoint
-  // genérico — ver StampingModuleMachine.uses_processes_search. Si no aplica
-  // pero el searcher vive en una página de estampación (useStampingDetail),
-  // el fallback tampoco debe salirse a /production/production-orders/detail:
-  // usa /stamping/stamping-orders/detail (mismo dato + orderedQty/referenceSams).
+  // Modules whose stamping machine has uses_processes_search fetch the order
+  // via /stamping/production-orders/processes/ instead of the generic endpoint
+  // — see StampingModuleMachine.uses_processes_search. If that does not apply
+  // but the searcher lives on a stamping page (stamping detail), the fallback
+  // must not leave for /production/production-orders/detail either: it uses
+  // /stamping/stamping-orders/detail (same data + orderedQty/referenceSams).
   private fetchOrder(docType: string, docNumber: number): Observable<ProductionOrder> {
     const usesProcessesSearch = this.contextService.snapshot?.session?.current_module?.machine?.uses_processes_search;
     if (usesProcessesSearch) return this.opStampingService.getProductionOrderProcesses(docType, docNumber);
-    if (this.useStampingDetail) return this.opStampingService.getOrderDetail(docType, docNumber);
+    if (this.isStampingDetail) return this.opStampingService.getOrderDetail(docType, docNumber);
     return this.poService.getOrder({ documentType: docType, documentNumber: docNumber }, true) as Observable<ProductionOrder>;
   }
 
@@ -141,7 +182,7 @@ export class OrderSearcher implements OnInit {
     this.loaderServive.showLoader();
     this.errorMessage.set(null);
 
-    if (this.traceabilityMode) {
+    if (this.isTraceability) {
       this.results.set([]);
       const { documentType, documentNumber } = this.orderForm.value;
       this.opStampingService

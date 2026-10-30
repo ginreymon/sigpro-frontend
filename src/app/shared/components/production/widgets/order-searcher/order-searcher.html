@@ -1,13 +1,15 @@
-<form id="orderForm" [formGroup]="orderForm" class="w-full" (ngSubmit)="search()">
+<form id="orderForm" [formGroup]="orderForm" [class]="formClass()" (ngSubmit)="search()">
 
+    @if(showHeader()){
     <div class="flex flex-col items-start justify-start border-b border-default border-gray-300 pb-4 md:pb-5 mb-2">
-        <h3 class="text-2xl font-semibold text-heading text-gray-900">
-            Buscar orden de producción
+        <h3 class="text-2xl font-semibold text-heading" [class]="titleClass()">
+            {{ title() }}
         </h3>
-        <p class="text-gray-500 mt-2 text-sm w-full">        
-            Ingrese el tipo de documento (ej. OP) y el número para realizar la búsqueda.        
+        <p class="text-gray-500 mt-2 text-sm w-full">
+            {{ description() }}
         </p>
     </div>
+    }
 
     <fieldset class="w-full flex flex-col justify-start mt-4">
 
@@ -40,7 +42,7 @@
         <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
         }
 
-        @if(traceabilityMode && results().length){
+        @if(isTraceability && results().length){
         <div class="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-36 overflow-y-auto p-3 bg-gray-100 rounded-md border border-gray-200">
             @for(order of results(); track order.rowId){
             <app-ui-option-card [obj]="order" (onToggle)="selectResult($event)">
