@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs';
 import { UiIcon } from '../../../../shared/elements/ui-icon/ui-icon';
 import { MenuService } from '../../../../services/core/menu-service';
 import { Module } from '../../../../models/core/module';
+import { HomeProductionCoordinator } from '../home-production-coordinator/home-production-coordinator';
+import { HomeStampingCoordinator } from '../home-stamping-coordinator/home-stamping-coordinator';
 
 interface AreaTile {
   name: string;
@@ -22,7 +24,7 @@ const DEFAULT_ICON = 'gear';
 
 @Component({
   selector: 'app-home-engineer',
-  imports: [UiIcon, RouterLink, TitleCasePipe],
+  imports: [UiIcon, RouterLink, TitleCasePipe, HomeProductionCoordinator, HomeStampingCoordinator],
   templateUrl: './home-engineer.html',
   styleUrl: './home-engineer.css',
 })

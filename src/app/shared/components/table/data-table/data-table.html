@@ -1,7 +1,7 @@
 <div class="h-full flex flex-col justify-between">
 
     @if (showSearch) {
-      <app-table-tools class="shrink-0" [live]="clientFilter" (onSearch)="searchHandler($event)" [tableToolsButtons]="_tableToolsButtons" (onClick)="toolsHandler($event)"></app-table-tools>
+      <app-table-tools class="shrink-0" [live]="clientFilter" [searchPlaceholder]="searchPlaceholder" (onSearch)="searchHandler($event)" [tableToolsButtons]="_tableToolsButtons" (onClick)="toolsHandler($event)"></app-table-tools>
     }
 
     <ng-template #cellContent let-col="col" let-row="row" let-i="i">

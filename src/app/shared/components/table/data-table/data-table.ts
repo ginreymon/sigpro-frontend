@@ -82,6 +82,7 @@ export class DataTable<T> {
   @Input() footerLabel: string = 'TOTALES';
   @Input() showPager: boolean = true;
   @Input() showSearch: boolean = true;
+  @Input() searchPlaceholder: string = 'Buscar';
 
   private _originalColumns: TableColumn<T>[] = [];
   private _rawData: TableRow<T>[] = [];

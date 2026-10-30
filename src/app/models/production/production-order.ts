@@ -15,10 +15,11 @@ export interface ProductionOrder extends BaseDocument, BaseProduct, AuditInfo {
   colorRows: ColorRowDetail[];
   stampingAudit?: OrderTraceabilityStampingAudit;
   tracking?: OrderTraceabilityTracking[];
-  // Solo presente cuando la orden se resolvió vía stamping-orders/detail
-  // (StampingOrderDetail) en vez de production-orders/detail.
+  // Only present when the order was resolved via stamping-orders/detail
+  // (StampingOrderDetail) instead of production-orders/detail.
   referenceSams?: StampingReferenceSam[];
-  // Solo presente cuando la orden se resolvió vía production-orders/processes:
-  // true si el backend generó itemId en colorRows[].items.
+  orderedQty?: number;
+  // Only present when the order was resolved via production-orders/processes:
+  // true if the backend generated itemId in colorRows[].items.
   hasItemId?: boolean;
 }

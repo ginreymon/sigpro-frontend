@@ -1,7 +1,7 @@
 @if(openModal()){
 <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 bg-opacity-10 overflow-x-hidden overflow-y-auto text-gray-300 transition-transform duration-300">
 
-  <div [class]="`bg-white px-3 sm:px-6 py-3 sm:py-6 rounded-lg shadow-xl w-full max-h-[90vh] flex flex-col mx-4 ${classNames?classNames:'max-w-xl'}`">
+  <div [class]="`bg-white px-3 sm:px-6 py-3 sm:py-6 rounded-xl shadow-xl w-full max-h-[90vh] flex flex-col mx-4 ${classNames?classNames:'max-w-xl'}`">
 
     <div class="flex items-center justify-between border-b border-default pb-4 md:pb-5">
 
@@ -15,7 +15,7 @@
       <ng-content select="[modal-top]"></ng-content>
     </div>
 
-    <div class="flex-1 min-h-0 space-y-4 md:space-y-6 py-4 md:py-6 text-gray-600 overflow-y-auto">
+    <div class="flex-1 min-h-0 space-y-4 md:space-y-6 py-4 md:py-2 text-gray-600 overflow-y-auto">
 
       <ng-content></ng-content>
 
@@ -34,7 +34,7 @@
       }
     
       @if(!hideAccept){
-      <app-ui-button [formId]="formId" [type]="submit?'submit':'button'" (onClick)="accept()">
+      <app-ui-button [formId]="formId" [type]="submit?'submit':'button'" [disabled]="acceptDisabled" (onClick)="accept()">
         {{ acceptLabel ?? 'Aceptar'}}
       </app-ui-button>
       }

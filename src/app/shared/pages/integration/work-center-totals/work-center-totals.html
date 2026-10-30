@@ -1,0 +1,199 @@
+<app-work-space-layout>
+    <div main-content class="h-full flex flex-col gap-4">
+
+        <div class="shrink-0 flex flex-row items-start gap-4">
+            <app-date-range-form class="flex-1" [initialRange]="dateRange()" [limitToOneMonth]="true" (onSearch)="onDateRangeSearch($event)"></app-date-range-form>
+
+            @if (hasDateFilter()) {
+            <app-ui-button [classNames]="'mt-5'" [type]="'button'" intent="cancel" (onClick)="clearDateRange()">
+                Limpiar
+            </app-ui-button>
+            }
+        </div>
+
+        <div class="flex-1 min-h-0">
+        <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
+            (onPagerChange)="pagerHandler($event)" [showSearch]="false" [actions]="actions"
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons" [columnFilter]="true">
+
+            <ng-template appTableTemplate="dayTemplate" let-row>
+                @if(row.record_date){
+                <span [class]="'text-xs font-semibold px-5 py-1 rounded-full ' + dateBadgeClass(row)">
+                    {{ row.record_date | date: 'dd/MM/yyyy' }}
+                </span>
+                }
+            </ng-template>
+
+            <ng-template appTableTemplate="originTemplate" let-row>
+                <app-ui-origin-badge [originId]="row.origin_id" [label]="row.origin"></app-ui-origin-badge>
+            </ng-template>
+
+            <ng-template appTableTemplate="workCenterTemplate" let-row>
+                {{ row.code?.trim() }}{{ row.description ? ' · ' + row.description.trim() : '' }}
+            </ng-template>
+
+            <ng-template appTableTemplate="opsTotalsTemplate" let-row>
+               <span [class]="'inline-block w-24 text-center text-xs font-semibold py-1 rounded-full ' + documentsBadgeClass(row)">
+                 {{ row.detail.length }} {{ `${row.detail.length ==1? 'Orden':'Órdenes'}` }}
+               </span>
+            </ng-template>
+
+            <ng-template appTableTemplate="statusTemplate" let-row>
+                <app-ui-badge [active]="row.operations_status === operationsLabel.complete"
+                    [activeText]="operationsLabel.complete" [inactiveText]="operationsLabel.difference"></app-ui-badge>
+            </ng-template>
+
+            <ng-template appTableTemplate="approveTemplate" let-row>
+                <app-ui-label-button [classNames]="'w-24'" [intent]="'action'" (onClick)="approve(row)">
+                  Integrar
+                </app-ui-label-button>
+            </ng-template>
+
+        </app-data-table>
+        </div>
+    </div>
+</app-work-space-layout>
+
+<ng-template #rowTitle>
+  <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ `${rowObject.code?.trim()} · ${rowObject.description?.trim()}` }} </h3>
+  <p class="text-sm text-slate-500 mb-0.5">
+    {{ rowObject.origin }} · {{ rowObject.record_date ? (rowObject.record_date | date: 'dd/MM/yyyy') : 'Histórico' }}
+  </p>
+  <p class="text-sm text-slate-500 mb-0.5"> OPs : {{ rowObject.detail_count }} </p>
+</ng-template>
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+
+  <div class="mb-4 flex items-center gap-4">
+
+    <app-char-square>
+      {{ rowObject.code?.trim()?.charAt(0) }}
+    </app-char-square>     
+
+    <div>
+      <ng-container *ngTemplateOutlet="rowTitle"></ng-container>
+    </div>
+
+  </div>
+
+  <div class="mb-4 px-4 grid grid-cols-2 gap-x-4 gap-y-2 p-3 rounded-lg border border-slate-200 text-sm text-slate-600">
+    <p> <strong>Inicio:</strong> {{ rowObject.first_start ? (toLocalDate(rowObject.first_start) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+    <p> <strong>Finalización:</strong> {{ rowObject.last_end ? (toLocalDate(rowObject.last_end) | date: 'dd/MM/yyyy HH:mm') : '—' }} </p>
+  </div>
+
+  @if(rowObject.detail?.length){
+  <div class="mt-4 mb-2 divide-y divide-slate-200 border border-slate-200 rounded-lg">
+
+    @for(item of rowObject.detail; track $index){
+
+    <app-ui-accordion-item [expanded]="isDetailExpanded($index)" (toggle)="toggleDetailExpanded($index)">
+
+      <ng-container accordion-header>
+        <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="item.erp_completed_operation" [class.bg-gray-300]="!item.erp_completed_operation"></span>
+
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }}  {{ item.op_number }}</p>
+          <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
+        </div>
+
+        <app-ui-badge [active]="!!item.erp_completed_operation" activeText="Completa" inactiveText="Diferencia"></app-ui-badge>
+      </ng-container>
+
+      <div accordion-body class="flex flex-col gap-2 pb-1">
+        <section class="rounded-md border border-slate-200 overflow-hidden">
+          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
+            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-brand-500"></span>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">{{ targetName }}</h4>
+          </header>
+          <dl class="grid grid-cols-2 gap-px bg-slate-200">
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Completada', value: item.total_completed, tone: 'text-green-600' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Rechazada', value: item.total_rejected, tone: 'text-amber-500' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Bajas', value: item.total_scrap, tone: 'text-red-500' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Total', value: item.total_recorded, tone: 'font-bold text-gray-800' }"></ng-container>
+          </dl>
+        </section>
+        <section class="rounded-md border border-slate-200 overflow-hidden">
+          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
+            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-400"></span>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">{{ sourceName }}</h4>
+          </header>
+          <dl class="grid grid-cols-2 gap-px bg-slate-200">
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'A ejecutar', value: item.erp_execution_quantity ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Completada', value: item.erp_completed_quantity ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Diferencia', value: item.erp_quantity_discrepancy ??'—' }"></ng-container>
+          </dl>
+        </section>
+        <section class="rounded-md border border-slate-200 overflow-hidden">
+          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
+            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-300"></span>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">Registros</h4>
+          </header>
+          <dl class="grid grid-cols-2 gap-px bg-slate-200">
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Número de registros', value: item.total_records }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Total registrado', value: item.total_recorded }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Código de operación', value: item.operation_number ?? '—' }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Registros por pieza', value: item.recorded_quantity_per_piece ?? '—' }"></ng-container>
+          </dl>
+        </section>
+        <section class="rounded-md border border-slate-200 overflow-hidden">
+          <header class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 border-b border-slate-200">
+            <span class="h-1.5 w-1.5 rounded-full shrink-0 bg-slate-300"></span>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-600 truncate">Tiempo</h4>
+          </header>
+          <dl class="grid grid-cols-2 gap-px bg-slate-200">
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Tiempo total', value: formatSecondsAsHHmm(item.total_seconds) }"></ng-container>
+            <ng-container *ngTemplateOutlet="stat; context: { label: 'Segundos por unidad', value: item.seconds_by_unit != null ? ((item.seconds_by_unit | number: '1.0-2') + ' s') : '—' }"></ng-container>
+          </dl>
+        </section>
+      </div>
+
+    </app-ui-accordion-item>
+
+    }
+  </div>
+  }
+
+</app-side-modal-layout>
+
+<app-modal-layout classNames="max-w-4xl" (onAccept)="confirmSend()">
+
+  <div modal-top>
+    <ng-container *ngTemplateOutlet="rowTitle"></ng-container>
+  </div>
+
+  <app-op-totals-table [detail]="rowObject.detail ?? []" [hours]="opHours()[opHoursKey(rowObject)] ?? {}"
+    (hoursChange)="setOpHours(rowObject, $event)"></app-op-totals-table>
+
+  @if (rowObject.detail?.length) {
+  <section>
+    <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">SKUs integrados por OP</h4>
+    <div class="divide-y divide-slate-200 border border-slate-200 rounded-lg">
+      @for (item of rowObject.detail; track item.op_rowid; let i = $index) {
+      <app-ui-accordion-item [expanded]="isSkuExpanded(i)" (toggle)="toggleSkuExpanded(i)">
+        <ng-container accordion-header>
+          <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="item.erp_completed_operation" [class.bg-gray-300]="!item.erp_completed_operation"></span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }} {{ item.op_number }}</p>
+            <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
+          </div>
+        </ng-container>
+
+        <div accordion-body>
+          <app-op-sku-integration [opRowid]="item.op_rowid" [originId]="rowObject.origin_id ?? 0"
+            [workCenterCode]="rowObject.code ?? ''"></app-op-sku-integration>
+        </div>
+      </app-ui-accordion-item>
+      }
+    </div>
+  </section>
+  }
+
+</app-modal-layout>
+
+<!-- Label/value cell of the OP detail grid (see accordion-body). -->
+<ng-template #stat let-label="label" let-value="value" let-tone="tone">
+  <div class="bg-white px-3 py-2 min-w-0">
+    <dt class="text-xs text-slate-500 truncate">{{ label }}</dt>
+    <dd class="text-sm font-semibold tabular-nums truncate" [class]="tone || 'text-gray-700'">{{ value }}</dd>
+  </div>
+</ng-template>

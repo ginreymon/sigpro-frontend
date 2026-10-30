@@ -1,0 +1,36 @@
+@if (visible()) {
+  <section [formGroup]="form" class="flex flex-col gap-2 rounded-lg border border-slate-200 p-3">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-medium text-slate-500">Unidades seleccionadas</span>
+      <span class="text-sm font-semibold text-green-600 tabular-nums">{{ units() }}</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-medium text-slate-500">Tipo de tiempo ({{ useRecordedTime() ? 'Real' : 'Estándar' }})</span>     
+    </div>
+
+    @if (showSubprocess()) {
+      <app-ui-form-field [controlName]="'subprocess'" [label]="'Subproceso'" [layout]="'inline'"
+        [inputId]="'integration-subprocess-' + uid">
+        <app-ui-select formControlName="subprocess" [control]="form.controls.subprocess" [id]="'integration-subprocess-' + uid"
+          [className]="'w-48'" [items]="subprocessOptions" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"
+          [placeholder]="'Seleccione subproceso...'"></app-ui-select>
+      </app-ui-form-field>
+      @if (needsAdditionalTime()) {
+        <app-ui-form-field [controlName]="'additionalSeconds'" [label]="'Tiempo total subproceso (seg)'" [layout]="'inline'"
+          [inputId]="'integration-additional-' + uid">
+          <app-ui-input class="block w-48" formControlName="additionalSeconds" [type]="'number'" [isFloat]="true" [control]="form.controls.additionalSeconds"
+            [id]="'integration-additional-' + uid" [placeholder]="'Ej: 12'"></app-ui-input>
+        </app-ui-form-field>
+      }
+    }
+
+    <app-ui-form-field [controls]="[{ controlName: 'hours', label: 'Horas' }, { controlName: 'minutes', label: 'Minutos' }]"
+      [groupLabel]="'Tiempo (HH:MM)'" [layout]="'inline'" [inputId]="'integration-hours-' + uid">
+      <div class="flex items-center gap-2 w-32">
+        <app-ui-hour-input [compact]="true" formControlName="hours" [control]="form.controls.hours" [id]="'integration-hours-' + uid" title="Horas" [min]="0" [max]="99"></app-ui-hour-input>
+        <span class="text-base font-semibold text-slate-400">:</span>
+        <app-ui-hour-input [compact]="true" formControlName="minutes" [control]="form.controls.minutes" [id]="'integration-minutes-' + uid" title="Min" [min]="0" [max]="59"></app-ui-hour-input>
+      </div>
+    </app-ui-form-field>
+  </section>
+}

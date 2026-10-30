@@ -1,0 +1,134 @@
+@if (matrix(); as m) {
+  <div class="flex flex-col gap-2">
+
+    <section class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md border border-slate-200 px-3 py-2"
+      aria-labelledby="erp-status-title" data-testid="erp-status">
+      <h4 id="erp-status-title" class="text-xs font-semibold text-slate-600">Estado en ERP</h4>
+      @if (erpCompleted() !== null) {
+        <app-ui-badge [intent]="erpCompleted() ? 'active' : 'warning'" [label]="erpCompleted() ? 'Finalizada' : 'En proceso'"
+          data-testid="erp-status-badge"></app-ui-badge>
+      }
+      <dl class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs">
+        <div class="flex items-baseline gap-1">
+          <dt class="text-slate-500">Cantidad ejecutada</dt>
+          <dd class="text-sm font-semibold tabular-nums text-gray-700" data-testid="erp-execution-qty">
+            {{ document().erp_execution_quantity === null || document().erp_execution_quantity === undefined ? '—' : (document().erp_execution_quantity | number: '1.0-0') }}
+          </dd>
+        </div>
+        <div class="flex items-baseline gap-1">
+          <dt class="text-slate-500">Cantidad completada</dt>
+          <dd class="text-sm font-semibold tabular-nums text-gray-700" data-testid="erp-completed-qty">
+            {{ document().erp_completed_quantity === null || document().erp_completed_quantity === undefined ? '—' : (document().erp_completed_quantity | number: '1.0-0') }}
+          </dd>
+        </div>
+      </dl>
+
+      @if (!readOnly()) {
+        <div #modeMenu class="relative ml-auto">
+          <button type="button" class="inline-flex size-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 cursor-pointer"
+            aria-haspopup="true" [attr.aria-expanded]="menuOpen()" [attr.aria-controls]="'integration-mode-menu-' + uid"
+            aria-label="Modalidad de integración" title="Modalidad de integración" data-testid="integration-mode-button"
+            (click)="menuOpen.set(!menuOpen())">
+            <app-ui-icon [iconName]="'ellipsis'" [class]="'size-4'"></app-ui-icon>
+          </button>
+          @if (menuOpen()) {
+            <div [id]="'integration-mode-menu-' + uid" role="group" aria-label="Modalidad de integración"
+              class="absolute right-0 top-full z-20 mt-1 w-44 rounded-md border border-slate-200 bg-white py-1 shadow-md">
+              @for (item of modes; track item.value) {
+                <button type="button" [attr.aria-pressed]="mode() === item.value"
+                  class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-200 cursor-pointer"
+                  [class]="mode() === item.value ? 'font-semibold text-brand' : 'text-gray-700'"
+                  [attr.data-testid]="'integration-mode-' + item.value" (click)="setMode(item.value)">
+                  <span class="inline-flex size-4 shrink-0 items-center justify-center">
+                    @if (mode() === item.value) {
+                      <app-ui-icon [iconName]="'check'" [class]="'size-3.5'"></app-ui-icon>
+                    }
+                  </span>
+                  {{ item.label }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    @if (mode() === 'single') {
+      <section class="flex flex-col gap-1 rounded-md border border-slate-200 px-3 py-2" data-testid="single-quantity">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <label class="text-xs font-medium text-slate-500" [attr.for]="'integration-quantity-' + uid">Cantidad a integrar (und)</label>
+          <app-ui-input class="block w-32" [type]="'number'" [control]="quantityControl"
+            [formControl]="quantityControl" [id]="'integration-quantity-' + uid" [placeholder]="'Ej: 12'"
+            [extraInvalid]="!!quantityError()"></app-ui-input>
+          <span class="text-xs text-slate-500">Por integrar: <span class="font-semibold tabular-nums text-gray-700">{{ integrableMax() | number: '1.0-0' }}</span></span>
+        </div>
+        @if (quantityError(); as error) {
+          <app-ui-error-message role="alert" data-testid="single-quantity-error">{{ error }}</app-ui-error-message>
+        }
+      </section>
+    } @else {
+
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      @for (item of legend; track item.state) {
+        @if (isBulkSelectState(item.state) && !readOnly()) {
+          <button type="button" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium cursor-pointer"
+            [class]="item.classes" (click)="toggleAllSelectable(item.state)">
+            {{ item.label }} · {{ counts()[item.state] }}
+          </button>
+        } @else {
+          <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium" [class]="item.classes">
+            {{ item.label }} · {{ counts()[item.state] }}
+          </span>
+        }
+      }
+    </div>
+
+    <div class="overflow-x-auto rounded-md border border-slate-200">
+      <table class="w-full text-xs text-left border-collapse">
+        <thead class="bg-slate-100 text-slate-600">
+          <tr>
+            <th class="px-2 py-1.5 font-semibold">Color</th>
+            @for (size of m.sizes; track size) {
+              <th class="px-2 py-1.5 font-semibold text-center">{{ size }}</th>
+            }
+            <th class="px-2 py-1.5 font-semibold text-right">Comp / Ord</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          @for (row of m.skuColors; track row.color) {
+            <tr>
+              <td class="px-2 py-1.5 font-medium text-gray-700">{{ row.color }}</td>
+              @for (sku of row.skus; track $index) {
+                <td class="p-1 text-center" [title]="tooltip(sku)">
+                  @if (isRealSku(sku)) {
+                    <button type="button" class="relative mx-auto block size-12 rounded border font-semibold tabular-nums"
+                      [class.pointer-events-none]="readOnly()"
+                      [class]="cellClasses(sku)" [disabled]="!isSelectable(sku)" [attr.aria-label]="tooltip(sku)"
+                      [attr.aria-pressed]="isSelectable(sku) ? isSelected(sku) : null" (click)="toggleSelected(sku)">
+                      <svg class="pointer-events-none absolute inset-0 size-full opacity-40" viewBox="0 0 100 100"
+                        preserveAspectRatio="none" aria-hidden="true">
+                        <line x1="0" y1="100" x2="100" y2="0" stroke="currentColor" stroke-width="1"
+                          vector-effect="non-scaling-stroke" />
+                      </svg>
+                      <span class="absolute left-0.5 top-0.5 text-sm leading-none">{{ toIntegrateQty(sku) }}</span>
+                      <span class="absolute bottom-0.5 right-0.5 text-sm leading-none">{{ sku.orderedQty }}</span>
+                    </button>
+                  }
+                </td>
+              }
+              <td class="px-2 py-1.5 text-right font-semibold tabular-nums">
+                {{ row.totals.completedQty }} / {{ row.totals.orderedQty }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    <app-integration-time-inputs [useRecordedTime]="useRecordedTime" [baseRouteQuantity]="document().base_route_quantity" [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
+      [selection]="timeSelection()" [visible]="selectedSkus().length > 0" [askSubprocess]="true" [submitted]="submitted()"
+      (summary)="selectionSummary.emit($event)"></app-integration-time-inputs>
+
+  </div>
+}

@@ -15,5 +15,7 @@ export class ModalLayout extends ModalBase{
   @Input() classNames: string | null = null;  
   // El título pasa por titlecase; esto lo muestra en mayúsculas (solo estilo).
   @Input() uppercaseTitle: boolean = false;
+  // Disables the accept button (the parent shows why, e.g. with an alert in `modal-top`).
+  @Input() acceptDisabled: boolean = false;
   protected override serviceVisible?: Signal<boolean> = toSignal(this.dialogService.modalVisible$, { initialValue: false });
 }

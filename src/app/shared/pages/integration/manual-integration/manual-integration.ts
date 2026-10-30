@@ -1,84 +1,65 @@
-import { Component, computed, signal, ViewChild } from '@angular/core';
-import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { Component, HostListener, inject, LOCALE_ID, signal } from '@angular/core';
+import { formatDate, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../components/table/data-table/data-table';
-import { SideModalLayout } from '../../../components/layout/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../components/layout/modal-layout/modal-layout';
 import { BaseCrudPage } from '../../../../common/classes/base-crud-page';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 import { TableActions } from '../../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../../common/interfaces/table-tools-buttons';
-import { DateRangeForm, DateRangeValue } from '../../../components/form-controls/date-range-form/date-range-form';
-import { localTodayStr } from '../../../../common/functions/date-utils';
-import { formatSecondsAsHHmm, toLocalDate } from '../../../../common/functions/time-range';
-import { UiButton } from '../../../elements/ui-button/ui-button';
-import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
-import { OpTotalsTable } from '../../../components/widgets/op-totals-table/op-totals-table';
+import { toLocalDate } from '../../../../common/functions/time-range';
+
 import { UiAccordionItem } from '../../../elements/ui-accordion-item/ui-accordion-item';
 import { UiBadge } from '../../../elements/ui-badge/ui-badge';
+import { DocumentIntegrationMatrix } from './options/production/document-integration-matrix/document-integration-matrix';
+import { DocumentIntegrationStamping } from './options/stamping/document-integration-stamping/document-integration-stamping';
+import { SelectionSummary } from './components/integration-time-inputs/integration-time-inputs';
+import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
 import { TableTemplate } from '../../../../directives/table-template';
-import { OPERATIONS_LABEL, OrderToBeOutbound } from '../../../../models/integration/order-to-be-outbound';
+import { OrderByWorkCenter } from '../../../../models/integration/order-by-work-center';
 import { PaginatedResponse } from '../../../../common/interfaces/paginated-response';
-import { OrdersToBeOutboundService } from '../../../../services/integration/orders-to-be-outbound-service';
+import { OrdersByWorkCenterService } from '../../../../services/integration/orders-by-work-center-service';
 import { TepService } from '../../../../services/integration/tep-service';
-import { TepSendRequest } from '../../../../models/integration/tep-send';
-import { CharSquare } from '../../../components/widgets/char-square/char-square';
-import { apiErrorDetail, apiFieldErrors } from '../../../../common/functions/api-error';
+import { tepErrorMessage } from '../../../../common/functions/tep-error';
+import { AppConfigService } from '../../../../services/core/app-config-service';
+import { UiIcon } from '../../../elements/ui-icon/ui-icon';
+import { UiAlert } from '../../../elements/ui-alert/ui-alert';
+import { TepSendDetail, TepSendRequest } from '../../../../models/integration/tep-send';
+import { buildTepDetail, buildTepRequest, PickedOp } from './tep-payload';
+
+// Read-only view of orders-to-be-outbound/by-work-center: totals per work center
+// with their documents (OPs), no day split.
+// Same reference for every OP without selection, so the bound input does not change on each check.
+const NO_SELECTION: number[] = [];
 
 @Component({
   selector: 'app-manual-integration',
   imports: [
     WorkSpaceLayout,
     DataTable,
-    SideModalLayout,
     ModalLayout,
-    NgTemplateOutlet,
-    DatePipe,
-    DecimalPipe,
     TableTemplate,
+    NgTemplateOutlet,
     UiAccordionItem,
     UiBadge,
-    UiOriginBadge,
-    DateRangeForm,
-    UiButton,
+    DocumentIntegrationMatrix,
+    DocumentIntegrationStamping,
     UiLabelButton,
-    OpTotalsTable,
-    CharSquare
-],
+    UiOriginBadge,
+    UiIcon,
+    UiAlert,
+  ],
   templateUrl: './manual-integration.html',
 })
-export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
-  protected override entityName: string = 'OP pendiente de aprobación';
-  protected readonly sourceName: string = 'SIESA';
-  protected readonly targetName: string = 'SIGPRO';
+export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
+  protected override entityName: string = 'Centro de trabajo';
 
-  // first_start/last_end llegan en UTC sin sufijo de zona: toLocalDate los marca
-  // como UTC para que DatePipe los muestre en hora local.
-  protected readonly toLocalDate = toLocalDate;
-  protected readonly formatSecondsAsHHmm = formatSecondsAsHHmm;
-  protected readonly operationsLabel = OPERATIONS_LABEL;
-
-  // Estado por grupo (centro de trabajo y día): Completa solo si todas sus OP lo están.
-  protected override mapResponse(res: PaginatedResponse<OrderToBeOutbound>): PaginatedResponse<OrderToBeOutbound> {
-    return {
-      ...res,
-      results: res.results.map((row) => ({
-        ...row,
-        operations_status: row.detail.every((item) => !!item.completed_operation)
-          ? OPERATIONS_LABEL.complete
-          : OPERATIONS_LABEL.difference,
-      })),
-    };
-  }
-
-  // Reporte agregado de solo lectura (fn_totales_registrados_por_op_detalle):
-  // revisar antes de enviar a SIESA, sin crear/editar/eliminar desde la UI.
   protected override get actions(): TableActions {
     return {
-      view: { enabled: true, title: 'Detalle Centro de Trabajo', iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: false },
       edit: { enabled: false },
       delete: { enabled: false },
       create: { enabled: false },
@@ -93,168 +74,248 @@ export class ManualIntegration extends BaseCrudPage<OrderToBeOutbound> {
   };
 
   constructor(
-    private ordersToBeOutboundService: OrdersToBeOutboundService,
+    ordersByWorkCenterService: OrdersByWorkCenterService,
     private tepService: TepService,
   ) {
-    super(ordersToBeOutboundService);
+    super(ordersByWorkCenterService);
+    // The integrate modal reads TEP_TIME_CALCULATION_MODE synchronously: make sure the settings are loaded
+    // even when this page is the first one opened after a reload.
+    this.appConfig.load().subscribe();
   }
 
-  @ViewChild(DateRangeForm) private dateRangeForm?: DateRangeForm;
-  @ViewChild(OpTotalsTable) private opTotalsTable?: OpTotalsTable;
+  private readonly appConfig = inject(AppConfigService);
+  private readonly locale = inject(LOCALE_ID);
 
-  // Rango elegido. Vive en la página y no en el formulario: mientras carga, el
-  // layout reemplaza main-content por un esqueleto y el formulario se destruye
-  // y se vuelve a crear; así recupera las fechas con las que se consultó.
-  protected dateRange = signal<DateRangeValue | null>({
-    startDate: localTodayStr(),
-    endDate: localTodayStr(),
-  });
-  protected hasDateFilter = computed(() => this.dateRange() !== null);
-
-  // Al abrir, solo los registros de hoy (una sola consulta, ya filtrada).
-  protected override initialFilters(): Record<string, any> {
-    const today = localTodayStr();
-    return { date_from: today, date_to: today };
-  }
-
-  protected onDateRangeSearch(value: DateRangeValue): void {
-    this.dateRange.set(value);
-    this.filters = { date_from: value.startDate, date_to: value.endDate };
-    this.page = 1;
-    this.reload();
-  }
-
-  protected clearDateRange(): void {
-    this.dateRange.set(null);
-    this.dateRangeForm?.form.reset();
-    this.filters = {};
-    this.page = 1;
-    this.reload();
-  }
-
-  // Horas digitadas por op_rowid, por día y centro de trabajo. Las comparten la
-  // tabla de la fila y la del modal de Enviar TEP.
-  protected opHours = signal<Partial<Record<string, Partial<Record<number, string>>>>>({});
-
-  protected opHoursKey(row: Partial<OrderToBeOutbound>): string {
-    return `${row.record_date}:${row.code}`;
-  }
-
-  protected setOpHours(row: Partial<OrderToBeOutbound>, hours: Partial<Record<number, string>>): void {
-    this.opHours.update((all) => ({ ...all, [this.opHoursKey(row)]: hours }));
-  }
-
-  // El ojo (solo lectura) usa el modal lateral (BaseCrudPage); Integrar (horas + envío) usa el modal central.
-  protected approve(row: OrderToBeOutbound): void {
-    this.rowObject = row;
-    this.dialogService.openModal('Integrar OPs', 'Aceptar');
-  }
-
-  // Al enviar se pide confirmación: el envío no se puede deshacer. Abrir la
-  // confirmación cierra el modal (DialogService.closeAll).
-  // Pide confirmación y, al confirmar, envía el TEP del grupo seleccionado.
-  protected confirmSend(): void {
-    const row = this.rowObject as OrderToBeOutbound;
-    // Si algún tiempo está mal, el modal sigue abierto y la tabla marca las OP con error
-    // (un toast cerraría el modal).
-    if (!this.opTotalsTable?.validate()) return;
-    const hours = this.opHours()[this.opHoursKey(row)] ?? {};
-
-    this.dialogService.openConfirm(
-      'Integrar TEP',
-      'Al confirmar, esta acción no se puede deshacer. ¿Desea continuar?',
-      'Confirmar',
-      () => this.sendTep(row, hours),
-    );
-  }
-
-  private sendTep(row: OrderToBeOutbound, hours: Partial<Record<number, string>>): void {
-    this.dialogService.closeConfirm();
-    this.loaderService.showLoader();
-    this.tepService
-      .send(this.buildTepRequest(row, hours))
-      .pipe(finalize(() => this.reload(() => this.loaderService.hideLoader())))
-      .subscribe({
-        next: () =>
-          this.dialogService.openToast('Proceso exitoso', 'El TEP fue enviado correctamente.', 'check'),
-        error: (err: HttpErrorResponse) =>
-          this.dialogService.openToast('No se pudo enviar', this.tepErrorMessage(err), 'fail'),
-      });
-  }
-
-  // completed_quantity: cantidad base de la OP (sin bajas ni rechazos) / piezas;
-  // el backend la valida contra la suma de los registros.
-  private buildTepRequest(row: OrderToBeOutbound, hours: Partial<Record<number, string>>): TepSendRequest {
-    const workCenter = row.code.trim();
+  protected override mapResponse(res: PaginatedResponse<OrderByWorkCenter>): PaginatedResponse<OrderByWorkCenter> {
     return {
-      header: { work_center_id: workCenter },
-      details: row.detail.map((item) => ({
-        op_document_type_id: item.op_type,
-        op_document_number: item.op_number,
-        operation_number: item.operation_number,
-        operation_work_center_id: workCenter,
-        completed_quantity: Math.round((item.total_completed / (item.pieces || 1)) * 10000) / 10000,
-        hours: Number(hours[item.op_rowid]),
-        operation_completed: item.completed_operation ? 1 : 0,
-        register_ids: item.register_ids,
-        origin_id: row.origin_id,
-      })),
+      ...res,
+      results: res.results.map((row) => {
+        const lastEnd = toLocalDate(row.last_end);
+        return { ...row, end_date: lastEnd ? formatDate(lastEnd, 'dd/MM/yyyy', this.locale) : undefined };
+      }),
     };
   }
 
-  private tepErrorMessage(err: HttpErrorResponse): string {
-    const body = err.error;
-    // register_ids rejected by the backend: errors.register_ids (envelope) or details (previous shape).
-    const fields = apiFieldErrors(err);
-    const details = fields['register_ids'] ?? fields['details'] ?? [];
-    if (details.length > 0) return details.join(' · ');
-    // SIESA rejected the document: ok / error_type travel with the error response.
-    if (body?.ok === false) return `SIESA rechazó el envío (tipo de error ${body.error_type ?? 's/d'}).`;
-    return apiErrorDetail(err) || body?.error || 'No se pudo enviar el TEP.';
+  // The central modal (ModalLayout) shows what will be integrated for the work center.
+  protected integrate(row: OrderByWorkCenter): void {
+    this.rowObject = row;
+    this.dialogService.openModal('Integrar OPs', 'Integrar');
   }
 
-  // Badge de la fecha: dos colores según la paridad de day_number.
-  protected dateBadgeClass(row: OrderToBeOutbound): string {
-    return row.day_number != null && row.day_number % 2 === 0
-      ? 'text-green-700 bg-green-100'
-      : 'text-brand-700 bg-brand-100';
+  // "Integrar" button of the central modal: asks for confirmation first, then sends the TEP.
+  protected confirmIntegration(): void {
+    // The button is disabled in these cases; this only guards against a call that bypasses it.
+    if (!this.canIntegrate() || this.sending()) {
+      this.submitted.set(true);
+      return;
+    }
+    this.dialogService.openConfirm(
+      'Integrar',
+      'Al realizar esta acción ya no se podrá revertir. ¿Desea continuar con la integración?',
+      'Integrar',
+      () => this.sendTep(),
+    );
   }
 
-  // Badge de Documentos: verde si todas las OP están completas, naranja
-  // (warning) si hay completas y pendientes, rojo si ninguna está completa.
-  protected documentsBadgeClass(row: OrderToBeOutbound): string {
-    const completed = row.detail.filter((item) => !!item.completed_operation).length;
-    if (completed === row.detail.length) return 'text-green-700 bg-green-100';
-    return completed > 0 ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100';
+  // A request is in flight: keeps the button disabled so the TEP is not sent twice.
+  protected readonly sending = signal(false);
+
+  // One POST to integration/tep/send/ with every picked OP (the same endpoint and body as work-center-totals).
+  // The selection is only cleared when the API confirms the send; on an error it is kept to retry.
+  private sendTep(): void {
+    const request = this.tepRequest();
+    this.dialogService.closeConfirm();
+    this.sending.set(true);
+    this.loaderService.showLoader();
+    this.tepService
+      .send(request)
+      .pipe(
+        finalize(() => {
+          this.sending.set(false);
+          this.reload(() => this.loaderService.hideLoader());
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.ok === false) {
+            this.dialogService.openToast('No se pudo enviar', `SIESA rechazó el envío (tipo de error ${res.error_type ?? 's/d'}).`, 'fail');
+            return;
+          }
+          this.closeModelForm();
+          this.dialogService.openToast('Proceso exitoso', 'El TEP fue enviado correctamente.', 'check');
+        },
+        error: (err: HttpErrorResponse) =>
+          this.dialogService.openToast('No se pudo enviar', tepErrorMessage(err), 'fail'),
+      });
   }
 
-  protected expandedDetailIndexes = signal<Set<number>>(new Set());
+  // Work center whose OPs mini-card is open, with the viewport position of its arrow.
+  // The card sits below the arrow, or above it when there is more room there; `maxHeight` keeps it
+  // inside the viewport on any screen size.
+  protected readonly opsCard = signal<{
+    row: OrderByWorkCenter;
+    left: number;
+    width: number;
+    maxHeight: number;
+    top?: number;
+    bottom?: number;
+  } | null>(null);
+
+  protected toggleOpsCard(row: OrderByWorkCenter, event: Event): void {
+    event.stopPropagation();
+    if (this.opsCard()?.row === row) {
+      this.closeOpsCard();
+      return;
+    }
+    const margin = 8;
+    const gap = 4;
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const width = Math.min(288, window.innerWidth - margin * 2);
+    const left = Math.max(margin, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - margin));
+    const spaceBelow = window.innerHeight - rect.bottom - gap - margin;
+    const spaceAbove = rect.top - gap - margin;
+    const below = spaceBelow >= 200 || spaceBelow >= spaceAbove;
+    const maxHeight = Math.min(320, below ? spaceBelow : spaceAbove);
+    this.opsCard.set(
+      below
+        ? { row, left, width, maxHeight, top: rect.bottom + gap }
+        : { row, left, width, maxHeight, bottom: window.innerHeight - rect.top + gap },
+    );
+  }
+
+  // Position is computed from the viewport when opening, so it is stale after a resize.
+  @HostListener('window:resize')
+  @HostListener('document:keydown.escape')
+  protected closeOpsCard(): void {
+    this.opsCard.set(null);
+  }
+
+  protected expandedDocumentIndexes = signal<Set<number>>(new Set());
+
+  // Set when integrating with missing data, so the time inputs of every OP show their errors.
+  protected readonly submitted = signal(false);
+
+  // The user closed the alert of the integrate modal; it shows again when the selection changes.
+  protected readonly invalidAlertDismissed = signal(false);
+
+  // At least one OP is picked and every picked OP has its required fields filled (subprocess, its extra
+  // time and the time). "Integrar" is disabled otherwise.
+  protected canIntegrate(): boolean {
+    const picked = this.pickedOps();
+    return picked.length > 0 && picked.every((op) => op.summary.valid);
+  }
+
+  // Picked OPs with missing or wrong data (subprocess, its extra time or the time).
+  private invalidOps(): PickedOp[] {
+    return this.pickedOps().filter((op) => !op.summary.valid);
+  }
+
+  // The time inputs of every OP show their errors (touched) while an OP has invalid data, because the
+  // disabled "Integrar" button leaves no click to trigger them.
+  protected hasInvalidSelection(): boolean {
+    return this.invalidOps().length > 0;
+  }
+
+  // Message of the alert in the header of the integrate modal, naming the OPs that have errors.
+  protected invalidSelectionMessage(): string | null {
+    const invalid = this.invalidOps();
+    if (this.invalidAlertDismissed() || !invalid.length) return null;
+    const ops = invalid.map((op) => `${op.document.op_type} ${op.document.op_number}`).join(', ');
+    return `Complete los campos requeridos (subproceso y tiempos) en: ${ops}.`;
+  }
+
+  // SKUs picked in the integration matrix of each OP (by op_rowid), kept here so they survive collapsing the accordion.
+  protected readonly selectedSkuIdsByOp = signal<Record<number, number[]>>({});
+
+  protected selectedSkuIdsOf(opRowid: number): number[] {
+    return this.selectedSkuIdsByOp()[opRowid] ?? NO_SELECTION;
+  }
+
+  protected setSelectedSkuIds(opRowid: number, ids: number[]): void {
+    this.invalidAlertDismissed.set(false);
+    this.selectedSkuIdsByOp.update((byOp) => ({ ...byOp, [opRowid]: ids }));
+  }
+
+  // Exact records picked in the single-quantity mode of each OP (by op_rowid); null = matrix mode.
+  private readonly selectedRecordIdsByOp = signal<Record<number, number[] | null>>({});
+
+  // Single quantity is the default view: an OP the user has not switched yet starts with no records picked.
+  protected selectedRecordIdsOf(opRowid: number): number[] | null {
+    const picked = this.selectedRecordIdsByOp()[opRowid];
+    return picked === undefined ? [] : picked;
+  }
+
+  protected setSelectedRecordIds(opRowid: number, ids: number[] | null): void {
+    this.invalidAlertDismissed.set(false);
+    this.selectedRecordIdsByOp.update((byOp) => ({ ...byOp, [opRowid]: ids }));
+  }
+
+  // Units and time of the selection of each OP (by op_rowid), reported by its matrix.
+  private readonly selectionSummaryByOp = signal<Record<number, SelectionSummary>>({});
+
+  protected setSelectionSummary(opRowid: number, summary: SelectionSummary): void {
+    this.selectionSummaryByOp.update((byOp) => ({ ...byOp, [opRowid]: summary }));
+  }
+
+  // OPs of the work center with units selected, with what the user picked and the units/time of it.
+  private pickedOps(): PickedOp[] {
+    const byOp = this.selectionSummaryByOp();
+    return (this.rowObject.documents ?? [])
+      .filter((doc) => (byOp[doc.op_rowid]?.units ?? 0) > 0)
+      .map((doc) => ({ document: doc, selectedIds: this.selectedSkuIdsOf(doc.op_rowid), summary: byOp[doc.op_rowid], recordIds: this.selectedRecordIdsOf(doc.op_rowid) }));
+  }
+
+  // One row per picked OP, for the table at the top of the integrate modal. `tep` is the item of the
+  // `details` of the TEP payload for that row, already built.
+  protected selectionRows(): { op: string; reference: string; units: number; minutes: number; tep: TepSendDetail }[] {
+    return this.pickedOps().map((picked) => ({
+      op: `${picked.document.op_type} ${picked.document.op_number}`,
+      reference: picked.document.reference || '—',
+      units: picked.summary.units,
+      minutes: picked.summary.hours * 60 + picked.summary.minutes,
+      tep: buildTepDetail(this.rowObject as OrderByWorkCenter, picked),
+    }));
+  }
+
+  // Body of POST integration/tep/send/ for what is shown in the table.
+  protected tepRequest(): TepSendRequest {
+    return buildTepRequest(this.rowObject as OrderByWorkCenter, this.pickedOps());
+  }
+
+  protected selectionTotals(rows: { units: number; minutes: number }[]): { units: number; minutes: number } {
+    return {
+      units: rows.reduce((sum, row) => sum + row.units, 0),
+      minutes: rows.reduce((sum, row) => sum + row.minutes, 0),
+    };
+  }
+
+  protected formatTime(totalMinutes: number): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(Math.floor(totalMinutes / 60))}:${pad(totalMinutes % 60)}`;
+  }
 
   protected override closeModelForm(): void {
-    this.expandedDetailIndexes.set(new Set());
+    this.expandedDocumentIndexes.set(new Set());
+    this.submitted.set(false);
+    this.invalidAlertDismissed.set(false);
+    this.selectionSummaryByOp.set({});
+    this.selectedSkuIdsByOp.set({});
+    this.selectedRecordIdsByOp.set({});
     super.closeModelForm();
   }
 
-  protected isDetailExpanded(index: number): boolean {
-    return this.expandedDetailIndexes().has(index);
+  protected toggleDocumentExpanded(index: number): void {
+    // Only one OP stays open at a time: opening another one closes the previous one.
+    this.expandedDocumentIndexes.set(this.expandedDocumentIndexes().has(index) ? new Set() : new Set([index]));
   }
 
-  protected toggleDetailExpanded(index: number): void {
-    const expanded = new Set(this.expandedDetailIndexes());
-    if (!expanded.delete(index)) {
-      expanded.add(index);
-    }
-    this.expandedDetailIndexes.set(expanded);
-  }
-
-  protected override get columns(): TableColumn<OrderToBeOutbound>[] {
+  protected override get columns(): TableColumn<OrderByWorkCenter>[] {
     return [
-      { field: 'record_date', type: 'template', label: 'Fecha', templateName: 'dayTemplate' },
+      { field: 'end_date', type: 'template', label: 'Fecha', templateName: 'lastEndTemplate' },
       { field: 'origin', type: 'template', label: 'Área', templateName: 'originTemplate' },
       { field: 'code', type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
-      { field: 'operations_status', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
-      { type: 'template', label: 'Documentos', templateName: 'opsTotalsTemplate', align:'center' },
-      { type: 'template', label: 'Acciones', templateName: 'approveTemplate', align: 'center' },
+      { type: 'template', label: 'Órdenes', templateName: 'documentsTemplate', align: 'center' },
+      { type: 'template', label: 'Acciones', templateName: 'integrateTemplate', align: 'center' },
     ];
   }
 }

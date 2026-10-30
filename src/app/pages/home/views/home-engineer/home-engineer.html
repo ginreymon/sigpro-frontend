@@ -1,3 +1,16 @@
+<div class="flex flex-col gap-6">
+  <section aria-labelledby="home-confeccion-title" class="flex flex-col gap-2">
+    <h2 id="home-confeccion-title" class="text-sm font-semibold text-gray-700">Confección</h2>
+    <app-home-production-coordinator />
+  </section>
+
+  <section aria-labelledby="home-estampacion-title" class="flex flex-col gap-2">
+    <h2 id="home-estampacion-title" class="text-sm font-semibold text-gray-700">Estampación</h2>
+    <app-home-stamping-coordinator />
+  </section>
+
+  <section aria-labelledby="home-areas-title" class="flex flex-col gap-2">
+    <h2 id="home-areas-title" class="text-sm font-semibold text-gray-700">Áreas</h2>
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
   @for (area of areas(); track area.routerLink) {
     <a
@@ -24,4 +37,6 @@
       <span class="text-sm font-semibold text-gray-400">No hay áreas disponibles</span>
     </div>
   }
+</div>
+  </section>
 </div>

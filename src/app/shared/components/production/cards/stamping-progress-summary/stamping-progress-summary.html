@@ -1,0 +1,19 @@
+@if (orderedQty !== null) {
+<div class="w-full py-1.5 -mt-1 mb-2 flex flex-col justify-start bg-gray-200 text-gray-700 border border-gray-200 rounded-t-xl rounded-b-md px-3">
+  <div class="w-full flex flex-row justify-between">
+    <div class="pr-4">
+      <h3 class="text-gray-700 text-xs">Ord.</h3>
+      <p class="text-m font-semibold text-slate-700">{{ orderedQty }}</p>
+    </div>
+    <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
+      <h3 class="text-gray-700 text-xs">Estampada</h3>
+      <p class="text-m font-semibold text-green-600">{{ stampedQty }}</p>
+    </div>
+    <div class="h-full flex flex-col items-end border-l pl-2 border-gray-400">
+      <h3 class="text-gray-700 text-xs">Por hacer</h3>
+      <p class="text-m font-semibold text-slate-900">{{ toDo }}</p>
+    </div>
+  </div>
+  <app-progress-bar class="w-full mt-1" [heightClass]="'h-1'" [max]="orderedQty" [progress]="stampedQty"></app-progress-bar>
+</div>
+}
