@@ -1,4 +1,6 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, computed, input, model, output } from '@angular/core';
+import { UiBadge } from '../../../../../../elements/ui-badge/ui-badge';
 import { WorkCenterDocument } from '../../../../../../../models/integration/order-by-work-center';
 import { ProductionOrder } from '../../../../../../../models/production/production-order';
 import { SkuDetail } from '../../../../../../../models/production/sku-detail';
@@ -18,7 +20,7 @@ import { IntegrationTimeInputs, SelectionSummary } from '../../../components/int
 // produced. Same pivot as ProductionOrdersTable (buildColorSizeMatrix).
 @Component({
   selector: 'app-document-integration-matrix',
-  imports: [IntegrationTimeInputs],
+  imports: [DecimalPipe, IntegrationTimeInputs, UiBadge],
   templateUrl: './document-integration-matrix.html',
 })
 export class DocumentIntegrationMatrix {
@@ -40,6 +42,14 @@ export class DocumentIntegrationMatrix {
       label: CELL_STATE_LABELS[state],
       classes: CELL_STATE_CLASSES[state],
     }));
+
+  // ERP operation state: the API can send 0 / 1 / true / false (typed as number); null or undefined
+  // means the ERP reported nothing, so no state is shown.
+  protected readonly erpCompleted = computed<boolean | null>(() => {
+    const value: unknown = this.document().erp_completed_operation;
+    if (value === null || value === undefined) return null;
+    return value === true || value === 1 || value === '1' || value === 'true';
+  });
 
   protected readonly matrix = computed(() => {
     const colorRows = this.document().detail?.colorRows;
