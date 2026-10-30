@@ -36,6 +36,8 @@ export interface StampingDetailTotals {
 // `additional_seconds_by_unit` (not calculated) instead of `total_seconds`.
 export interface WorkCenterDocument extends Omit<OrderToBeOutboundDetail, 'total_seconds'> {
   additional_seconds_by_unit: number | null;
+  // MAX(Cantidad_Base_Ruta) of the OP; only Confección (origin_id = 1), null in the rest.
+  base_route_quantity: number | null;
   // Confección (origin_id = 1): colorRows; Estampación (origin_id = 2): referenceSams; null in the rest.
   detail: {
     colorRows?: ColorRowDetail[];
