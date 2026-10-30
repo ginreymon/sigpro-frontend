@@ -2,6 +2,7 @@ import { Component, computed, DestroyRef, effect, inject, input, output, signal,
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { merge } from 'rxjs';
+import { calculateTepTime } from '../../../../../../common/functions/tep-time';
 import { UiFormField } from '../../../../../elements/ui-form-field/ui-form-field';
 import { UiHourInput } from '../../../../../elements/ui-hour-input/ui-hour-input';
 import { UiInput } from '../../../../../elements/ui-input/ui-input';
@@ -47,6 +48,10 @@ export class IntegrationTimeInputs {
   readonly askSubprocess = input(false);
   // The parent tried to integrate: show the errors of every field, touched or not.
   readonly submitted = input(false);
+  // TEP_TIME_CALCULATION_MODE: false = base quantity (default), true = recorded time of the operation.
+  readonly useRecordedTime = input(false);
+  // base_route_quantity of the OP; only used by the recorded time mode.
+  readonly baseRouteQuantity = input<number | null>(null);
   readonly summary = output<SelectionSummary>();
 
   protected readonly subprocessOptions = TEP_SUBPROCESS_OPTIONS;
@@ -65,17 +70,22 @@ export class IntegrationTimeInputs {
 
   private readonly subprocess = signal<TepSubprocess | null>(null);
   private readonly additionalSeconds = signal(0);
+  // The subprocess (and its extra time) only applies in the recorded time mode; in the base quantity mode
+  // the OP goes without subprocess and only the units and the time are asked.
+  protected readonly showSubprocess = computed(() => this.askSubprocess() && this.useRecordedTime());
   protected readonly needsAdditionalTime = computed(
-    () => this.askSubprocess() && !!this.subprocess() && this.subprocess() !== 'none',
+    () => this.showSubprocess() && !!this.subprocess() && this.subprocess() !== 'none',
   );
 
-  // Units x seconds per unit + the additional seconds of the whole selection (not per unit), as hours
-  // and minutes (rounded to the minute).
-  private readonly defaultTime = computed(() => {
-    const extra = this.needsAdditionalTime() ? this.additionalSeconds() : 0;
-    const totalMinutes = Math.round((this.units() * this.secondsPerUnit() + extra) / 60);
-    return { hours: Math.floor(totalMinutes / 60), minutes: totalMinutes % 60 };
-  });
+  // Preloaded time: calculated by calculateTepTime according to `useRecordedTime`.
+  private readonly defaultTime = computed(() =>
+    calculateTepTime(this.useRecordedTime(), {
+      units: this.units(),
+      secondsPerUnit: this.secondsPerUnit(),
+      extraSeconds: this.needsAdditionalTime() ? this.additionalSeconds() : 0,
+      baseRouteQuantity: this.baseRouteQuantity(),
+    }),
+  );
 
   constructor() {
     const destroyRef = inject(DestroyRef);
@@ -94,10 +104,15 @@ export class IntegrationTimeInputs {
 
     // A disabled control does not count for the validity: only ask for what applies.
     effect(() => {
-      const ask = this.askSubprocess();
+      const show = this.showSubprocess();
+      const defaultsToNone = this.askSubprocess() && !show;
       const needsAdditional = this.needsAdditionalTime();
       untracked(() => {
-        this.toggle(subprocess, ask);
+        if (defaultsToNone) {
+          subprocess.setValue('none', { emitEvent: false });
+          this.subprocess.set('none');
+        }
+        this.toggle(subprocess, show);
         this.toggle(additionalSeconds, needsAdditional);
         this.emitSummary(this.units());
       });
@@ -135,7 +150,7 @@ export class IntegrationTimeInputs {
       units,
       hours: hours ?? 0,
       minutes: minutes ?? 0,
-      subprocess: this.askSubprocess() ? subprocess : null,
+      subprocess: this.askSubprocess() ? (this.showSubprocess() ? subprocess : 'none') : null,
       valid: this.form.valid,
     });
   }

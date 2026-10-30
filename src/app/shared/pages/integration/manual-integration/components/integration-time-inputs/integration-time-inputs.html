@@ -4,8 +4,11 @@
       <span class="text-xs font-medium text-slate-500">Unidades seleccionadas</span>
       <span class="text-sm font-semibold text-green-600 tabular-nums">{{ units() }}</span>
     </div>
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-medium text-slate-500">Tipo de tiempo ({{ useRecordedTime() ? 'Real' : 'Estándar' }})</span>     
+    </div>
 
-    @if (askSubprocess()) {
+    @if (showSubprocess()) {
       <app-ui-form-field [controlName]="'subprocess'" [label]="'Subproceso'" [layout]="'inline'"
         [inputId]="'integration-subprocess-' + uid">
         <app-ui-select formControlName="subprocess" [control]="form.controls.subprocess" [id]="'integration-subprocess-' + uid"

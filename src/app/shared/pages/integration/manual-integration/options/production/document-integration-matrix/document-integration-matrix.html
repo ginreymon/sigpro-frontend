@@ -60,7 +60,7 @@
           <app-ui-input class="block w-32" [type]="'number'" [control]="quantityControl"
             [formControl]="quantityControl" [id]="'integration-quantity-' + uid" [placeholder]="'Ej: 12'"
             [extraInvalid]="!!quantityError()"></app-ui-input>
-          <span class="text-xs text-slate-500">Por integrar: <span class="font-semibold tabular-nums text-gray-700">{{ poolUnits() | number: '1.0-0' }}</span></span>
+          <span class="text-xs text-slate-500">Por integrar: <span class="font-semibold tabular-nums text-gray-700">{{ integrableMax() | number: '1.0-0' }}</span></span>
         </div>
         @if (quantityError(); as error) {
           <app-ui-error-message role="alert" data-testid="single-quantity-error">{{ error }}</app-ui-error-message>
@@ -126,7 +126,7 @@
     </div>
     }
 
-    <app-integration-time-inputs [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
+    <app-integration-time-inputs [useRecordedTime]="useRecordedTime" [baseRouteQuantity]="document().base_route_quantity" [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
       [selection]="timeSelection()" [visible]="selectedSkus().length > 0" [askSubprocess]="true" [submitted]="submitted()"
       (summary)="selectionSummary.emit($event)"></app-integration-time-inputs>
 

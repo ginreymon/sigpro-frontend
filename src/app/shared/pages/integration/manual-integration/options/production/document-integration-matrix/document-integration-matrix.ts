@@ -2,6 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, computed, DestroyRef, ElementRef, HostListener, inject, input, model, OnInit, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { AppConfigService } from '../../../../../../../services/core/app-config-service';
 import { UiBadge } from '../../../../../../elements/ui-badge/ui-badge';
 import { UiErrorMessage } from '../../../../../../elements/ui-error-message/ui-error-message';
 import { UiIcon } from '../../../../../../elements/ui-icon/ui-icon';
@@ -35,6 +36,8 @@ export type IntegrationMode = 'matrix' | 'single';
 })
 export class DocumentIntegrationMatrix implements OnInit {
   private static nextId = 0;
+  // TEP_TIME_CALCULATION_MODE: how the time of the integration is preloaded.
+  protected readonly useRecordedTime = inject(AppConfigService).tepTimeUsesRecordedTime;
   // Unique per instance: several OPs can be expanded at once.
   protected readonly uid = DocumentIntegrationMatrix.nextId++;
 
@@ -121,6 +124,13 @@ export class DocumentIntegrationMatrix implements OnInit {
     this.pendingPool().reduce((sum, { record }) => sum + recordUnits(record), 0),
   );
 
+  // Most that can be integrated in single mode: what the ERP still has to execute
+  // (erp_execution_quantity - erp_completed_quantity); the pending records' total when the ERP sends no quantities.
+  protected readonly integrableMax = computed(() => {
+    const { erp_execution_quantity: execution, erp_completed_quantity: completed } = this.document();
+    return execution == null || completed == null ? this.poolUnits() : Math.max(0, Math.floor(execution - completed));
+  });
+
   protected readonly mode = computed<IntegrationMode>(() => (this.selectedRecordIds() === null ? 'matrix' : 'single'));
   protected readonly modes: { value: IntegrationMode; label: string }[] = [
     { value: 'matrix', label: 'Matriz por talla' },
@@ -192,7 +202,7 @@ export class DocumentIntegrationMatrix implements OnInit {
 
     if (text && !WHOLE_NUMBER.test(text)) error = 'Ingrese un número entero.';
     else if (text && quantity < 1) error = 'La cantidad debe ser mayor a 0.';
-    else if (text && quantity > this.poolUnits()) error = `Máximo por integrar: ${this.poolUnits()}.`;
+    else if (text && quantity > this.integrableMax()) error = `Máximo por integrar: ${this.integrableMax()}.`;
     else if (text) {
       const picked = pickRecordsForQuantity(pool.map(({ record }) => record), quantity);
       if (picked.exact) pickedIds = picked.ids;

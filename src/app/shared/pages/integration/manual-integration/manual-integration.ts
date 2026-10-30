@@ -24,6 +24,7 @@ import { PaginatedResponse } from '../../../../common/interfaces/paginated-respo
 import { OrdersByWorkCenterService } from '../../../../services/integration/orders-by-work-center-service';
 import { TepService } from '../../../../services/integration/tep-service';
 import { tepErrorMessage } from '../../../../common/functions/tep-error';
+import { AppConfigService } from '../../../../services/core/app-config-service';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
 import { UiAlert } from '../../../elements/ui-alert/ui-alert';
 import { TepSendDetail, TepSendRequest } from '../../../../models/integration/tep-send';
@@ -77,8 +78,12 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     private tepService: TepService,
   ) {
     super(ordersByWorkCenterService);
+    // The integrate modal reads TEP_TIME_CALCULATION_MODE synchronously: make sure the settings are loaded
+    // even when this page is the first one opened after a reload.
+    this.appConfig.load().subscribe();
   }
 
+  private readonly appConfig = inject(AppConfigService);
   private readonly locale = inject(LOCALE_ID);
 
   protected override mapResponse(res: PaginatedResponse<OrderByWorkCenter>): PaginatedResponse<OrderByWorkCenter> {
@@ -231,11 +236,13 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     this.selectedSkuIdsByOp.update((byOp) => ({ ...byOp, [opRowid]: ids }));
   }
 
-  // Exact records picked in the single-quantity mode of each OP (by op_rowid); absent = matrix mode.
+  // Exact records picked in the single-quantity mode of each OP (by op_rowid); null = matrix mode.
   private readonly selectedRecordIdsByOp = signal<Record<number, number[] | null>>({});
 
+  // Single quantity is the default view: an OP the user has not switched yet starts with no records picked.
   protected selectedRecordIdsOf(opRowid: number): number[] | null {
-    return this.selectedRecordIdsByOp()[opRowid] ?? null;
+    const picked = this.selectedRecordIdsByOp()[opRowid];
+    return picked === undefined ? [] : picked;
   }
 
   protected setSelectedRecordIds(opRowid: number, ids: number[] | null): void {

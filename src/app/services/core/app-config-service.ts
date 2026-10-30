@@ -65,6 +65,11 @@ export class AppConfigService {
     return this.get(AppSettingKey.HOURLY_KEEP_OPEN) === 'true';
   }
 
+  // false: TEP time from the base quantity; true: from the recorded time of the operation.
+  get tepTimeUsesRecordedTime(): boolean {
+    return this.get(AppSettingKey.TEP_TIME_CALCULATION_MODE) === 'true';
+  }
+
   get stampingCalibrationWindowSeconds(): number {
     return this.getNumber(AppSettingKey.STAMPING_CALIBRATION_WINDOW, 15) * 60;
   }
