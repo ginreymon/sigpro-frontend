@@ -1,6 +1,7 @@
 import { Type } from '@angular/core';
 import { Roles } from '../options/admin/roles/roles';
 import { Users } from '../options/admin/users/users';
+import { OrderEdition } from '../options/admin/order-edition/order-edition';
 import { DayOperation } from '../shared/pages/shift-workflow/day-operation/day-operation';
 import { WorkShifts } from '../options/admin/work-shifts/work-shifts';
 import { Modules } from '../options/admin/modules/modules';
@@ -31,6 +32,7 @@ export const componentMap: Record<string, Type<any>> = {
   'configuration/app-settings': AppSettings,
   'admin/roles': Roles,
   'admin/users': Users,
+  'admin/order-edition': OrderEdition,
   'admin/work-shifts': WorkShifts,
   'admin/modules': Modules,
   'admin/work-breaks': WorkBreaks,
