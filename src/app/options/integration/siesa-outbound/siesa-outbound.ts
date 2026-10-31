@@ -12,6 +12,7 @@ import { UiDisclosure } from '../../../shared/elements/ui-disclosure/ui-disclosu
 import { OpsPopover, OpsPopoverItem } from '../../../shared/components/widgets/ops-popover/ops-popover';
 import { EllipsisPipe } from '../../../pipes/ellipsis-pipe';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
+import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableToolsButtons } from '../../../common/interfaces/table-tools-buttons';
@@ -65,7 +66,7 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
     return [
       { field: 'date', type: 'template', label: 'Fecha', templateName: 'createdAtTemplate' },
       { field: 'work_center_id', label: 'Centro de trabajo' },
-      { type: 'template', label: 'Respuesta', templateName: 'responseTemplate' },
+      { field: 'response_summary', type: 'template', label: 'Respuesta', templateName: 'responseTemplate' },
       { type: 'template', label: 'Documentos', templateName: 'opsTemplate', align: 'center' },
       { field: 'status_display', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
@@ -116,6 +117,10 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
 
   protected originLabel(originId: number | null): string {
     return originId != null ? (ORIGIN_LABEL[originId] ?? `${originId}`) : '—';
+  }
+
+  protected override mapResponse(res: PaginatedResponse<TepSubmission>): PaginatedResponse<TepSubmission> {
+    return { ...res, results: res.results.map((row) => ({ ...row, response_summary: this.responseSummary(row) })) };
   }
 
   // Resumen de la respuesta de SIESA para la tabla: el primer mensaje del

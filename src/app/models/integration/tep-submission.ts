@@ -41,4 +41,6 @@ export interface TepSubmission extends TimeAuditEntity, UserAuditEntity {
   siesa_messages: SiesaMessage[];
   sent_at: string | null;
   details: TepSubmissionDetail[];
+  // Added by the outbound page so the response column can use the table's column filter.
+  response_summary?: string;
 }

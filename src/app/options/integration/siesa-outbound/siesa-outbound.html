@@ -1,7 +1,7 @@
 <app-work-space-layout>
     <div main-content class="h-full">
         <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
-            [searchPlaceholder]="'Buscar por centro de trabajo, número de OP o error'" (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            [searchPlaceholder]="'Centro, OP 12345 o error'" (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
             (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons" [columnFilter]="true">
 
             <ng-template appTableTemplate="opsTemplate" let-row>
@@ -14,8 +14,8 @@
 
             <ng-template appTableTemplate="responseTemplate" let-row>
                 <span class="block" [class.text-red-700]="row.status === 'failed'"
-                    [title]="responseSummary(row)">
-                    {{ responseSummary(row) | ellipsis:15 }}
+                    [title]="row.response_summary">
+                    {{ row.response_summary | ellipsis:15 }}
                 </span>
             </ng-template>
 
