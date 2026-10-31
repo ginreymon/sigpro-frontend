@@ -37,6 +37,8 @@ export class Searcher implements OnDestroy {
   onInputChange(value: string) {
     this.model = value;
     if (this.live) this.inputSubject.next(value);
+    // Emptying the box is the same as pressing "Buscar" with '': drop the filter and reload everything.
+    else if (!value) this.onSearch.emit('');
   }
 
   submit() {
