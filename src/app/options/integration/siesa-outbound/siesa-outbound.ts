@@ -9,6 +9,7 @@ import { UiAccordionItem } from '../../../shared/elements/ui-accordion-item/ui-a
 import { UiBadge, BadgeIntent } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
 import { UiDisclosure } from '../../../shared/elements/ui-disclosure/ui-disclosure';
+import { OpsPopover, OpsPopoverItem } from '../../../shared/components/widgets/ops-popover/ops-popover';
 import { EllipsisPipe } from '../../../pipes/ellipsis-pipe';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { TableColumn } from '../../../common/interfaces/table-column';
@@ -32,7 +33,7 @@ const ORIGIN_LABEL: Record<number, string> = {
 
 @Component({
   selector: 'app-siesa-outbound',
-  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, UiAccordionItem, TableTemplate, DatePipe, DecimalPipe, EllipsisPipe, UiDisclosure, CharSquare, OpSkuMatrixReadonly],
+  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, UiAccordionItem, TableTemplate, DatePipe, DecimalPipe, EllipsisPipe, UiDisclosure, OpsPopover, CharSquare, OpSkuMatrixReadonly],
   templateUrl: './siesa-outbound.html',
 })
 export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
@@ -87,6 +88,21 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
       expanded.add(key);
     }
     this.expandedItems.set(expanded);
+  }
+
+  // Cached per row: a new array on every change detection would trip the dev-mode checkNoChanges.
+  private readonly opsItemsCache = new WeakMap<TepSubmission, OpsPopoverItem[]>();
+
+  protected opsItems(row: TepSubmission): OpsPopoverItem[] {
+    let items = this.opsItemsCache.get(row);
+    if (!items) {
+      items = row.details.map((d) => ({
+        title: `${d.op_document_type_id} ${d.op_document_number}`,
+        subtitle: `Movimiento #${d.record_number} · Operación ${d.operation_number}`,
+      }));
+      this.opsItemsCache.set(row, items);
+    }
+    return items;
   }
 
   protected statusIntent(status: TepSubmissionStatus): BadgeIntent {
