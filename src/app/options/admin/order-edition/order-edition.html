@@ -1,0 +1,20 @@
+<app-work-space-layout [headerVisible]="false">
+    <div main-content class="h-full max-h-full flex flex-col overflow-hidden gap-3">
+
+        <div class="flex justify-end gap-2" role="group" aria-label="Modo de la vista">
+            @for (m of modes; track m.key) {
+            <app-ui-button [intent]="mode() === m.key ? 'accept' : 'action'" (onClick)="mode.set(m.key)">
+                {{ m.label }}
+            </app-ui-button>
+            }
+        </div>
+
+        <div class="flex-1 min-h-0 overflow-auto">
+            @switch (mode()) {
+            @case ('edit-records') { <app-edit-records /> }
+            @case ('view-order') { <app-view-order /> }
+            }
+        </div>
+
+    </div>
+</app-work-space-layout>

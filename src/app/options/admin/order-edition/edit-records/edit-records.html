@@ -1,0 +1,44 @@
+<div class="h-full flex flex-col gap-4">
+
+    <div class="flex flex-col items-start justify-start border-b border-default border-gray-300 pb-4 md:pb-5">
+        <h3 class="text-2xl font-semibold text-heading text-gray-900">Editar registros de producción</h3>
+        <p class="text-gray-500 mt-2 text-sm w-full">
+            Seleccione el área e ingrese el tipo y número de la OP para consultar sus registros.
+        </p>
+    </div>
+
+    <form [formGroup]="searchForm" (ngSubmit)="search()" (keydown.enter)="search()"
+        class="grid grid-cols-1 sm:grid-cols-[12rem_10rem_12rem_auto] items-start gap-x-3">
+        <app-ui-form-field [controlName]="'area'" [label]="'Área'">
+            <app-ui-select formControlName="area" [id]="'area'" [control]="area" [items]="areas"
+                [key]="'name'" [keyValue]="'value'"></app-ui-select>
+        </app-ui-form-field>
+
+        <app-ui-form-field [controlName]="'op_type'" [label]="'Tipo de OP'">
+            <app-ui-input formControlName="op_type" [id]="'op_type'" [placeholder]="'Ej. OPC'"
+                [control]="opType"></app-ui-input>
+        </app-ui-form-field>
+
+        <app-ui-form-field [controlName]="'op_number'" [label]="'Número de OP'">
+            <app-ui-input formControlName="op_number" [id]="'op_number'" [placeholder]="'Ej. 12345'"
+                [control]="opNumber" [type]="'number'"></app-ui-input>
+        </app-ui-form-field>
+
+        <!-- pt-5 offsets the field label (text-xs + gap-1) so the button lines up with the inputs. -->
+        <div class="pt-4">
+            <app-ui-button (onClick)="search()">Buscar OP</app-ui-button>
+        </div>
+    </form>
+
+    @if (errorMessage()) {
+    <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+    }
+
+    @if (searched() && records()?.results?.length === 0) {
+    <p class="text-sm text-slate-500">No hay registros para esta OP en el área seleccionada.</p>
+    } @else if (searched()) {
+    <app-data-table [paginatedResponse]="records()" [columns]="columns" [showPager]="false" [showSearch]="false">
+    </app-data-table>
+    }
+
+</div>

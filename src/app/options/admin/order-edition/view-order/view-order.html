@@ -1,0 +1,15 @@
+<div class="h-full flex flex-col gap-4">
+
+    @if (!productionOrder() && !isLoading()) {
+    <app-order-searcher [card]="true" [preloadedDocTypes]="contextDocTypes()" (onFoundDoc)="setDocument($event)"></app-order-searcher>
+    }
+
+    @if (productionOrder()) {
+    <app-order-header [productionOrder]="productionOrder()" [mobileAccordion]="true"></app-order-header>
+    <div class="flex-1 min-h-0 overflow-hidden">
+        <app-production-orders-table [readOnly]="true" [productionOrder]="productionOrder()">
+        </app-production-orders-table>
+    </div>
+    }
+
+</div>

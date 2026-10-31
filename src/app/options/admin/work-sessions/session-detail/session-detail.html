@@ -1,0 +1,92 @@
+<div class="flex flex-col gap-4">
+
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <h4 class="text-lg font-semibold text-gray-900">Sesión #{{ session.id }}</h4>
+            <app-ui-badge [intent]="session.is_closed ? 'inactive' : 'active'"
+                [label]="session.is_closed ? 'Cerrada' : 'Abierta'"></app-ui-badge>
+        </div>
+        <app-ui-button [intent]="'cancel'" (onClick)="closed.emit()">Volver al listado</app-ui-button>
+    </div>
+
+    <section class="rounded-md border border-slate-200 p-3 flex flex-col gap-2">
+        <p class="text-sm text-slate-600">
+            {{ session.area_name }} · {{ session.module_name }} · OP {{ session.op_type }} {{ session.op_number }}
+            · Ref. {{ session.reference }}
+        </p>
+        <app-record-editor [fields]="session.ended_at ? startAndEnd : startOnly" [record]="session"
+            [save]="saveSession"></app-record-editor>
+    </section>
+
+    @if (shifts.length) {
+    <section class="rounded-md border border-slate-200 p-3">
+        <h5 class="text-sm font-semibold text-gray-900">Turnos</h5>
+        @for (s of shifts; track s.id) {
+        <p class="text-sm text-slate-600">{{ s.start_time }} – {{ s.end_time }}</p>
+        }
+    </section>
+    }
+
+    @for (act of session.session_activities ?? []; track act.session_activity_id) {
+    <section class="rounded-md border border-slate-200 p-3 flex flex-col gap-3">
+        <h5 class="text-sm font-semibold text-gray-900">
+            Actividad #{{ act.session_activity_id }} · {{ act.module?.name }}
+        </h5>
+        <app-record-editor [fields]="act.ended_at ? startAndEnd : startOnly" [record]="act"
+            [save]="saveActivity(act.session_activity_id)"></app-record-editor>
+
+        @if (act.employees?.length) {
+        <p class="text-sm text-slate-600">
+            <span class="font-medium">Empleados:</span>
+            @for (e of act.employees; track e.id; let last = $last) {
+            {{ e.first_name }} {{ e.last_name1 }} {{ e.last_name2 }}{{ last ? '' : ',' }}
+            }
+        </p>
+        }
+
+        @for (r of act.production_records ?? []; track r.id) {
+        <div class="rounded-md bg-slate-50 p-2">
+            <p class="text-sm font-medium text-gray-900">
+                Confección #{{ r.id }} · {{ r.op_type }} {{ r.op_number }} · SKU {{ r['sku']?.reference }}
+                <span class="font-normal text-slate-500">
+                    ({{ r.start_time | date: 'dd/MM/yyyy HH:mm' }} – {{ r.end_time | date: 'dd/MM/yyyy HH:mm' }})
+                </span>
+            </p>
+            <app-record-editor [fields]="productionFields" [record]="r" [save]="saveProduction(r.id)"
+                [lockedReason]="r.tep_processed ? tepLock : null"></app-record-editor>
+        </div>
+        }
+
+        @for (r of act.stamping_records ?? []; track r.id) {
+        <div class="rounded-md bg-slate-50 p-2">
+            <p class="text-sm font-medium text-gray-900">
+                Estampación #{{ r.id }} · {{ r.op_type }} {{ r.op_number }} · Ref.
+                {{ r['stamping_reference']?.reference_code }}
+                <span class="font-normal text-slate-500">
+                    ({{ r.start_time | date: 'dd/MM/yyyy HH:mm' }} – {{ r.end_time | date: 'dd/MM/yyyy HH:mm' }})
+                </span>
+            </p>
+            <app-record-editor [fields]="stampingFields" [record]="r" [save]="saveStamping(r.id)"
+                [lockedReason]="r.tep_processed ? tepLock : null"></app-record-editor>
+        </div>
+        }
+
+        @for (b of act.break_records?.breaks ?? []; track b.id) {
+        <div class="rounded-md bg-slate-50 p-2">
+            <p class="text-sm font-medium text-gray-900">Pausa #{{ b.id }} {{ b.name }}</p>
+            <app-record-editor [fields]="breakFields" [record]="b" [save]="saveBreak(b.id)"></app-record-editor>
+        </div>
+        }
+
+        @for (d of act.break_records?.downtimes ?? []; track d.id) {
+        <p class="text-sm text-slate-600">
+            Paro #{{ d.id }} {{ d.name }}: {{ d.start_time | date: 'dd/MM/yyyy HH:mm' }} –
+            {{ d.end_time | date: 'dd/MM/yyyy HH:mm' }}
+        </p>
+        }
+    </section>
+    } @empty {
+    <p class="text-sm text-slate-500">Esta sesión no tiene actividades.</p>
+    }
+
+</div>

@@ -1,0 +1,17 @@
+<form [formGroup]="form" class="flex flex-wrap items-start gap-x-3" (ngSubmit)="submit()">
+    @for (f of fields; track f.key) {
+    <div class="w-44">
+        <app-ui-form-field [controlName]="f.key" [label]="f.label">
+            <app-ui-input [formControlName]="f.key" [id]="uid + '-' + f.key" [control]="form.get(f.key)"
+                [type]="f.type === 'number' ? 'number' : 'datetime-local'"></app-ui-input>
+        </app-ui-form-field>
+    </div>
+    }
+    @if (lockedReason) {
+    <p class="text-xs text-slate-500 pt-6">{{ lockedReason }}</p>
+    } @else {
+    <div class="pt-4">
+        <app-ui-button [disabled]="form.pristine" (onClick)="submit()">Guardar</app-ui-button>
+    </div>
+    }
+</form>

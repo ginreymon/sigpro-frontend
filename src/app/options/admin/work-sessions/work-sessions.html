@@ -1,0 +1,29 @@
+<app-work-space-layout>
+    <div main-content class="h-full flex flex-col overflow-hidden">
+
+        @if (selected(); as session) {
+        <div class="flex-1 min-h-0 overflow-auto">
+            <app-session-detail [session]="session" (closed)="closeDetail()"></app-session-detail>
+        </div>
+        } @else {
+
+        <!-- The alert takes its own row at the top: the table below shrinks instead of overflowing. -->
+        <app-ui-alert class="shrink-0 mb-2" [intent]="'error'" [message]="errorMessage()"
+            (onClose)="errorMessage.set('')" role="alert"></app-ui-alert>
+
+        <div class="flex-1 min-h-0">
+        <app-data-table [paginatedResponse]="sessions()" [columns]="columns"
+            [searchPlaceholder]="'Buscar por OP, número de OP, referencia o módulo'"
+            [actions]="{ view: { enabled: true, title: 'Ver y editar' } }" (onSearch)="search($event)"
+            (onPagerChange)="pagerHandler($event)" (onAction)="actionHandler($event)" [columnFilter]="true">
+        </app-data-table>
+        </div>
+
+        @if (sessions() && sessions()!.results.length === 0) {
+        <p class="text-sm text-slate-500 mt-3">No hay sesiones para los filtros seleccionados.</p>
+        }
+
+        }
+
+    </div>
+</app-work-space-layout>
