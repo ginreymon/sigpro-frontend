@@ -94,3 +94,28 @@ export function exceedsOneMonth(startStr: string, endStr: string): boolean {
   const [ey, em, ed] = endStr.split('-').map(Number);
   return new Date(ey, em - 1, ed) > new Date(y, m, d);
 }
+
+/**
+ * Converts a `datetime-local` input value (YYYY-MM-DDTHH:mm, local time) to a UTC ISO string.
+ *
+ * @example (UTC-5 / Colombia)
+ *   localInputToUtcIso('2026-05-27T08:30')  → '2026-05-27T13:30:00.000Z'
+ */
+export function localInputToUtcIso(value: string): string {
+  return new Date(value).toISOString();
+}
+
+/**
+ * Converts a UTC ISO string to a `datetime-local` input value (YYYY-MM-DDTHH:mm, local time).
+ * Returns null when the value is empty or not a valid date.
+ *
+ * @example (UTC-5 / Colombia)
+ *   utcIsoToLocalInput('2026-05-27T13:30:00Z')  → '2026-05-27T08:30'
+ */
+export function utcIsoToLocalInput(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}

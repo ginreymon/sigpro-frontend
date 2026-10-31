@@ -1,0 +1,13 @@
+<div>
+  <button type="button" (click)="toggle()" [attr.aria-expanded]="expanded()"
+    class="group flex items-center gap-1.5 rounded cursor-pointer focus-visible:outline-2 focus-visible:outline-brand-500">
+    <!-- U+25B6 + U+FE0E: text glyph (no emoji), tinted by the intent. -->
+    <span aria-hidden="true" class="inline-block text-[10px] leading-none transition-transform"
+      [class]="arrowClass" [class.rotate-90]="expanded()">&#9654;&#xFE0E;</span>
+    <strong>{{ title }}</strong>
+    <span class="text-xs text-slate-500">({{ items.length }})</span>
+  </button>
+  @if (expanded()) {
+  <p class="mt-1 pl-4.5 break-words">{{ items.join(', ') || '—' }}</p>
+  }
+</div>
