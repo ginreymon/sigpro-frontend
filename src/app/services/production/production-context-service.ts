@@ -76,30 +76,26 @@ export class ProductionContextService {
     );
   }
 
-  // Soft reload: only the active session and the order are requested again, and merged into the current
-  // snapshot (docTypes, workBreaks, employees, workShifts and modules are kept). Used after a save so the page
-  // updates in place, without the skeleton that a full load() brings.
-  refresh(
-    docType?: string,
-    docNumber?: number,
-    orderLoader?: (docType: string, docNumber: number, session: ProductionContext['session']) => Observable<ProductionOrder | null>,
-  ): Observable<ProductionContext> {
+  // Soft reload, in two independent pieces so the page can update the order as soon as it arrives (the session
+  // is not awaited): each one requests only its data and merges it into the current snapshot, keeping docTypes,
+  // workBreaks, employees, workShifts and modules. Used after a save, without the skeleton a full load() brings.
+  refreshSession(): Observable<ProductionContext['session']> {
     const coreModuleId = this.routeContextService.currentModule?.id;
     const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
-
     return this.workSessionService.getActive(scopeParams).pipe(
       catchError(() => of(null)),
-      switchMap(session =>
-        this.resolveOrder(session, docType, docNumber, orderLoader).pipe(map(order => ({ session, order }))),
-      ),
-      map(({ session, order }) => ({
-        docTypes: [], workBreaks: [], employees: [], workShifts: [], modules: [],
-        ...this._context$.value,
-        session,
-        order,
-      })),
-      tap(context => this._context$.next(context)),
+      tap(session => this.updateSession(session)),
     );
+  }
+
+  // `session` is the one already in memory: the order loader of some pages reads it (e.g. stamping).
+  refreshOrder(
+    docType: string,
+    docNumber: number,
+    session: ProductionContext['session'],
+    orderLoader?: (docType: string, docNumber: number, session: ProductionContext['session']) => Observable<ProductionOrder | null>,
+  ): Observable<ProductionOrder | null> {
+    return this.resolveOrder(session, docType, docNumber, orderLoader).pipe(tap(order => this.updateOrder(order)));
   }
 
   // Order of the given OP; without one, the OP of the session's open production record. Null on error.

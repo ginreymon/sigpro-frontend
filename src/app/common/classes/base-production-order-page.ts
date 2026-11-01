@@ -1,7 +1,7 @@
 import { Directive, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { finalize, Observable } from 'rxjs';
+import { finalize, forkJoin, Observable, tap } from 'rxjs';
 import { WorkSpaceLoaderService } from '../../services/common/work-space-loader-service';
 import { LoaderService } from '../../services/common/loader-service';
 import { ProductionContextService } from '../../services/production/production-context-service';
@@ -97,19 +97,24 @@ export abstract class BaseProductionOrderPage implements OnInit {
       this.loadContext();
       return;
     }
-    // Soft reload: the content stays mounted and only the global loader shows (no skeleton); session and
-    // order are refreshed in place. loadContext() (skeleton) stays for the first load and for searches.
+    // Soft reload: the content stays mounted and only the global loader shows (no skeleton). The order and the
+    // session are requested in parallel and applied as they arrive; the loader goes off as soon as the order
+    // (production-orders/detail) is in. loadContext() (skeleton) stays for the first load and for searches.
     this.beforeLoad();
     this.loaderService.showLoader();
-    this.contextService
-      .refresh(current.documentType, current.documentNumber, this.orderLoader)
+    const order$ = this.contextService
+      .refreshOrder(current.documentType, current.documentNumber, this.currentSession(), this.orderLoader)
+      .pipe(
+        tap((order) => {
+          this.productionOrder.set(order);
+          this.loaderService.hideLoader();
+        }),
+      );
+    const session$ = this.contextService.refreshSession().pipe(tap((session) => this.currentSession.set(session)));
+    forkJoin([order$, session$])
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
-        next: (context) => {
-          this.currentSession.set(context.session);
-          this.productionOrder.set(context.order);
-          this.onContextLoaded(context);
-        },
+        next: () => this.onContextLoaded(this.contextService.snapshot!),
         error: () => this.onContextError(),
       });
   }
