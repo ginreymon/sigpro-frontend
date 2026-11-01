@@ -15,6 +15,7 @@ import { WorkSessionExplorerService } from '../../../services/dashboard/work-ses
 import { LoaderService } from '../../../services/common/loader-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
+import { UiOriginBadge } from '../../../shared/elements/ui-origin-badge/ui-origin-badge';
 import { environment } from '../../../../environments/environment';
 import { RecordSelection, SessionDetail } from './session-detail/session-detail';
 import { RecordForm } from './session-detail/record-form/record-form';
@@ -25,7 +26,7 @@ import { ModalLayout } from '../../../shared/components/layout/modal-layout/moda
 // read-only session detail.
 @Component({
   selector: 'app-work-sessions',
-  imports: [WorkSpaceLayout, DataTable, UiAlert, UiBadge, SessionDetail, RecordForm, ModalLayout, SideModalLayout, TableTemplate, DatePipe],
+  imports: [WorkSpaceLayout, DataTable, UiAlert, UiBadge, SessionDetail, RecordForm, ModalLayout, SideModalLayout, TableTemplate, DatePipe, UiOriginBadge],
   templateUrl: './work-sessions.html',
 })
 export class WorkSessions implements OnInit {
@@ -43,12 +44,12 @@ export class WorkSessions implements OnInit {
       filterFormat: (v) => (v ? formatDate(v, 'dd/MM/yyyy HH:mm', 'en-US', 'UTC') : ''),
     },
     { field: 'is_closed', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
-    { field: 'area_name', label: 'Área' },
+    { field: 'area_name', type: 'template', label: 'Área', templateName: 'areaTemplate' },
     { field: 'module_name', label: 'Módulo' },
+    { field: 'records_count', label: 'Registros', align: 'center' },
     { field: 'op', label: 'OP' },
-    { field: 'records_count', label: 'Registros' },
-    { field: 'breaks_count', type: 'template', label: 'Pausas', templateName: 'breaksTemplate' },
     { field: 'reference', label: 'Referencia' },
+    { field: 'breaks_count', type: 'template', label: 'Pausas', templateName: 'breaksTemplate' },
   ];
 
   protected readonly actions: TableActions = {

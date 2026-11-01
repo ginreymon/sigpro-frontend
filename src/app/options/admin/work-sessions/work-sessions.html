@@ -22,6 +22,10 @@
                 <span class="ml-1.5 text-red-600">{{ p[1] }}</span>
                 }
             </ng-template>
+            <!-- Same area colour as manual-integration: the origin badge is keyed by the area id. -->
+            <ng-template appTableTemplate="areaTemplate" let-row>
+                <app-ui-origin-badge [originId]="row.area_id" [label]="row.area_name ?? ''"></app-ui-origin-badge>
+            </ng-template>
             <ng-template appTableTemplate="statusTemplate" let-row>
                 <app-ui-badge [intent]="row.is_closed ? 'inactive' : 'active'"
                     [label]="row.is_closed ? 'Cerrada' : 'Abierta'"></app-ui-badge>

@@ -32,6 +32,7 @@ export interface WorkSessionExplorerRow {
   started_at: string;
   ended_at: string | null;
   is_closed: boolean;
+  area_id: number | null;
   area_name: string | null;
   module_name: string | null;
   op_type: string | null;
