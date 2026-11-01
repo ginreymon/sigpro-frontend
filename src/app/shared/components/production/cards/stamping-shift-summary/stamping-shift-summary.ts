@@ -23,8 +23,8 @@ export class StampingShiftSummary extends WorkShiftSummary {
   private maxReferenceSam: number | undefined;
   private lastSession: WorkSession | null = null;
 
-  protected override getModuleSummary(): Observable<ModuleEfficiencyStatus[]> {
-    return this.stampingProductivityService.getModuleShiftSummary();
+  protected override getModuleSummary(moduleId?: number): Observable<ModuleEfficiencyStatus[]> {
+    return this.stampingProductivityService.getModuleShiftSummary(undefined, moduleId);
   }
 
   protected override buildCards(s: WorkSession): void {

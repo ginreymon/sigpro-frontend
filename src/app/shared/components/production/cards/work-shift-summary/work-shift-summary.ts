@@ -95,7 +95,7 @@ export class WorkShiftSummary implements OnInit {
   protected loadProductivityCards(s: WorkSession): void {
     const moduleId = s.current_module?.id;
 
-    this.getModuleSummary().pipe(finalize(() => this.summaryLoading.set(false))).subscribe({
+    this.getModuleSummary(moduleId).pipe(finalize(() => this.summaryLoading.set(false))).subscribe({
       next: (rows) => {
         const row = rows.find(r => r.module_id === moduleId);
         const summary: EfficiencyPeriod = {
@@ -148,8 +148,9 @@ export class WorkShiftSummary implements OnInit {
     }));
   }
 
-  protected getModuleSummary(): Observable<ModuleEfficiencyStatus[]> {
-    return this.productivityService.getModuleShiftSummary();
+  // moduleId: only this module's row is needed, so the backend computes just that one.
+  protected getModuleSummary(moduleId?: number): Observable<ModuleEfficiencyStatus[]> {
+    return this.productivityService.getModuleShiftSummary(undefined, moduleId);
   }
 
   protected getEffectiveSam(): number | undefined {
