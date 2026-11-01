@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, Input, Optional } from '@angular/core';
 import { ControlContainer, FormControl } from '@angular/forms';
 import { UiErrorMessage } from '../ui-error-message/ui-error-message';
@@ -5,7 +6,7 @@ import { FormFieldConfig } from '../../../common/interfaces/form-field-config';
 
 @Component({
   selector: 'app-ui-form-field',
-  imports: [UiErrorMessage],
+  imports: [UiErrorMessage, DatePipe],
   templateUrl: './ui-form-field.html',
   styleUrl: './ui-form-field.css',
 })

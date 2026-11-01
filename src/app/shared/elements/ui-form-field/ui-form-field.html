@@ -67,6 +67,14 @@
     La hora final debe ser posterior a la hora inicial
     }
 
+    @if (control?.errors?.['afterNow']) {
+    La fecha no puede ser posterior a la actual: la sesión sigue activa
+    }
+
+    @if (control?.errors?.['outsideSession']) {
+    La fecha debe estar dentro de la sesión ({{ control?.errors?.['outsideSession'].from | date: 'dd/MM/yyyy HH:mm' }} – {{ control?.errors?.['outsideSession'].to | date: 'dd/MM/yyyy HH:mm' }})
+    }
+
     @if (control?.errors?.['serverError']) {
     {{ control?.errors?.['serverError'] }}
     }

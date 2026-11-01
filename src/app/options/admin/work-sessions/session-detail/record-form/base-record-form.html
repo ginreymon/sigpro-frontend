@@ -1,0 +1,52 @@
+<form id="recordForm" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <p class="mb-3 text-sm font-medium text-slate-700" aria-live="polite">{{ summary }}</p>
+
+    @for (g of groups; track g.legend) {
+    <fieldset class="mb-4 rounded-lg border border-slate-200 p-3">
+        <legend class="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ g.legend }}</legend>
+        <div class="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            @for (f of g.fields; track f.name) {
+            @switch (f.type) {
+            @case ('datetime') {
+            <app-ui-form-field [controlName]="f.name" [label]="f.label">
+                <app-ui-date-picker [withTime]="true" [formControlName]="f.name" [id]="f.name" [control]="form.get(f.name)"></app-ui-date-picker>
+            </app-ui-form-field>
+            }
+            @case ('decimal') {
+            <app-ui-form-field [controlName]="f.name" [label]="f.label" [labelDetail]="f.readonly ? '(solo lectura)' : null">
+                <app-ui-decimal-input [formControlName]="f.name" [id]="f.name" [control]="form.get(f.name)"
+                    [className]="f.readonly ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : ''"></app-ui-decimal-input>
+            </app-ui-form-field>
+            }
+            @case ('text') {
+            <app-ui-form-field [controlName]="f.name" [label]="f.label">
+                <app-ui-input [formControlName]="f.name" [id]="f.name" [control]="form.get(f.name)"></app-ui-input>
+            </app-ui-form-field>
+            }
+            @case ('textarea') {
+            <div class="sm:col-span-2">
+                @if (f.name === 'custom_reason' && recordIds) {
+                <app-ui-disclosure [title]="'Registros asociados'" [items]="recordIds" [intent]="'brand'"></app-ui-disclosure>
+                } @else {
+                <app-ui-form-field [controlName]="f.name" [label]="f.label">
+                    <app-ui-textarea [formControlName]="f.name" [id]="f.name" [control]="form.get(f.name)"></app-ui-textarea>
+                </app-ui-form-field>
+                }
+            </div>
+            }
+            @case ('switch') {
+            <app-ui-form-field layout="horizontal" [controlName]="f.name" [label]="f.label">
+                <app-ui-checkbox [formControlName]="f.name" [id]="f.name"></app-ui-checkbox>
+            </app-ui-form-field>
+            }
+            }
+            }
+        </div>
+    </fieldset>
+    }
+    @if (exceedsMax; as e) {
+    <app-ui-error-message>
+        La suma de cantidades ({{ e.total }}) supera el máximo disponible de la OP ({{ e.max }}).
+    </app-ui-error-message>
+    }
+</form>

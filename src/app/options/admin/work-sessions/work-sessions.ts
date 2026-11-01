@@ -104,6 +104,16 @@ export class WorkSessions implements OnInit {
     if (session) this.dialogService.openSideModal(`Sesión #${session.id}`);
   }
 
+  // After a PUT/PATCH the list is reloaded and the open session is replaced by its fresh row.
+  recordSaved(): void {
+    this.closeRecordForm();
+    this.load(() => {
+      const id = this.selected()?.id;
+      const fresh = this.sessions()?.results.find((row) => row.id === id);
+      if (fresh) this.selected.set(fresh);
+    });
+  }
+
   closeDetail(): void {
     this.selected.set(null);
     this.dialogService.closeModal();
@@ -113,7 +123,7 @@ export class WorkSessions implements OnInit {
     return (row.session_activities ?? []).reduce((total, activity) => total + count(activity), 0);
   }
 
-  private load(): void {
+  private load(onLoaded?: () => void): void {
     this.errorMessage.set('');
     this.loader.showLoader();
     this.service
@@ -137,6 +147,7 @@ export class WorkSessions implements OnInit {
             })),
           });
           this.loader.hideLoader();
+          onLoaded?.();
         },
         error: (err) => {
           this.errorMessage.set(apiErrorDetail(err, 'No se pudieron consultar las sesiones. Intenta de nuevo.'));

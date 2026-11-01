@@ -49,6 +49,6 @@
 <!-- Edit form of the record picked in the side modal; its content depends on the record kind. -->
 <app-modal-layout [formId]="'recordForm'" [classNames]="'max-w-2xl'" (onCancel)="closeRecordForm()">
     @if (record(); as rec) {
-    <app-record-form [kind]="rec.kind" [data]="rec.data" (saved)="closeRecordForm()"></app-record-form>
+    <app-record-form [kind]="rec.kind" [data]="rec.data" [session]="rec.session" (saved)="recordSaved()"></app-record-form>
     }
 </app-modal-layout>

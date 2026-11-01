@@ -7,6 +7,7 @@ export const AppSettingKey = {
   HOURLY_KEEP_OPEN:    'S_H_KEEP_OPEN',
   STAMPING_CALIBRATION_WINDOW: 'STAMPING_CAL_WINDOW',
   TEP_TIME_CALCULATION_MODE: 'TEP_TIME_CALC',
+  PRODUCTION_RECORD_DATETIME_EDIT: 'ALLOW_PRODUCTION_RECORD_DATETIME_EDIT',
 } as const;
 
 export type AppSettingKey = (typeof AppSettingKey)[keyof typeof AppSettingKey];

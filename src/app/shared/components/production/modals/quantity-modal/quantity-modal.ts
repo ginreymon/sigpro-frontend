@@ -1,5 +1,6 @@
 import { Component, computed, effect, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { exceedsMaxValidator, integerValidator } from '../../../../../common/functions/quantity-validators';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
@@ -60,11 +61,11 @@ export class QuantityModal {
 
   recordForm: FormGroup = this.fb.group(
     {
-      completed_quantity: [null, [Validators.required, Validators.min(0), this.integerValidator]],
-      rejected_quantity: [0, [Validators.required, Validators.min(0), this.integerValidator]],
-      scrap_quantity: [0, [Validators.required, Validators.min(0), this.integerValidator]],
+      completed_quantity: [null, [Validators.required, Validators.min(0), integerValidator]],
+      rejected_quantity: [0, [Validators.required, Validators.min(0), integerValidator]],
+      scrap_quantity: [0, [Validators.required, Validators.min(0), integerValidator]],
     },
-    { validators: [this.exceedsMaxValidator.bind(this), this.atLeastOnePositiveValidator.bind(this)] }
+    { validators: [exceedsMaxValidator(() => this.maxAvailable), this.atLeastOnePositiveValidator.bind(this)] }
   );
 
   get completedQty(): number { return Number(this.recordForm.get('completed_quantity')?.value) || 0; }
@@ -106,26 +107,12 @@ export class QuantityModal {
     return base;
   }
 
-  private integerValidator(control: AbstractControl): ValidationErrors | null {
-    const value = control.value;
-    if (value === null || value === undefined || value === '') return null;
-    return Number.isInteger(Number(value)) ? null : { notInteger: true };
-  }
-
   private atLeastOnePositiveValidator(group: AbstractControl): ValidationErrors | null {
     if (this.editMode()) return null;
     const completed = Number(group.get('completed_quantity')?.value) || 0;
     const rejected = Number(group.get('rejected_quantity')?.value) || 0;
     const scrap = Number(group.get('scrap_quantity')?.value) || 0;
     return completed + rejected + scrap > 0 ? null : { allZero: true };
-  }
-
-  private exceedsMaxValidator(group: AbstractControl): ValidationErrors | null {
-    const completed = group.get('completed_quantity')?.value ?? 0;
-    const rejected = group.get('rejected_quantity')?.value ?? 0;
-    const scrap = group.get('scrap_quantity')?.value ?? 0;
-    const total = (Number(completed) ?? 0) + (Number(rejected) ?? 0) + (Number(scrap) ?? 0);
-    return total > this.maxAvailable ? { exceedsMax: { max: this.maxAvailable, total } } : null;
   }
 
   cancel() {

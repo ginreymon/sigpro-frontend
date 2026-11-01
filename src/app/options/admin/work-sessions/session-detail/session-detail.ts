@@ -3,7 +3,7 @@ import {
   AccordionItem,
   UiNestedAccordion,
 } from '../../../../shared/elements/ui-nested-accordion/ui-nested-accordion';
-import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, signal } from '@angular/core';
 import { RecordKind } from './record-form/record-form';
 import { UiAccordionItem } from '../../../../shared/elements/ui-accordion-item/ui-accordion-item';
 import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
@@ -24,13 +24,23 @@ const KIND_BY_KEY: Record<string, RecordKind> = {
   production_records: 'production',
   stamping_records: 'stamping',
   breaks: 'break',
-  downtimes: 'break',
+  downtimes: 'downtime',
+};
+
+// Title of the edit modal: what the record is, with its id on the right.
+const RECORD_LABELS: Record<RecordKind, string> = {
+  production: 'Registro de confección',
+  stamping: 'Registro de estampación',
+  break: 'Pausa',
+  downtime: 'Paro',
 };
 
 export interface RecordSelection {
   kind: RecordKind;
   data: Record<string, any>;
   title: string;
+  // Interval of the session that contains the record (used by the date validators).
+  session: { started_at: string; ended_at: string | null };
 }
 
 @Component({
@@ -38,7 +48,7 @@ export interface RecordSelection {
   imports: [DatePipe, UiBadge, UiButton, UiAccordionItem, Metadata, CharSquare, DetailBlock, UiNestedAccordion],
   templateUrl: './session-detail.html',
 })
-export class SessionDetail implements OnInit {
+export class SessionDetail implements OnChanges {
   @Input({ required: true }) session!: WorkSessionExplorerRow;
   @Output() editRecord = new EventEmitter<RecordSelection>();
 
@@ -67,7 +77,9 @@ export class SessionDetail implements OnInit {
   }
 
   // Open (not yet ended) activities start expanded: they are what the reviewer usually looks for.
-  ngOnInit(): void {
+  // Also rebuilds the tree when the parent hands in a refreshed session after a record is saved.
+  ngOnChanges(): void {
+    this.editable.clear();
     const s = this.session as Record<string, any>;
     this.audit = {
       ...s,
@@ -101,7 +113,7 @@ export class SessionDetail implements OnInit {
       .filter(([, , v]) => v !== null && typeof v === 'object' && (!Array.isArray(v) || v.length))
       .map(([k, title, v]) => {
         const id = `${path}/${k}`;
-        if (kind) this.editable.set(id, { kind, data: v, title });
+        if (kind) this.editable.set(id, { kind, data: v, title: `${RECORD_LABELS[kind]} #${v.id}`, session: this.session });
         return {
           id,
           title,

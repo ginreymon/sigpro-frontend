@@ -70,6 +70,12 @@ export class AppConfigService {
     return this.get(AppSettingKey.TEP_TIME_CALCULATION_MODE) === 'true';
   }
 
+  // false: the start time of a production record cannot be edited (it follows the end time).
+  // The value may arrive as 'true'/'false' or as the stored 1/0.
+  get allowProductionRecordDatetimeEdit(): boolean {
+    return ['true', '1'].includes(String(this.get(AppSettingKey.PRODUCTION_RECORD_DATETIME_EDIT)).toLowerCase());
+  }
+
   get stampingCalibrationWindowSeconds(): number {
     return this.getNumber(AppSettingKey.STAMPING_CALIBRATION_WINDOW, 15) * 60;
   }
