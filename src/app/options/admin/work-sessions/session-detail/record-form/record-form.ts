@@ -87,8 +87,8 @@ export class RecordForm implements OnInit {
   // Read-only context so the user knows which record is open.
   protected get summary(): string {
     const d = this.data;
-    if (this.kind === 'production') return `OP ${d['op_type'] ?? ''} ${d['op_number'] ?? ''} · ${d['sku']?.description ?? 'Sin SKU'}`;
-    if (this.kind === 'stamping') return `OP ${d['op_type'] ?? ''} ${d['op_number'] ?? ''} · ${d['stamping_reference']?.reference_code ?? 'Sin referencia'}`;
+    if (this.kind === 'production') return [`OP ${d['op_number'] ?? ''}`, d['sku']?.reference, d['sku']?.color, d['sku']?.size].filter(Boolean).join(' · ');
+    if (this.kind === 'stamping') return `${d['op_type'] ?? ''} ${d['op_number'] ?? ''} · ${d['stamping_reference']?.reference_code ?? 'Sin referencia'}`;
     return `Pausa #${d['id']}`;
   }
 

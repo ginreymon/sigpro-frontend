@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, formatDate } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { TableTemplate } from '../../../directives/table-template';
@@ -10,7 +10,7 @@ import { TableActionEvent } from '../../../common/interfaces/table-action-event'
 import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { apiErrorDetail } from '../../../common/functions/api-error';
-import { WorkSessionExplorerRow } from '../../../models/dashboard/work-session-explorer';
+import { ExplorerActivity, WorkSessionExplorerRow } from '../../../models/dashboard/work-session-explorer';
 import { WorkSessionExplorerService } from '../../../services/dashboard/work-session-explorer-service';
 import { LoaderService } from '../../../services/common/loader-service';
 import { DialogService } from '../../../services/common/dialog-service';
@@ -34,11 +34,20 @@ export class WorkSessions implements OnInit {
   private dialogService = inject(DialogService);
 
   protected readonly columns: TableColumn<WorkSessionExplorerRow>[] = [
-    { field: 'started_at', type: 'template', label: 'Fecha', templateName: 'startedAtTemplate' },
+    {
+      field: 'started_at',
+      type: 'template',
+      label: 'Fecha',
+      templateName: 'startedAtTemplate',
+      // The filter lists the UTC time as sent by the API, to the minute.
+      filterFormat: (v) => (v ? formatDate(v, 'dd/MM/yyyy HH:mm', 'en-US', 'UTC') : ''),
+    },
     { field: 'is_closed', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     { field: 'area_name', label: 'Área' },
     { field: 'module_name', label: 'Módulo' },
     { field: 'op', label: 'OP' },
+    { field: 'records_count', label: 'Registros' },
+    { field: 'breaks_count', label: 'Pausas' },
     { field: 'reference', label: 'Referencia' },
   ];
 
@@ -99,6 +108,10 @@ export class WorkSessions implements OnInit {
     this.dialogService.closeModal();
   }
 
+  private sum(row: WorkSessionExplorerRow, count: (activity: ExplorerActivity) => number): number {
+    return (row.session_activities ?? []).reduce((total, activity) => total + count(activity), 0);
+  }
+
   private load(): void {
     this.errorMessage.set('');
     this.loader.showLoader();
@@ -117,6 +130,8 @@ export class WorkSessions implements OnInit {
             results: res.results.map((row) => ({
               ...row,
               op: [row.op_type?.trim(), row.op_number].filter((part) => part != null && part !== '').join(' '),
+              records_count: this.sum(row, (a) => (a.production_records?.length ?? 0) + (a.stamping_records?.length ?? 0)),
+              breaks_count: this.sum(row, (a) => (a.break_records?.breaks?.length ?? 0) + (a.break_records?.downtimes?.length ?? 0)),
             })),
           });
           this.loader.hideLoader();

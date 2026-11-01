@@ -38,5 +38,8 @@ export interface WorkSessionExplorerRow {
   reference: string | null;
   // Added by the explorer page: "type number", so one column can show and filter both.
   op?: string;
+  // Added by the explorer page: production + stamping records and breaks + downtimes of all activities.
+  records_count?: number;
+  breaks_count?: number;
   session_activities: ExplorerActivity[] | null;
 }

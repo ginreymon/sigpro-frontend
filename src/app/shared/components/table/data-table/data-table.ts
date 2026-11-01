@@ -187,6 +187,10 @@ export class DataTable<T> {
 
   private buildColumns() {
     this._columns = buildTableColumns(this._originalColumns, this._actions);
+    for (const col of this._columns) {
+      if (col.field) this.filterState.setFormatter(col.field as string, col.filterFormat);
+    }
+    this.applyClientFilters();
   }
 
   private applyClientFilters(): void {

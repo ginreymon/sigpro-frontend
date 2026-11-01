@@ -10,4 +10,7 @@ export interface TableColumn<T> {
   footerSuffix?: string;
   footerFormat?: string;
   mobileSecondary?: boolean;
+  // Text shown (and matched) by the column filter instead of the raw value, e.g. to filter a
+  // timestamp by "dd/MM/yyyy HH:mm". Rows that share the same text count as one option.
+  filterFormat?: (value: any) => string;
 }
