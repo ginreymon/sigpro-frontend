@@ -2,7 +2,7 @@
   
   <div [class]="'fixed inset-0 bg-black/40 '+(openModal() ? 'transition-opacity opacity-100 delay-300' : 'opacity-0')" (click)="close()"></div>
 
-    <div class="relative ml-auto w-full max-w-xl h-full bg-white shadow-xl rounded-l-xl">
+    <div [class]="'relative ml-auto w-full h-full ' + (wide ? 'max-w-3xl' : 'max-w-xl') + ' bg-white shadow-xl rounded-l-xl'">
 
     <div class="flex flex-col h-full px-3 sm:px-6 py-6">
 

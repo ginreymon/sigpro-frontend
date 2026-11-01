@@ -1,92 +1,76 @@
-<div class="flex flex-col gap-4">
+<!-- Recursive block: scalars of an object in an info panel, each nested object/array in an expandable panel. -->
+<ng-template #block let-data>
+    <div class="flex flex-col gap-2">
+        @if (scalars(data).length) {
+        <app-ui-info-panel align="column" [lines]="scalars(data)"></app-ui-info-panel>
+        }
+        @for (c of children(data); track $index) {
+        @if (c.key === 'employees') {
+        <app-ui-tree-view [nodes]="employeeTree(c.value)"></app-ui-tree-view>
+        } @else {
+        <app-ui-expandable-panel [title]="c.title">
+            <ng-container *ngTemplateOutlet="block; context: { $implicit: c.value }"></ng-container>
+        </app-ui-expandable-panel>
+        }
+        }
+    </div>
+</ng-template>
 
-    <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <h4 class="text-lg font-semibold text-gray-900">Sesión #{{ session.id }}</h4>
+<div class="flex flex-col gap-5">
+
+    <section class="rounded-lg border border-slate-200 p-4 flex flex-col gap-3" aria-label="Resumen de la sesión">
+        <div class="flex items-center justify-between gap-3">
+            <h4 class="text-sm font-semibold text-gray-900">Sesión #{{ session.id }}</h4>
             <app-ui-badge [intent]="session.is_closed ? 'inactive' : 'active'"
                 [label]="session.is_closed ? 'Cerrada' : 'Abierta'"></app-ui-badge>
         </div>
-        <app-ui-button [intent]="'cancel'" (onClick)="closed.emit()">Volver al listado</app-ui-button>
-    </div>
+        <ng-container *ngTemplateOutlet="block; context: { $implicit: session }"></ng-container>
 
-    <section class="rounded-md border border-slate-200 p-3 flex flex-col gap-2">
-        <p class="text-sm text-slate-600">
-            {{ session.area_name }} · {{ session.module_name }} · OP {{ session.op_type }} {{ session.op_number }}
-            · Ref. {{ session.reference }}
-        </p>
-        <app-record-editor [fields]="session.ended_at ? startAndEnd : startOnly" [record]="session"
-            [save]="saveSession"></app-record-editor>
-    </section>
-
-    @if (shifts.length) {
-    <section class="rounded-md border border-slate-200 p-3">
-        <h5 class="text-sm font-semibold text-gray-900">Turnos</h5>
-        @for (s of shifts; track s.id) {
-        <p class="text-sm text-slate-600">{{ s.start_time }} – {{ s.end_time }}</p>
+        @if (shifts.length) {
+        <div class="border-t border-slate-100 pt-3">
+            <p class="text-xs text-slate-500 mb-1.5">Turnos</p>
+            <ul class="flex flex-wrap gap-2">
+                @for (s of shifts; track s.id) {
+                <li class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                    {{ s.start_time }} – {{ s.end_time }}
+                </li>
+                }
+            </ul>
+        </div>
         }
     </section>
-    }
 
-    @for (act of session.session_activities ?? []; track act.session_activity_id) {
-    <section class="rounded-md border border-slate-200 p-3 flex flex-col gap-3">
-        <h5 class="text-sm font-semibold text-gray-900">
-            Actividad #{{ act.session_activity_id }} · {{ act.module?.name }}
-        </h5>
-        <app-record-editor [fields]="act.ended_at ? startAndEnd : startOnly" [record]="act"
-            [save]="saveActivity(act.session_activity_id)"></app-record-editor>
-
-        @if (act.employees?.length) {
-        <p class="text-sm text-slate-600">
-            <span class="font-medium">Empleados:</span>
-            @for (e of act.employees; track e.id; let last = $last) {
-            {{ e.first_name }} {{ e.last_name1 }} {{ e.last_name2 }}{{ last ? '' : ',' }}
-            }
-        </p>
-        }
-
-        @for (r of act.production_records ?? []; track r.id) {
-        <div class="rounded-md bg-slate-50 p-2">
-            <p class="text-sm font-medium text-gray-900">
-                Confección #{{ r.id }} · {{ r.op_type }} {{ r.op_number }} · SKU {{ r['sku']?.reference }}
-                <span class="font-normal text-slate-500">
-                    ({{ r.start_time | date: 'dd/MM/yyyy HH:mm' }} – {{ r.end_time | date: 'dd/MM/yyyy HH:mm' }})
+    @if (session.session_activities?.length) {
+    <section class="flex flex-col gap-2" aria-label="Actividades">
+        <div class="flex items-center justify-between gap-2">
+            <h4 class="text-sm font-semibold text-gray-900">Actividades ({{ session.session_activities!.length }})</h4>
+            <div class="flex gap-1">
+                <app-ui-button intent="hover" (onClick)="expandAll()">Expandir todo</app-ui-button>
+                <app-ui-button intent="hover" (onClick)="collapseAll()">Contraer todo</app-ui-button>
+            </div>
+        </div>
+        <div class="divide-y divide-slate-200 border border-slate-200 rounded-lg">
+        @for (act of session.session_activities ?? []; track act.session_activity_id) {
+        <app-ui-accordion-item [expanded]="isExpanded(act.session_activity_id)"
+            (toggle)="toggleExpanded(act.session_activity_id)">
+            <ng-container accordion-header>
+                <span class="min-w-0 flex-1 text-sm font-medium text-gray-900 truncate">
+                    Actividad #{{ act.session_activity_id }} · {{ act.module?.name }}
                 </span>
-            </p>
-            <app-record-editor [fields]="productionFields" [record]="r" [save]="saveProduction(r.id)"
-                [lockedReason]="r.tep_processed ? tepLock : null"></app-record-editor>
+                <app-ui-badge [intent]="act.ended_at ? 'inactive' : 'active'"
+                    [label]="act.ended_at ? 'Cerrada' : 'Abierta'"></app-ui-badge>
+            </ng-container>
+            <div accordion-body>
+                <ng-container *ngTemplateOutlet="block; context: { $implicit: act }"></ng-container>
+            </div>
+        </app-ui-accordion-item>
+        }
         </div>
-        }
-
-        @for (r of act.stamping_records ?? []; track r.id) {
-        <div class="rounded-md bg-slate-50 p-2">
-            <p class="text-sm font-medium text-gray-900">
-                Estampación #{{ r.id }} · {{ r.op_type }} {{ r.op_number }} · Ref.
-                {{ r['stamping_reference']?.reference_code }}
-                <span class="font-normal text-slate-500">
-                    ({{ r.start_time | date: 'dd/MM/yyyy HH:mm' }} – {{ r.end_time | date: 'dd/MM/yyyy HH:mm' }})
-                </span>
-            </p>
-            <app-record-editor [fields]="stampingFields" [record]="r" [save]="saveStamping(r.id)"
-                [lockedReason]="r.tep_processed ? tepLock : null"></app-record-editor>
-        </div>
-        }
-
-        @for (b of act.break_records?.breaks ?? []; track b.id) {
-        <div class="rounded-md bg-slate-50 p-2">
-            <p class="text-sm font-medium text-gray-900">Pausa #{{ b.id }} {{ b.name }}</p>
-            <app-record-editor [fields]="breakFields" [record]="b" [save]="saveBreak(b.id)"></app-record-editor>
-        </div>
-        }
-
-        @for (d of act.break_records?.downtimes ?? []; track d.id) {
-        <p class="text-sm text-slate-600">
-            Paro #{{ d.id }} {{ d.name }}: {{ d.start_time | date: 'dd/MM/yyyy HH:mm' }} –
-            {{ d.end_time | date: 'dd/MM/yyyy HH:mm' }}
-        </p>
-        }
     </section>
-    } @empty {
-    <p class="text-sm text-slate-500">Esta sesión no tiene actividades.</p>
+    } @else {
+    <p class="text-sm text-slate-500 rounded-lg border border-dashed border-slate-200 p-4 text-center">
+        Esta sesión no tiene actividades.
+    </p>
     }
 
 </div>

@@ -1,12 +1,6 @@
 <app-work-space-layout>
     <div main-content class="h-full flex flex-col overflow-hidden">
 
-        @if (selected(); as session) {
-        <div class="flex-1 min-h-0 overflow-auto">
-            <app-session-detail [session]="session" (closed)="closeDetail()"></app-session-detail>
-        </div>
-        } @else {
-
         <!-- The alert takes its own row at the top: the table below shrinks instead of overflowing. -->
         <app-ui-alert class="shrink-0 mb-2" [intent]="'error'" [message]="errorMessage()"
             (onClose)="errorMessage.set('')" role="alert"></app-ui-alert>
@@ -14,8 +8,17 @@
         <div class="flex-1 min-h-0">
         <app-data-table [paginatedResponse]="sessions()" [columns]="columns"
             [searchPlaceholder]="'Buscar por OP, número de OP, referencia o módulo'"
-            [actions]="{ view: { enabled: true, title: 'Ver y editar' } }" (onSearch)="search($event)"
+            [actions]="actions" (onSearch)="search($event)"
             (onPagerChange)="pagerHandler($event)" (onAction)="actionHandler($event)" [columnFilter]="true">
+
+            <!-- started_at arrives in UTC (the service appends the Z): DatePipe shows it in local time. -->
+            <ng-template appTableTemplate="startedAtTemplate" let-row>
+                {{ row.started_at | date: 'dd/MM/yyyy HH:mm' }}
+            </ng-template>
+            <ng-template appTableTemplate="statusTemplate" let-row>
+                <app-ui-badge [intent]="row.is_closed ? 'inactive' : 'active'"
+                    [label]="row.is_closed ? 'Cerrada' : 'Abierta'"></app-ui-badge>
+            </ng-template>
         </app-data-table>
         </div>
 
@@ -23,7 +26,11 @@
         <p class="text-sm text-slate-500 mt-3">No hay sesiones para los filtros seleccionados.</p>
         }
 
-        }
-
     </div>
 </app-work-space-layout>
+
+<app-side-modal-layout [hideCancel]="true" [acceptLabel]="'Cerrar'" (onAccept)="closeDetail()" (onCancel)="closeDetail()">
+    @if (selected(); as session) {
+    <app-session-detail [session]="session"></app-session-detail>
+    }
+</app-side-modal-layout>

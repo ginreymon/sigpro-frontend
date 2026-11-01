@@ -1,9 +1,10 @@
-<div [class]="'bg-brand-50 p-6 rounded mt-4 flex gap-4 ' + (align === 'row'
-    ? 'flex-col sm:flex-row items-center justify-between'
-    : 'flex-col items-start justify-between')">
+<dl [class]="'mt-4 rounded-md border border-slate-200 px-3 py-2 flex ' + (align === 'row'
+    ? 'flex-col sm:flex-row sm:flex-wrap sm:gap-x-8 gap-y-1'
+    : 'flex-col divide-y divide-slate-100')">
     @for (line of lines; track line.label) {
-        <p [class]="'text-sm text-brand-400 ' + (invertStyles ? 'font-bold text-primary' : 'italic')">
-            {{ line.label }}: <strong [class]="invertStyles ? 'italic font-normal' : 'font-bold text-primary'">{{ line.value }}</strong>
-        </p>
+        <div [class]="'flex items-baseline justify-between gap-4 ' + (align === 'row' ? '' : 'py-1.5')">
+            <dt class="text-xs text-slate-500">{{ line.label }}</dt>
+            <dd class="text-sm font-medium text-gray-900">{{ line.value }}</dd>
+        </div>
     }
-</div>
+</dl>

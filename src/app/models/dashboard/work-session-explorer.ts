@@ -36,5 +36,7 @@ export interface WorkSessionExplorerRow {
   op_type: string | null;
   op_number: number | null;
   reference: string | null;
+  // Added by the explorer page: "type number", so one column can show and filter both.
+  op?: string;
   session_activities: ExplorerActivity[] | null;
 }

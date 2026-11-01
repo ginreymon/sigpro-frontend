@@ -1,40 +1,51 @@
+import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
+import { TableTemplate } from '../../../directives/table-template';
 import { DataTable } from '../../../shared/components/table/data-table/data-table';
 import { UiAlert } from '../../../shared/elements/ui-alert/ui-alert';
+import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
+import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { apiErrorDetail } from '../../../common/functions/api-error';
 import { WorkSessionExplorerRow } from '../../../models/dashboard/work-session-explorer';
 import { WorkSessionExplorerService } from '../../../services/dashboard/work-session-explorer-service';
 import { LoaderService } from '../../../services/common/loader-service';
+import { DialogService } from '../../../services/common/dialog-service';
+import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { environment } from '../../../../environments/environment';
 import { SessionDetail } from './session-detail/session-detail';
 
 // /admin/work-sessions: latest work sessions in a searchable table (the search box matches OP type and
 // number, reference and module; the columns use the table's default column filter). The view action opens the
-// session to review and edit it.
+// read-only session detail.
 @Component({
   selector: 'app-work-sessions',
-  imports: [WorkSpaceLayout, DataTable, UiAlert, SessionDetail],
+  imports: [WorkSpaceLayout, DataTable, UiAlert, UiBadge, SessionDetail, SideModalLayout, TableTemplate, DatePipe],
   templateUrl: './work-sessions.html',
 })
 export class WorkSessions implements OnInit {
   private service = inject(WorkSessionExplorerService);
   private loader = inject(LoaderService);
+  private dialogService = inject(DialogService);
 
   protected readonly columns: TableColumn<WorkSessionExplorerRow>[] = [
-    { field: 'id', label: 'Sesión' },
-    { field: 'started_at', label: 'Inicio', type: 'date' },
-    { field: 'ended_at', label: 'Fin', type: 'date' },
+    { field: 'started_at', type: 'template', label: 'Fecha', templateName: 'startedAtTemplate' },
+    { field: 'is_closed', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     { field: 'area_name', label: 'Área' },
     { field: 'module_name', label: 'Módulo' },
-    { field: 'op_type', label: 'Tipo' },
-    { field: 'op_number', label: 'OP' },
+    { field: 'op', label: 'OP' },
     { field: 'reference', label: 'Referencia' },
-    { field: 'is_closed', label: 'Cerrada', type: 'boolean' },
   ];
+
+  protected readonly actions: TableActions = {
+    view: { enabled: true, title: 'Ver detalle de la sesión', iconName: 'eye', toolTip: 'Ver' },
+    edit: { enabled: false },
+    delete: { enabled: false },
+    create: { enabled: false },
+  };
 
   protected sessions = signal<PaginatedResponse<WorkSessionExplorerRow> | null>(null);
   protected selected = signal<WorkSessionExplorerRow | null>(null);
@@ -62,13 +73,14 @@ export class WorkSessions implements OnInit {
   }
 
   actionHandler(event: TableActionEvent<WorkSessionExplorerRow>): void {
-    if (event.type === 'view') this.selected.set(event.obj);
+    if (event.type !== 'view') return;
+    this.selected.set(event.obj);
+    this.dialogService.openSideModal(`Sesión #${event.obj.id}`);
   }
 
-  // Back from the detail: reload so the table shows what was edited.
   closeDetail(): void {
     this.selected.set(null);
-    this.load();
+    this.dialogService.closeModal();
   }
 
   private load(): void {
@@ -84,7 +96,13 @@ export class WorkSessions implements OnInit {
       })
       .subscribe({
         next: (res) => {
-          this.sessions.set(res);
+          this.sessions.set({
+            ...res,
+            results: res.results.map((row) => ({
+              ...row,
+              op: [row.op_type?.trim(), row.op_number].filter((part) => part != null && part !== '').join(' '),
+            })),
+          });
           this.loader.hideLoader();
         },
         error: (err) => {

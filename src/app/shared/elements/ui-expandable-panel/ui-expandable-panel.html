@@ -1,0 +1,13 @@
+<div class="rounded-lg border border-slate-200 bg-white">
+  <button type="button" (click)="toggle()" [attr.aria-expanded]="expanded()"
+    class="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium text-gray-900 cursor-pointer focus-visible:outline-2 focus-visible:outline-brand">
+    <span class="flex-1">{{ title() }}</span>
+    <app-ui-icon [iconName]="expanded() ? 'angleUp' : 'angleDown'" [class]="'h-4 w-4 text-gray-400 shrink-0'"></app-ui-icon>
+  </button>
+
+  @if (expanded()) {
+  <div class="px-4 pb-4 text-sm">
+    <ng-content></ng-content>
+  </div>
+  }
+</div>

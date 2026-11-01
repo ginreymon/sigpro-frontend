@@ -16,7 +16,4 @@ export class UiInfoPanel {
   // 'row': una línea, lado a lado (ej. Tiempo total en work-shifts).
   // 'column': varias líneas apiladas (ej. Referencia/Línea en sewing-sam).
   @Input() align: 'row' | 'column' = 'row';
-  // false (default): label plano/itálica, value en negrita/color primario (comportamiento histórico).
-  // true: invierte esos estilos entre label y value.
-  @Input() invertStyles: boolean = false;
 }

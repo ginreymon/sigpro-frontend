@@ -1,0 +1,29 @@
+<ng-template #level let-items let-depth="depth">
+  <ul [attr.role]="depth === 0 ? 'tree' : 'group'">
+    @for (node of items; track node.id) {
+    <li role="treeitem" [attr.aria-expanded]="node.children?.length ? expandedIds().has(node.id) : null">
+      <div class="flex items-center gap-1 h-8 pr-2 rounded hover:bg-gray-100 text-sm"
+        [style.padding-left.rem]="depth * 1 + 0.25">
+        @if (node.children?.length) {
+        <button type="button" (click)="toggle(node)" aria-label="Expandir o contraer"
+          class="shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-brand">
+          <app-ui-icon iconName="angleDown"
+            [class]="'h-4 w-4 text-gray-400 transition-transform ' + (expandedIds().has(node.id) ? '' : '-rotate-90')"></app-ui-icon>
+        </button>
+        } @else {
+        <span class="w-4 shrink-0"></span>
+        }
+        <button type="button" (click)="nodeSelect.emit(node)"
+          class="flex-1 text-left truncate cursor-pointer focus-visible:outline-2 focus-visible:outline-brand">
+          {{ node.label }}
+        </button>
+      </div>
+      @if (node.children?.length && expandedIds().has(node.id)) {
+      <ng-container *ngTemplateOutlet="level; context: { $implicit: node.children, depth: depth + 1 }"></ng-container>
+      }
+    </li>
+    }
+  </ul>
+</ng-template>
+
+<ng-container *ngTemplateOutlet="level; context: { $implicit: nodes(), depth: 0 }"></ng-container>
