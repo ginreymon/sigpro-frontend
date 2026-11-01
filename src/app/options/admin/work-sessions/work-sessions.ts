@@ -16,14 +16,16 @@ import { LoaderService } from '../../../services/common/loader-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { environment } from '../../../../environments/environment';
-import { SessionDetail } from './session-detail/session-detail';
+import { RecordSelection, SessionDetail } from './session-detail/session-detail';
+import { RecordForm } from './session-detail/record-form/record-form';
+import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 
 // /admin/work-sessions: latest work sessions in a searchable table (the search box matches OP type and
 // number, reference and module; the columns use the table's default column filter). The view action opens the
 // read-only session detail.
 @Component({
   selector: 'app-work-sessions',
-  imports: [WorkSpaceLayout, DataTable, UiAlert, UiBadge, SessionDetail, SideModalLayout, TableTemplate, DatePipe],
+  imports: [WorkSpaceLayout, DataTable, UiAlert, UiBadge, SessionDetail, RecordForm, ModalLayout, SideModalLayout, TableTemplate, DatePipe],
   templateUrl: './work-sessions.html',
 })
 export class WorkSessions implements OnInit {
@@ -49,6 +51,7 @@ export class WorkSessions implements OnInit {
 
   protected sessions = signal<PaginatedResponse<WorkSessionExplorerRow> | null>(null);
   protected selected = signal<WorkSessionExplorerRow | null>(null);
+  protected record = signal<RecordSelection | null>(null);
   protected errorMessage = signal('');
 
   private term = '';
@@ -76,6 +79,19 @@ export class WorkSessions implements OnInit {
     if (event.type !== 'view') return;
     this.selected.set(event.obj);
     this.dialogService.openSideModal(`Sesión #${event.obj.id}`);
+  }
+
+  // Only one modal can be open: the side modal closes and the form opens in the central modal.
+  openRecordForm(rec: RecordSelection): void {
+    this.record.set(rec);
+    this.dialogService.openModal(rec.title, 'Guardar');
+  }
+
+  // UI only: saving is not wired yet, both cancel and save go back to the session detail.
+  closeRecordForm(): void {
+    this.record.set(null);
+    const session = this.selected();
+    if (session) this.dialogService.openSideModal(`Sesión #${session.id}`);
   }
 
   closeDetail(): void {

@@ -65,6 +65,13 @@
             </div>
             }
         </ng-template>
+        <ng-template #accordionActions let-item>
+            @if (editable.get(item.id); as rec) {
+            <app-ui-button intent="hover" (onClick)="editRecord.emit(rec)">
+                Editar<span class="sr-only"> {{ item.title }}</span>
+            </app-ui-button>
+            }
+        </ng-template>
     </app-ui-nested-accordion>
     } @else {
     <p class="text-sm text-slate-500">Esta sesión no tiene actividades.</p>

@@ -3,7 +3,8 @@ import {
   AccordionItem,
   UiNestedAccordion,
 } from '../../../../shared/elements/ui-nested-accordion/ui-nested-accordion';
-import { Component, Input, OnInit, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import { RecordKind } from './record-form/record-form';
 import { UiAccordionItem } from '../../../../shared/elements/ui-accordion-item/ui-accordion-item';
 import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
 import { Metadata } from '../../../../shared/components/widgets/metadata/metadata';
@@ -18,6 +19,20 @@ import { DetailBlock } from './detail-block/detail-block';
 // Shifts are shown once in the summary; the JSON repeats them in every activity.
 const HIDDEN_KEYS = new Set(['session_activities', 'work_shift_snapshots']);
 
+// Arrays whose elements can be edited, and the form each one opens.
+const KIND_BY_KEY: Record<string, RecordKind> = {
+  production_records: 'production',
+  stamping_records: 'stamping',
+  breaks: 'break',
+  downtimes: 'break',
+};
+
+export interface RecordSelection {
+  kind: RecordKind;
+  data: Record<string, any>;
+  title: string;
+}
+
 @Component({
   selector: 'app-session-detail',
   imports: [DatePipe, UiBadge, UiButton, UiAccordionItem, Metadata, CharSquare, DetailBlock, UiNestedAccordion],
@@ -25,6 +40,10 @@ const HIDDEN_KEYS = new Set(['session_activities', 'work_shift_snapshots']);
 })
 export class SessionDetail implements OnInit {
   @Input({ required: true }) session!: WorkSessionExplorerRow;
+  @Output() editRecord = new EventEmitter<RecordSelection>();
+
+  // Accordion node id -> the record its "Editar" button opens.
+  protected editable = new Map<string | number, RecordSelection>();
 
   protected sessionDetailOpen = signal(false);
   protected expanded = signal<ReadonlySet<string | number>>(new Set());
@@ -71,7 +90,8 @@ export class SessionDetail implements OnInit {
 
   // Every nested object/array of `node` becomes a child node (arrays: one node per element).
   // Arrays carry no data: their scalars-only body would be empty.
-  private nested(node: any, path: string): AccordionItem<any>[] {
+  // `kind` is set when `node` is an array of editable records: its elements go to `editable`.
+  private nested(node: any, path: string, kind?: RecordKind): AccordionItem<any>[] {
     const entries: [string, string, any][] = Array.isArray(node)
       ? node.map((v, i) => [String(i), this.itemTitle(v, i), v])
       : Object.entries(node)
@@ -79,12 +99,16 @@ export class SessionDetail implements OnInit {
           .map(([k, v]) => [k, this.label(k) + (Array.isArray(v) ? ` (${v.length})` : ''), v]);
     return entries
       .filter(([, , v]) => v !== null && typeof v === 'object' && (!Array.isArray(v) || v.length))
-      .map(([k, title, v]) => ({
-        id: `${path}/${k}`,
-        title,
-        data: Array.isArray(v) ? undefined : v,
-        children: this.nested(v, `${path}/${k}`),
-      }));
+      .map(([k, title, v]) => {
+        const id = `${path}/${k}`;
+        if (kind) this.editable.set(id, { kind, data: v, title });
+        return {
+          id,
+          title,
+          data: Array.isArray(v) ? undefined : v,
+          children: this.nested(v, id, Array.isArray(v) ? KIND_BY_KEY[k] : undefined),
+        };
+      });
   }
 
   private label(key: string): string {

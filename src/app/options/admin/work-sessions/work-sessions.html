@@ -31,6 +31,13 @@
 
 <app-side-modal-layout [hideCancel]="true" [acceptLabel]="'Cerrar'" (onAccept)="closeDetail()" (onCancel)="closeDetail()">
     @if (selected(); as session) {
-    <app-session-detail [session]="session"></app-session-detail>
+    <app-session-detail [session]="session" (editRecord)="openRecordForm($event)"></app-session-detail>
     }
 </app-side-modal-layout>
+
+<!-- Edit form of the record picked in the side modal; its content depends on the record kind. -->
+<app-modal-layout [formId]="'recordForm'" [classNames]="'max-w-2xl'" (onCancel)="closeRecordForm()">
+    @if (record(); as rec) {
+    <app-record-form [kind]="rec.kind" [data]="rec.data" (saved)="closeRecordForm()"></app-record-form>
+    }
+</app-modal-layout>
