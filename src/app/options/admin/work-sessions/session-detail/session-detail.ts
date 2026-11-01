@@ -32,6 +32,8 @@ const LABELS: Record<string, string> = {
   completed_quantity: 'Completada',
   scrap_quantity: 'Desecho',
   rejected_quantity: 'Rechazada',
+  created_by_name: 'Creado por',
+  updated_by_name: 'Actualizado por',
 };
 
 const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T/;
