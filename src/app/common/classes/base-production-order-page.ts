@@ -92,9 +92,26 @@ export abstract class BaseProductionOrderPage implements OnInit {
     // queda desactualizado tras una búsqueda — la orden actual en memoria es
     // la única fuente confiable.
     const current = this.productionOrder();
-    this.productionOrder.set(null);
+    if (!current) {
+      this.beforeLoad();
+      this.loadContext();
+      return;
+    }
+    // Soft reload: the content stays mounted and only the global loader shows (no skeleton); session and
+    // order are refreshed in place. loadContext() (skeleton) stays for the first load and for searches.
     this.beforeLoad();
-    this.loadContext(current?.documentType, current?.documentNumber);
+    this.loaderService.showLoader();
+    this.contextService
+      .refresh(current.documentType, current.documentNumber, this.orderLoader)
+      .pipe(finalize(() => this.loaderService.hideLoader()))
+      .subscribe({
+        next: (context) => {
+          this.currentSession.set(context.session);
+          this.productionOrder.set(context.order);
+          this.onContextLoaded(context);
+        },
+        error: () => this.onContextError(),
+      });
   }
 
   protected beforeLoad(): void {}

@@ -68,26 +68,58 @@ export class ProductionContextService {
         : of([]),
     }).pipe(
       switchMap(({ session, docTypes, workBreaks, employees, workShifts, modules }) => {
-        const record = session?.active_activity?.last_open_production_record;
-        const type = docType ?? record?.op_type;
-        const number = docNumber ?? record?.op_number;
-
-        const order$ = type && number
-          ? (
-              orderLoader
-                ? orderLoader(type, number, session)
-                : this.poService.getOrder({ documentType: type, documentNumber: number }, true).pipe(
-                    map(order => order as ProductionOrder),
-                  )
-            ).pipe(catchError(() => of(null)))
-          : of(null);
-
-        return order$.pipe(
+        return this.resolveOrder(session, docType, docNumber, orderLoader).pipe(
           map(order => ({ session, docTypes, workBreaks, employees, workShifts, modules, order }))
         );
       }),
       tap(context => this._context$.next(context))
     );
+  }
+
+  // Soft reload: only the active session and the order are requested again, and merged into the current
+  // snapshot (docTypes, workBreaks, employees, workShifts and modules are kept). Used after a save so the page
+  // updates in place, without the skeleton that a full load() brings.
+  refresh(
+    docType?: string,
+    docNumber?: number,
+    orderLoader?: (docType: string, docNumber: number, session: ProductionContext['session']) => Observable<ProductionOrder | null>,
+  ): Observable<ProductionContext> {
+    const coreModuleId = this.routeContextService.currentModule?.id;
+    const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
+
+    return this.workSessionService.getActive(scopeParams).pipe(
+      catchError(() => of(null)),
+      switchMap(session =>
+        this.resolveOrder(session, docType, docNumber, orderLoader).pipe(map(order => ({ session, order }))),
+      ),
+      map(({ session, order }) => ({
+        docTypes: [], workBreaks: [], employees: [], workShifts: [], modules: [],
+        ...this._context$.value,
+        session,
+        order,
+      })),
+      tap(context => this._context$.next(context)),
+    );
+  }
+
+  // Order of the given OP; without one, the OP of the session's open production record. Null on error.
+  private resolveOrder(
+    session: ProductionContext['session'],
+    docType?: string,
+    docNumber?: number,
+    orderLoader?: (docType: string, docNumber: number, session: ProductionContext['session']) => Observable<ProductionOrder | null>,
+  ): Observable<ProductionOrder | null> {
+    const record = session?.active_activity?.last_open_production_record;
+    const type = docType ?? record?.op_type;
+    const number = docNumber ?? record?.op_number;
+    if (!type || !number) return of(null);
+    return (
+      orderLoader
+        ? orderLoader(type, number, session)
+        : this.poService.getOrder({ documentType: type, documentNumber: number }, true).pipe(
+            map(order => order as ProductionOrder),
+          )
+    ).pipe(catchError(() => of(null)));
   }
 
   updateSession(session: ProductionContext['session']): void {
