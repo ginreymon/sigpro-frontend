@@ -25,9 +25,13 @@
             }
             @case ('textarea') {
             <div class="sm:col-span-2">
+                @if (f.name === 'custom_reason' && recordIds) {
+                <app-ui-disclosure [title]="'Registros asociados'" [items]="recordIds" [intent]="'brand'"></app-ui-disclosure>
+                } @else {
                 <app-ui-form-field [controlName]="f.name" [label]="f.label">
                     <app-ui-textarea [formControlName]="f.name" [id]="f.name" [control]="form.get(f.name)"></app-ui-textarea>
                 </app-ui-form-field>
+                }
             </div>
             }
             @case ('switch') {

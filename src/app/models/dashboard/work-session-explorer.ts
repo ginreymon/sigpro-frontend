@@ -20,7 +20,7 @@ export interface ExplorerActivity {
   stamping_records: ExplorerRecord[] | null;
   employees: { id: number; first_name: string; last_name1: string; last_name2: string | null }[] | null;
   work_shift_snapshots: { id: number; start_time: string; end_time: string }[] | null;
-  break_records: {
+  unproductive_times: {
     breaks: { id: number; name: string | null; start_time: string; end_time: string | null }[] | null;
     downtimes: { id: number; name: string | null; start_time: string; end_time: string | null }[] | null;
   } | null;

@@ -6,6 +6,7 @@ import { UiDatePicker } from '../../../../../shared/elements/ui-date-picker/ui-d
 import { UiInput } from '../../../../../shared/elements/ui-input/ui-input';
 import { UiDecimalInput } from '../../../../../shared/elements/ui-decimal-input/ui-decimal-input';
 import { UiTextarea } from '../../../../../shared/elements/ui-textarea/ui-textarea';
+import { UiDisclosure } from '../../../../../shared/elements/ui-disclosure/ui-disclosure';
 import { UiCheckbox } from '../../../../../shared/elements/ui-checkbox/ui-checkbox';
 
 export type RecordKind = 'production' | 'stamping' | 'break';
@@ -73,7 +74,7 @@ const GROUPS: Record<RecordKind, Group[]> = {
 // Edit form of one record picked in the session accordion (confección, estampación or pausa).
 @Component({
   selector: 'app-record-form',
-  imports: [ReactiveFormsModule, UiFormField, UiInput, UiDatePicker, UiDecimalInput, UiTextarea, UiCheckbox],
+  imports: [ReactiveFormsModule, UiFormField, UiInput, UiDatePicker, UiDecimalInput, UiTextarea, UiCheckbox, UiDisclosure],
   templateUrl: './record-form.html',
 })
 export class RecordForm implements OnInit {
@@ -83,6 +84,9 @@ export class RecordForm implements OnInit {
 
   protected groups: Group[] = [];
   protected form = new FormGroup({});
+  // A downtime created by a manual-duration batch stores {"record_ids": [...]} in custom_reason
+  // (object, or its JSON text) instead of free text: those ids are shown in a disclosure.
+  protected recordIds: (string | number)[] | null = null;
 
   // Read-only context so the user knows which record is open.
   protected get summary(): string {
@@ -94,12 +98,26 @@ export class RecordForm implements OnInit {
 
   ngOnInit(): void {
     this.groups = GROUPS[this.kind];
+    this.recordIds = this.batchRecordIds(this.data['custom_reason']);
     for (const f of this.groups.flatMap((g) => g.fields)) {
-      const v = this.data[f.name];
+      const v = f.name === 'custom_reason' && this.recordIds ? null : this.data[f.name];
       const value = f.type === 'datetime' && v ? formatDate(v, DATETIME, 'en-US') : (v ?? (f.type === 'switch' ? false : null));
       const required = f.name === 'start_time' ? [Validators.required] : f.type === 'decimal' ? [Validators.min(0)] : [];
       this.form.addControl(f.name, new FormControl({ value, disabled: !!f.readonly }, required));
     }
+  }
+
+  private batchRecordIds(reason: unknown): (string | number)[] | null {
+    let value = reason;
+    if (typeof value === 'string' && value.trim().startsWith('{')) {
+      try {
+        value = JSON.parse(value);
+      } catch {
+        return null; // plain text that merely starts with "{"
+      }
+    }
+    const ids = (value as { record_ids?: unknown } | null)?.record_ids;
+    return Array.isArray(ids) ? ids : null;
   }
 
   protected submit(): void {

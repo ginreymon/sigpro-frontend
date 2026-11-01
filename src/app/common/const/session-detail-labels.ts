@@ -3,7 +3,7 @@ export const SESSION_DETAIL_LABELS: Record<string, string> = {
   // Nested blocks
   production_records: 'Confecciones',
   stamping_records: 'Estampaciones',
-  break_records: 'Pausas',
+  unproductive_times: 'Tiempos improductivos',
   breaks: 'Pausas',
   downtimes: 'Pausas',
   employees: 'Empleados',

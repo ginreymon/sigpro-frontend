@@ -131,7 +131,7 @@ export class WorkSessions implements OnInit {
               ...row,
               op: [row.op_type?.trim(), row.op_number].filter((part) => part != null && part !== '').join(' '),
               records_count: this.sum(row, (a) => (a.production_records?.length ?? 0) + (a.stamping_records?.length ?? 0)),
-              breaks_count: this.sum(row, (a) => (a.break_records?.breaks?.length ?? 0) + (a.break_records?.downtimes?.length ?? 0)),
+              breaks_count: this.sum(row, (a) => (a.unproductive_times?.breaks?.length ?? 0) + (a.unproductive_times?.downtimes?.length ?? 0)),
             })),
           });
           this.loader.hideLoader();
