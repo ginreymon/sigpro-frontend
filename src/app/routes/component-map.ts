@@ -26,6 +26,7 @@ import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
 import { StampingAuditory } from '../options/stamping/auditory/auditory';
 import { SiesaOutbound } from '../options/integration/siesa-outbound/siesa-outbound';
 import { ManualIntegration } from '../shared/pages/integration/manual-integration/manual-integration';
+import { UiNestedAccordionDemo } from '../shared/elements/ui-nested-accordion/ui-nested-accordion-demo';
 // WorkCenterTotals (shared/pages/integration/work-center-totals) is kept but
 // disconnected from the router; ManualIntegration now serves its menu route.
 
@@ -61,4 +62,5 @@ export const componentMap: Record<string, Type<any>> = {
   'stamping/auditory': StampingAuditory,
   'integration/siesa-outbound': SiesaOutbound,
   'integration/manual-integration': ManualIntegration,
+  'demo/nested-accordion': UiNestedAccordionDemo,
 };

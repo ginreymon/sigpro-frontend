@@ -1,0 +1,57 @@
+<ng-template #level let-items let-depth="depth">
+  <ul [attr.role]="depth === 0 ? 'tree' : 'group'" class="flex flex-col gap-2"
+    [class]="depth === 0 ? '' : 'mt-2 ml-3 pl-3 border-l border-slate-200'">
+    @for (item of items; track item.id) {
+    @let open = expandedIds().has(item.id);
+    <li role="treeitem" [attr.aria-expanded]="hasContent(item) ? open : null">
+      <div class="rounded-lg border border-slate-200 bg-white" [class.bg-slate-50]="depth > 0">
+        <div class="flex items-center gap-2 px-3">
+          <button type="button" (click)="toggle(item, items)" [disabled]="item.disabled || !hasContent(item)"
+            [attr.aria-expanded]="open" [attr.aria-controls]="'acc-' + item.id"
+            class="flex-1 min-w-0 flex items-center gap-3 py-2.5 text-left cursor-pointer disabled:cursor-default disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-brand">
+            @if (hasContent(item)) {
+            <app-ui-icon iconName="angleDown"
+              [class]="'h-4 w-4 text-gray-400 shrink-0 transition-transform motion-reduce:transition-none ' + (open ? '' : '-rotate-90')"></app-ui-icon>
+            }
+            @if (item.icon) {
+            <app-ui-icon [iconName]="item.icon" [class]="'h-4 w-4 text-gray-500 shrink-0'"></app-ui-icon>
+            }
+            <span class="flex-1 min-w-0">
+              <span class="block text-sm font-medium text-gray-900 truncate">{{ item.title }}</span>
+              @if (item.subtitle) {
+              <span class="block text-xs text-gray-500 truncate">{{ item.subtitle }}</span>
+              }
+            </span>
+            @if (item.badge) {
+            <app-ui-badge [intent]="item.badge.intent ?? 'default'" [label]="item.badge.label"></app-ui-badge>
+            }
+          </button>
+          @if (actionsTpl(); as tpl) {
+          <div class="flex items-center gap-1 shrink-0">
+            <ng-container *ngTemplateOutlet="tpl; context: { $implicit: item, depth: depth }"></ng-container>
+          </div>
+          }
+        </div>
+
+        <!-- 0fr -> 1fr grid-rows animates height without measuring it; inert keeps hidden content unfocusable -->
+        <div class="grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none"
+          [class]="open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'" [attr.id]="'acc-' + item.id"
+          role="region" [attr.inert]="open ? null : ''">
+          <div class="overflow-hidden">
+            <div class="px-3 pb-3 text-sm">
+              @if (bodyTpl(); as tpl) {
+              <ng-container *ngTemplateOutlet="tpl; context: { $implicit: item, depth: depth }"></ng-container>
+              }
+              @if (item.children?.length) {
+              <ng-container *ngTemplateOutlet="level; context: { $implicit: item.children, depth: depth + 1 }"></ng-container>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+    }
+  </ul>
+</ng-template>
+
+<ng-container *ngTemplateOutlet="level; context: { $implicit: items(), depth: 0 }"></ng-container>
