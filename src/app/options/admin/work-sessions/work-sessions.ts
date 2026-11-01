@@ -16,6 +16,8 @@ import { LoaderService } from '../../../services/common/loader-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { environment } from '../../../../environments/environment';
+import { UiButton } from '../../../shared/elements/ui-button/ui-button';
+import { EditTarget, RecordEditPanel } from './record-templates/record-edit-panel';
 import { SessionDetail } from './session-detail/session-detail';
 
 // /admin/work-sessions: latest work sessions in a searchable table (the search box matches OP type and
@@ -23,7 +25,7 @@ import { SessionDetail } from './session-detail/session-detail';
 // read-only session detail.
 @Component({
   selector: 'app-work-sessions',
-  imports: [WorkSpaceLayout, DataTable, UiAlert, UiBadge, SessionDetail, SideModalLayout, TableTemplate, DatePipe],
+  imports: [WorkSpaceLayout, DataTable, UiAlert, UiBadge, SessionDetail, SideModalLayout, UiButton, RecordEditPanel, TableTemplate, DatePipe],
   templateUrl: './work-sessions.html',
 })
 export class WorkSessions implements OnInit {
@@ -49,6 +51,8 @@ export class WorkSessions implements OnInit {
 
   protected sessions = signal<PaginatedResponse<WorkSessionExplorerRow> | null>(null);
   protected selected = signal<WorkSessionExplorerRow | null>(null);
+  // Record being edited inside the side modal; null shows the session detail.
+  protected editing = signal<EditTarget | null>(null);
   protected errorMessage = signal('');
 
   private term = '';
@@ -80,6 +84,7 @@ export class WorkSessions implements OnInit {
 
   closeDetail(): void {
     this.selected.set(null);
+    this.editing.set(null);
     this.dialogService.closeModal();
   }
 

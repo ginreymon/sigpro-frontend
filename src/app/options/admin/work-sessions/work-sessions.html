@@ -31,6 +31,13 @@
 
 <app-side-modal-layout [hideCancel]="true" [acceptLabel]="'Cerrar'" (onAccept)="closeDetail()" (onCancel)="closeDetail()">
     @if (selected(); as session) {
-    <app-session-detail [session]="session"></app-session-detail>
+    <!-- Kept alive (only hidden) while a record is edited, so the expanded state is not lost. -->
+    <div [class.hidden]="editing()">
+        <app-session-detail [session]="session" (editRecord)="editing.set($event)"></app-session-detail>
+    </div>
+    @if (editing(); as target) {
+    <app-ui-button intent="hover" class="mb-3 inline-block" (onClick)="editing.set(null)">← Volver al detalle</app-ui-button>
+    <app-record-edit-panel [target]="target"></app-record-edit-panel>
+    }
     }
 </app-side-modal-layout>

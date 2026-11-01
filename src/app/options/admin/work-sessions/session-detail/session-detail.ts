@@ -1,5 +1,5 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
-import { Component, Input, OnInit, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
 import { UiAccordionItem } from '../../../../shared/elements/ui-accordion-item/ui-accordion-item';
 import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
 import { TreeNode, UiTreeView } from '../../../../shared/elements/ui-tree-view/ui-tree-view';
@@ -7,7 +7,16 @@ import { Metadata } from '../../../../shared/components/widgets/metadata/metadat
 import { UiBadge } from '../../../../shared/elements/ui-badge/ui-badge';
 import { CharSquare } from '../../../../shared/components/widgets/char-square/char-square';
 import { SESSION_DETAIL_LABELS } from '../../../../common/const/session-detail-labels';
+import { EditableKind, EditTarget } from '../record-templates/record-edit-panel';
 import { ExplorerActivity, WorkSessionExplorerRow } from '../../../../models/dashboard/work-session-explorer';
+
+// JSON keys whose items are records that can be edited, and the template kind of each.
+const EDITABLE_KIND_BY_KEY: Record<string, EditableKind> = {
+  production_records: 'production',
+  stamping_records: 'stamping',
+  breaks: 'break',
+  downtimes: 'downtime',
+};
 
 interface DetailChild {
   key?: string;
@@ -46,6 +55,10 @@ const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T/;
 })
 export class SessionDetail implements OnInit {
   constructor(private datePipe: DatePipe) {}
+
+  @Output() editRecord = new EventEmitter<EditTarget>();
+
+  protected kindOf = (key?: string): EditableKind | null => (key && EDITABLE_KIND_BY_KEY[key]) || null;
 
   @Input({ required: true }) session!: WorkSessionExplorerRow;
 

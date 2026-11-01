@@ -1,6 +1,6 @@
 <!-- Recursive block (same look as the roles side modal): scalars as bold-label pairs in a grid,
      each nested object/array as an accordion item. -->
-<ng-template #block let-data>
+<ng-template #block let-data let-kind="kind">
     @if (scalars(data).length) {
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
         @for (line of scalars(data); track line.label) {
@@ -21,7 +21,12 @@
                 <span class="min-w-0 flex-1 text-sm font-medium text-gray-700 truncate">{{ c.title }}</span>
             </ng-container>
             <div accordion-body class="bg-slate-50 rounded-lg p-3">
-                <ng-container *ngTemplateOutlet="block; context: { $implicit: c.value }"></ng-container>
+                @if (kind) {
+                <div class="mb-3 flex justify-end">
+                    <app-ui-button intent="hover" (onClick)="editRecord.emit({ kind, record: c.value })">Editar</app-ui-button>
+                </div>
+                }
+                <ng-container *ngTemplateOutlet="block; context: { $implicit: c.value, kind: kindOf(c.key) }"></ng-container>
             </div>
         </app-ui-accordion-item>
         }
@@ -70,7 +75,7 @@
                 <span class="min-w-0 flex-1 text-sm font-medium text-gray-700">Más información</span>
             </ng-container>
             <div accordion-body class="bg-slate-50 rounded-lg p-3">
-                <ng-container *ngTemplateOutlet="block; context: { $implicit: session }"></ng-container>
+                <ng-container *ngTemplateOutlet="block; context: { $implicit: session, kind: null }"></ng-container>
             </div>
         </app-ui-accordion-item>
     </div>
@@ -107,7 +112,7 @@
                     [label]="act.ended_at ? 'Cerrada' : 'Abierta'"></app-ui-badge>
             </ng-container>
             <div accordion-body class="bg-slate-50 rounded-lg p-3">
-                <ng-container *ngTemplateOutlet="block; context: { $implicit: act }"></ng-container>
+                <ng-container *ngTemplateOutlet="block; context: { $implicit: act, kind: null }"></ng-container>
             </div>
         </app-ui-accordion-item>
         }

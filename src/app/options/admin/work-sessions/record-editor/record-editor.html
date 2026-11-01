@@ -14,4 +14,7 @@
         <app-ui-button [disabled]="form.pristine" (onClick)="submit()">Guardar</app-ui-button>
     </div>
     }
+    @if (result(); as r) {
+    <app-ui-alert class="mt-3" [intent]="r.intent" [message]="r.message" (onClose)="result.set(null)" role="status"></app-ui-alert>
+    }
 </form>
