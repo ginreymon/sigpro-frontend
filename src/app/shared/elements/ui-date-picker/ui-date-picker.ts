@@ -1,4 +1,4 @@
-import { Component, computed, forwardRef, signal } from '@angular/core';
+import { Component, computed, forwardRef, Input, signal } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BaseControlValueAccessor } from '../../../common/classes/base-control-value-accessor';
 import { UiIcon } from '../ui-icon/ui-icon';
@@ -11,6 +11,9 @@ const MONTHS_ES = [
 const DAYS_ES = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
 
 type DateState = { date: number; month: number; year: number };
+type TimeState = { hour: number; minute: number };
+
+const pad = (n: number) => String(n).padStart(2, '0');
 
 @Component({
   selector: 'app-ui-date-picker',
@@ -23,8 +26,14 @@ type DateState = { date: number; month: number; year: number };
   ],
 })
 export class UiDatePicker extends BaseControlValueAccessor<string | null> {
+  // Adds hour/minute selectors; the value then is "yyyy-MM-ddTHH:mm" instead of "yyyy-MM-dd".
+  @Input() withTime = false;
+
   readonly months = MONTHS_ES;
   readonly days = DAYS_ES;
+  readonly hours = Array.from({ length: 24 }, (_, i) => i);
+  readonly minutes = Array.from({ length: 60 }, (_, i) => i);
+  readonly pad = pad;
 
   isOpen = signal(false);
   viewMode = signal<'days' | 'months' | 'years'>('days');
@@ -34,12 +43,16 @@ export class UiDatePicker extends BaseControlValueAccessor<string | null> {
   });
   selectedDate = signal<DateState | null>(null);
   tempDate = signal<DateState | null>(null);
+  selectedTime = signal<TimeState>({ hour: 0, minute: 0 });
+  tempTime = signal<TimeState>({ hour: 0, minute: 0 });
   yearPage = signal(0);
 
   displayLabel = computed(() => {
     const d = this.selectedDate();
     if (!d) return '';
-    return `${d.date} de ${MONTHS_ES[d.month].toLowerCase()} de ${d.year}`;
+    const label = `${d.date} de ${MONTHS_ES[d.month].toLowerCase()} de ${d.year}`;
+    const t = this.selectedTime();
+    return this.withTime ? `${label}, ${pad(t.hour)}:${pad(t.minute)}` : label;
   });
 
   calendarGrid = computed((): (number | null)[][] => {
@@ -64,6 +77,7 @@ export class UiDatePicker extends BaseControlValueAccessor<string | null> {
     if (this.disabled) return;
     const d = this.selectedDate();
     this.tempDate.set(d ? { ...d } : null);
+    this.tempTime.set({ ...this.selectedTime() });
     this.viewDate.set({ month: d?.month ?? new Date().getMonth(), year: d?.year ?? new Date().getFullYear() });
     this.viewMode.set('days');
     this.yearPage.set(0);
@@ -79,7 +93,10 @@ export class UiDatePicker extends BaseControlValueAccessor<string | null> {
     const t = this.tempDate();
     if (t && t.date > 0) {
       this.selectedDate.set({ ...t });
-      const iso = `${t.year}-${String(t.month + 1).padStart(2, '0')}-${String(t.date).padStart(2, '0')}`;
+      this.selectedTime.set({ ...this.tempTime() });
+      const time = this.tempTime();
+      const iso =
+        `${t.year}-${pad(t.month + 1)}-${pad(t.date)}` + (this.withTime ? `T${pad(time.hour)}:${pad(time.minute)}` : '');
       this.value = iso;
       this.onChange(iso);
     }
@@ -138,6 +155,10 @@ export class UiDatePicker extends BaseControlValueAccessor<string | null> {
     this.yearPage.update(p => p + 1);
   }
 
+  setTime(part: keyof TimeState, event: Event) {
+    this.tempTime.update(t => ({ ...t, [part]: Number((event.target as HTMLSelectElement).value) }));
+  }
+
   stopPropagation(event: Event) {
     event.stopPropagation();
   }
@@ -145,14 +166,18 @@ export class UiDatePicker extends BaseControlValueAccessor<string | null> {
   override writeValue(value: string | null): void {
     if (!value) {
       this.selectedDate.set(null);
+      this.selectedTime.set({ hour: 0, minute: 0 });
       this.value = null;
       return;
     }
-    const parts = value.split('-').map(Number);
+    const [datePart, timePart] = value.split('T');
+    const parts = datePart.split('-').map(Number);
     if (parts.length === 3) {
       const [year, month, date] = parts;
       this.selectedDate.set({ date, month: month - 1, year });
     }
+    const [hour, minute] = (timePart ?? '').split(':').map(Number);
+    this.selectedTime.set({ hour: hour || 0, minute: minute || 0 });
     this.value = value;
   }
 }

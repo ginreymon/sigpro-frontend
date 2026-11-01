@@ -1,6 +1,8 @@
 <!-- Trigger input -->
 <button
   type="button"
+  [attr.id]="id || null"
+  aria-haspopup="dialog"
   (click)="open()"
   [class]="'h-8 w-full px-3 text-sm rounded-md border outline-none transition-all duration-200 flex items-center gap-2 text-left '
     + (invalid ? 'border-red-500 ' : 'border-gray-300 hover:border-brand-400 ')
@@ -8,7 +10,7 @@
     + (displayLabel() ? 'text-gray-900 ' : 'text-gray-400 ')"
   [disabled]="disabled">
   <app-ui-icon [iconName]="'calendar'" [class]="'w-4 h-4 shrink-0 text-gray-400'"></app-ui-icon>
-  <span class="truncate">{{ displayLabel() || placeholder || 'Seleccionar fecha' }}</span>
+  <span class="truncate">{{ displayLabel() || placeholder || (withTime ? 'Seleccionar fecha y hora' : 'Seleccionar fecha') }}</span>
 </button>
 
 <!-- Calendar modal -->
@@ -120,6 +122,27 @@
             {{ year }}
           </button>
         }
+      </div>
+    }
+
+    <!-- Time (only with withTime) -->
+    @if(withTime) {
+      <div class="flex items-center gap-2 mt-4 pt-4 border-t border-gray-300">
+        <label for="dp-hour" class="text-xs font-medium text-slate-500">Hora</label>
+        <select id="dp-hour" (change)="setTime('hour', $event)"
+          class="h-8 flex-1 rounded-md border border-gray-300 bg-white px-2 text-sm text-gray-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 cursor-pointer">
+          @for(h of hours; track h) {
+            <option [value]="h" [selected]="h === tempTime().hour">{{ pad(h) }}</option>
+          }
+        </select>
+        <span aria-hidden="true" class="text-gray-500">:</span>
+        <label for="dp-minute" class="text-xs font-medium text-slate-500">Minutos</label>
+        <select id="dp-minute" (change)="setTime('minute', $event)"
+          class="h-8 flex-1 rounded-md border border-gray-300 bg-white px-2 text-sm text-gray-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 cursor-pointer">
+          @for(m of minutes; track m) {
+            <option [value]="m" [selected]="m === tempTime().minute">{{ pad(m) }}</option>
+          }
+        </select>
       </div>
     }
 

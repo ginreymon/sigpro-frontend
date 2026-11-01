@@ -9,7 +9,7 @@
             @switch (f.type) {
             @case ('datetime') {
             <app-ui-form-field [controlName]="f.name" [label]="f.label">
-                <app-ui-input type="datetime-local" [formControlName]="f.name" [id]="f.name" [control]="form.get(f.name)"></app-ui-input>
+                <app-ui-date-picker [withTime]="true" [formControlName]="f.name" [id]="f.name" [control]="form.get(f.name)"></app-ui-date-picker>
             </app-ui-form-field>
             }
             @case ('decimal') {

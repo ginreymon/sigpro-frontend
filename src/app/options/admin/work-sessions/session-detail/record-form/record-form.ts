@@ -2,6 +2,7 @@ import { formatDate } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UiFormField } from '../../../../../shared/elements/ui-form-field/ui-form-field';
+import { UiDatePicker } from '../../../../../shared/elements/ui-date-picker/ui-date-picker';
 import { UiInput } from '../../../../../shared/elements/ui-input/ui-input';
 import { UiDecimalInput } from '../../../../../shared/elements/ui-decimal-input/ui-decimal-input';
 import { UiTextarea } from '../../../../../shared/elements/ui-textarea/ui-textarea';
@@ -72,7 +73,7 @@ const GROUPS: Record<RecordKind, Group[]> = {
 // Edit form of one record picked in the session accordion (confección, estampación or pausa).
 @Component({
   selector: 'app-record-form',
-  imports: [ReactiveFormsModule, UiFormField, UiInput, UiDecimalInput, UiTextarea, UiCheckbox],
+  imports: [ReactiveFormsModule, UiFormField, UiInput, UiDatePicker, UiDecimalInput, UiTextarea, UiCheckbox],
   templateUrl: './record-form.html',
 })
 export class RecordForm implements OnInit {
