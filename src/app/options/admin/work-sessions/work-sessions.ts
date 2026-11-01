@@ -47,7 +47,7 @@ export class WorkSessions implements OnInit {
     { field: 'module_name', label: 'Módulo' },
     { field: 'op', label: 'OP' },
     { field: 'records_count', label: 'Registros' },
-    { field: 'breaks_count', label: 'Pausas' },
+    { field: 'breaks_count', type: 'template', label: 'Pausas', templateName: 'breaksTemplate' },
     { field: 'reference', label: 'Referencia' },
   ];
 
@@ -131,7 +131,8 @@ export class WorkSessions implements OnInit {
               ...row,
               op: [row.op_type?.trim(), row.op_number].filter((part) => part != null && part !== '').join(' '),
               records_count: this.sum(row, (a) => (a.production_records?.length ?? 0) + (a.stamping_records?.length ?? 0)),
-              breaks_count: this.sum(row, (a) => (a.unproductive_times?.breaks?.length ?? 0) + (a.unproductive_times?.downtimes?.length ?? 0)),
+              // "N · X min": breaks + downtimes and their total time, same format as the accordion title.
+              breaks_count: `${this.sum(row, (a) => (a.unproductive_times?.breaks?.length ?? 0) + (a.unproductive_times?.downtimes?.length ?? 0))} · ${Math.round(this.sum(row, (a) => a.unproductive_times?.total_time_seconds ?? 0) / 60)} min`,
             })),
           });
           this.loader.hideLoader();

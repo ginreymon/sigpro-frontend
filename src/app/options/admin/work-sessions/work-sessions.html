@@ -15,6 +15,13 @@
             <ng-template appTableTemplate="startedAtTemplate" let-row>
                 {{ row.started_at | date: 'dd/MM/yyyy HH:mm' }}
             </ng-template>
+            <!-- breaks_count is "N · X min": count in bold, minutes muted (the column filter still lists the text). -->
+            <ng-template appTableTemplate="breaksTemplate" let-row>
+                @if (row.breaks_count?.split(' · '); as p) {
+                <span class="font-medium text-slate-900">({{ p[0] }})</span>                   
+                <span class="ml-1.5 text-red-600">{{ p[1] }}</span>
+                }
+            </ng-template>
             <ng-template appTableTemplate="statusTemplate" let-row>
                 <app-ui-badge [intent]="row.is_closed ? 'inactive' : 'active'"
                     [label]="row.is_closed ? 'Cerrada' : 'Abierta'"></app-ui-badge>

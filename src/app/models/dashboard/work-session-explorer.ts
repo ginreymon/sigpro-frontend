@@ -23,6 +23,7 @@ export interface ExplorerActivity {
   unproductive_times: {
     breaks: { id: number; name: string | null; start_time: string; end_time: string | null }[] | null;
     downtimes: { id: number; name: string | null; start_time: string; end_time: string | null }[] | null;
+    total_time_seconds: number | null;
   } | null;
 }
 
@@ -40,6 +41,6 @@ export interface WorkSessionExplorerRow {
   op?: string;
   // Added by the explorer page: production + stamping records and breaks + downtimes of all activities.
   records_count?: number;
-  breaks_count?: number;
+  breaks_count?: string;
   session_activities: ExplorerActivity[] | null;
 }

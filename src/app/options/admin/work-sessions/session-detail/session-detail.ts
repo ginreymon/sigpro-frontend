@@ -96,7 +96,7 @@ export class SessionDetail implements OnInit {
       ? node.map((v, i) => [String(i), this.itemTitle(v, i), v])
       : Object.entries(node)
           .filter(([k, v]) => !HIDDEN_KEYS.has(k) && v !== null && typeof v === 'object')
-          .map(([k, v]) => [k, this.label(k) + (Array.isArray(v) ? ` (${v.length})` : ''), v]);
+          .map(([k, v]) => [k, this.label(k) + (Array.isArray(v) ? ` (${v.length})` : '') + this.minutes(k, v), v]);
     return entries
       .filter(([, , v]) => v !== null && typeof v === 'object' && (!Array.isArray(v) || v.length))
       .map(([k, title, v]) => {
@@ -109,6 +109,13 @@ export class SessionDetail implements OnInit {
           children: this.nested(v, id, Array.isArray(v) ? KIND_BY_KEY[k] : undefined),
         };
       });
+  }
+
+  // " (breaks + downtimes) · N min" next to the "Tiempos improductivos" title.
+  private minutes(key: string, value: any): string {
+    if (key !== 'unproductive_times') return '';
+    const count = (value.breaks?.length ?? 0) + (value.downtimes?.length ?? 0);
+    return ` (${count}) · ${Math.round((value.total_time_seconds ?? 0) / 60)} min`;
   }
 
   private label(key: string): string {

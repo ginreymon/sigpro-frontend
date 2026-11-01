@@ -44,6 +44,7 @@ export const SESSION_DETAIL_LABELS: Record<string, string> = {
   end_time: 'Hora de fin',
   resumed_at: 'Reanudado el',
   total_time: 'Tiempo total',
+  total_time_seconds: 'Tiempo total (s)',
   duration: 'Duración',
   area_id: 'Id área',
   area_name: 'Área',
