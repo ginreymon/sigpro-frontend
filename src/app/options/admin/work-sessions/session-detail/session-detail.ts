@@ -3,9 +3,10 @@ import { Component, Input, OnInit, signal } from '@angular/core';
 import { UiAccordionItem } from '../../../../shared/elements/ui-accordion-item/ui-accordion-item';
 import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
 import { TreeNode, UiTreeView } from '../../../../shared/elements/ui-tree-view/ui-tree-view';
+import { Metadata } from '../../../../shared/components/widgets/metadata/metadata';
 import { UiBadge } from '../../../../shared/elements/ui-badge/ui-badge';
-import { UiExpandablePanel } from '../../../../shared/elements/ui-expandable-panel/ui-expandable-panel';
-import { InfoPanelLine, UiInfoPanel } from '../../../../shared/elements/ui-info-panel/ui-info-panel';
+import { CharSquare } from '../../../../shared/components/widgets/char-square/char-square';
+import { SESSION_DETAIL_LABELS } from '../../../../common/const/session-detail-labels';
 import { ExplorerActivity, WorkSessionExplorerRow } from '../../../../models/dashboard/work-session-explorer';
 
 interface DetailChild {
@@ -14,27 +15,24 @@ interface DetailChild {
   value: any;
 }
 
-const LABELS: Record<string, string> = {
-  production_records: 'Confecciones',
-  stamping_records: 'Estampaciones',
-  break_records: 'Pausas y paros',
-  breaks: 'Pausas',
-  downtimes: 'Paros',
-  employees: 'Empleados',
-  module: 'Módulo',
-  sku: 'SKU',
-  stamping_reference: 'Referencia de estampación',
-  started_at: 'Inicio',
-  ended_at: 'Fin',
-  start_time: 'Inicio',
-  end_time: 'Fin',
-  tep_processed: 'Procesado en TEP',
-  completed_quantity: 'Completada',
-  scrap_quantity: 'Desecho',
-  rejected_quantity: 'Rechazada',
-  created_by_name: 'Creado por',
-  updated_by_name: 'Actualizado por',
-};
+// Audit fields of the session are shown by <app-metadata>, not repeated in the summary.
+const AUDIT_KEYS = new Set([
+  'created_at',
+  'updated_at',
+  'created_by',
+  'updated_by',
+  'created_by_name',
+  'updated_by_name',
+  'created_by_username',
+  'updated_by_username',
+  'is_active',
+]);
+
+// Shown at a glance in the session section, so excluded from its collapsed detail.
+const SUMMARY_KEYS = new Set(['started_at', 'ended_at']);
+
+// DurationField columns come from SQL Server as bigint microseconds (e.g. 20737822381 = 05:45:37).
+const DURATION_KEYS = new Set(['total_time', 'duration']);
 
 const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T/;
 
@@ -42,7 +40,7 @@ const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T/;
 // panel, objects/arrays in expandable panels) so every level is visible, including future fields.
 @Component({
   selector: 'app-session-detail',
-  imports: [NgTemplateOutlet, UiBadge, UiButton, UiAccordionItem, UiExpandablePanel, UiInfoPanel, UiTreeView],
+  imports: [DatePipe, NgTemplateOutlet, UiBadge, UiButton, UiAccordionItem, UiTreeView, Metadata, CharSquare],
   providers: [DatePipe],
   templateUrl: './session-detail.html',
 })
@@ -54,43 +52,58 @@ export class SessionDetail implements OnInit {
   // The shifts are shown once in the summary and the JSON repeats them in every activity.
   private readonly hidden = new Set(['session_activities', 'work_shift_snapshots']);
 
-  private expandedActivities = signal<ReadonlySet<number>>(new Set());
-
-  // Open (not yet ended) activities start expanded: they are what the reviewer usually looks for.
-  ngOnInit(): void {
-    this.expandedActivities.set(new Set(this.activityIds.filter((id, i) => !this.session.session_activities![i].ended_at)));
-  }
-
-  private get activityIds() {
-    return (this.session.session_activities ?? []).map((a) => a.session_activity_id);
-  }
-
-  protected expandAll() {
-    this.expandedActivities.set(new Set(this.activityIds));
-  }
-
-  protected collapseAll() {
-    this.expandedActivities.set(new Set());
-  }
-
-  protected isExpanded = (id: number) => this.expandedActivities().has(id);
-  protected toggleExpanded(id: number) {
-    this.expandedActivities.update((s) => {
+  // Open state is keyed by the JSON object itself, so activities and nested records share it.
+  private expanded = signal<ReadonlySet<object>>(new Set());
+  protected isOpen = (o: object) => this.expanded().has(o);
+  protected toggle(o: object) {
+    this.expanded.update((s) => {
       const next = new Set(s);
-      if (!next.delete(id)) next.add(id);
+      if (!next.delete(o)) next.add(o);
       return next;
     });
   }
+
+  // Open (not yet ended) activities start expanded: they are what the reviewer usually looks for.
+  ngOnInit(): void {
+    const s = this.session as Record<string, any>;
+    this.audit = {
+      ...s,
+      created_by_username: s['created_by_username'] ?? s['created_by_name'],
+      updated_by_username: s['updated_by_username'] ?? s['updated_by_name'],
+    };
+    this.expanded.set(new Set(this.activities.filter((a) => !a.ended_at)));
+  }
+
+  private get activities() {
+    return this.session.session_activities ?? [];
+  }
+
+  protected expandAll() {
+    this.expanded.set(new Set(this.activities));
+  }
+
+  protected collapseAll() {
+    this.expanded.set(new Set());
+  }
+
+  // <app-metadata> reads *_by_username; the explorer JSON may carry *_by_name instead.
+  protected sessionDetailOpen = signal(false);
+
+  protected audit: Record<string, any> = {};
 
   protected get shifts() {
     return this.session.session_activities?.[0]?.work_shift_snapshots ?? [];
   }
 
-  protected scalars(data: any): InfoPanelLine[] {
+  protected scalars(data: any): { label: string; value: string | number }[] {
     if (!data || Array.isArray(data)) return [];
     return Object.entries(data)
+      .filter(([k]) => !(data === this.session && (AUDIT_KEYS.has(k) || SUMMARY_KEYS.has(k))))
       .filter(([k, v]) => !this.hidden.has(k) && (v === null || typeof v !== 'object'))
-      .map(([k, v]) => ({ label: this.label(k), value: this.format(v) }));
+      .map(([k, v]) => ({
+        label: this.label(k),
+        value: DURATION_KEYS.has(k) && typeof v === 'number' ? this.formatDuration(v) : this.format(v),
+      }));
   }
 
   protected children(data: any): DetailChild[] {
@@ -107,7 +120,9 @@ export class SessionDetail implements OnInit {
   }
 
   private label(key: string) {
-    return LABELS[key] ?? key.replace(/_/g, ' ');
+    if (SESSION_DETAIL_LABELS[key]) return SESSION_DETAIL_LABELS[key];
+    const words = key.replace(/_/g, ' ');
+    return words.charAt(0).toUpperCase() + words.slice(1);
   }
 
   private itemTitle(item: any, i: number) {
@@ -115,7 +130,13 @@ export class SessionDetail implements OnInit {
     return `#${id}${item?.name ? ' · ' + item.name : ''}`;
   }
 
-  private format(v: unknown): string | number {
+  private formatDuration(microseconds: number): string {
+    const total = Math.floor(microseconds / 1_000_000);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(Math.floor(total / 3600))}:${pad(Math.floor((total % 3600) / 60))}:${pad(total % 60)}`;
+  }
+
+  protected format(v: unknown): string | number {
     if (v === null || v === undefined || v === '') return '—';
     if (typeof v === 'boolean') return v ? 'Sí' : 'No';
     if (typeof v === 'string' && ISO_DATETIME.test(v)) {
