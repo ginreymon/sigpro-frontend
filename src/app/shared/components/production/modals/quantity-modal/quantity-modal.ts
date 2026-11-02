@@ -13,11 +13,17 @@ import { UiErrorMessage } from '../../../../elements/ui-error-message/ui-error-m
 import { ProductionRecord } from '../../../../../models/production/production-record';
 import { QuantityDetail } from "../../cards/quantity-detail/quantity-detail";
 import { SkuQuantityCounter } from "../../cards/sku-quantity-counter/sku-quantity-counter";
+import { toSignal } from '@angular/core/rxjs-interop';
+import { startWith } from 'rxjs';
+import { UiSuccessMessage } from '../../../../elements/ui-success-message/ui-success-message';
+import { ProductivityForecastService } from '../../../../../services/common/productivity-forecast/productivity-forecast-service';
+import { ProductionContextService } from '../../../../../services/production/production-context-service';
+import { RouteContextService } from '../../../../../services/core/route-context-service';
 
 @Component({
   selector: 'app-quantity-modal',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, SkuDetail, SkuQuantitySummary, UiErrorMessage, QuantityDetail, SkuQuantityCounter],
+  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, SkuDetail, SkuQuantitySummary, UiErrorMessage, QuantityDetail, SkuQuantityCounter, UiSuccessMessage],
   templateUrl: './quantity-modal.html',
 })
 export class QuantityModal {
@@ -71,6 +77,36 @@ export class QuantityModal {
   get completedQty(): number { return Number(this.recordForm.get('completed_quantity')?.value) || 0; }
   get rejectedQty(): number { return Number(this.recordForm.get('rejected_quantity')?.value) || 0; }
   get scrapQty(): number { return Number(this.recordForm.get('scrap_quantity')?.value) || 0; }
+
+  // The manual-duration variant accumulates records without persisting, so a projection makes no sense there.
+  protected forecastEnabled = true;
+  private forecastService = inject(ProductivityForecastService);
+  private contextService = inject(ProductionContextService);
+  private routeContext = inject(RouteContextService);
+  private formValue = toSignal(this.recordForm.valueChanges.pipe(startWith(null)));
+
+  // Re-evaluated on every form change; reads signals only, no HTTP (baseline comes from the shift summary
+  // already loaded by the page).
+  protected efficiencyForecast = computed<number | null>(() => {
+    this.formValue();
+    const sku = this.selectedSKU;
+    if (!this.forecastEnabled || !this.visible() || !sku?.sam) return null;
+
+    const edited = this.qms.editRecord();
+    const previousUnits = edited
+      ? Number(edited.completed_quantity) + Number(edited.rejected_quantity) + Number(edited.scrap_quantity)
+      : 0;
+    const newUnits = this.completedQty + this.rejectedQty + this.scrapQty - previousUnits;
+    if (!newUnits) return null;
+
+    return this.forecastService.forecast(this.routeContext.currentModule?.id, {
+      session: this.contextService.snapshot?.session,
+      baseline: this.contextService.efficiencyPeriod(),
+      newUnits,
+      sam: Number(sku.sam),
+      noNewInterval: !!edited,
+    });
+  });
 
   get displayCompletedQty(): number {
     const base = Number(this.selectedSKU?.completedQty) || 0;

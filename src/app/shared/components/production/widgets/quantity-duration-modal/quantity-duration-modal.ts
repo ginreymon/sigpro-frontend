@@ -10,6 +10,7 @@ import { UiErrorMessage } from '../../../../elements/ui-error-message/ui-error-m
 import { QuantityDetail } from '../../cards/quantity-detail/quantity-detail';
 import { SkuQuantityCounter } from '../../cards/sku-quantity-counter/sku-quantity-counter';
 import { QuantityModal } from '../../modals/quantity-modal/quantity-modal';
+import { UiSuccessMessage } from '../../../../elements/ui-success-message/ui-success-message';
 
 // Variante de app-quantity-modal para el asistente de shift-cycles-manual
 // (módulos con allows_production_time_adjustment=true): mismo template, mismas
@@ -22,10 +23,12 @@ import { QuantityModal } from '../../modals/quantity-modal/quantity-modal';
 @Component({
   selector: 'app-quantity-duration-modal',
   standalone: true,
-  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, SkuDetail, SkuQuantitySummary, UiErrorMessage, QuantityDetail, SkuQuantityCounter],
+  imports: [BoxLayout, UiButton, UiFormField, UiLargeInput, ReactiveFormsModule, SkuDetail, SkuQuantitySummary, UiErrorMessage, QuantityDetail, SkuQuantityCounter, UiSuccessMessage],
   templateUrl: '../../modals/quantity-modal/quantity-modal.html',
 })
 export class QuantityDurationModal extends QuantityModal {
+  protected override forecastEnabled = false;
+
   protected override get saveButtonLabel(): string {
     return 'Agregar';
   }

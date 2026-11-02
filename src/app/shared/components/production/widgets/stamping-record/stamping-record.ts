@@ -19,6 +19,8 @@ import { StampingRecord as StampingRecordPayload } from '../../../../../models/s
 import { WorkBreakRecord } from '../../../../../models/production/work-break-record';
 import { searchAdditionalTimes, searchReferenceSams } from '../../../../../common/functions/additional-time-filters';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
+import { RouteContextService } from '../../../../../services/core/route-context-service';
+import { ProductivityForecastService } from '../../../../../services/common/productivity-forecast/productivity-forecast-service';
 
 @Component({
   selector: 'app-stamping-record',
@@ -187,6 +189,32 @@ export class StampingRecord {
   protected selectedAdditionalTimes = computed(() => {
     const ids = this.selectedAdditionalTimeIds();
     return this.dataService.additionalTimes().filter((item) => ids.includes(item.id));
+  });
+
+  // The manual variant backfills records without persisting, so no projection there.
+  protected forecastEnabled = true;
+  private forecastService = inject(ProductivityForecastService);
+  private routeContext = inject(RouteContextService);
+
+  // Projected efficiency for the quantity being typed. Reads signals only (no HTTP): the baseline comes from the
+  // shift summary already loaded by the page. Additional times are discounted from the new interval like the SQL does.
+  protected efficiencyForecast = computed<number | null>(() => {
+    this.formState();
+    const sam = this.selectedReferenceSam;
+    const newUnits = this.newCompletedQty;
+    if (!this.forecastEnabled || !sam || !newUnits || this.isOrderCompleted()) return null;
+
+    const additionalMinutes = this.selectedAdditionalTimes().reduce(
+      (sum, item) => sum + this.getQuantity(item.id) * (Number(item.standard_time) || 0), 0);
+
+    return this.forecastService.forecast(this.routeContext.currentModule?.id, {
+      session: this.productionContextService.snapshot?.session,
+      baseline: this.productionContextService.efficiencyPeriod(),
+      newUnits,
+      sam: Number(sam.sam),
+      tasksPerHour: Number(sam.tasks_per_hour),
+      additionalMinutes,
+    });
   });
 
   // The three former tabs, now steps of one form. Validity gates "Siguiente":

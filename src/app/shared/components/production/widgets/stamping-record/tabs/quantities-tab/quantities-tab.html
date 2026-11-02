@@ -19,6 +19,12 @@
           }
         </app-ui-form-field>
 
+        @if (efficiencyForecast !== null) {
+          <app-ui-success-message>
+            Eficiencia aproximada después del registro: <span class="font-semibold">{{ efficiencyForecast.toFixed(2) }} %</span>
+          </app-ui-success-message>
+        }
+
         @if (exceedsMaxError) {
           <app-ui-error-message>
             La cantidad ({{ exceedsMaxError.total }}) supera lo pendiente por estampar ({{ exceedsMaxError.max }}).
