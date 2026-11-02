@@ -197,6 +197,8 @@ export class ShiftCycles extends BaseProductionOrderPage {
   protected override loadWorkBreaks = false;
   protected override loadWorkShifts = false;
   protected override loadModules = false;
+  // Doc types are only needed by the order searcher, which loads them itself when it is shown (no order in the URL).
+  protected override loadDocTypes = false;
 
   override ngOnInit(): void {
     this.loaderService.showLoader();

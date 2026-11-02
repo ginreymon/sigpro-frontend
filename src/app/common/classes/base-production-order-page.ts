@@ -28,6 +28,8 @@ export abstract class BaseProductionOrderPage implements OnInit {
   protected loadWorkBreaks = true;
   protected loadWorkShifts = true;
   protected loadModules = true;
+  // Pages whose order searcher is not preloaded with the context doc types fetch them on their own, only if shown.
+  protected loadDocTypes = true;
   // Subclases pueden reemplazar cómo se resuelve la orden (ej. el
   // shift-cycles de estampación la trae de stamping-orders/detail, que ya
   // incluye todo lo que production-orders/detail tiene, en un solo viaje).
@@ -53,7 +55,7 @@ export abstract class BaseProductionOrderPage implements OnInit {
     this.contextService
       .load(
         docType, docNumber, this.loadExtras && this.loadWorkBreaks, this.loadExtras,
-        this.loadExtras && this.loadWorkShifts, this.loadExtras && this.loadModules, this.orderLoader,
+        this.loadExtras && this.loadWorkShifts, this.loadExtras && this.loadModules, this.orderLoader, this.loadDocTypes,
       )
       .pipe(finalize(() => {
         this.isLoading.set(false);

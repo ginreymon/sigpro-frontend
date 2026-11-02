@@ -62,6 +62,7 @@ export class ProductionContextService {
     // (ej. stamping-orders/detail, que ya trae colorRows + referenceSams en
     // un solo viaje) para no tener que pegarle también al endpoint genérico.
     orderLoader?: (docType: string, docNumber: number, session: ProductionContext['session']) => Observable<ProductionOrder | null>,
+    loadDocTypes = true,
   ): Observable<ProductionContext> {
     const coreModuleId = this.routeContextService.currentModule?.id;
     const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
@@ -72,7 +73,9 @@ export class ProductionContextService {
       session: preloaded
         ? of(preloaded.session)
         : this.workSessionService.getActive(scopeParams).pipe(catchError(() => of(null))),
-      docTypes: this.poService.getDocType().pipe(catchError(() => of([]))),
+      docTypes: loadDocTypes
+        ? this.poService.getDocType().pipe(catchError(() => of([])))
+        : of([]),
       workBreaks: loadWorkBreaks
         ? this.workBreakService.all().pipe(catchError(() => of([])))
         : of([]),
