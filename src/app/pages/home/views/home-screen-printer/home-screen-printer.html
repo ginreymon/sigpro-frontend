@@ -23,7 +23,7 @@
     <!-- Action last -->
     <div class="md:col-span-2 lg:col-span-1">
       <app-home-action-card class="h-full" [loading]="isLoading()" [hasPending]="hasPendingSession()"
-        [idleText]="'Comience una nueva orden de estampación de la jornada.'" (action)="goToShiftCycles()">
+        [idleText]="'Comience una nueva orden de estampación de la jornada.'" (action)="onAction()">
       </app-home-action-card>
     </div>
 

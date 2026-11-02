@@ -8,6 +8,9 @@ import { HomeStampingShiftCard } from '../../../../shared/components/production/
 import { WorkSessionService } from '../../../../services/production/work-session-service';
 import { StampingProductivityService } from '../../../../services/stamping/stamping-productivity-service';
 import { WorkSession } from '../../../../models/production/work-session';
+import { cloneWorkSession, isRecoverableSession } from '../../../../common/functions/continue-work-session';
+import { DialogService } from '../../../../services/common/dialog-service';
+import { LoaderService } from '../../../../services/common/loader-service';
 
 @Component({
   selector: 'app-home-screen-printer',
@@ -18,6 +21,8 @@ import { WorkSession } from '../../../../models/production/work-session';
 export class HomeScreenPrinter implements OnInit {
   readonly hasPendingSession = signal(false);
   readonly activeSession = signal<WorkSession | null>(null);
+  /** Closed today without finalizing (logout): "Continuar" clones it instead of starting over. */
+  readonly recoverableSession = signal<WorkSession | null>(null);
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
   /** Hero title: the module location once known, the process name meanwhile. */
@@ -35,17 +40,34 @@ export class HomeScreenPrinter implements OnInit {
 
   readonly productivityService = inject(StampingProductivityService);
   private workSessionService = inject(WorkSessionService);
+  private loaderService = inject(LoaderService);
+  private dialogService = inject(DialogService);
   private router = inject(Router);
 
-  goToShiftCycles() {
-    this.router.navigateByUrl(this.activeSession() ? 'stamping/shift-cycles' : 'stamping/day-operation');
+  onAction(): void {
+    // An open session is picked up by day-operation itself; only a closed one is cloned first.
+    const recoverable = this.activeSession() ? null : this.recoverableSession();
+    if (!recoverable) {
+      this.router.navigateByUrl('stamping/day-operation');
+      return;
+    }
+
+    // The loader overlay blocks clicks; this guards against a second click before it paints.
+    if (this.loaderService.loaderVisible()) return;
+    cloneWorkSession(this.workSessionService, this.loaderService, this.dialogService, recoverable.id, (session) => {
+      this.activeSession.set(session);
+      this.recoverableSession.set(null);
+      this.router.navigateByUrl('stamping/day-operation');
+    });
   }
 
   ngOnInit(): void {
-    this.workSessionService.getActive().subscribe({
-      next: (session: WorkSession | null) => {
-        this.activeSession.set(session);
-        this.hasPendingSession.set(!!session);
+    this.workSessionService.getLast(true).subscribe({
+      next: (session) => {
+        const recoverable = isRecoverableSession(session) ? session : null;
+        this.activeSession.set(session && !session.is_closed ? session : null);
+        this.recoverableSession.set(recoverable);
+        this.hasPendingSession.set(!!this.activeSession() || !!recoverable);
         this.isLoading.set(false);
       },
       error: () => {
