@@ -2,8 +2,9 @@ import { Component, EventEmitter, Input, Output, signal, computed, input, effect
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
+import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiTabs, TabItem } from '../../../../elements/ui-tabs/ui-tabs';
-import { ShiftCyclesFab } from '../shift-cycles-fab/shift-cycles-fab';
+import { TimeProgressCircle } from '../../../widgets/time-progress-circle/time-progress-circle';
 import { ReferenceTab } from './tabs/reference-tab/reference-tab';
 import { QuantitiesTab } from './tabs/quantities-tab/quantities-tab';
 import { AdditionalTimesTab } from './tabs/additionaltimes-tab/additionaltimes-tab';
@@ -11,14 +12,16 @@ import { StampingRecordDataService } from './stamping-record-data-service';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { StampingReferenceSam } from '../../../../../models/stamping/stamping-reference-sam';
 import { StampingRecord as StampingRecordPayload } from '../../../../../models/stamping/stamping-record';
-import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
+import { WorkBreakRecord } from '../../../../../models/production/work-break-record';
+import { searchAdditionalTimes, searchReferenceSams } from '../../../../../common/functions/additional-time-filters';
+import { hourlyWindowRange } from '../../../../../common/functions/hourly-window';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-stamping-record',
   standalone: true,
   imports: [
-    BoxLayout, UiButton, UiTabs, ShiftCyclesFab, ReactiveFormsModule,
+    BoxLayout, UiButton, UiIcon, UiTabs, TimeProgressCircle, ReactiveFormsModule,
     ReferenceTab, QuantitiesTab, AdditionalTimesTab,
   ],
   providers: [StampingRecordDataService],
@@ -27,18 +30,22 @@ import { AppConfigService } from '../../../../../services/core/app-config-servic
 export class StampingRecord {
   visible = input<boolean>(false);
   @Input() inWindow = false;
+  // Active work break of the session; while set, registering is blocked and a paused banner is shown.
+  @Input() activeBreak: WorkBreakRecord | null = null;
   @Output() onClose = new EventEmitter<void>();
-  @Output() onFinalize = new EventEmitter<void>();
   @Output() onSave = new EventEmitter<Partial<StampingRecordPayload>>();
+
+  // Frozen reference for the paused clock: start of the hour the pause was seen in.
+  protected pausedHourStart = new Date(new Date().setMinutes(0, 0, 0));
+  protected pausedNow = new Date();
 
   protected dataService = inject(StampingRecordDataService);
   private productionContextService = inject(ProductionContextService);
   private appConfig = inject(AppConfigService);
   private fb = inject(FormBuilder);
 
-  protected stampingConfig = SHIFT_CYCLES_CONFIG['stamping'];
-  // StampingRecordManual fuerza inWindow=true siempre (no depende de
-  // STAMPING_CAL_WINDOW), así que el aviso de ventana no aplica ahí.
+  // StampingRecordManual always forces inWindow=true (it does not depend on
+  // STAMPING_CAL_WINDOW), so the window notice does not apply there.
   protected showWindowStatus = true;
   protected saveButtonLabel = 'Guardar';
 
@@ -58,10 +65,10 @@ export class StampingRecord {
   protected selectedReferenceSamId = signal<number | null>(null);
   private referencesSearchText = signal('');
 
-  // Completada solo si TODOS los SAM de la OP ya no tienen pendiente — cada
-  // SAM es un proceso independiente, así que uno solo no basta para cerrar la OP.
-  // Declarado antes de recordForm: su validador corre de forma síncrona al
-  // construirse el FormGroup y ya necesita leer isOrderCompleted en ese momento.
+  // Completed only when ALL the SAMs of the order have nothing pending — each
+  // SAM is an independent process, so a single one is not enough to close the order.
+  // Declared before recordForm: its validator runs synchronously when the
+  // FormGroup is built and already needs to read isOrderCompleted at that point.
   protected isOrderCompleted = computed(() => {
     const detail = this.dataService.orderDetail();
     const sams = detail?.referenceSams ?? [];
@@ -78,17 +85,9 @@ export class StampingRecord {
     { validators: [this.exceedsMaxValidator.bind(this)] },
   );
 
-  protected filteredAdditionalTimes = computed(() => {
-    const q = this.additionalTimesSearchText().toLowerCase().trim();
-    const list = this.dataService.additionalTimes();
-    if (!q) return list;
-    return list.filter(
-      (item) =>
-        item.process.toLowerCase().includes(q) ||
-        item.code_number.toLowerCase().includes(q) ||
-        item.engineering_code.toLowerCase().includes(q),
-    );
-  });
+  protected filteredAdditionalTimes = computed(() =>
+    searchAdditionalTimes(this.dataService.additionalTimes(), this.additionalTimesSearchText()),
+  );
 
   protected displayedAdditionalTimes = computed(() => {
     const list = this.filteredAdditionalTimes();
@@ -97,34 +96,30 @@ export class StampingRecord {
     return list.filter((item) => ids.includes(item.id));
   });
 
-  protected filteredReferences = computed(() => {
-    const q = this.referencesSearchText().toLowerCase().trim();
-    // Un SAM ya completo (sin pendiente) no se puede seguir registrando —
-    // se quita de la lista de selección en vez de mostrarlo inactivo.
-    const list = this.referenceSamsSnapshot().filter((item) => Number(item.pending_qty) > 0);
-    if (!q) return list;
-    return list.filter(
-      (item) =>
-        item.reference_code.toLowerCase().includes(q) ||
-        (item.machine_type_name ?? '').toLowerCase().includes(q),
-    );
-  });
+  // A completed SAM (nothing pending) cannot be registered any further —
+  // it is removed from the selection list instead of being shown inactive.
+  protected filteredReferences = computed(() =>
+    searchReferenceSams(
+      this.referenceSamsSnapshot().filter((item) => Number(item.pending_qty) > 0),
+      this.referencesSearchText(),
+    ),
+  );
 
   protected get totalOrderedQuantity(): number {
     return Number(this.dataService.orderDetail()?.orderedQty) || 0;
   }
 
-  // Punto de extensión: StampingRecordManual lo sobreescribe para restar
-  // encima los registros aún no persistidos (ManualStampingRecordsStore),
-  // ya que ese flujo no guarda en BD y por tanto pending_qty/stamped_qty del
-  // backend no se actualizan solos al registrar.
+  // Extension point: StampingRecordManual overrides it to subtract the records
+  // not yet persisted (ManualStampingRecordsStore), since that flow does not
+  // save to the DB and the backend pending_qty/stamped_qty are therefore not
+  // updated on their own when registering.
   protected referenceSamsSnapshot(): StampingReferenceSam[] {
     return this.dataService.referenceSams();
   }
 
-  // El pendiente/estampado se valida por SAM seleccionado, no por el total del OP:
-  // cada SAM (según el módulo que estampó) es un proceso independiente sobre la
-  // misma OP y no debe compartir avance con otro SAM.
+  // Pending/stamped is validated per selected SAM, not against the order total:
+  // each SAM (depending on the module that stamped) is an independent process on
+  // the same order and must not share progress with another SAM.
   protected get selectedReferenceSam(): StampingReferenceSam | null {
     const id = this.selectedReferenceSamId();
     return this.referenceSamsSnapshot().find((sam) => sam.id === id) ?? null;
@@ -139,9 +134,9 @@ export class StampingRecord {
     return Number(this.selectedReferenceSam?.pending_qty) || 0;
   }
 
-  // Completada la OP no queda ningún SAM seleccionable (todos sin pendiente),
-  // así que el contador debe agregar lo estampado de todos los SAM en vez de
-  // depender de una selección que ya no existe.
+  // Once the order is completed no SAM is selectable (all have nothing pending),
+  // so the counter must add up what every SAM has stamped instead of relying on
+  // a selection that no longer exists.
   protected get totalStampedQuantity(): number {
     if (this.isOrderCompleted()) {
       return this.referenceSamsSnapshot().reduce((sum, sam) => sum + (Number(sam.stamped_qty) || 0), 0);
@@ -161,14 +156,14 @@ export class StampingRecord {
     return this.recordForm.get('completed_quantity') as FormControl;
   }
 
-  // Máquinas tipo calandra (uses_processes_search=true) miden en unidades
-  // fraccionarias; el resto de máquinas solo produce piezas enteras.
+  // Calender-type machines (uses_processes_search=true) measure in fractional
+  // units; all other machines only produce whole pieces.
   protected get usesProcessesSearch(): boolean {
     return !!this.productionContextService.snapshot?.session?.current_module?.machine?.uses_processes_search;
   }
 
-  // Tiempos adicionales solo aplican sobre una cantidad ya definida y válida
-  // (sin superar lo pendiente) — si se invalida, la pestaña se cierra sola.
+  // Additional times only apply to an already defined, valid quantity (not above
+  // what is pending) — if it becomes invalid, the tab closes by itself.
   protected get hasValidQuantity(): boolean {
     if (this.isOrderCompleted()) return true;
     return !!this.recordForm.get('completed_quantity')?.valid && !this.exceedsMaxError;
@@ -180,14 +175,7 @@ export class StampingRecord {
   }
 
   protected get windowRange(): { start: string; end: string } {
-    const now = new Date();
-    const hourStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
-    const nextHour = new Date(hourStart.getTime() + 3600_000);
-    const windowSeconds = this.appConfig.stampingCalibrationWindowSeconds;
-    const start = new Date(nextHour.getTime() - windowSeconds * 1000);
-    const end = new Date(nextHour.getTime() + windowSeconds * 1000);
-    const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    return { start: fmt(start), end: fmt(end) };
+    return hourlyWindowRange(this.appConfig.stampingCalibrationWindowSeconds);
   }
 
   protected get tabsView(): TabItem[] {
@@ -339,7 +327,7 @@ export class StampingRecord {
   }
 
   protected register(): void {
-    if (!this.inWindow) return;
+    if (!this.inWindow || this.activeBreak) return;
 
     this.submitAttempted.set(true);
 
@@ -373,8 +361,8 @@ export class StampingRecord {
     return this.recordForm.valid;
   }
 
-  // Solo aplica a máquinas que no son tipo calandra: esas sí permiten
-  // cantidades fraccionarias (ver usesProcessesSearch).
+  // Only applies to non-calender machines: calender ones do allow fractional
+  // quantities (see usesProcessesSearch).
   private integerValidator(control: AbstractControl): ValidationErrors | null {
     if (this.usesProcessesSearch) return null;
     const value = control.value;

@@ -21,9 +21,9 @@
     <app-stamping-record
         [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
         [visible]="shiftModals.stampingRecordVisible()"
-        [inWindow]="inWindow() || finalizeDay()"
+        [inWindow]="inWindow()"
+        [activeBreak]="currentSession()?.active_activity?.active_break ?? null"
         (onClose)="shiftModals.closeStampingRecord()"
-        (onFinalize)="refreshSession()"
         (onSave)="saveStamping($event)"
     ></app-stamping-record>
   </ng-container>

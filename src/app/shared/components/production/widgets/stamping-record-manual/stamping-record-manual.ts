@@ -2,8 +2,9 @@ import { Component, inject, OnChanges } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
+import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
 import { UiTabs } from '../../../../elements/ui-tabs/ui-tabs';
-import { ShiftCyclesFab } from '../shift-cycles-fab/shift-cycles-fab';
+import { TimeProgressCircle } from '../../../widgets/time-progress-circle/time-progress-circle';
 import { ReferenceTab } from '../stamping-record/tabs/reference-tab/reference-tab';
 import { QuantitiesTab } from '../stamping-record/tabs/quantities-tab/quantities-tab';
 import { AdditionalTimesTab } from '../stamping-record/tabs/additionaltimes-tab/additionaltimes-tab';
@@ -28,7 +29,7 @@ import { ManualStampingRecordsStore } from '../../../../../services/stamping/man
   selector: 'app-stamping-record-manual',
   standalone: true,
   imports: [
-    BoxLayout, UiButton, UiTabs, ShiftCyclesFab, ReactiveFormsModule,
+    BoxLayout, UiButton, UiIcon, UiTabs, TimeProgressCircle, ReactiveFormsModule,
     ReferenceTab, QuantitiesTab, AdditionalTimesTab,
   ],
   providers: [StampingRecordDataService],
