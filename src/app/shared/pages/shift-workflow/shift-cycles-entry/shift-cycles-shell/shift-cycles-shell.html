@@ -35,7 +35,7 @@
                 }
                 <app-production-orders-table class="flex-1 min-h-0" [productionOrder]="page().productionOrder()" [pendingRecords]="page().pendingRecords()" [currentSession]="page().currentSession()" [readOnly]="page().config.readOnlyOrdersTable" [customColumns]="page().stampingCustomColumns()" [colorColumnLabel]="page().usesProcessesSearch() ? 'Color' : 'Color SKU'" [sizeTooltipLabel]="page().usesProcessesSearch() ? 'Unidad' : 'Talla'" (onSelectSKU)="page().openTaskDialog($event)">
                     <ng-template appTableTemplate="piezas" let-totals>
-                        <p class="text-green-600">{{ totals.orderedQty * (page().totalStampingFactor() ?? 0) }}</p>
+                        <p class="text-brand-500">{{ totals.orderedQty * (page().totalStampingFactor() ?? 0) }}</p>
                     </ng-template>
                 </app-production-orders-table>
                 </div>
