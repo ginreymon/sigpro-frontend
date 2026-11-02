@@ -12,7 +12,6 @@
         [currentSession]="currentSession()"
         [lastProductionRecord]="currentSession()?.active_activity?.last_production_record"
         (onFinalize)="refreshSession()"
-        (onActivityPaused)="onPauseSaved($event)"
         (inWindowChange)="inWindow.set($event)"
     ></app-shift-hourly-record>
   </ng-container>

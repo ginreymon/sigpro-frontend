@@ -34,7 +34,6 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   @Input() currentSession: WorkSession | null | undefined;
   @Input() lastProductionRecord?: ProductionRecord | null;
   @Output() onFinalize = new EventEmitter<void>();
-  @Output() onActivityPaused = new EventEmitter<WorkBreakRecord>();
   @Output() inWindowChange = new EventEmitter<boolean>();
 
   protected config = SHIFT_CYCLES_CONFIG['production'];
@@ -128,7 +127,6 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
     this.isOpen.set(true);
     this.isPaused.set(true);
     this.currentBreak.set(record);
-    this.onActivityPaused.emit(record);
   }
 
   protected resume(): void {
