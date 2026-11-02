@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseCrudService } from '../common/base-crud-service';
 import { WorkSession } from '../../models/production/work-session';
-import { Observable } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +15,13 @@ export class WorkSessionService extends BaseCrudService<WorkSession> {
 
   closeSession(id: number): Observable<any> {
     return this.http.post(`${this.endpoint}${id}/close/`, {});
+  }
+
+  /** Closes the authenticated user's open session, if any (the backend scopes `active/` to the requester). */
+  closeActive(): Observable<unknown> {
+    return this.getActive().pipe(
+      switchMap((session) => (session?.id ? this.closeSession(session.id) : of(null))),
+    );
   }
 
   rotateActivity(id: number, employeeIds: number[], apprenticeIds: number[] = []): Observable<any> {
