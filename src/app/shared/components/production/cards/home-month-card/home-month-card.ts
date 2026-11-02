@@ -68,8 +68,11 @@ export class HomeMonthCard implements OnInit, OnChanges, OnDestroy {
         this.completed.set(completed);
         this.daysWithData.set((rows ?? []).filter(r => (r.efficiency ?? 0) > 0).length);
         this.loading.set(false);
-        // null = no location available (all-modules mode, no rows, or error): the parent keeps its fallback.
-        const first = this.moduleId ? (rows ?? []).find(r => r.module_location) : undefined;
+        // null = no location available (no rows, rows spread over several locations, or error): the parent keeps its fallback.
+        // Without a module, a location shared by every row still identifies the process.
+        const located = (rows ?? []).filter(r => r.module_location);
+        const sharedLocation = new Set(located.map(r => r.module_location)).size === 1;
+        const first = this.moduleId || sharedLocation ? located[0] : undefined;
         this.location.emit(first
           ? { name: first.module_location, description: first.location_description?.trim() || null }
           : null);
