@@ -31,6 +31,21 @@ export class ProductionContextService {
     this.efficiencyPeriod.set(data);
   }
 
+  // A page that already fetched the active session (e.g. the shift-cycles entry, to choose which page to
+  // mount) hands it over here: the next load() reuses it instead of requesting it again. It is used once
+  // and only for a few seconds, so a later load() never gets a stale session.
+  private preloaded: { session: ProductionContext['session']; at: number } | null = null;
+
+  preloadSession(session: ProductionContext['session']): void {
+    this.preloaded = { session, at: Date.now() };
+  }
+
+  private takePreloadedSession(): { session: ProductionContext['session'] } | null {
+    const preloaded = this.preloaded;
+    this.preloaded = null;
+    return preloaded && Date.now() - preloaded.at < 10_000 ? preloaded : null;
+  }
+
   get snapshot(): ProductionContext | null {
     return this._context$.value;
   }
@@ -51,8 +66,12 @@ export class ProductionContextService {
     const coreModuleId = this.routeContextService.currentModule?.id;
     const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
 
+    const preloaded = this.takePreloadedSession();
+
     return forkJoin({
-      session: this.workSessionService.getActive(scopeParams).pipe(catchError(() => of(null))),
+      session: preloaded
+        ? of(preloaded.session)
+        : this.workSessionService.getActive(scopeParams).pipe(catchError(() => of(null))),
       docTypes: this.poService.getDocType().pipe(catchError(() => of([]))),
       workBreaks: loadWorkBreaks
         ? this.workBreakService.all().pipe(catchError(() => of([])))

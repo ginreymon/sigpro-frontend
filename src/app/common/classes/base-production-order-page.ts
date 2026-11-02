@@ -23,6 +23,11 @@ export abstract class BaseProductionOrderPage implements OnInit {
   currentSession = signal<WorkSession | null>(null);
 
   protected loadExtras = true;
+  // Within loadExtras, pages that do not read the work break / module / work shift lists of the context turn
+  // them off so their requests are not made.
+  protected loadWorkBreaks = true;
+  protected loadWorkShifts = true;
+  protected loadModules = true;
   // Subclases pueden reemplazar cómo se resuelve la orden (ej. el
   // shift-cycles de estampación la trae de stamping-orders/detail, que ya
   // incluye todo lo que production-orders/detail tiene, en un solo viaje).
@@ -46,7 +51,10 @@ export abstract class BaseProductionOrderPage implements OnInit {
     this.wslService.start();
     this.loaderService.showLoader();
     this.contextService
-      .load(docType, docNumber, this.loadExtras, this.loadExtras, this.loadExtras, this.loadExtras, this.orderLoader)
+      .load(
+        docType, docNumber, this.loadExtras && this.loadWorkBreaks, this.loadExtras,
+        this.loadExtras && this.loadWorkShifts, this.loadExtras && this.loadModules, this.orderLoader,
+      )
       .pipe(finalize(() => {
         this.isLoading.set(false);
         this.wslService.end();

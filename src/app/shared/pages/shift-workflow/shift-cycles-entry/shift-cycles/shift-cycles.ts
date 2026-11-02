@@ -192,6 +192,12 @@ export class ShiftCycles extends BaseProductionOrderPage {
     this.currentSession()?.employees_snapshot?.map(e => e.id) ?? []
   );
 
+  // This page never reads the work break, module or work shift lists of the context (the shift and the module
+  // come with the active session, and the pause modal loads its own breaks), so those requests are skipped.
+  protected override loadWorkBreaks = false;
+  protected override loadWorkShifts = false;
+  protected override loadModules = false;
+
   override ngOnInit(): void {
     this.loaderService.showLoader();
     this.appConfig.load().subscribe(() => {
