@@ -6,7 +6,7 @@ import { LoaderService } from '../../../../../services/common/loader-service';
 import { AdditionalStampingTime } from '../../../../../models/stamping/additional-stamping-time';
 import { StampingOrderDetail } from '../../../../../models/stamping/stamping-order-detail';
 import { StampingReferenceSam } from '../../../../../models/stamping/stamping-reference-sam';
-import { filterByMachine, filterByMachineType } from '../../../../../common/functions/additional-time-filters';
+import { filterByMachineType, moduleMachineParams } from '../../../../../common/functions/additional-time-filters';
 
 // Component-scoped (see StampingRecord's `providers`): one instance per modal
 // instance. Owns only the one-directional loading I/O (order/referenceSams/
@@ -36,28 +36,24 @@ export class StampingRecordDataService {
     // también agrega orderedQty/referenceSams, mismo shape StampingOrderDetail).
     const order = this.productionContextService.snapshot?.order as StampingOrderDetail | null;
     const moduleMachineTypeId = this.moduleMachineTypeId();
-    const moduleMachineId = this.moduleMachineId();
 
     this.orderDetail.set(order);
     this.referenceSams.set(filterByMachineType(order?.referenceSams ?? [], moduleMachineTypeId));
 
-    this.additionalTimeService.all()
+    // The backend returns only the times of the module's machine type / machine.
+    this.additionalTimeService.all(moduleMachineParams(this.productionContextService.snapshot?.session?.current_module?.machine))
       .pipe(finalize(() => {
         this.isLoadingModalData.set(false);
         this.loaderService.hideLoader();
       }))
       .subscribe({
         next: (additionalTimes) => {
-          this.additionalTimes.set(filterByMachine(filterByMachineType(additionalTimes, moduleMachineTypeId), moduleMachineId));
+          this.additionalTimes.set(additionalTimes);
         },
       });
   }
 
   private moduleMachineTypeId(): number | null {
     return this.productionContextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
-  }
-
-  private moduleMachineId(): number | null {
-    return this.productionContextService.snapshot?.session?.current_module?.machine?.id ?? null;
   }
 }

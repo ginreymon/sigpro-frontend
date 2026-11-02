@@ -14,7 +14,7 @@ import { AdditionalStampingTimeService } from '../../../../../services/stamping/
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
 import { AdditionalStampingTime } from '../../../../../models/stamping/additional-stamping-time';
 import { StampingRecordContext } from '../../../../../models/stamping/stamping-record-context';
-import { filterByMachine, filterByMachineType } from '../../../../../common/functions/additional-time-filters';
+import { moduleMachineParams } from '../../../../../common/functions/additional-time-filters';
 import { TabItem, UiTabs } from "../../../../elements/ui-tabs/ui-tabs";
 
 export interface StampingQuantityModalSave {
@@ -166,13 +166,8 @@ export class StampingQuantityModal {
   }
 
   private loadAdditionalTimes(): void {
-    this.additionalTimeService.all().subscribe((items) => {
-      const moduleMachineTypeId =
-        this.productionContextService.snapshot?.session?.current_module?.machine?.machine_type_id ?? null;
-      const moduleMachineId =
-        this.productionContextService.snapshot?.session?.current_module?.machine?.id ?? null;
-      this.additionalTimes.set(filterByMachine(filterByMachineType(items, moduleMachineTypeId), moduleMachineId));
-    });
+    const machine = this.productionContextService.snapshot?.session?.current_module?.machine;
+    this.additionalTimeService.all(moduleMachineParams(machine)).subscribe((items) => this.additionalTimes.set(items));
   }
 
   private integerValidator(control: AbstractControl): ValidationErrors | null {
