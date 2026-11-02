@@ -201,6 +201,8 @@ export class ShiftCycles extends BaseProductionOrderPage {
   protected override loadDocTypes = false;
 
   override ngOnInit(): void {
+    // Stamping computes the window itself once the settings are loaded; until then the register button must stay closed.
+    if (!this.config.showHourlyRecord) this.inWindow.set(false);
     this.loaderService.showLoader();
     this.appConfig.load().subscribe(() => {
       super.ngOnInit();

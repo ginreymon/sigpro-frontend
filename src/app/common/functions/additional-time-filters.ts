@@ -18,3 +18,30 @@ export function moduleMachineParams(
     ...(machine?.id ? { module_machine: machine.id } : {}),
   };
 }
+
+// Client-side text search used by the stamping-record tabs (case-insensitive, empty query keeps the list).
+export function searchAdditionalTimes<T extends { process: string; code_number: string; engineering_code: string }>(
+  items: T[],
+  query: string,
+): T[] {
+  const q = query.toLowerCase().trim();
+  if (!q) return items;
+  return items.filter(
+    (item) =>
+      item.process.toLowerCase().includes(q) ||
+      item.code_number.toLowerCase().includes(q) ||
+      item.engineering_code.toLowerCase().includes(q),
+  );
+}
+
+export function searchReferenceSams<T extends { reference_code: string; machine_type_name?: string | null }>(
+  items: T[],
+  query: string,
+): T[] {
+  const q = query.toLowerCase().trim();
+  if (!q) return items;
+  return items.filter(
+    (item) =>
+      item.reference_code.toLowerCase().includes(q) || (item.machine_type_name ?? '').toLowerCase().includes(q),
+  );
+}
