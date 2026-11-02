@@ -3,7 +3,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
-import { UiTabs } from '../../../../elements/ui-tabs/ui-tabs';
+import { UiMultiStepForm } from '../../../../elements/ui-multi-step-form/ui-multi-step-form';
+import { UiStep, UiSummary } from '../../../../elements/ui-multi-step-form/ui-step.directive';
+import { WindowStatus } from '../../../widgets/window-status/window-status';
 import { TimeProgressCircle } from '../../../widgets/time-progress-circle/time-progress-circle';
 import { ReferenceTab } from '../stamping-record/tabs/reference-tab/reference-tab';
 import { QuantitiesTab } from '../stamping-record/tabs/quantities-tab/quantities-tab';
@@ -29,7 +31,7 @@ import { ManualStampingRecordsStore } from '../../../../../services/stamping/man
   selector: 'app-stamping-record-manual',
   standalone: true,
   imports: [
-    BoxLayout, UiButton, UiIcon, UiTabs, TimeProgressCircle, ReactiveFormsModule,
+    BoxLayout, UiButton, UiIcon, UiMultiStepForm, UiStep, UiSummary, TimeProgressCircle, WindowStatus, ReactiveFormsModule,
     ReferenceTab, QuantitiesTab, AdditionalTimesTab,
   ],
   providers: [StampingRecordDataService],

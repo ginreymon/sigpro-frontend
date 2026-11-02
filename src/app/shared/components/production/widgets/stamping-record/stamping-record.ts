@@ -1,9 +1,13 @@
 import { Component, EventEmitter, Input, Output, signal, computed, input, effect, inject, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { startWith } from 'rxjs';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BoxLayout } from '../../../layout/box-layout/box-layout';
 import { UiButton } from '../../../../elements/ui-button/ui-button';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
-import { UiTabs, TabItem } from '../../../../elements/ui-tabs/ui-tabs';
+import { UiMultiStepForm, MultiStepConfig } from '../../../../elements/ui-multi-step-form/ui-multi-step-form';
+import { UiStep, UiSummary } from '../../../../elements/ui-multi-step-form/ui-step.directive';
+import { WindowStatus } from '../../../widgets/window-status/window-status';
 import { TimeProgressCircle } from '../../../widgets/time-progress-circle/time-progress-circle';
 import { ReferenceTab } from './tabs/reference-tab/reference-tab';
 import { QuantitiesTab } from './tabs/quantities-tab/quantities-tab';
@@ -14,14 +18,13 @@ import { StampingReferenceSam } from '../../../../../models/stamping/stamping-re
 import { StampingRecord as StampingRecordPayload } from '../../../../../models/stamping/stamping-record';
 import { WorkBreakRecord } from '../../../../../models/production/work-break-record';
 import { searchAdditionalTimes, searchReferenceSams } from '../../../../../common/functions/additional-time-filters';
-import { hourlyWindowRange } from '../../../../../common/functions/hourly-window';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-stamping-record',
   standalone: true,
   imports: [
-    BoxLayout, UiButton, UiIcon, UiTabs, TimeProgressCircle, ReactiveFormsModule,
+    BoxLayout, UiButton, UiIcon, UiMultiStepForm, UiStep, UiSummary, TimeProgressCircle, WindowStatus, ReactiveFormsModule,
     ReferenceTab, QuantitiesTab, AdditionalTimesTab,
   ],
   providers: [StampingRecordDataService],
@@ -49,13 +52,6 @@ export class StampingRecord {
   protected showWindowStatus = true;
   protected saveButtonLabel = 'Guardar';
 
-  protected tabs: TabItem[] = [
-    { key: 'reference', label: 'Referencia' },
-    { key: 'quantities', label: 'Cantidades' },
-    { key: 'additionaltimes', label: 'Tiempos Adicionales' },
-  ];
-
-  protected activeTab = signal('reference');
   protected submitAttempted = signal(false);
   protected selectedAdditionalTimeIds = signal<number[]>([]);
   protected additionalTimeQuantities = signal<Record<number, number>>({});
@@ -174,50 +170,37 @@ export class StampingRecord {
     return order ? `${order.documentType} ${order.documentNumber}` : '';
   }
 
-  protected get windowRange(): { start: string; end: string } {
-    return hourlyWindowRange(this.appConfig.stampingCalibrationWindowSeconds);
+  protected get windowSeconds(): number {
+    return this.appConfig.stampingCalibrationWindowSeconds;
   }
 
-  protected get tabsView(): TabItem[] {
-    const tabs = this.isOrderCompleted()
-      ? this.tabs.filter((tab) => tab.key === 'quantities')
-      : this.tabs;
-    return tabs.map((tab) => ({
-      ...tab,
-      hasError: this.tabHasError(tab.key),
-      disabled: this.isTabDisabled(tab.key),
-    }));
+  // Same rule as app-shift-hourly-record's "Registrar": enabled only inside the
+  // process window; empty string means enabled, otherwise it is the tooltip text.
+  protected get saveDisabledReason(): string {
+    if (this.activeBreak) return 'Jornada pausada';
+    return this.inWindow ? '' : 'Disponible dentro de la ventana de registro';
   }
 
-  private isTabDisabled(key: string): boolean {
-    if (key === 'quantities') return !this.isOrderCompleted() && !this.hasSelectedReference;
-    if (key === 'additionaltimes') return !this.hasValidQuantity;
-    return false;
-  }
+  // Re-evaluates the step validity whenever the shared form changes (form state is not a signal).
+  private formState = toSignal(this.recordForm.valueChanges.pipe(startWith(null)));
 
-  private tabHasError(key: string): boolean {
-    if (!this.submitAttempted()) return false;
-    if (key === 'reference') return this.recordForm.get('stamping_reference_sam')?.invalid ?? false;
-    if (key === 'quantities') {
-      return this.recordForm.get('completed_quantity')?.invalid || !!this.exceedsMaxError;
-    }
-    if (key === 'additionaltimes') return this.hasInvalidAdditionalTimeQuantity;
-    return false;
-  }
+  protected selectedAdditionalTimes = computed(() => {
+    const ids = this.selectedAdditionalTimeIds();
+    return this.dataService.additionalTimes().filter((item) => ids.includes(item.id));
+  });
 
-  private readonly tabControlNames: Record<string, string[]> = {
-    reference: ['stamping_reference_sam'],
-    quantities: ['completed_quantity'],
-    additionaltimes: [],
-  };
-
-  protected get currentTabIndex(): number {
-    return this.tabsView.findIndex((tab) => tab.key === this.activeTab());
-  }
-
-  protected get isLastTab(): boolean {
-    return this.currentTabIndex === this.tabsView.length - 1;
-  }
+  // The three former tabs, now steps of one form. Validity gates "Siguiente":
+  // a step is blocked until the previous ones are valid (the quantity needs a SAM,
+  // additional times need a valid quantity). Completed orders only show quantities.
+  protected stepsView = computed<MultiStepConfig[]>(() => {
+    this.formState();
+    if (this.isOrderCompleted()) return [{ key: 'quantities', label: 'Cantidades' }];
+    return [
+      { key: 'reference', label: 'Referencia', valid: this.hasSelectedReference },
+      { key: 'quantities', label: 'Cantidades', valid: this.hasValidQuantity },
+      { key: 'additionaltimes', label: 'Tiempos adicionales', valid: !this.hasInvalidAdditionalTimeQuantity },
+    ];
+  });
 
   protected get hasInvalidAdditionalTimeQuantity(): boolean {
     return this.selectedAdditionalTimeIds().some((id) => this.getQuantity(id) <= 0);
@@ -226,7 +209,6 @@ export class StampingRecord {
   constructor() {
     effect(() => {
       if (this.visible()) {
-        untracked(() => this.activeTab.set('reference'));
         this.dataService.loadModalData();
       } else {
         untracked(() => {
@@ -239,6 +221,8 @@ export class StampingRecord {
           this.selectedAdditionalTimeIds.set([]);
           this.additionalTimeQuantities.set({});
           this.submitAttempted.set(false);
+          this.referencesSearchText.set('');
+          this.additionalTimesSearchText.set('');
         });
       }
     });
@@ -246,38 +230,6 @@ export class StampingRecord {
       if (this.showOnlySelectedAdditionalTimes() && this.selectedAdditionalTimeIds().length === 0) {
         untracked(() => this.showOnlySelectedAdditionalTimes.set(false));
       }
-    });
-    effect(() => {
-      if (this.isOrderCompleted()) {
-        untracked(() => this.activeTab.set('quantities'));
-      }
-    });
-  }
-
-  protected onTabChange(key: string): void {
-    this.activeTab.set(key);
-    // Each tab renders its own app-searcher instance (@if/@else-if), so it
-    // always mounts empty — reset the matching filter signal too, or the
-    // list stays filtered by a stale query the visible input no longer shows.
-    this.additionalTimesSearchText.set('');
-    this.referencesSearchText.set('');
-  }
-
-  protected goToNextTab(): void {
-    const key = this.activeTab();
-    this.submitAttempted.set(true);
-    this.markTabControlsTouched(key);
-    if (this.tabHasError(key)) return;
-
-    const next = this.tabsView[this.currentTabIndex + 1];
-    if (next) this.onTabChange(next.key);
-  }
-
-  private markTabControlsTouched(key: string): void {
-    (this.tabControlNames[key] ?? []).forEach((name) => {
-      const control = this.recordForm.get(name);
-      control?.markAsTouched();
-      control?.updateValueAndValidity({ onlySelf: true, emitEvent: true });
     });
   }
 

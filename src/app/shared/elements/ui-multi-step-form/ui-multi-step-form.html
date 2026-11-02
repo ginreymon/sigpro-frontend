@@ -1,0 +1,48 @@
+<div class="flex flex-col gap-6 rounded-lg border border-slate-200 bg-white p-3 sm:p-6">
+  <app-ui-stepper [steps]="allSteps()" [current]="index()" [maxReachable]="maxReachable()"
+    (stepClick)="goTo($event)"></app-ui-stepper>
+
+  <!-- Steps stay mounted (hidden) so entered data survives navigation -->
+  <div class="min-h-32">
+    @for (step of steps(); track step.key; let i = $index) {
+      <section [hidden]="index() !== i" [attr.aria-label]="step.label">
+        @if (templateFor(step.key); as tpl) {
+          <ng-container [ngTemplateOutlet]="tpl"></ng-container>
+        }
+      </section>
+    }
+    <section [hidden]="!isSummary()" [attr.aria-label]="summaryLabel()">
+      @if (summaryTemplate(); as summary) {
+        <ng-container [ngTemplateOutlet]="summary.template" [ngTemplateOutletContext]="summaryContext"></ng-container>
+      }
+    </section>
+  </div>
+
+  <footer class="flex items-center justify-between gap-2 border-t border-slate-200 pt-4">
+    <div class="flex items-center gap-2">
+      <ng-content select="[footer-start]"></ng-content>
+      <app-ui-button [intent]="'cancel'" [disabled]="isFirst() || submitting()" (onClick)="prev()">
+        <app-ui-icon [iconName]="'chevronLeft'" [class]="'w-4 h-4'"></app-ui-icon>
+        Anterior
+      </app-ui-button>
+    </div>
+
+    @if (isSummary()) {
+      <app-ui-button [intent]="'accept'" [disabled]="submitting() || confirmDisabled()" (onClick)="confirm()">
+        @if (submitting()) {
+          <span class="inline-block w-4 h-4 mr-2 rounded-full border-2 border-white/40 border-t-white animate-spin"
+            aria-hidden="true"></span>
+          Enviando...
+        } @else {
+          {{ submitLabel() }}
+        }
+      </app-ui-button>
+    } @else if (!isLast()) {
+      <app-ui-button [intent]="'accept'" [disabled]="!canAdvance()" (onClick)="next()">
+        Siguiente
+        <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4'"></app-ui-icon>
+      </app-ui-button>
+    }
+  </footer>
+  <p class="sr-only" aria-live="polite">Paso {{ index() + 1 }} de {{ allSteps().length }}</p>
+</div>

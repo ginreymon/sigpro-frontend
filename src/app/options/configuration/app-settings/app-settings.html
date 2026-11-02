@@ -66,8 +66,17 @@
                     formControlName="value"
                     [id]="'value'"
                     [placeholder]="'Valor de la configuración'"
+                    [type]="isWindowSetting ? 'number' : 'text'"
                     [control]="value">
                 </app-ui-input>
+                @if (isWindowSetting) {
+                    <p class="mt-1 text-xs text-slate-500">
+                        Minutos antes y después de cada hora en punto.
+                        @if (windowPreview; as w) {
+                            Con este valor se registra de <span class="font-medium">{{ w.start }}</span> a <span class="font-medium">{{ w.end }}</span>.
+                        }
+                    </p>
+                }
             </app-ui-form-field>
 
             <app-ui-form-field [controlName]="'data_type'" [label]="'Tipo de dato'">

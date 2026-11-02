@@ -39,14 +39,8 @@
           }
         }
       </div>
-    } @else if (!isInWindow()) {
-      <p class="w-full text-sm text-gray-600 text-left bg-gray-100 border border-gray-200 rounded-lg px-3 py-2">
-        Podrá registrar las cantidades de <span class="font-medium">{{ windowRange.start }} </span> a <span class="font-medium">{{ windowRange.end }}</span>.
-      </p>
     } @else {
-      <p class="w-full text-sm text-brand-700 text-left bg-brand-100 border border-brand-200 rounded-lg px-3 py-2">
-        Ventana de registro activa de <span class="font-medium">{{ windowRange.start }} </span> a <span class="font-medium">{{ windowRange.end }}</span>.
-      </p>
+      <app-window-status [inWindow]="isInWindow()" [windowSeconds]="windowSeconds"></app-window-status>
     }
   </div>
 
@@ -62,10 +56,12 @@
       @if (activityId) {
       <app-shift-cycles-fab [inWindow]="isInWindow()" [config]="config" (onFinalize)="onFinalize.emit()"></app-shift-cycles-fab>
       }
-      <app-ui-button class="ml-auto shrink-0" [disabled]="!isInWindow()" (onClick)="register()">
-        <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>
-        Registrar
-      </app-ui-button>
+      <app-ui-tooltip class="ml-auto shrink-0" [message]="isInWindow() ? '' : 'Disponible dentro de la ventana de registro'">
+        <app-ui-button [disabled]="!isInWindow()" (onClick)="register()">
+          <app-ui-icon [iconName]="'circleRight'" class="w-5 h-5"></app-ui-icon>
+          Registrar
+        </app-ui-button>
+      </app-ui-tooltip>
     }
   </div>
 

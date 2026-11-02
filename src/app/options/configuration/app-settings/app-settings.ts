@@ -22,6 +22,8 @@ import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { TableTemplate } from '../../../directives/table-template';
+import { AppSettingKey } from '../../../services/core/app-setting-keys';
+import { hourlyWindowRange } from '../../../common/functions/hourly-window';
 
 @Component({
   selector: 'app-app-settings',
@@ -55,6 +57,19 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
     { label: 'Boolean', value: 'BOOLEAN' },
     { label: 'JSON', value: 'JSON' },
   ];
+
+  // Settings holding a registration window in minutes (hourly record / stamping record).
+  private readonly windowKeys: string[] = [AppSettingKey.SHIFT_HOURLY_WINDOW, AppSettingKey.STAMPING_CALIBRATION_WINDOW];
+
+  get isWindowSetting(): boolean {
+    return this.windowKeys.includes(this.rowObject?.key ?? '');
+  }
+
+  // Live example of the resulting window so the user sees the effect of the minutes they type.
+  get windowPreview(): { start: string; end: string } | null {
+    const minutes = Number(this.value?.value);
+    return minutes > 0 ? hourlyWindowRange(minutes * 60) : null;
+  }
 
   getDataTypeLabel(value: string | undefined): string {
     return this.dataTypes.find((d) => d.value === value)?.label ?? value ?? '-';
@@ -106,6 +121,7 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
       this.name?.disable();
       this.dataType?.disable();
       this.isActive?.disable();
+      if (this.isWindowSetting) this.value?.addValidators([Validators.min(1)]);
     }
   }
 

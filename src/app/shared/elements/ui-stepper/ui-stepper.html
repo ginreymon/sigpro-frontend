@@ -1,0 +1,47 @@
+<!-- Mobile: compact "Paso X de N" with progress bar -->
+<div class="sm:hidden flex flex-col gap-2">
+  <div class="flex items-center justify-between text-xs text-slate-500">
+    <span>Paso {{ current() + 1 }} de {{ steps().length }}</span>
+    <span class="font-medium text-brand-700">{{ currentStep().label }}</span>
+  </div>
+  <div class="h-1.5 w-full rounded-full bg-slate-200" role="progressbar" aria-label="Progreso del formulario"
+    [attr.aria-valuemin]="1" [attr.aria-valuemax]="steps().length" [attr.aria-valuenow]="current() + 1">
+    <div class="h-full rounded-full bg-brand transition-all duration-200" [style.width.%]="progress()"></div>
+  </div>
+</div>
+
+<!-- Desktop: horizontal stepper -->
+<ol class="hidden sm:flex items-start w-full">
+  @for (step of steps(); track step.key; let i = $index; let last = $last) {
+    <li class="flex items-start" [class.flex-1]="!last">
+      <button type="button" (click)="select(i)" [disabled]="i > maxReachable()"
+        [attr.aria-current]="status(i) === 'current' ? 'step' : null"
+        class="flex items-center gap-2 text-left rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-200 disabled:cursor-not-allowed"
+        [class.cursor-pointer]="i <= maxReachable() && i !== current()">
+        <span
+          class="shrink-0 w-8 h-8 rounded-full border flex items-center justify-center text-sm font-semibold transition-colors duration-200"
+          [class.bg-brand]="status(i) === 'current'" [class.bg-brand-500]="status(i) === 'completed'"
+          [class.border-brand]="status(i) !== 'pending'" [class.text-white]="status(i) !== 'pending'"
+          [class.bg-white]="status(i) === 'pending'" [class.border-slate-200]="status(i) === 'pending'"
+          [class.text-slate-500]="status(i) === 'pending'">
+          @if (status(i) === 'completed') {
+            <app-ui-icon [iconName]="'check'" [class]="'w-4 h-4'"></app-ui-icon>
+          } @else {
+            {{ i + 1 }}
+          }
+        </span>
+        <span class="flex flex-col">
+          <span class="text-sm font-medium" [class.text-brand-700]="status(i) === 'current'"
+            [class.text-gray-700]="status(i) === 'completed'" [class.text-slate-500]="status(i) === 'pending'">{{ step.label }}</span>
+          @if (step.description) {
+            <span class="text-xs text-slate-500">{{ step.description }}</span>
+          }
+        </span>
+      </button>
+      @if (!last) {
+        <span class="flex-1 h-px mt-4 mx-3 transition-colors duration-200"
+          [class.bg-brand-500]="i < current()" [class.bg-slate-200]="i >= current()" aria-hidden="true"></span>
+      }
+    </li>
+  }
+</ol>

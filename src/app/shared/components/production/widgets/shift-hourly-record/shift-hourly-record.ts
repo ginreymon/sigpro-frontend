@@ -19,11 +19,12 @@ import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
 import { ShiftCyclesFab } from "../shift-cycles-fab/shift-cycles-fab";
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 import { isWithinHourlyWindow } from '../../../../../common/functions/hourly-window';
+import { WindowStatus } from '../../../widgets/window-status/window-status';
 
 @Component({
   selector: 'app-shift-hourly-record',
   standalone: true,
-  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, DatePipe, OrderInfoBar, UiTooltip, ShiftCyclesFab],
+  imports: [BoxLayout, TimeProgressCircle, UiButton, UiIcon, DatePipe, OrderInfoBar, UiTooltip, ShiftCyclesFab, WindowStatus],
   templateUrl: './shift-hourly-record.html',
 })
 export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
@@ -58,18 +59,10 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
   private intervalId?: ReturnType<typeof setInterval>;
   private wasInWindow = false;
   private registeredThisWindow = false;
-  private windowSeconds = 300;
+  protected windowSeconds = 300;
 
   protected get windowMinutes(): number {
     return Math.round(this.windowSeconds / 60);
-  }
-
-  protected get windowRange(): { start: string; end: string } {
-    const nextHour = new Date(this.hourStart().getTime() + 3600_000);
-    const start = new Date(nextHour.getTime() - this.windowSeconds * 1000);
-    const end = new Date(nextHour.getTime() + this.windowSeconds * 1000);
-    const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    return { start: fmt(start), end: fmt(end) };
   }
 
   constructor() {
