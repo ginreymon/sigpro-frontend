@@ -4,6 +4,7 @@ export interface ModuleEfficiencyRow {
   module_number: number;
   module_operator_count: number;
   module_location: string;
+  location_description?: string | null;
   work_center_id: number;
   work_center_code: string;
   work_center_name: string;

@@ -1,0 +1,19 @@
+<section class="bg-brand-50 border border-brand-100 rounded-xl p-4 sm:p-6 flex flex-col gap-4 sm:gap-6">
+    <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-white border border-brand-100 rounded-lg flex items-center justify-center shrink-0">
+            <app-ui-icon [iconName]="iconName" [class]="'w-6 h-6 text-brand-500'"></app-ui-icon>
+        </div>
+        <div class="min-w-0 flex-1" [attr.aria-busy]="loading">
+            @if (loading) {
+            <div class="h-7 skeleton rounded w-48 max-w-full"></div>
+            <div class="h-5 mt-0 skeleton rounded w-72 max-w-full"></div>
+            } @else {
+            <h2 class="text-xl leading-7 font-semibold text-gray-800 truncate">{{ title }}</h2>
+            @if (description) {
+            <p class="text-sm leading-5 text-slate-600">{{ description }}</p>
+            }
+            }
+        </div>
+    </div>
+    <ng-content></ng-content>
+</section>

@@ -1,0 +1,9 @@
+<div class="h-full bg-white border border-slate-200 rounded-lg p-5 flex flex-col items-center justify-center gap-2 text-center" [attr.role]="variant === 'error' ? 'alert' : 'status'">
+    <div class="w-12 h-12 rounded-lg border flex items-center justify-center shrink-0"
+        [class]="variant === 'error' ? 'bg-red-100 border-red-100' : 'bg-brand-50 border-brand-100'">
+        <app-ui-icon [iconName]="variant === 'error' ? 'triangleExclamation' : 'clock'"
+            [class]="variant === 'error' ? 'w-5 h-5 text-red-600' : 'w-6 h-6 text-brand-500'"></app-ui-icon>
+    </div>
+    <p class="text-sm leading-5 font-semibold text-gray-700">{{ title }}</p>
+    <p class="text-sm leading-5 text-slate-500">{{ message }}</p>
+</div>
