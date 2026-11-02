@@ -6,6 +6,8 @@ import { hourlyWindowRange } from '../../../../common/functions/hourly-window';
 @Component({
   selector: 'app-window-status',
   standalone: true,
+  // Custom elements are inline by default, so the inner w-full had nothing to fill.
+  host: { class: 'block w-full' },
   templateUrl: './window-status.html',
 })
 export class WindowStatus {
