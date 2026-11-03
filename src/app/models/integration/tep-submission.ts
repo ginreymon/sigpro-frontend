@@ -14,6 +14,10 @@ export interface TepSubmissionDetail {
   operation_completed: 0 | 1;
   completed_quantity: string;
   hours: string;
+  // Time traceability (null on submissions made before it was tracked).
+  time_mode: 'real' | 'standard' | null;
+  sent_seconds_per_unit: string | null;
+  real_seconds_by_unit: string | null;
   // 1 = producción, 2 = estampación.
   origin_id: number | null;
   register_ids: number[];

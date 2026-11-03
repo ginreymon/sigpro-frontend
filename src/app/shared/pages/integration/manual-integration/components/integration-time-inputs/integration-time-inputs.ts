@@ -17,6 +17,8 @@ export interface SelectionSummary {
   hours: number;
   minutes: number;
   subprocess: TepSubprocess | null;
+  // Time type the inputs were calculated with ("Real" when true, "Estándar" when false).
+  useRecordedTime: boolean;
   valid: boolean;
 }
 
@@ -151,6 +153,7 @@ export class IntegrationTimeInputs {
       hours: hours ?? 0,
       minutes: minutes ?? 0,
       subprocess: this.askSubprocess() ? (this.showSubprocess() ? subprocess : 'none') : null,
+      useRecordedTime: this.useRecordedTime(),
       valid: this.form.valid,
     });
   }

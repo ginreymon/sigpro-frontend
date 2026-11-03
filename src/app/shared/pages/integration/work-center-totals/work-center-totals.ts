@@ -198,6 +198,9 @@ export class WorkCenterTotals extends BaseCrudPage<OrderToBeOutbound> {
         operation_work_center_id: workCenter,
         completed_quantity: Math.round((item.total_completed / (item.pieces || 1)) * 10000) / 10000,
         hours: Number(hours[item.op_rowid]),
+        // Hours are typed by hand on this page (no real-time calculation): sent as the standard time.
+        time_mode: 'standard' as const,
+        real_seconds_by_unit: item.seconds_by_unit ?? null,
         operation_completed: item.erp_completed_operation ? 1 : 0,
         register_ids: item.register_ids,
         origin_id: row.origin_id,

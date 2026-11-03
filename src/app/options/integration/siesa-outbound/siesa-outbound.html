@@ -39,7 +39,7 @@
 
         <div class="space-y-2 text-sm text-slate-600">           
             <p> <strong>Centro de trabajo:</strong> {{ rowObject.work_center_id || '—' }} </p>
-            <p> <strong>Documento:</strong> {{ rowObject.document_type_id }} </p>
+            <p> <strong>Documento:</strong> {{ rowObject.document_type_id }} {{ rowObject.document_number || '' }} </p>
             <p> <strong>Fecha integración:</strong> {{ rowObject.date | date: 'dd/MM/yyyy' }} </p>  
         </div>
     </div>
@@ -114,6 +114,9 @@
                 <p> <strong>Origen:</strong> {{ originLabel(detail.origin_id) }} </p>
                 <p class="text-green-600"> <strong>Cantidad:</strong> {{ detail.completed_quantity }} </p>
                 <p> <strong>Horas:</strong> {{ detail.hours }} </p>
+                <p> <strong>Tipo de tiempo:</strong> {{ detail.time_mode === 'real' ? 'Real' : detail.time_mode === 'standard' ? 'Estándar' : '—' }} </p>
+                <p> <strong>Seg/unidad enviados:</strong> {{ detail.sent_seconds_per_unit ?? '—' }} </p>
+                <p class="col-span-2"> <strong>Seg/unidad real calculado:</strong> {{ detail.real_seconds_by_unit ?? '—' }} </p>
                 <p class="col-span-2"> <strong>Registros:</strong> {{ detail.register_ids.join(', ') || '—' }} </p>
 
                 @if (detail.origin_id === 1) {

@@ -20,6 +20,9 @@ export interface TepSendDetail {
   operation_work_center_id: string;
   completed_quantity: number;
   hours: number;
+  // Time type the user integrated with, and the OP's seconds_by_unit at that moment (time traceability).
+  time_mode: 'real' | 'standard';
+  real_seconds_by_unit: number | null;
   operation_completed: 0 | 1;
   // Ids de los registros (production/stamping record) que respaldan el item.
   register_ids: number[];
@@ -38,6 +41,8 @@ export interface TepSendRequest {
 
 export interface TepSendResponse {
   submission_id: number;
+  // Consecutive assigned by the backend: the same one sent to SIESA.
+  document_number: number;
   ok: boolean;
   error_type: number | null;
   error_detail_xml: string | null;
