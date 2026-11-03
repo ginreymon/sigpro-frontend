@@ -18,7 +18,7 @@ export interface OrderToBeOutboundDetail {
   total_records: number;
   pieces: number | null;
   operation_number: number | null;
-  erp_completed_operation: number | null;
+  erp_completed_operation: boolean | null;
   erp_execution_quantity: number | null;
   erp_completed_quantity: number | null;
   recorded_quantity_per_piece: number | null;
