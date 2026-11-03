@@ -207,9 +207,11 @@ export class DocumentIntegrationMatrix implements OnInit {
 
     if (text && !WHOLE_NUMBER.test(text)) error = 'Ingrese un número entero.';
     else if (text && quantity < 1) error = 'La cantidad debe ser mayor a 0.';
-    else if (text && quantity > this.integrableMax()) error = `Máximo por integrar: ${this.integrableMax()}.`;
-    else if (text && quantity > this.poolUnits()) error = `Registros disponibles por integrar: ${this.poolUnits()}.`;
-    else if (text) pickedIds = pickRecordsCovering(pool.map(({ record }) => record), quantity);
+    else if (text) {
+      pickedIds = pickRecordsCovering(pool.map(({ record }) => record), quantity);
+      // Not enough pending records to cover it: take them all instead of blocking.
+      if (!pickedIds.length) pickedIds = pool.filter(({ record }) => recordUnits(record) > 0).map(({ record }) => record.id);
+    }
 
     this.quantityError.set(error);
     this.typedUnits.set(pickedIds.length ? quantity : 0);
