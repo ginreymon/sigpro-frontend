@@ -60,9 +60,10 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
   protected override get columns(): TableColumn<TepSubmission>[] {
     return [
       { type: 'template', label: 'Fecha', templateName: 'createdAtTemplate' },
+      { field: 'status_display', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
+      { type: 'template', label: 'Documento SIESA', templateName: 'siesaDocumentTemplate' },
       { field: 'work_center_id', label: 'Centro de trabajo' },
       { type: 'template', label: 'Documentos', templateName: 'opsTemplate', align: 'center' },
-      { field: 'status_display', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
       { type: 'template', label: 'Respuesta SIESA', templateName: 'responseTemplate' },
     ];
   }
@@ -86,6 +87,13 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
     this.expandedItems.set(expanded);
   }
 
+  // Document sent to SIESA, as persisted ("TPW 57"). Historical submissions made before the backend assigned
+  // the consecutive have no usable number (null or 0): shown as "—".
+  protected siesaDocument(submission: Partial<Pick<TepSubmission, 'document_type_id' | 'document_number'>>): string {
+    const { document_type_id: type, document_number: number } = submission;
+    return type && number ? `${type} ${number}` : '—';
+  }
+
   protected statusIntent(status: TepSubmissionStatus): BadgeIntent {
     return STATUS_INTENT[status] ?? 'default';
   }
@@ -100,5 +108,11 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
     if (submission.status === 'sent') return 'Sin errores';
     if (submission.status === 'pending') return 'Sin respuesta';
     return submission.siesa_messages[0]?.detail ?? submission.error_detail ?? '—';
+  }
+
+  // Table cell version of the summary: at most 20 characters, ellipsis when cut (full text goes in the tooltip).
+  protected shortResponse(submission: TepSubmission): string {
+    const text = this.responseSummary(submission);
+    return text.length > 20 ? `${text.slice(0, 20)}…` : text;
   }
 }

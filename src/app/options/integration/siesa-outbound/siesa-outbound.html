@@ -15,10 +15,14 @@
             </ng-template>
 
             <ng-template appTableTemplate="responseTemplate" let-row>
-                <span class="block max-w-md truncate" [class.text-red-700]="row.status === 'failed'"
+                <span class="block" [class.text-red-700]="row.status === 'failed'"
                     [title]="responseSummary(row)">
-                    {{ responseSummary(row) }}
+                    {{ shortResponse(row) }}
                 </span>
+            </ng-template>
+
+            <ng-template appTableTemplate="siesaDocumentTemplate" let-row>
+                <span class="font-medium text-gray-700">{{ siesaDocument(row) }}</span>
             </ng-template>
 
             <ng-template appTableTemplate="createdAtTemplate" let-row>
@@ -39,7 +43,7 @@
 
         <div class="space-y-2 text-sm text-slate-600">           
             <p> <strong>Centro de trabajo:</strong> {{ rowObject.work_center_id || '—' }} </p>
-            <p> <strong>Documento:</strong> {{ rowObject.document_type_id }} {{ rowObject.document_number || '' }} </p>
+            <p> <strong>Documento SIESA:</strong> <span class="text-base font-semibold text-gray-800">{{ siesaDocument(rowObject) }}</span> </p>
             <p> <strong>Fecha integración:</strong> {{ rowObject.date | date: 'dd/MM/yyyy' }} </p>  
         </div>
     </div>
