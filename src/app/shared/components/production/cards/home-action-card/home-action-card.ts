@@ -17,5 +17,8 @@ export class HomeActionCard {
   @Input() hasPending = false;
   /** Text shown when there is no shift in progress. */
   @Input() idleText = '';
+  /** A session closed today can be repeated; offered next to (never instead of) starting a new one. */
+  @Input() canClone = false;
   @Output() action = new EventEmitter<void>();
+  @Output() cloneAction = new EventEmitter<void>();
 }

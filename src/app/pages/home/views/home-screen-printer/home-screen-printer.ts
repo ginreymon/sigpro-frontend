@@ -44,20 +44,21 @@ export class HomeScreenPrinter implements OnInit {
   private dialogService = inject(DialogService);
   private router = inject(Router);
 
+  /** Continue the open session as is, or start a new one. Never clones. */
   onAction(): void {
-    // An open session is picked up by day-operation itself; only a closed one is cloned first.
-    const recoverable = this.activeSession() ? null : this.recoverableSession();
-    if (!recoverable) {
-      this.router.navigateByUrl('stamping/day-operation');
-      return;
-    }
+    if (this.activeSession()) this.router.navigateByUrl('stamping/shift-cycles');
+    else this.router.navigateByUrl('stamping/day-operation');
+  }
 
+  /** Explicit "repeat previous session": clones the closed one, then opens shift-cycles. */
+  onClone(): void {
+    const recoverable = this.recoverableSession();
     // The loader overlay blocks clicks; this guards against a second click before it paints.
-    if (this.loaderService.loaderVisible()) return;
+    if (!recoverable || this.loaderService.loaderVisible()) return;
     cloneWorkSession(this.workSessionService, this.loaderService, this.dialogService, recoverable.id, (session) => {
       this.activeSession.set(session);
       this.recoverableSession.set(null);
-      this.router.navigateByUrl('stamping/day-operation');
+      this.router.navigateByUrl('stamping/shift-cycles');
     });
   }
 
@@ -67,7 +68,7 @@ export class HomeScreenPrinter implements OnInit {
         const recoverable = isRecoverableSession(session) ? session : null;
         this.activeSession.set(session && !session.is_closed ? session : null);
         this.recoverableSession.set(recoverable);
-        this.hasPendingSession.set(!!this.activeSession() || !!recoverable);
+        this.hasPendingSession.set(!!this.activeSession());
         this.isLoading.set(false);
       },
       error: () => {

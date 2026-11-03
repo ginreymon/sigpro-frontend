@@ -44,20 +44,21 @@ export class HomeThreadTrimmer implements OnInit {
   private dialogService = inject(DialogService);
   private shiftNav = inject(ShiftNavigationService);
 
+  /** Continue the open session as is, or start a new one. Never clones. */
   onAction(): void {
-    // An open session is picked up by day-operation itself; only a closed one is cloned first.
-    const recoverable = this.activeSession() ? null : this.recoverableSession();
-    if (!recoverable) {
-      this.shiftNav.goToDayOperation();
-      return;
-    }
+    if (this.activeSession()) this.shiftNav.goToShiftCycles();
+    else this.shiftNav.goToDayOperation();
+  }
 
+  /** Explicit "repeat previous session": clones the closed one, then opens shift-cycles. */
+  onClone(): void {
+    const recoverable = this.recoverableSession();
     // The loader overlay blocks clicks; this guards against a second click before it paints.
-    if (this.loaderService.loaderVisible()) return;
+    if (!recoverable || this.loaderService.loaderVisible()) return;
     cloneWorkSession(this.workSessionService, this.loaderService, this.dialogService, recoverable.id, (session) => {
       this.activeSession.set(session);
       this.recoverableSession.set(null);
-      this.shiftNav.goToDayOperation();
+      this.shiftNav.goToShiftCycles();
     });
   }
 
@@ -67,7 +68,7 @@ export class HomeThreadTrimmer implements OnInit {
         const recoverable = isRecoverableSession(session) ? session : null;
         this.activeSession.set(session && !session.is_closed ? session : null);
         this.recoverableSession.set(recoverable);
-        this.hasPendingSession.set(!!this.activeSession() || !!recoverable);
+        this.hasPendingSession.set(!!this.activeSession());
         this.isLoading.set(false);
       },
       error: () => {

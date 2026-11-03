@@ -30,7 +30,7 @@
         </div>
         } @else {
         <p class="text-sm leading-5 text-slate-500">
-            {{ hasPending ? 'Tiene una jornada en progreso. Continúe desde donde se quedó.' : idleText }}
+            {{ hasPending ? 'Tiene una jornada en progreso. Continúe desde donde se quedó.' : canClone ? 'Su jornada anterior de hoy se cerró. Inicie una nueva o repita sus datos.' : idleText }}
         </p>
         }
     </div>
@@ -39,9 +39,14 @@
     @if (loading) {
     <div class="h-8 w-32 skeleton rounded-lg mt-auto"></div>
     } @else {
-    <app-ui-button class="mt-auto self-start" [intent]="'accept'" [classNames]="'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500'" (onClick)="action.emit()">
-        {{ hasPending ? 'Continuar' : 'Comenzar' }}
-        <app-ui-icon [iconName]="'circleRight'" [class]="'w-4 h-4'"></app-ui-icon>
-    </app-ui-button>
+    <div class="mt-auto flex flex-wrap gap-2">
+        <app-ui-button [intent]="'accept'" [classNames]="'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500'" (onClick)="action.emit()">
+            {{ hasPending ? 'Continuar' : 'Comenzar' }}
+            <app-ui-icon [iconName]="'circleRight'" [class]="'w-4 h-4'"></app-ui-icon>
+        </app-ui-button>
+        @if (canClone) {
+        <app-ui-button [intent]="'cancel'" (onClick)="cloneAction.emit()">Repetir jornada anterior</app-ui-button>
+        }
+    </div>
     }
 </div>

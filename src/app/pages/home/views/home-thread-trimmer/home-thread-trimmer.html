@@ -23,7 +23,7 @@
     <!-- Action last -->
     <div class="md:col-span-2 lg:col-span-1">
       <app-home-action-card class="h-full" [loading]="isLoading()" [hasPending]="hasPendingSession()"
-        [idleText]="'Comience una nueva orden de producción de la jornada.'" (action)="onAction()">
+        [idleText]="'Comience una nueva orden de producción de la jornada.'" [canClone]="!!recoverableSession()" (action)="onAction()" (cloneAction)="onClone()">
       </app-home-action-card>
     </div>
 
