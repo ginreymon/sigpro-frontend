@@ -64,8 +64,6 @@
         </div>
         @if (quantityError(); as error) {
           <app-ui-error-message role="alert" data-testid="single-quantity-error">{{ error }}</app-ui-error-message>
-        } @else if (quantityInfo(); as info) {
-          <p class="text-xs text-slate-500" data-testid="single-quantity-info">{{ info }}</p>
         }
       </section>
     } @else {

@@ -23,6 +23,9 @@ export interface TepSendDetail {
   // Time type the user integrated with, and the OP's seconds_by_unit at that moment (time traceability).
   time_mode: 'real' | 'standard';
   real_seconds_by_unit: number | null;
+  // Seconds per unit of the time the user entered (hours x 3600 / completed_quantity); when omitted the
+  // backend derives it from `hours` and `completed_quantity`.
+  sent_seconds_per_unit?: number | null;
   operation_completed: 0 | 1;
   // Ids de los registros (production/stamping record) que respaldan el item.
   register_ids: number[];

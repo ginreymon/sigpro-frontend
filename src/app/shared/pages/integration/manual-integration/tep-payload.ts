@@ -55,22 +55,9 @@ export function pickedRegisterIds(
   return pickedProductionRecords(document, selectedIds, recordIds).map((record) => record.id);
 }
 
-// completed_quantity: Estampación sends the units to integrate (stamped - erp completed, already in whole OP
-// units). Confección sends the completed quantity of the records it integrates over the pieces of the OP: the
-// backend checks it against that sum, so scrap and rejected units (which the picked units include) stay out.
-function completedQuantity(
-  originId: number,
-  document: WorkCenterDocument,
-  units: number,
-  selectedIds: number[],
-  recordIds?: number[] | null,
-): number {
-  if (originId === STAMPING_ORIGIN_ID) return units;
-  const completed = pickedProductionRecords(document, selectedIds, recordIds).reduce(
-    (sum, record) => sum + Number(record.completed_quantity ?? 0),
-    0,
-  );
-  return Math.round((completed / (document.pieces || 1)) * 10000) / 10000;
+// Seconds per unit of the time the user entered (hours/minutes as shown in the inputs, edited or not).
+function sentSecondsPerUnit({ units, hours, minutes }: SelectionSummary): number | null {
+  return units > 0 ? Math.round(((hours * 3600 + minutes * 60) / units) * 10000) / 10000 : null;
 }
 
 export function buildTepDetail(row: OrderByWorkCenter, { document, selectedIds, summary, recordIds }: PickedOp): TepSendDetail {
@@ -80,8 +67,10 @@ export function buildTepDetail(row: OrderByWorkCenter, { document, selectedIds, 
     op_document_number: document.op_number,
     operation_number: document.operation_number,
     operation_work_center_id: workCenter,
-    completed_quantity: completedQuantity(row.origin_id, document, summary.units, selectedIds, recordIds),
+    // Units and total time exactly as the user left them; the backend picks the records up to that quantity.
+    completed_quantity: summary.units,
     hours: decimalHours(summary),
+    sent_seconds_per_unit: sentSecondsPerUnit(summary),
     time_mode: summary.useRecordedTime ? 'real' : 'standard',
     real_seconds_by_unit: document.seconds_by_unit ?? null,
     operation_completed: document.erp_completed_operation ? 1 : 0,

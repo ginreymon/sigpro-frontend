@@ -11,7 +11,7 @@ import { WorkCenterDocument } from '../../../../../../../models/integration/orde
 import { ProductionOrder } from '../../../../../../../models/production/production-order';
 import { SkuDetail } from '../../../../../../../models/production/sku-detail';
 import { buildColorSizeMatrix } from '../../../../../../components/production/tables/production-orders-table/color-size-matrix';
-import { isRealSku, pendingRecords, pickRecordsForQuantity, quantityToIntegrate, recordUnits, skuCellState } from '../integration-state';
+import { isRealSku, pendingRecords, pickRecordsCovering, quantityToIntegrate, recordUnits, skuCellState } from '../integration-state';
 import {
   CELL_SELECTED_CLASSES,
   CELL_SELECTED_PARTIAL_CLASSES,
@@ -48,6 +48,8 @@ export class DocumentIntegrationMatrix implements OnInit {
   // pending record of the picked SKUs goes). Two-way bindable like selectedSkuIds; the parent keeps it so
   // it survives collapsing the accordion.
   readonly selectedRecordIds = model<number[] | null>(null);
+  // Single-quantity mode: quantity the OP had typed before the accordion was collapsed (restored when it reopens).
+  readonly initialUnits = input(0);
   // Units and time of the selection; emitted when the selection or the time inputs change.
   readonly selectionSummary = output<SelectionSummary>();
   // The user tried to integrate: the time inputs show their errors.
@@ -100,13 +102,14 @@ export class DocumentIntegrationMatrix implements OnInit {
       .filter((sku) => this.isRealSku(sku) && this.selectedSkuIds().includes(sku.skuRowId)),
   );
 
-  // Matrix mode: what the picked cells hold. Single mode: the units of the picked records.
+  // Single mode: the quantity typed (once records back it); the time is calculated from it.
+  private readonly typedUnits = signal(0);
+
+  // Matrix mode: what the picked cells hold. Single mode: the units typed in the input.
   protected readonly selectedUnits = computed(() => {
     const recordIds = this.selectedRecordIds();
     if (recordIds === null) return this.selectedSkus().reduce((sum, sku) => sum + quantityToIntegrate(sku), 0);
-    return this.pendingPool()
-      .filter(({ record }) => recordIds.includes(record.id))
-      .reduce((sum, { record }) => sum + recordUnits(record), 0);
+    return recordIds.length ? this.typedUnits() : 0;
   });
 
   // Reloads the calculated time whenever either selection changes.
@@ -141,8 +144,6 @@ export class DocumentIntegrationMatrix implements OnInit {
   protected readonly quantityControl = new FormControl<string | null>('');
   // Why the typed quantity cannot be integrated (null while it is valid or still empty).
   protected readonly quantityError = signal<string | null>(null);
-  // Neutral note (never an error, never blocks): the typed quantity does not match whole records.
-  protected readonly quantityInfo = signal<string | null>(null);
 
   // Trigger + menu wrapper: a click anywhere outside it closes the menu.
   private readonly modeMenu = viewChild<ElementRef<HTMLElement>>('modeMenu');
@@ -155,8 +156,9 @@ export class DocumentIntegrationMatrix implements OnInit {
 
   // Coming back to an OP already in single mode (accordion re-expanded): show its picked quantity again.
   ngOnInit(): void {
-    if (this.mode() === 'single' && this.selectedUnits() > 0) {
-      this.quantityControl.setValue(String(this.selectedUnits()), { emitEvent: false });
+    if (this.mode() === 'single' && this.initialUnits() > 0) {
+      this.typedUnits.set(this.initialUnits());
+      this.quantityControl.setValue(String(this.initialUnits()), { emitEvent: false });
     }
   }
 
@@ -174,13 +176,13 @@ export class DocumentIntegrationMatrix implements OnInit {
     this.menuOpen.set(false);
     if (mode === this.mode()) return;
     this.quantityError.set(null);
-    this.quantityInfo.set(null);
     if (mode === 'single') {
       // Start from what the matrix had picked, so nothing is lost.
       const picked = this.selectedSkuIds();
       const records = this.pendingPool().filter(({ skuRowId }) => picked.includes(skuRowId));
       const units = records.reduce((sum, { record }) => sum + recordUnits(record), 0);
       this.quantityControl.setValue(units > 0 ? String(units) : '', { emitEvent: false });
+      this.typedUnits.set(units);
       this.selectedRecordIds.set(records.map(({ record }) => record.id));
       return;
     }
@@ -194,32 +196,23 @@ export class DocumentIntegrationMatrix implements OnInit {
     this.selectedSkuIds.set(kept);
   }
 
-  // Validates the typed quantity and picks the records that add up to it. The selection stays empty while
-  // it is invalid, so the OP is not integrated with a quantity that does not match whole records.
+  // Validates the typed quantity (1..integrableMax, backed by the pending records) and picks the records that
+  // back it. The units integrated, and the time calculated from them, are exactly the typed quantity.
   private applyQuantity(raw: string | null): void {
     const text = String(raw ?? '').trim();
     const quantity = Number(text);
     const pool = this.pendingPool();
     let error: string | null = null;
-    let info: string | null = null;
     let pickedIds: number[] = [];
 
     if (text && !WHOLE_NUMBER.test(text)) error = 'Ingrese un número entero.';
     else if (text && quantity < 1) error = 'La cantidad debe ser mayor a 0.';
     else if (text && quantity > this.integrableMax()) error = `Máximo por integrar: ${this.integrableMax()}.`;
-    else if (text) {
-      const records = pool.map(({ record }) => record);
-      const picked = pickRecordsForQuantity(records, quantity);
-      if (picked.exact) pickedIds = picked.ids;
-      else if (picked.below > 0) {
-        // Records cannot be split: integrate the closest whole records below the typed quantity (informational only).
-        pickedIds = pickRecordsForQuantity(records, picked.below).ids;
-        info = `Se integrarán ${picked.below} und: los registros no se dividen.`;
-      } else info = 'Ningún registro completo cabe en esa cantidad.';
-    }
+    else if (text && quantity > this.poolUnits()) error = `Registros disponibles por integrar: ${this.poolUnits()}.`;
+    else if (text) pickedIds = pickRecordsCovering(pool.map(({ record }) => record), quantity);
 
     this.quantityError.set(error);
-    this.quantityInfo.set(info);
+    this.typedUnits.set(pickedIds.length ? quantity : 0);
     const skuIds = new Set(pool.filter(({ record }) => pickedIds.includes(record.id)).map(({ skuRowId }) => skuRowId));
     this.selectedRecordIds.set(pickedIds);
     this.selectedSkuIds.set([...skuIds]);

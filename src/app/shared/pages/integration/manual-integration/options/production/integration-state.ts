@@ -53,6 +53,24 @@ export function pickRecordsForQuantity(
   };
 }
 
+// Single-quantity mode: ids of the records that back `quantity` units. Whole records that add up exactly when
+// possible; otherwise the earliest ones until they cover it (the last one may hold more than is integrated).
+// Empty when the records do not reach the quantity.
+export function pickRecordsCovering(records: SkuRecord[], quantity: number): number[] {
+  const exact = pickRecordsForQuantity(records, quantity);
+  if (exact.exact) return exact.ids;
+  const ids: number[] = [];
+  let sum = 0;
+  for (const record of records) {
+    if (sum >= quantity) break;
+    if (recordUnits(record) > 0) {
+      ids.push(record.id);
+      sum += recordUnits(record);
+    }
+  }
+  return sum >= quantity ? ids : [];
+}
+
 // Completed + rejected + scrap units of the SKU.
 export function producedUnits(sku: SkuDetail): number {
   return Number(sku.completedQty) + Number(sku.rejectedQty) + Number(sku.wasteQty);

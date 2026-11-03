@@ -138,7 +138,7 @@
         @if (expandedDocumentIndexes().has($index)) {
           @if (item.detail?.colorRows?.length) {
             <app-document-integration-matrix [document]="item" [selectedSkuIds]="selectedSkuIdsOf(item.op_rowid)" [submitted]="submitted() || hasInvalidSelection()"
-              [selectedRecordIds]="selectedRecordIdsOf(item.op_rowid)" (selectedRecordIdsChange)="setSelectedRecordIds(item.op_rowid, $event)"
+              [selectedRecordIds]="selectedRecordIdsOf(item.op_rowid)" [initialUnits]="selectedUnitsOf(item.op_rowid)" (selectedRecordIdsChange)="setSelectedRecordIds(item.op_rowid, $event)"
               (selectedSkuIdsChange)="setSelectedSkuIds(item.op_rowid, $event)"
               (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-matrix>
           } @else if (item.detail?.referenceSams) {
