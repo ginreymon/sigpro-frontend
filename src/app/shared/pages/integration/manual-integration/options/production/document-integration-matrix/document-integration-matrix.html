@@ -1,28 +1,7 @@
 @if (matrix(); as m) {
   <div class="flex flex-col gap-2">
 
-    <section class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md border border-slate-200 px-3 py-2"
-      aria-labelledby="erp-status-title" data-testid="erp-status">
-      <h4 id="erp-status-title" class="text-xs font-semibold text-slate-600">Estado en ERP</h4>
-      @if (erpCompleted() !== null) {
-        <app-ui-badge [intent]="erpCompleted() ? 'active' : 'warning'" [label]="erpCompleted() ? 'Finalizada' : 'En proceso'"
-          data-testid="erp-status-badge"></app-ui-badge>
-      }
-      <dl class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs">
-        <div class="flex items-baseline gap-1">
-          <dt class="text-slate-500">Cantidad ejecutada</dt>
-          <dd class="text-sm font-semibold tabular-nums text-gray-700" data-testid="erp-execution-qty">
-            {{ document().erp_execution_quantity === null || document().erp_execution_quantity === undefined ? '—' : (document().erp_execution_quantity | number: '1.0-0') }}
-          </dd>
-        </div>
-        <div class="flex items-baseline gap-1">
-          <dt class="text-slate-500">Cantidad completada</dt>
-          <dd class="text-sm font-semibold tabular-nums text-gray-700" data-testid="erp-completed-qty">
-            {{ document().erp_completed_quantity === null || document().erp_completed_quantity === undefined ? '—' : (document().erp_completed_quantity | number: '1.0-0') }}
-          </dd>
-        </div>
-      </dl>
-
+    <app-integration-erp-status [document]="document()">
       @if (!readOnly()) {
         <div #modeMenu class="relative ml-auto">
           <button type="button" class="inline-flex size-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200 cursor-pointer"
@@ -51,21 +30,11 @@
           }
         </div>
       }
-    </section>
+    </app-integration-erp-status>
 
     @if (mode() === 'single') {
-      <section class="flex flex-col gap-1 rounded-md border border-slate-200 px-3 py-2" data-testid="single-quantity">
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <label class="text-xs font-medium text-slate-500" [attr.for]="'integration-quantity-' + uid">Cantidad a integrar (und)</label>
-          <app-ui-input class="block w-32" [type]="'number'" [control]="quantityControl"
-            [formControl]="quantityControl" [id]="'integration-quantity-' + uid" [placeholder]="'Ej: 12'"
-            [extraInvalid]="!!quantityError()"></app-ui-input>
-          <span class="text-xs text-slate-500">Por integrar: <span class="font-semibold tabular-nums text-gray-700">{{ integrableMax() | number: '1.0-0' }}</span></span>
-        </div>
-        @if (quantityError(); as error) {
-          <app-ui-error-message role="alert" data-testid="single-quantity-error">{{ error }}</app-ui-error-message>
-        }
-      </section>
+      <app-integration-quantity-input [max]="integrableMax()" [initial]="typedUnits()"
+        (quantityChange)="applyQuantity($event)"></app-integration-quantity-input>
     } @else {
 
     <div class="flex flex-wrap items-center gap-2 text-xs">

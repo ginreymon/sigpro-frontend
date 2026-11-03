@@ -1,12 +1,6 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, computed, DestroyRef, ElementRef, HostListener, inject, input, model, OnInit, output, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Component, computed, ElementRef, HostListener, inject, input, model, OnInit, output, signal, viewChild } from '@angular/core';
 import { AppConfigService } from '../../../../../../../services/core/app-config-service';
-import { UiBadge } from '../../../../../../elements/ui-badge/ui-badge';
-import { UiErrorMessage } from '../../../../../../elements/ui-error-message/ui-error-message';
 import { UiIcon } from '../../../../../../elements/ui-icon/ui-icon';
-import { UiInput } from '../../../../../../elements/ui-input/ui-input';
 import { WorkCenterDocument } from '../../../../../../../models/integration/order-by-work-center';
 import { ProductionOrder } from '../../../../../../../models/production/production-order';
 import { SkuDetail } from '../../../../../../../models/production/sku-detail';
@@ -19,10 +13,9 @@ import {
   CELL_STATE_LABELS,
   SkuCellState,
 } from '../../../components/integration-cell-style';
+import { IntegrationErpStatus } from '../../../components/integration-erp-status/integration-erp-status';
+import { IntegrationQuantityInput } from '../../../components/integration-quantity-input/integration-quantity-input';
 import { IntegrationTimeInputs, SelectionSummary } from '../../../components/integration-time-inputs/integration-time-inputs';
-
-// Integer units only (the number input also lets "e", signs and decimals through).
-const WHOLE_NUMBER = /^\d+$/;
 
 export type IntegrationMode = 'matrix' | 'single';
 
@@ -31,7 +24,7 @@ export type IntegrationMode = 'matrix' | 'single';
 // produced. Same pivot as ProductionOrdersTable (buildColorSizeMatrix).
 @Component({
   selector: 'app-document-integration-matrix',
-  imports: [DecimalPipe, ReactiveFormsModule, IntegrationTimeInputs, UiBadge, UiErrorMessage, UiIcon, UiInput],
+  imports: [IntegrationErpStatus, IntegrationQuantityInput, IntegrationTimeInputs, UiIcon],
   templateUrl: './document-integration-matrix.html',
 })
 export class DocumentIntegrationMatrix implements OnInit {
@@ -66,14 +59,6 @@ export class DocumentIntegrationMatrix implements OnInit {
       classes: CELL_STATE_CLASSES[state],
     }));
 
-  // ERP operation state: the API can send 0 / 1 / true / false (typed as number); null or undefined
-  // means the ERP reported nothing, so no state is shown.
-  protected readonly erpCompleted = computed<boolean | null>(() => {
-    const value: unknown = this.document().erp_completed_operation;
-    if (value === null || value === undefined) return null;
-    return value === true || value === 1 || value === '1' || value === 'true';
-  });
-
   protected readonly matrix = computed(() => {
     const colorRows = this.document().detail?.colorRows;
     return colorRows?.length ? buildColorSizeMatrix({ colorRows } as ProductionOrder) : null;
@@ -103,7 +88,7 @@ export class DocumentIntegrationMatrix implements OnInit {
   );
 
   // Single mode: the quantity typed (once records back it); the time is calculated from it.
-  private readonly typedUnits = signal(0);
+  protected readonly typedUnits = signal(0);
 
   // Matrix mode: what the picked cells hold. Single mode: the units typed in the input.
   protected readonly selectedUnits = computed(() => {
@@ -141,25 +126,12 @@ export class DocumentIntegrationMatrix implements OnInit {
   ];
   protected readonly menuOpen = signal(false);
 
-  protected readonly quantityControl = new FormControl<string | null>('');
-  // Why the typed quantity cannot be integrated (null while it is valid or still empty).
-  protected readonly quantityError = signal<string | null>(null);
-
   // Trigger + menu wrapper: a click anywhere outside it closes the menu.
   private readonly modeMenu = viewChild<ElementRef<HTMLElement>>('modeMenu');
 
-  constructor() {
-    this.quantityControl.valueChanges
-      .pipe(takeUntilDestroyed(inject(DestroyRef)))
-      .subscribe((value) => this.applyQuantity(value));
-  }
-
   // Coming back to an OP already in single mode (accordion re-expanded): show its picked quantity again.
   ngOnInit(): void {
-    if (this.mode() === 'single' && this.initialUnits() > 0) {
-      this.typedUnits.set(this.initialUnits());
-      this.quantityControl.setValue(String(this.initialUnits()), { emitEvent: false });
-    }
+    if (this.mode() === 'single' && this.initialUnits() > 0) this.typedUnits.set(this.initialUnits());
   }
 
   @HostListener('document:click', ['$event'])
@@ -175,13 +147,11 @@ export class DocumentIntegrationMatrix implements OnInit {
   protected setMode(mode: IntegrationMode): void {
     this.menuOpen.set(false);
     if (mode === this.mode()) return;
-    this.quantityError.set(null);
     if (mode === 'single') {
       // Start from what the matrix had picked, so nothing is lost.
       const picked = this.selectedSkuIds();
       const records = this.pendingPool().filter(({ skuRowId }) => picked.includes(skuRowId));
       const units = records.reduce((sum, { record }) => sum + recordUnits(record), 0);
-      this.quantityControl.setValue(units > 0 ? String(units) : '', { emitEvent: false });
       this.typedUnits.set(units);
       this.selectedRecordIds.set(records.map(({ record }) => record.id));
       return;
@@ -196,25 +166,19 @@ export class DocumentIntegrationMatrix implements OnInit {
     this.selectedSkuIds.set(kept);
   }
 
-  // Validates the typed quantity (1..integrableMax, backed by the pending records) and picks the records that
-  // back it. The units integrated, and the time calculated from them, are exactly the typed quantity.
-  private applyQuantity(raw: string | null): void {
-    const text = String(raw ?? '').trim();
-    const quantity = Number(text);
+  // Picks the records that back the quantity typed in the shared input (null = empty or invalid, nothing picked).
+  // The units integrated, and the time calculated from them, are exactly the typed quantity.
+  protected applyQuantity(quantity: number | null): void {
     const pool = this.pendingPool();
-    let error: string | null = null;
     let pickedIds: number[] = [];
 
-    if (text && !WHOLE_NUMBER.test(text)) error = 'Ingrese un número entero.';
-    else if (text && quantity < 1) error = 'La cantidad debe ser mayor a 0.';
-    else if (text) {
+    if (quantity !== null) {
       pickedIds = pickRecordsCovering(pool.map(({ record }) => record), quantity);
       // Not enough pending records to cover it: take them all instead of blocking.
       if (!pickedIds.length) pickedIds = pool.filter(({ record }) => recordUnits(record) > 0).map(({ record }) => record.id);
     }
 
-    this.quantityError.set(error);
-    this.typedUnits.set(pickedIds.length ? quantity : 0);
+    this.typedUnits.set(pickedIds.length && quantity !== null ? quantity : 0);
     const skuIds = new Set(pool.filter(({ record }) => pickedIds.includes(record.id)).map(({ skuRowId }) => skuRowId));
     this.selectedRecordIds.set(pickedIds);
     this.selectedSkuIds.set([...skuIds]);

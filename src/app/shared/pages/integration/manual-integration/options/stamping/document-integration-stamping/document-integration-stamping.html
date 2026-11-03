@@ -1,43 +1,16 @@
-@if (sams().length) {
-  <div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2">
 
-    @if (totals(); as t) {
-      <div class="overflow-x-auto rounded-md border border-slate-200">
-        <table data-testid="stamping-totals" class="w-full text-xs text-left border-collapse">
-          <thead class="bg-slate-100 text-slate-600">
-            <tr>
-              <th class="px-2 py-1.5 font-semibold text-center">Ejecutado (ERP)</th>
-              <th class="px-2 py-1.5 font-semibold text-center">Por integrar</th>
-              <th class="px-2 py-1.5 font-semibold text-center">Por estampar</th>
-              <th class="px-2 py-1.5 font-semibold text-center">Total OP</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="text-center text-base font-semibold tabular-nums text-gray-700">
-              <td class="px-2 py-1.5" data-testid="stat-erp">{{ erpExecutionQty() | number: '1.0-0' }}</td>
-              <td class="px-2 py-1.5" data-testid="stat-stamped">{{ toIntegrateQty() | number: '1.0-0' }}</td>
-              <td class="px-2 py-1.5" data-testid="stat-pending">{{ pendingQty() | number: '1.0-0' }}</td>
-              <td class="px-2 py-1.5" data-testid="stat-total">{{ t.total_qty | number: '1.0-0' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    }
+  <app-integration-erp-status [document]="document()"></app-integration-erp-status>
 
-    @if (toIntegrateQty() > 0) {
-      <button type="button" data-testid="stamping-op"
-        class="block h-12 w-full rounded border text-lg font-semibold tabular-nums"
-        [class]="blockClasses()" [disabled]="!isSelectable()" [title]="tooltip()" [attr.aria-label]="tooltip()"
-        [attr.aria-pressed]="isSelectable() ? isSelected() : null" (click)="toggleOp()">
-        {{ toIntegrateQty() | number: '1.0-0' }}
-      </button>
-    }
+  <app-integration-quantity-input [max]="toIntegrateQty()" [initial]="typedUnits()"
+    (quantityChange)="applyQuantity($event)"></app-integration-quantity-input>
 
-    <app-integration-time-inputs [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
-      [selection]="selectedSamIds()" [visible]="selectedSamIds().length > 0" [submitted]="submitted()"
-      (summary)="selectionSummary.emit($event)"></app-integration-time-inputs>
+  @if (!sams().length) {
+    <p class="text-sm text-slate-500">Sin registros de estampación</p>
+  }
 
-  </div>
-} @else {
-  <p class="text-sm text-slate-500">Sin registros de estampación</p>
-}
+  <app-integration-time-inputs [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
+    [selection]="selectedSamIds()" [visible]="selectedSamIds().length > 0" [submitted]="submitted()"
+    (summary)="selectionSummary.emit($event)"></app-integration-time-inputs>
+
+</div>

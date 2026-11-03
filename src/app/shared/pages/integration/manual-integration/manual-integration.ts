@@ -202,7 +202,28 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
   // time and the time). "Integrar" is disabled otherwise.
   protected canIntegrate(): boolean {
     const picked = this.pickedOps();
-    return picked.length > 0 && picked.every((op) => op.summary.valid);
+    return picked.length > 0 && picked.every((op) => op.summary.valid) && this.erpBlockedOps().length === 0;
+  }
+
+  // ERP rule, the same one the backend enforces for both origins: an OP can be integrated only while its ERP
+  // operation is not completed and erp_completed_quantity + quantity <= erp_execution_quantity.
+  private erpBlockReason({ document, summary }: PickedOp): string | null {
+    const completedOperation: unknown = document.erp_completed_operation;
+    if (completedOperation === true || completedOperation === 1 || completedOperation === '1' || completedOperation === 'true') {
+      return 'la operación ya está completada en el ERP';
+    }
+    const { erp_completed_quantity: completed, erp_execution_quantity: execution } = document;
+    if (completed != null && execution != null && Number(completed) + summary.units > Number(execution)) {
+      return `la cantidad supera lo disponible en el ERP (máximo ${Math.max(0, Math.floor(Number(execution) - Number(completed)))})`;
+    }
+    return null;
+  }
+
+  private erpBlockedOps(): { op: PickedOp; reason: string }[] {
+    return this.pickedOps().flatMap((op) => {
+      const reason = this.erpBlockReason(op);
+      return reason ? [{ op, reason }] : [];
+    });
   }
 
   // Picked OPs with missing or wrong data (subprocess, its extra time or the time).
@@ -218,10 +239,17 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
 
   // Message of the alert in the header of the integrate modal, naming the OPs that have errors.
   protected invalidSelectionMessage(): string | null {
+    if (this.invalidAlertDismissed()) return null;
+    const messages: string[] = [];
     const invalid = this.invalidOps();
-    if (this.invalidAlertDismissed() || !invalid.length) return null;
-    const ops = invalid.map((op) => `${op.document.op_type} ${op.document.op_number}`).join(', ');
-    return `Complete los campos requeridos (subproceso y tiempos) en: ${ops}.`;
+    if (invalid.length) {
+      const ops = invalid.map((op) => `${op.document.op_type} ${op.document.op_number}`).join(', ');
+      messages.push(`Complete los campos requeridos (subproceso y tiempos) en: ${ops}.`);
+    }
+    for (const { op, reason } of this.erpBlockedOps()) {
+      messages.push(`${op.document.op_type} ${op.document.op_number}: ${reason}.`);
+    }
+    return messages.length ? messages.join(' ') : null;
   }
 
   // SKUs picked in the integration matrix of each OP (by op_rowid), kept here so they survive collapsing the accordion.

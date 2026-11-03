@@ -1,0 +1,12 @@
+<section class="flex flex-col gap-1 rounded-md border border-slate-200 px-3 py-2" data-testid="single-quantity">
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <label class="text-xs font-medium text-slate-500" [attr.for]="'integration-quantity-' + uid">Cantidad a integrar (und)</label>
+    <app-ui-input class="block w-32" [type]="'number'" [control]="control"
+      [formControl]="control" [id]="'integration-quantity-' + uid" [placeholder]="'Ej: 12'"
+      [extraInvalid]="!!error()"></app-ui-input>
+    <span class="text-xs text-slate-500">Por integrar: <span class="font-semibold tabular-nums text-gray-700">{{ max() | number: '1.0-0' }}</span></span>
+  </div>
+  @if (error(); as message) {
+    <app-ui-error-message role="alert" data-testid="single-quantity-error">{{ message }}</app-ui-error-message>
+  }
+</section>

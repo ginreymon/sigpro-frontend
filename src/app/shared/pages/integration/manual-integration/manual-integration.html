@@ -143,6 +143,7 @@
               (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-matrix>
           } @else if (item.detail?.referenceSams) {
             <app-document-integration-stamping [document]="item" [selectedSamIds]="selectedSkuIdsOf(item.op_rowid)" [submitted]="submitted() || hasInvalidSelection()"
+              [initialUnits]="selectedUnitsOf(item.op_rowid)"
               (selectedSamIdsChange)="setSelectedSkuIds(item.op_rowid, $event)"
               (selectionSummary)="setSelectionSummary(item.op_rowid, $event)"></app-document-integration-stamping>
           } @else {

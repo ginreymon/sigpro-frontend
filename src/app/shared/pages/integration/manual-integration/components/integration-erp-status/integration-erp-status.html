@@ -1,0 +1,23 @@
+<section class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md border border-slate-200 px-3 py-2"
+  aria-labelledby="erp-status-title" data-testid="erp-status">
+  <h4 id="erp-status-title" class="text-xs font-semibold text-slate-600">Estado en ERP</h4>
+  @if (erpCompleted() !== null) {
+    <app-ui-badge [intent]="erpCompleted() ? 'active' : 'warning'" [label]="erpCompleted() ? 'Finalizada' : 'En proceso'"
+      data-testid="erp-status-badge"></app-ui-badge>
+  }
+  <dl class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs">
+    <div class="flex items-baseline gap-1">
+      <dt class="text-slate-500">Cantidad ejecutada</dt>
+      <dd class="text-sm font-semibold tabular-nums text-gray-700" data-testid="erp-execution-qty">
+        {{ document().erp_execution_quantity === null || document().erp_execution_quantity === undefined ? '—' : (document().erp_execution_quantity | number: '1.0-0') }}
+      </dd>
+    </div>
+    <div class="flex items-baseline gap-1">
+      <dt class="text-slate-500">Cantidad completada</dt>
+      <dd class="text-sm font-semibold tabular-nums text-gray-700" data-testid="erp-completed-qty">
+        {{ document().erp_completed_quantity === null || document().erp_completed_quantity === undefined ? '—' : (document().erp_completed_quantity | number: '1.0-0') }}
+      </dd>
+    </div>
+  </dl>
+  <ng-content></ng-content>
+</section>
