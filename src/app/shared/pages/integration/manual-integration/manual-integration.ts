@@ -257,6 +257,11 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     this.selectionSummaryByOp.update((byOp) => ({ ...byOp, [opRowid]: summary }));
   }
 
+  // Units picked in an OP (0 when none); the last reported summary survives collapsing the accordion.
+  protected selectedUnitsOf(opRowid: number): number {
+    return this.selectionSummaryByOp()[opRowid]?.units ?? 0;
+  }
+
   // OPs of the work center with units selected, with what the user picked and the units/time of it.
   private pickedOps(): PickedOp[] {
     const byOp = this.selectionSummaryByOp();

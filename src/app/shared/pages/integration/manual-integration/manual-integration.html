@@ -127,6 +127,10 @@
           <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
         </div>
 
+        @if (!expandedDocumentIndexes().has($index) && selectedUnitsOf(item.op_rowid) > 0) {
+          <span class="shrink-0 text-sm font-semibold tabular-nums text-gray-700" data-testid="op-selected-units">{{ selectedUnitsOf(item.op_rowid) }} und</span>
+        }
+
         <app-ui-badge [active]="selectedSkuIdsOf(item.op_rowid).length > 0" activeText="Por integrar" inactiveText="Sin seleccionar"></app-ui-badge>
       </ng-container>
 
