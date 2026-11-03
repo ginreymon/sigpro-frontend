@@ -1,5 +1,6 @@
 import { Type } from '@angular/core';
 import { Roles } from '../options/admin/roles/roles';
+import { ModuleAssignees } from '../options/admin/module-assignees/module-assignees';
 import { Users } from '../options/admin/users/users';
 import { OrderEdition } from '../options/admin/order-edition/order-edition';
 import { WorkSessions } from '../options/admin/work-sessions/work-sessions';
@@ -33,6 +34,7 @@ import { UiNestedAccordionDemo } from '../shared/elements/ui-nested-accordion/ui
 export const componentMap: Record<string, Type<any>> = {
   'configuration/app-settings': AppSettings,
   'admin/roles': Roles,
+  'admin/module-assignees': ModuleAssignees,
   'admin/users': Users,
   'admin/order-edition': OrderEdition,
   'admin/work-sessions': WorkSessions,

@@ -1,0 +1,60 @@
+<app-work-space-layout>
+    <div main-content class="h-full">
+        <app-data-table [paginatedResponse]="paginatedResponse()" [columns]="columns"
+            (onPagerChange)="pagerHandler($event)" (onSearch)="searchHandler($event)" [actions]="actions"
+            (onAction)="actionHandler($event)" [tableToolsButtons]="tableToolsButtons">
+        </app-data-table>
+    </div>
+</app-work-space-layout>
+
+<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+
+    <div class="mb-4 flex items-center gap-4">
+        <app-char-square>
+            {{ rowObject.employee_full_name?.toUpperCase()?.charAt(0) }}
+        </app-char-square>
+
+        <div>
+            <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ rowObject.employee_full_name }} </h3>
+            <p class="text-sm text-slate-500 mb-0.5"> Módulo: {{ rowObject.module_name }} </p>
+        </div>
+    </div>
+
+    <div class="mb-4 border-t border-slate-200 pt-4">
+        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Información de la asignación </h4>
+        <div class="space-y-2 text-sm">
+            <p> <strong>Cédula:</strong> {{ rowObject.employee_id_number }} </p>
+            <p> <strong>Módulo:</strong> {{ rowObject.module_detail?.number }} - {{ rowObject.module_name }} </p>
+            <p> <strong>Operarios:</strong> {{ rowObject.module_detail?.operator_count }} </p>
+            <p> <strong>Centro de trabajo:</strong> {{ rowObject.module_detail?.work_center?.description || '—' }} </p>
+            <p> <strong>Ubicación:</strong> {{ rowObject.module_detail?.location?.name || '—' }} </p>
+        </div>
+    </div>
+
+    <app-metadata [rowObject]="rowObject"></app-metadata>
+
+</app-side-modal-layout>
+
+<app-modal-layout [formId]="'moduleAssigneeForm'" (onCancel)="closeModelForm()">
+    <form id="moduleAssigneeForm" [formGroup]="modelForm" (ngSubmit)="submit()">
+        <fieldset [disabled]="showLoader()">
+
+            <app-ui-form-field [controlName]="'employee'" [label]="'Empleado'">
+                <app-ui-select [className]="'w-full'" formControlName="employee" [id]="'employee'"
+                    [control]="employee" [items]="employees()" [key]="'full_name'" [keyValue]="'id'"
+                    [showDefaultOption]="true"></app-ui-select>
+            </app-ui-form-field>
+
+            <app-ui-form-field [controlName]="'module'" [label]="'Módulo'">
+                <app-ui-select [className]="'w-full'" formControlName="module" [id]="'module'"
+                    [control]="module" [items]="modules()" [key]="'name'" [keyValue]="'id'"
+                    [showDefaultOption]="true"></app-ui-select>
+            </app-ui-form-field>
+
+            @if(errorMessage()){
+            <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
+            }
+
+        </fieldset>
+    </form>
+</app-modal-layout>
