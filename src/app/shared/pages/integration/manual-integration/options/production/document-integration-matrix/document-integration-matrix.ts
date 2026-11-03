@@ -141,6 +141,8 @@ export class DocumentIntegrationMatrix implements OnInit {
   protected readonly quantityControl = new FormControl<string | null>('');
   // Why the typed quantity cannot be integrated (null while it is valid or still empty).
   protected readonly quantityError = signal<string | null>(null);
+  // Neutral note (never an error, never blocks): the typed quantity does not match whole records.
+  protected readonly quantityInfo = signal<string | null>(null);
 
   // Trigger + menu wrapper: a click anywhere outside it closes the menu.
   private readonly modeMenu = viewChild<ElementRef<HTMLElement>>('modeMenu');
@@ -172,6 +174,7 @@ export class DocumentIntegrationMatrix implements OnInit {
     this.menuOpen.set(false);
     if (mode === this.mode()) return;
     this.quantityError.set(null);
+    this.quantityInfo.set(null);
     if (mode === 'single') {
       // Start from what the matrix had picked, so nothing is lost.
       const picked = this.selectedSkuIds();
@@ -198,21 +201,25 @@ export class DocumentIntegrationMatrix implements OnInit {
     const quantity = Number(text);
     const pool = this.pendingPool();
     let error: string | null = null;
+    let info: string | null = null;
     let pickedIds: number[] = [];
 
     if (text && !WHOLE_NUMBER.test(text)) error = 'Ingrese un número entero.';
     else if (text && quantity < 1) error = 'La cantidad debe ser mayor a 0.';
     else if (text && quantity > this.integrableMax()) error = `Máximo por integrar: ${this.integrableMax()}.`;
     else if (text) {
-      const picked = pickRecordsForQuantity(pool.map(({ record }) => record), quantity);
+      const records = pool.map(({ record }) => record);
+      const picked = pickRecordsForQuantity(records, quantity);
       if (picked.exact) pickedIds = picked.ids;
-      else {
-        const options = [picked.below, picked.above].filter((value): value is number => !!value);
-        error = `No coincide con registros completos. Pruebe ${options.join(' o ')}.`;
-      }
+      else if (picked.below > 0) {
+        // Records cannot be split: integrate the closest whole records below the typed quantity (informational only).
+        pickedIds = pickRecordsForQuantity(records, picked.below).ids;
+        info = `Se integrarán ${picked.below} und: los registros no se dividen.`;
+      } else info = 'Ningún registro completo cabe en esa cantidad.';
     }
 
     this.quantityError.set(error);
+    this.quantityInfo.set(info);
     const skuIds = new Set(pool.filter(({ record }) => pickedIds.includes(record.id)).map(({ skuRowId }) => skuRowId));
     this.selectedRecordIds.set(pickedIds);
     this.selectedSkuIds.set([...skuIds]);
