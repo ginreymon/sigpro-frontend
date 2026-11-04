@@ -187,6 +187,9 @@ export class DataTable<T> {
 
   private buildColumns() {
     this._columns = buildTableColumns(this._originalColumns, this._actions);
+    this.filterState.setValueGetters(
+      new Map(this._originalColumns.filter((c) => c.filterValue).map((c) => [this.getFieldString(c), c.filterValue!])),
+    );
   }
 
   private applyClientFilters(): void {
@@ -194,11 +197,11 @@ export class DataTable<T> {
   }
 
   protected isColumnFilterable(col: TableColumn<T>): boolean {
-    return (this.clientFilter || this.columnFilter) && !!col.field && col.type !== 'tableActionType' && col.type !== 'index';
+    return (this.clientFilter || this.columnFilter) && (!!col.field || !!col.filterValue) && col.type !== 'tableActionType' && col.type !== 'index';
   }
 
   protected getFieldString(col: TableColumn<T>): string {
-    return col.field as string;
+    return (col.field as string) ?? col.label;
   }
 
   protected isFilterActive(field: string): boolean {

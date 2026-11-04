@@ -7,6 +7,8 @@ export interface TableColumn<T> {
   order?: number;
   classes?: string;
   templateName?: string;
+  // Makes the column filterable by a computed (display) value, e.g. for template columns without a field.
+  filterValue?: (row: T) => any;
   footerSuffix?: string;
   footerFormat?: string;
   mobileSecondary?: boolean;

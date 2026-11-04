@@ -54,18 +54,20 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
     addItem: { enabled: false },
   };
 
+  private datePipe = new DatePipe('en-US');
+
   constructor(private tepSubmissionService: TepSubmissionService) {
     super(tepSubmissionService);
   }
 
   protected override get columns(): TableColumn<TepSubmission>[] {
     return [
-      { type: 'template', label: 'Fecha', templateName: 'createdAtTemplate' },
+      { type: 'template', label: 'Fecha', templateName: 'createdAtTemplate', filterValue: (r) => this.datePipe.transform(r.created_at, 'dd/MM/yyyy HH:mm') },
       { field: 'status_display', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
-      { type: 'template', label: 'Documento', templateName: 'siesaDocumentTemplate' },
-      { field: 'work_center_id', label: 'Centro de trabajo' },
+      { type: 'template', label: 'Número Doc.', templateName: 'siesaDocumentTemplate', filterValue: (r) => this.siesaDocument(r) },
+      { field: 'work_center_id', label: 'Centro de trabajo', align: 'center' },
+      { type: 'template', label: 'Respuesta', templateName: 'responseTemplate', filterValue: (r) => this.responseSummary(r) },
       { type: 'template', label: 'Documentos', templateName: 'opsTemplate', align: 'center' },
-      { type: 'template', label: 'Respuesta', templateName: 'responseTemplate' },
     ];
   }
 
