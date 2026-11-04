@@ -9,7 +9,8 @@
     <p class="text-sm text-slate-500">Sin registros de estampación</p>
   }
 
-  <app-integration-time-inputs [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
+  <app-integration-time-inputs [useRecordedTime]="useRecordedTime" [baseRouteQuantity]="document().base_route_quantity"
+    [units]="selectedUnits()" [secondsPerUnit]="secondsPerUnit()"
     [selection]="selectedSamIds()" [visible]="selectedSamIds().length > 0" [submitted]="submitted()"
     (summary)="selectionSummary.emit($event)"></app-integration-time-inputs>
 

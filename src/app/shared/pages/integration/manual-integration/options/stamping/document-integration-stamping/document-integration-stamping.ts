@@ -1,4 +1,6 @@
-import { Component, computed, input, model, OnInit, output, signal } from '@angular/core';
+import { Component, computed, inject, input, model, OnInit, output, signal } from '@angular/core';
+import { opSecondsPerUnit } from '../../../../../../../common/functions/tep-time';
+import { AppConfigService } from '../../../../../../../services/core/app-config-service';
 import { IntegrationReferenceSam, WorkCenterDocument } from '../../../../../../../models/integration/order-by-work-center';
 import { IntegrationErpStatus } from '../../../components/integration-erp-status/integration-erp-status';
 import { IntegrationQuantityInput } from '../../../components/integration-quantity-input/integration-quantity-input';
@@ -34,10 +36,10 @@ export class DocumentIntegrationStamping implements OnInit {
   // Units of the selection, for the time inputs.
   protected readonly selectedUnits = computed(() => (this.selectedSamIds().length ? this.typedUnits() : 0));
 
-  // Seconds per unit of the OP: seconds_by_unit plus additional_seconds_by_unit (either may be null).
-  protected readonly secondsPerUnit = computed(
-    () => Number(this.document().seconds_by_unit ?? 0) + Number(this.document().additional_seconds_by_unit ?? 0),
-  );
+  // TEP_TIME_CALCULATION_MODE: how the time of the integration is preloaded (same as Confección).
+  protected readonly useRecordedTime = inject(AppConfigService).tepTimeUsesRecordedTime;
+
+  protected readonly secondsPerUnit = computed(() => opSecondsPerUnit(this.document()));
 
   // Quantity already completed in the ERP.
   protected readonly erpExecutionQty = computed(() => Number(this.document().erp_completed_quantity ?? 0));

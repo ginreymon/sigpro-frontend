@@ -1,4 +1,5 @@
 import { Component, computed, ElementRef, HostListener, inject, input, model, OnInit, output, signal, viewChild } from '@angular/core';
+import { opSecondsPerUnit } from '../../../../../../../common/functions/tep-time';
 import { AppConfigService } from '../../../../../../../services/core/app-config-service';
 import { UiIcon } from '../../../../../../elements/ui-icon/ui-icon';
 import { WorkCenterDocument } from '../../../../../../../models/integration/order-by-work-center';
@@ -184,10 +185,7 @@ export class DocumentIntegrationMatrix implements OnInit {
     this.selectedSkuIds.set([...skuIds]);
   }
 
-  // Seconds per unit of the OP: seconds_by_unit plus additional_seconds_by_unit (either may be null).
-  protected readonly secondsPerUnit = computed(
-    () => Number(this.document().seconds_by_unit ?? 0) + Number(this.document().additional_seconds_by_unit ?? 0),
-  );
+  protected readonly secondsPerUnit = computed(() => opSecondsPerUnit(this.document()));
 
   protected readonly isRealSku = isRealSku;
   protected readonly state = skuCellState;

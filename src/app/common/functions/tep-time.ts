@@ -17,6 +17,14 @@ export interface TepTimeParams {
 // Fixed amount subtracted from base_route_quantity in the recorded time mode.
 const BASE_ROUTE_QUANTITY_OFFSET = 10;
 
+// Seconds per unit of an OP: seconds_by_unit plus additional_seconds_by_unit (either may be null).
+export function opSecondsPerUnit(op: {
+  seconds_by_unit?: number | string | null;
+  additional_seconds_by_unit?: number | string | null;
+}): number {
+  return Number(op.seconds_by_unit ?? 0) + Number(op.additional_seconds_by_unit ?? 0);
+}
+
 function secondsToTepTime(seconds: number): TepTime {
   const totalMinutes = Math.round(seconds / 60);
   return { hours: Math.floor(totalMinutes / 60), minutes: totalMinutes % 60 };
