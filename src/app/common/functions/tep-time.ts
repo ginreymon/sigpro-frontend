@@ -25,6 +25,12 @@ export function opSecondsPerUnit(op: {
   return Number(op.seconds_by_unit ?? 0) + Number(op.additional_seconds_by_unit ?? 0);
 }
 
+// Real time of the units picked in an OP, in minutes: units x the OP's real seconds per unit (seconds_by_unit,
+// the value the TEP sends as real_seconds_by_unit). 0 when the OP has no real time per unit.
+export function realTimeMinutes(units: number, op: { seconds_by_unit?: number | string | null }): number {
+  return Math.round((units * Number(op.seconds_by_unit ?? 0)) / 60);
+}
+
 function secondsToTepTime(seconds: number): TepTime {
   const totalMinutes = Math.round(seconds / 60);
   return { hours: Math.floor(totalMinutes / 60), minutes: totalMinutes % 60 };

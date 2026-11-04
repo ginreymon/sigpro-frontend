@@ -58,7 +58,7 @@
   </div>
 }
 
-<app-modal-layout classNames="max-w-3xl" [acceptDisabled]="!canIntegrate() || sending()" (onAccept)="confirmIntegration()">
+<app-modal-layout classNames="max-w-2xl" [acceptDisabled]="!canIntegrate() || sending()" (onAccept)="confirmIntegration()">
 
   <div modal-top>
     <h3 class="text-2xl font-semibold text-slate-900 mb-2"> {{ `${rowObject.code?.trim()} · ${rowObject.description?.trim()}` }} </h3>
@@ -78,6 +78,11 @@
         <span class="inline-flex items-center gap-1 border-l border-slate-300 pl-2">
           <app-ui-icon [iconName]="'clock'" [class]="'w-3.5 h-3.5 text-brand-500'"></app-ui-icon>{{ formatTime(total.minutes) }}
         </span>
+        @if (total.realMinutes > 0) {
+          <span class="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-0.5 text-xs text-slate-600" title="Unidades × tiempo real por unidad">
+            <app-ui-icon [iconName]="'alarmClock'" [class]="'w-3 h-3'"></app-ui-icon>Real {{ formatTime(total.realMinutes) }}
+          </span>
+        }
       </span>
     </div>
   }
@@ -110,6 +115,12 @@
               <app-ui-icon [iconName]="'clock'" [class]="'w-3 h-3'"></app-ui-icon>{{ formatTime(selectedMinutesOf(item.op_rowid)) }}
             </span>
           </span>
+          @if (realMinutesOf(item) > 0) {
+            <span class="shrink-0 inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-xs font-semibold tabular-nums text-slate-600"
+              data-testid="op-real-time" title="Unidades × tiempo real por unidad">
+              <app-ui-icon [iconName]="'clock'" [class]="'w-3 h-3'"></app-ui-icon>Real {{ formatTime(realMinutesOf(item)) }}
+            </span>
+          }
         }
 
         <app-ui-badge [active]="selectedSkuIdsOf(item.op_rowid).length > 0" activeText="Por integrar" inactiveText="Sin seleccionar"></app-ui-badge>

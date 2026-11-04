@@ -29,6 +29,7 @@ import { UiIcon } from '../../../elements/ui-icon/ui-icon';
 import { UiAlert } from '../../../elements/ui-alert/ui-alert';
 import { TepSendRequest } from '../../../../models/integration/tep-send';
 import { buildTepRequest, PickedOp } from './tep-payload';
+import { realTimeMinutes } from '../../../../common/functions/tep-time';
 import { erpBlockReason } from '../../../../common/functions/erp-integration';
 
 // Read-only view of orders-to-be-outbound/by-work-center: totals per work center
@@ -232,7 +233,9 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     const invalid = this.invalidOps();
     if (invalid.length) {
       const ops = invalid.map((op) => `${op.document.op_type} ${op.document.op_number}`).join(', ');
-      messages.push(`Complete los campos requeridos (subproceso y tiempos) en: ${ops}.`);
+      // The subprocess is only named when the OP actually asks for it (not in the standard time mode).
+      const fields = invalid.some((op) => op.summary.subprocessRequired) ? 'subproceso y tiempos' : 'tiempos';
+      messages.push(`Complete los campos requeridos (${fields}) en: ${ops}.`);
     }
     for (const { op, reason } of this.erpBlockedOps()) {
       messages.push(`${op.document.op_type} ${op.document.op_number}: ${reason}.`);
@@ -292,10 +295,15 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     return !!summary && summary.units > 0 && (!summary.valid || erpBlockReason(document, summary.units) !== null);
   }
 
-  // Time of the selection of an OP in minutes, as shown in its time inputs (edited or not).
+  // Time that is sent for an OP, in minutes: what its time inputs hold (calculated or edited by the user).
   protected selectedMinutesOf(opRowid: number): number {
     const summary = this.selectionSummaryByOp()[opRowid];
     return summary ? summary.hours * 60 + summary.minutes : 0;
+  }
+
+  // Real time of the units picked in an OP, in minutes (units x real seconds per unit); 0 without real time.
+  protected realMinutesOf(document: WorkCenterDocument): number {
+    return realTimeMinutes(this.selectedUnitsOf(document.op_rowid), document);
   }
 
   // Body of POST integration/tep/send/ for the picked OPs: one request with every OP.
@@ -303,12 +311,13 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     return buildTepRequest(this.rowObject as OrderByWorkCenter, this.pickedOps());
   }
 
-  // Units and time of every picked OP, for the total line under the OP list.
-  protected selectionTotal(): { count: number; units: number; minutes: number } {
+  // Units, real time and sent time of every picked OP, for the total card under the OP list.
+  protected selectionTotal(): { count: number; units: number; realMinutes: number; minutes: number } {
     const picked = this.pickedOps();
     return {
       count: picked.length,
       units: picked.reduce((sum, op) => sum + op.summary.units, 0),
+      realMinutes: picked.reduce((sum, op) => sum + realTimeMinutes(op.summary.units, op.document), 0),
       minutes: picked.reduce((sum, op) => sum + op.summary.hours * 60 + op.summary.minutes, 0),
     };
   }

@@ -17,6 +17,8 @@ export interface SelectionSummary {
   hours: number;
   minutes: number;
   subprocess: TepSubprocess | null;
+  // The subprocess is asked (and required) for this OP: Confección in the recorded time mode only.
+  subprocessRequired: boolean;
   // Time type the inputs were calculated with ("Real" when true, "Estándar" when false).
   useRecordedTime: boolean;
   valid: boolean;
@@ -153,6 +155,7 @@ export class IntegrationTimeInputs {
       hours: hours ?? 0,
       minutes: minutes ?? 0,
       subprocess: this.askSubprocess() ? (this.showSubprocess() ? subprocess : 'none') : null,
+      subprocessRequired: this.showSubprocess(),
       useRecordedTime: this.useRecordedTime(),
       valid: this.form.valid,
     });
