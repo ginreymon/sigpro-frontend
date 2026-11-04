@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, model, OnInit, output, signal } from '@angular/core';
+import { erpIntegrableMax } from '../../../../../../../common/functions/erp-integration';
 import { opSecondsPerUnit } from '../../../../../../../common/functions/tep-time';
 import { AppConfigService } from '../../../../../../../services/core/app-config-service';
 import { IntegrationReferenceSam, WorkCenterDocument } from '../../../../../../../models/integration/order-by-work-center';
@@ -44,9 +45,10 @@ export class DocumentIntegrationStamping implements OnInit {
   // Quantity already completed in the ERP.
   protected readonly erpExecutionQty = computed(() => Number(this.document().erp_completed_quantity ?? 0));
 
-  // Stamped quantity not yet completed in the ERP (stamped - erp completed): the "Por integrar" of the OP.
+  // "Por integrar" of the OP: the ERP limit, the same rule as Confección (erpIntegrableMax); the stamped
+  // quantity not yet completed in the ERP (stamped - erp completed) only when the ERP sends no quantities.
   protected readonly toIntegrateQty = computed(() =>
-    Math.max(Number(this.totals()?.stamped_qty ?? 0) - this.erpExecutionQty(), 0),
+    erpIntegrableMax(this.document(), Math.max(Number(this.totals()?.stamped_qty ?? 0) - this.erpExecutionQty(), 0)),
   );
 
   // Coming back to an OP with a quantity already typed (accordion re-expanded): show it again.

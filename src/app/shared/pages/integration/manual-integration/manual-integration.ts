@@ -19,7 +19,7 @@ import { SelectionSummary } from './components/integration-time-inputs/integrati
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
 import { TableTemplate } from '../../../../directives/table-template';
-import { OrderByWorkCenter } from '../../../../models/integration/order-by-work-center';
+import { OrderByWorkCenter, WorkCenterDocument } from '../../../../models/integration/order-by-work-center';
 import { PaginatedResponse } from '../../../../common/interfaces/paginated-response';
 import { OrdersByWorkCenterService } from '../../../../services/integration/orders-by-work-center-service';
 import { TepService } from '../../../../services/integration/tep-service';
@@ -27,8 +27,9 @@ import { tepErrorMessage } from '../../../../common/functions/tep-error';
 import { AppConfigService } from '../../../../services/core/app-config-service';
 import { UiIcon } from '../../../elements/ui-icon/ui-icon';
 import { UiAlert } from '../../../elements/ui-alert/ui-alert';
-import { TepSendDetail, TepSendRequest } from '../../../../models/integration/tep-send';
-import { buildTepDetail, buildTepRequest, PickedOp } from './tep-payload';
+import { TepSendRequest } from '../../../../models/integration/tep-send';
+import { buildTepRequest, PickedOp } from './tep-payload';
+import { erpBlockReason } from '../../../../common/functions/erp-integration';
 
 // Read-only view of orders-to-be-outbound/by-work-center: totals per work center
 // with their documents (OPs), no day split.
@@ -205,23 +206,10 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     return picked.length > 0 && picked.every((op) => op.summary.valid) && this.erpBlockedOps().length === 0;
   }
 
-  // ERP rule, the same one the backend enforces for both origins: an OP can be integrated only while its ERP
-  // operation is not completed and erp_completed_quantity + quantity <= erp_execution_quantity.
-  private erpBlockReason({ document, summary }: PickedOp): string | null {
-    const completedOperation: unknown = document.erp_completed_operation;
-    if (completedOperation === true || completedOperation === 1 || completedOperation === '1' || completedOperation === 'true') {
-      return 'la operación ya está completada en el ERP';
-    }
-    const { erp_completed_quantity: completed, erp_execution_quantity: execution } = document;
-    if (completed != null && execution != null && Number(completed) + summary.units > Number(execution)) {
-      return `la cantidad supera lo disponible en el ERP (máximo ${Math.max(0, Math.floor(Number(execution) - Number(completed)))})`;
-    }
-    return null;
-  }
-
+  // OPs blocked by the shared ERP rule (common/functions/erp-integration), the same for every area.
   private erpBlockedOps(): { op: PickedOp; reason: string }[] {
     return this.pickedOps().flatMap((op) => {
-      const reason = this.erpBlockReason(op);
+      const reason = erpBlockReason(op.document, op.summary.units);
       return reason ? [{ op, reason }] : [];
     });
   }
@@ -298,27 +286,30 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
       .map((doc) => ({ document: doc, selectedIds: this.selectedSkuIdsOf(doc.op_rowid), summary: byOp[doc.op_rowid], recordIds: this.selectedRecordIdsOf(doc.op_rowid) }));
   }
 
-  // One row per picked OP, for the table at the top of the integrate modal. `tep` is the item of the
-  // `details` of the TEP payload for that row, already built.
-  protected selectionRows(): { op: string; reference: string; units: number; minutes: number; tep: TepSendDetail }[] {
-    return this.pickedOps().map((picked) => ({
-      op: `${picked.document.op_type} ${picked.document.op_number}`,
-      reference: picked.document.reference || '—',
-      units: picked.summary.units,
-      minutes: picked.summary.hours * 60 + picked.summary.minutes,
-      tep: buildTepDetail(this.rowObject as OrderByWorkCenter, picked),
-    }));
+  // The OP has picked units but its data is invalid or the ERP blocks it: its header chip turns red.
+  protected opHasError(document: WorkCenterDocument): boolean {
+    const summary = this.selectionSummaryByOp()[document.op_rowid];
+    return !!summary && summary.units > 0 && (!summary.valid || erpBlockReason(document, summary.units) !== null);
   }
 
-  // Body of POST integration/tep/send/ for what is shown in the table.
+  // Time of the selection of an OP in minutes, as shown in its time inputs (edited or not).
+  protected selectedMinutesOf(opRowid: number): number {
+    const summary = this.selectionSummaryByOp()[opRowid];
+    return summary ? summary.hours * 60 + summary.minutes : 0;
+  }
+
+  // Body of POST integration/tep/send/ for the picked OPs: one request with every OP.
   protected tepRequest(): TepSendRequest {
     return buildTepRequest(this.rowObject as OrderByWorkCenter, this.pickedOps());
   }
 
-  protected selectionTotals(rows: { units: number; minutes: number }[]): { units: number; minutes: number } {
+  // Units and time of every picked OP, for the total line under the OP list.
+  protected selectionTotal(): { count: number; units: number; minutes: number } {
+    const picked = this.pickedOps();
     return {
-      units: rows.reduce((sum, row) => sum + row.units, 0),
-      minutes: rows.reduce((sum, row) => sum + row.minutes, 0),
+      count: picked.length,
+      units: picked.reduce((sum, op) => sum + op.summary.units, 0),
+      minutes: picked.reduce((sum, op) => sum + op.summary.hours * 60 + op.summary.minutes, 0),
     };
   }
 

@@ -1,5 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
+import { isErpOperationCompleted } from '../../../../../../common/functions/erp-integration';
 import { WorkCenterDocument } from '../../../../../../models/integration/order-by-work-center';
 import { UiBadge } from '../../../../../elements/ui-badge/ui-badge';
 
@@ -18,6 +19,6 @@ export class IntegrationErpStatus {
   protected readonly erpCompleted = computed<boolean | null>(() => {
     const value: unknown = this.document().erp_completed_operation;
     if (value === null || value === undefined) return null;
-    return value === true || value === 1 || value === '1' || value === 'true';
+    return isErpOperationCompleted(value);
   });
 }

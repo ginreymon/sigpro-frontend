@@ -1,4 +1,5 @@
 import { Component, computed, ElementRef, HostListener, inject, input, model, OnInit, output, signal, viewChild } from '@angular/core';
+import { erpIntegrableMax } from '../../../../../../../common/functions/erp-integration';
 import { opSecondsPerUnit } from '../../../../../../../common/functions/tep-time';
 import { AppConfigService } from '../../../../../../../services/core/app-config-service';
 import { UiIcon } from '../../../../../../elements/ui-icon/ui-icon';
@@ -115,10 +116,7 @@ export class DocumentIntegrationMatrix implements OnInit {
 
   // Most that can be integrated in single mode: what the ERP still has to execute
   // (erp_execution_quantity - erp_completed_quantity); the pending records' total when the ERP sends no quantities.
-  protected readonly integrableMax = computed(() => {
-    const { erp_execution_quantity: execution, erp_completed_quantity: completed } = this.document();
-    return execution == null || completed == null ? this.poolUnits() : Math.max(0, Math.floor(execution - completed));
-  });
+  protected readonly integrableMax = computed(() => erpIntegrableMax(this.document(), this.poolUnits()));
 
   protected readonly mode = computed<IntegrationMode>(() => (this.selectedRecordIds() === null ? 'matrix' : 'single'));
   protected readonly modes: { value: IntegrationMode; label: string }[] = [

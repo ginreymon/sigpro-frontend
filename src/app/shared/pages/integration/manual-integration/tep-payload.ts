@@ -7,6 +7,8 @@ import { SelectionSummary } from './components/integration-time-inputs/integrati
 import { pendingRecords } from './options/production/integration-state';
 import { pendingSamRecords } from './options/stamping/stamping-integration-state';
 
+import { isErpOperationCompleted } from '../../../../common/functions/erp-integration';
+
 const STAMPING_ORIGIN_ID = 2;
 
 // One OP picked in the integrate modal: its document, what was picked (SKU ids for Confección, SAM ids
@@ -73,7 +75,7 @@ export function buildTepDetail(row: OrderByWorkCenter, { document, selectedIds, 
     sent_seconds_per_unit: sentSecondsPerUnit(summary),
     time_mode: summary.useRecordedTime ? 'real' : 'standard',
     real_seconds_by_unit: document.seconds_by_unit ?? null,
-    operation_completed: document.erp_completed_operation ? 1 : 0,
+    operation_completed: isErpOperationCompleted(document.erp_completed_operation) ? 1 : 0,
     register_ids: pickedRegisterIds(row.origin_id, document, selectedIds, recordIds),
     origin_id: row.origin_id,
   };

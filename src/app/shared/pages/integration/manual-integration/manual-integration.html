@@ -67,46 +67,20 @@
     <app-ui-alert [intent]="'error'" [message]="invalidSelectionMessage()" (onClose)="invalidAlertDismissed.set(true)" role="alert"></app-ui-alert>
   </div>
 
-  <div class="mb-4">
-    @let rows = selectionRows();
-    @let totals = selectionTotals(rows);
-    <table class="mt-4 w-full text-sm border border-slate-200 rounded-lg overflow-hidden border-separate border-spacing-0">
-      <thead class="bg-slate-100 text-slate-600 text-xs">
-        <tr>
-          <th class="px-3 py-2 text-left font-semibold">OP</th>
-          <th class="px-3 py-2 text-left font-semibold">Referencia</th>
-          <th class="px-3 py-2 text-right font-semibold">Unidades</th>
-          <th class="px-3 py-2 text-right font-semibold">Tiempo (HH:MM)</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-100">
-        @for (row of rows; track row.op) {
-          <tr>
-            <td class="px-3 py-1.5 text-gray-700">{{ row.op }}</td>
-            <td class="px-3 py-1.5 text-slate-500">{{ row.reference }}</td>
-            <td class="px-3 py-1.5 text-right tabular-nums">{{ row.units }}</td>
-            <td class="px-3 py-1.5 text-right tabular-nums">{{ formatTime(row.minutes) }}</td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="4" class="px-3 py-2 text-center text-slate-400">Sin unidades seleccionadas</td>
-          </tr>
-        }
-      </tbody>
-      @if (rows.length > 1) {
-        <tfoot class="bg-slate-50 font-semibold text-gray-800">
-          <tr>
-            <td class="px-3 py-1.5">Total</td>
-            <td></td>
-            <td class="px-3 py-1.5 text-right tabular-nums">{{ totals.units }}</td>
-            <td class="px-3 py-1.5 text-right tabular-nums">{{ formatTime(totals.minutes) }}</td>
-          </tr>
-        </tfoot>
-      }
-    </table>
-  </div>
-
   <ng-container *ngTemplateOutlet="documentsList"></ng-container>
+
+  @let total = selectionTotal();
+  @if (total.count > 1) {
+    <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2" data-testid="selection-total">
+      <span class="text-xs font-semibold text-slate-600">Total · {{ total.count }} OPs</span>
+      <span class="inline-flex items-center gap-2 text-sm font-semibold tabular-nums text-gray-800">
+        <span>{{ total.units }} und</span>
+        <span class="inline-flex items-center gap-1 border-l border-slate-300 pl-2">
+          <app-ui-icon [iconName]="'clock'" [class]="'w-3.5 h-3.5 text-brand-500'"></app-ui-icon>{{ formatTime(total.minutes) }}
+        </span>
+      </span>
+    </div>
+  }
 
 </app-modal-layout>
 
@@ -127,8 +101,15 @@
           <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
         </div>
 
-        @if (!expandedDocumentIndexes().has($index) && selectedUnitsOf(item.op_rowid) > 0) {
-          <span class="shrink-0 text-sm font-semibold tabular-nums text-gray-700" data-testid="op-selected-units">{{ selectedUnitsOf(item.op_rowid) }} und</span>
+        @if (selectedUnitsOf(item.op_rowid) > 0) {
+          <span class="shrink-0 inline-flex items-center gap-2 rounded-md px-2 py-1 text-xs font-semibold tabular-nums" data-testid="op-selected-units"
+            [class.bg-brand-100]="!opHasError(item)" [class.text-brand-700]="!opHasError(item)"
+            [class.bg-red-100]="opHasError(item)" [class.text-red-700]="opHasError(item)">
+            <span>{{ selectedUnitsOf(item.op_rowid) }} und</span>
+            <span class="inline-flex items-center gap-1 border-l border-current/20 pl-2">
+              <app-ui-icon [iconName]="'clock'" [class]="'w-3 h-3'"></app-ui-icon>{{ formatTime(selectedMinutesOf(item.op_rowid)) }}
+            </span>
+          </span>
         }
 
         <app-ui-badge [active]="selectedSkuIdsOf(item.op_rowid).length > 0" activeText="Por integrar" inactiveText="Sin seleccionar"></app-ui-badge>
