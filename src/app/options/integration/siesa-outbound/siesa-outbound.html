@@ -22,7 +22,7 @@
             </ng-template>
 
             <ng-template appTableTemplate="siesaDocumentTemplate" let-row>
-                <span class="font-medium text-gray-700">{{ siesaDocument(row) }}</span>
+                <app-ui-copy-text class="font-medium text-gray-700" [text]="siesaDocument(row)" [showIcon]="siesaDocument(row) !== '—'" [showToast]="false"></app-ui-copy-text>
             </ng-template>
 
             <ng-template appTableTemplate="createdAtTemplate" let-row>
@@ -43,7 +43,7 @@
 
         <div class="space-y-2 text-sm text-slate-600">           
             <p> <strong>Centro de trabajo:</strong> {{ rowObject.work_center_id || '—' }} </p>
-            <p> <strong>Documento SIESA:</strong> <span class="text-base font-semibold text-gray-800">{{ siesaDocument(rowObject) }}</span> </p>
+            <p> <strong>Documento:</strong> {{ siesaDocument(rowObject) }} </p>
             <p> <strong>Fecha integración:</strong> {{ rowObject.date | date: 'dd/MM/yyyy' }} </p>  
         </div>
     </div>
@@ -58,7 +58,7 @@
         </p> 
     </div>
 
-    <h4 class="mt-6 mb-2 text-xl font-semibold text-gray-700"> Respuesta de SIESA </h4>
+    <h4 class="mt-6 mb-2 text-xl font-semibold text-gray-700"> Respuesta </h4>
     <div class="space-y-2 text-sm text-slate-600">
         @if (rowObject.status === 'sent') {
         <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-700 font-semibold"> SIESA recibió el documento sin errores. </div>
@@ -116,11 +116,11 @@
             <div accordion-body class="bg-slate-50 rounded-lg p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
                 <p> <strong>Centro:</strong> {{ detail.operation_work_center_id }} </p>
                 <p> <strong>Origen:</strong> {{ originLabel(detail.origin_id) }} </p>
-                <p class="text-green-600"> <strong>Cantidad:</strong> {{ detail.completed_quantity }} </p>
+                <p class="text-green-600"> <strong>Cantidad:</strong> {{ detail.completed_quantity | number: '1.0-0' }} </p>
                 <p> <strong>Horas:</strong> {{ detail.hours }} </p>
                 <p> <strong>Tipo de tiempo:</strong> {{ detail.time_mode === 'real' ? 'Real' : detail.time_mode === 'standard' ? 'Estándar' : '—' }} </p>
-                <p> <strong>Seg/unidad enviados:</strong> {{ detail.sent_seconds_per_unit ?? '—' }} </p>
-                <p class="col-span-2"> <strong>Seg/unidad real calculado:</strong> {{ detail.real_seconds_by_unit ?? '—' }} </p>
+                <p> <strong>Seg./unidad enviados:</strong> {{ detail.sent_seconds_per_unit ?? '—' }} </p>
+                <p class="col-span-2"> <strong>Seg./unidad real:</strong> {{ detail.real_seconds_by_unit ?? '—' }} </p>
                 <p class="col-span-2"> <strong>Registros:</strong> {{ detail.register_ids.join(', ') || '—' }} </p>
 
                 @if (detail.origin_id === 1) {

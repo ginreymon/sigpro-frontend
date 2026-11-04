@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../shared/components/table/data-table/data-table';
 import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
@@ -14,6 +14,7 @@ import { TableToolsButtons } from '../../../common/interfaces/table-tools-button
 import { TepSubmission, TepSubmissionStatus } from '../../../models/integration/tep-submission';
 import { TepSubmissionService } from '../../../services/integration/tep-submission-service';
 import { CharSquare } from '../../../shared/components/widgets/char-square/char-square';
+import { UiCopyText } from '../../../shared/elements/ui-copy-text/ui-copy-text';
 import { OpSkuMatrixReadonly } from '../../../shared/components/widgets/op-sku-matrix-readonly/op-sku-matrix-readonly';
 
 const STATUS_INTENT: Record<TepSubmissionStatus, BadgeIntent> = {
@@ -29,7 +30,7 @@ const ORIGIN_LABEL: Record<number, string> = {
 
 @Component({
   selector: 'app-siesa-outbound',
-  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, UiAccordionItem, TableTemplate, DatePipe, CharSquare, OpSkuMatrixReadonly],
+  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, UiAccordionItem, TableTemplate, DatePipe, DecimalPipe, CharSquare, UiCopyText, OpSkuMatrixReadonly],
   templateUrl: './siesa-outbound.html',
 })
 export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
@@ -61,10 +62,10 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
     return [
       { type: 'template', label: 'Fecha', templateName: 'createdAtTemplate' },
       { field: 'status_display', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
-      { type: 'template', label: 'Documento SIESA', templateName: 'siesaDocumentTemplate' },
+      { type: 'template', label: 'Documento', templateName: 'siesaDocumentTemplate' },
       { field: 'work_center_id', label: 'Centro de trabajo' },
       { type: 'template', label: 'Documentos', templateName: 'opsTemplate', align: 'center' },
-      { type: 'template', label: 'Respuesta SIESA', templateName: 'responseTemplate' },
+      { type: 'template', label: 'Respuesta', templateName: 'responseTemplate' },
     ];
   }
 
@@ -87,11 +88,12 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
     this.expandedItems.set(expanded);
   }
 
-  // Document sent to SIESA, as persisted ("TPW 57"). Historical submissions made before the backend assigned
-  // the consecutive have no usable number (null or 0): shown as "—".
+  // Document sent to SIESA, displayed as "TPW-00000057" (number padded to 8 digits; stored value unchanged).
+  // Historical submissions made before the backend assigned the consecutive have no usable number
+  // (null or 0): shown as "—".
   protected siesaDocument(submission: Partial<Pick<TepSubmission, 'document_type_id' | 'document_number'>>): string {
     const { document_type_id: type, document_number: number } = submission;
-    return type && number ? `${type} ${number}` : '—';
+    return type && number ? `${type}-${String(number).padStart(8, '0')}` : '—';
   }
 
   protected statusIntent(status: TepSubmissionStatus): BadgeIntent {
