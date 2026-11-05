@@ -1,20 +1,43 @@
 <app-ui-option-card
   (onToggle)="onToggle.emit()"
   [selected]="selected">
-  <div class="flex flex-row justify-start gap-2 items-center mb-1">
-    <app-ui-icon [iconName]="all ? 'columns' : 'screwdriverWrench'" class="h-5 w-5"></app-ui-icon>
-    <p class="font-medium text-sm">
-      @if(all) {
-        <strong class="text-xs text-gray-500">Todos</strong>
-      } @else {
-        {{ mod?.number }}
-        <strong class="text-xs text-gray-500"> {{ mod?.name ?? '' | titlecase | ellipsis:25 }}</strong>
-      }
-    </p>
-  </div>
-  @if(!all) {
-  <p class="text-xs text-gray-500"><strong>Ubicación:</strong> {{ mod?.location?.name ?? '' | titlecase | ellipsis:25 }}</p>
+  <div class="relative flex flex-col gap-2" role="button" [attr.aria-pressed]="selected">
+    @if (selected) {
+      <app-ui-icon [iconName]="'circleCheck'" class="absolute -top-1 -right-1 h-4 w-4 text-brand-500"></app-ui-icon>
+    }
 
-  <p class="text-xs text-gray-500"><strong>Tiempo manual:</strong> {{ mod?.allows_production_time_adjustment? 'Sí':'No' }}</p>
-  }
+    <!-- Header: icon tile + name -->
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 transition-colors duration-200"
+        [class]="selected ? 'bg-brand-500 border-brand-500 text-white' : 'bg-brand-50 border-brand-100 text-brand-500'">
+        <app-ui-icon [iconName]="all ? 'columns' : 'screwdriverWrench'" class="h-5 w-5"></app-ui-icon>
+      </div>
+      <div class="flex-1 min-w-0">
+        @if (all) {
+          <p class="text-sm leading-5 font-semibold" [class]="selected ? 'text-brand-600' : 'text-gray-700'">Todos</p>
+        } @else {
+          <h3 class="text-xs leading-4 text-slate-500">Módulo {{ mod?.number }}</h3>
+          <p class="text-sm leading-5 font-semibold truncate" [class]="selected ? 'text-brand-600' : 'text-gray-700'">
+            {{ mod?.name ?? '' | titlecase | ellipsis:25 }}
+          </p>
+        }
+      </div>
+    </div>
+
+    @if (!all) {
+      <div class="flex flex-col gap-1 pt-2 border-t" [class]="selected ? 'border-brand-200' : 'border-slate-200'">
+        <div class="flex items-baseline justify-between gap-2">
+          <span class="text-xs leading-4 text-slate-500">Ubicación</span>
+          <span class="text-xs leading-4 font-semibold text-gray-700 truncate">{{ mod?.location?.name ?? '' | titlecase | ellipsis:25 }}</span>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs leading-4 text-slate-500">Tiempo manual</span>
+          <span class="text-xs leading-4 font-semibold px-1.5 rounded"
+            [class]="mod?.allows_production_time_adjustment ? 'bg-brand-50 text-brand-600' : 'bg-slate-100 text-slate-500'">
+            {{ mod?.allows_production_time_adjustment ? 'Sí' : 'No' }}
+          </span>
+        </div>
+      </div>
+    }
+  </div>
 </app-ui-option-card>
