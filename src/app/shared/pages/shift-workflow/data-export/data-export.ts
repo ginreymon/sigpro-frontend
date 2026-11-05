@@ -16,12 +16,14 @@ import { WorkShiftService } from '../../../../services/production/work-shift-ser
 import { WorkSpaceLoaderService } from '../../../../services/common/work-space-loader-service';
 import { LoaderService } from '../../../../services/common/loader-service';
 import { ProductivityService } from '../../../../services/production/productivity-service';
+import { StampingProductivityService } from '../../../../services/stamping/stamping-productivity-service';
 import { RouteContextService } from '../../../../services/core/route-context-service';
 import { Employee } from '../../../../models/production/employee';
 import { Module } from '../../../../models/production/module';
 import { WorkShift } from '../../../../models/production/work-shift';
 import { EfficiencyReportRow } from '../../../../models/production/efficiency-report-row';
 
+import { DAY_OPERATION_CONFIG } from '../../../../common/const/day-operation-config';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 
 @Component({
@@ -48,8 +50,20 @@ export class DataExport implements OnInit {
   private workShiftService = inject(WorkShiftService);
   private wslService = inject(WorkSpaceLoaderService);
   private loaderService = inject(LoaderService);
-  private productivityService = inject(ProductivityService);
+  private confeccionProductivityService = inject(ProductivityService);
+  private stampingProductivityService = inject(StampingProductivityService);
   private routeContextService = inject(RouteContextService);
+
+  /** Each area exposes its own efficiency report endpoint; the route module decides which one. */
+  private get productivityService() {
+    return this.routeContextService.currentModule?.url === 'stamping'
+      ? this.stampingProductivityService
+      : this.confeccionProductivityService;
+  }
+
+  /** "Módulo" in Confección, "Máquina" in Estampación. */
+  protected readonly moduleLabel =
+    DAY_OPERATION_CONFIG[this.routeContextService.currentModule?.url ?? '']?.moduleLabel ?? 'Módulo';
 
   private get coreModuleId(): number | undefined {
     return this.routeContextService.currentModule?.id;

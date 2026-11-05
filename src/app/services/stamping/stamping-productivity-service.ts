@@ -8,6 +8,8 @@ import { ProductivityParams } from '../../models/production/productivity-params'
 import { ModuleEfficiencyStatus } from '../../models/production/module-efficiency-status';
 import { ModuleEfficiencyRow } from '../../models/production/module-efficiency-row';
 import { StampingProductivitySummaryRow } from '../../models/stamping/stamping-productivity-summary-row';
+import { EfficiencyReportRow } from '../../models/production/efficiency-report-row';
+import { EfficiencyReportParams } from '../production/productivity-service';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response';
 
 @Injectable({
@@ -67,5 +69,24 @@ export class StampingProductivityService {
       .set('end_date', endDate);
     if (moduleId) params = params.set('module_id', moduleId);
     return this.http.get<ModuleEfficiencyRow[]>(`${this.path}/module-efficiency/`, { params });
+  }
+
+  getEfficiencyReport(p: EfficiencyReportParams): Observable<EfficiencyReportRow[]> {
+    return this.http.get<EfficiencyReportRow[]>(`${this.path}/efficiency-report/`, { params: this.reportParams(p) });
+  }
+
+  downloadEfficiencyReport(p: EfficiencyReportParams): Observable<Blob> {
+    return this.http.get(`${this.path}/efficiency-report/export/`, { params: this.reportParams(p), responseType: 'blob' });
+  }
+
+  private reportParams(p: EfficiencyReportParams): HttpParams {
+    let params = new HttpParams()
+      .set('start_date', p.startDate)
+      .set('end_date', p.endDate);
+    if (p.moduleId     !== undefined) params = params.set('module_id',      p.moduleId);
+    if (p.shiftId      !== undefined) params = params.set('shift_id',       p.shiftId);
+    if (p.employeeId   !== undefined) params = params.set('employee_id',    p.employeeId);
+    if (p.coreModuleId !== undefined) params = params.set('core_module_id', p.coreModuleId);
+    return params;
   }
 }

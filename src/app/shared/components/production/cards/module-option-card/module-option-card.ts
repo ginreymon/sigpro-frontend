@@ -15,6 +15,7 @@ export class ModuleOptionCard {
 
   @Input() mod: Module | null = null;
   @Input() all = false;
+  @Input() label = 'Módulo';
   @Input() selected = false;
   @Output() onToggle = new EventEmitter<void>();
 }

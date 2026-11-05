@@ -6,9 +6,9 @@
 
             <!-- Header -->
             <div class="flex flex-col items-start justify-start border-b border-gray-300 pb-4 md:pb-5 mb-4">
-                <h3 class="text-2xl font-semibold text-gray-900">Eficiencia por módulo</h3>
+                <h3 class="text-2xl font-semibold text-gray-900">Eficiencia por {{ moduleLabel.toLowerCase() }}</h3>
                 <p class="text-gray-500 mt-2 text-sm">
-                    Seleccione el período, módulo, turno y empleado para generar el reporte
+                    Seleccione el período, {{ moduleLabel.toLowerCase() }}, turno y empleado para generar el reporte
                 </p>
             </div>
 
@@ -18,19 +18,19 @@
                 <app-date-range-fields></app-date-range-fields>
 
                 <!-- Módulo carousel -->
-                <app-carousel-field [controlName]="'modulo_id'" [label]="'Módulo'" [showNav]="!!modules().length">
+                <app-carousel-field [controlName]="'modulo_id'" [label]="moduleLabel" [showNav]="!!modules().length">
                     @if(modules().length){
-                    <app-module-option-card [all]="true" (onToggle)="selectAllModules()"
+                    <app-module-option-card [label]="moduleLabel" [all]="true" (onToggle)="selectAllModules()"
                         [selected]="isAllModulesSelected()">
                     </app-module-option-card>
                     }
                     @for(mod of modules(); track mod.id) {
-                    <app-module-option-card [mod]="mod" (onToggle)="selectModule(mod.id)"
+                    <app-module-option-card [label]="moduleLabel" [mod]="mod" (onToggle)="selectModule(mod.id)"
                         [selected]="isSelectedModule(mod)">
                     </app-module-option-card>
                     }
                     @empty {
-                    <p class="text-sm text-gray-400 italic py-2 px-2">Sin módulos disponibles</p>
+                    <p class="text-sm text-gray-400 italic py-2 px-2">Sin {{ moduleLabel.toLowerCase() }}s disponibles</p>
                     }
                 </app-carousel-field>
 

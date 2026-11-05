@@ -43,6 +43,7 @@ export const componentMap: Record<string, Type<any>> = {
   'production/day-operation': DayOperation,
   'production/shift-cycles': ShiftCyclesEntry,
   'production/data-export': DataExport,
+  'stamping/data-export': DataExport,
   'production/module-panel': ModulePanel,
   'production/sewing-config': SewingConfig,
   'production/order-detail': OrderDetail,

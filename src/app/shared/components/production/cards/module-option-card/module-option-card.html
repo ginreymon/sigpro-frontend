@@ -16,7 +16,7 @@
         @if (all) {
           <p class="text-sm leading-5 font-semibold" [class]="selected ? 'text-brand-600' : 'text-gray-700'">Todos</p>
         } @else {
-          <h3 class="text-xs leading-4 text-slate-500">Módulo {{ mod?.number }}</h3>
+          <h3 class="text-xs leading-4 text-slate-500">{{ label }} {{ mod?.number }}</h3>
           <p class="text-sm leading-5 font-semibold truncate" [class]="selected ? 'text-brand-600' : 'text-gray-700'">
             {{ mod?.name ?? '' | titlecase | ellipsis:25 }}
           </p>
