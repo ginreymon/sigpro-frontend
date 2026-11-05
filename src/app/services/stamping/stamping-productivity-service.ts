@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -75,8 +75,8 @@ export class StampingProductivityService {
     return this.http.get<EfficiencyReportRow[]>(`${this.path}/efficiency-report/`, { params: this.reportParams(p) });
   }
 
-  downloadEfficiencyReport(p: EfficiencyReportParams): Observable<Blob> {
-    return this.http.get(`${this.path}/efficiency-report/export/`, { params: this.reportParams(p), responseType: 'blob' });
+  downloadEfficiencyReport(p: EfficiencyReportParams): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.path}/efficiency-report/export/`, { params: this.reportParams(p), responseType: 'blob', observe: 'response' });
   }
 
   private reportParams(p: EfficiencyReportParams): HttpParams {

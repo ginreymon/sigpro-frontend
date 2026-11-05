@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -90,7 +90,7 @@ export class ProductivityService {
     return this.http.get<EfficiencyReportRow[]>(`${this.path}/efficiency-report/`, { params });
   }
 
-  downloadEfficiencyReport(p: EfficiencyReportParams): Observable<Blob> {
+  downloadEfficiencyReport(p: EfficiencyReportParams): Observable<HttpResponse<Blob>> {
     let params = new HttpParams()
       .set('start_date', p.startDate)
       .set('end_date', p.endDate);
@@ -98,6 +98,6 @@ export class ProductivityService {
     if (p.shiftId      !== undefined) params = params.set('shift_id',       p.shiftId);
     if (p.employeeId   !== undefined) params = params.set('employee_id',    p.employeeId);
     if (p.coreModuleId !== undefined) params = params.set('core_module_id', p.coreModuleId);
-    return this.http.get(`${this.path}/efficiency-report/export/`, { params, responseType: 'blob' });
+    return this.http.get(`${this.path}/efficiency-report/export/`, { params, responseType: 'blob', observe: 'response' });
   }
 }

@@ -24,6 +24,7 @@ import { WorkShift } from '../../../../models/production/work-shift';
 import { EfficiencyReportRow } from '../../../../models/production/efficiency-report-row';
 
 import { DAY_OPERATION_CONFIG } from '../../../../common/const/day-operation-config';
+import { filenameFromContentDisposition } from '../../../../common/functions/content-disposition';
 import { TableColumn } from '../../../../common/interfaces/table-column';
 
 @Component({
@@ -176,11 +177,14 @@ export class DataExport implements OnInit {
       coreModuleId: this.coreModuleId,
     })
       .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe(blob => {
-        const url = URL.createObjectURL(blob);
+      .subscribe(response => {
+        const url = URL.createObjectURL(response.body!);
         const a   = document.createElement('a');
         a.href     = url;
-        a.download = `eficiencia_${fecha_inicio}_${fecha_fin}.xlsx`;
+        a.download = filenameFromContentDisposition(
+          response.headers.get('Content-Disposition'),
+          `eficiencia_${fecha_inicio}_${fecha_fin}.xlsx`,
+        );
         a.click();
         URL.revokeObjectURL(url);
       });
