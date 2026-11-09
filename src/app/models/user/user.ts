@@ -9,4 +9,6 @@ export interface User {
   employee: Employee | null;
   groups: Group[];
   group_id: number;
+  employee_local_id?: number | null;
+  password?: string;
 }

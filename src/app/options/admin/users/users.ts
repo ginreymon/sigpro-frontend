@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { DataTable } from '../../../shared/components/table/data-table/data-table';
 import { EmployeeDirectoryService } from '../../../services/user/employee-directory-service';
-import { Employee } from '../../../models/production/employee';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { TableTemplate } from '../../../directives/table-template';
@@ -25,7 +24,7 @@ import { User } from '../../../models/user/user';
 import { UiBadge } from "../../../shared/elements/ui-badge/ui-badge";
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { CharSquare } from "../../../shared/components/widgets/char-square/char-square";
-import { Metadata } from "../../../shared/components/widgets/metadata/metadata";
+import { UiCombobox } from '../../../shared/elements/ui-combobox/ui-combobox';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
 
@@ -48,16 +47,17 @@ import { TitleCasePipe } from '@angular/common';
     UiValidationIcon,
     UiBadge,
     CharSquare,
-    Metadata,
+    UiCombobox,
     TitleCasePipe
 ],
   templateUrl: './users.html',
   styleUrl: './users.css',
 })
-export class Users extends BaseCrudPage<Employee> {
+export class Users extends BaseCrudPage<User> {
   protected override entityName: string = 'Usuario';  
   roles = signal<Role[]>([]);
   showPassword = signal<boolean>(false);
+  employees = signal<{ id: number; label: string }[]>([]);
 
   constructor(
     private employeeDirectoryService: EmployeeDirectoryService,
@@ -65,7 +65,7 @@ export class Users extends BaseCrudPage<Employee> {
     private authService: AuthService,
     private userService: UserService,
   ) {
-    super(employeeDirectoryService);
+    super(userService);
     this.loadList(this.roleService, this.roles, false);
   }
 
@@ -76,15 +76,14 @@ export class Users extends BaseCrudPage<Employee> {
     }
   }
 
-  protected override get columns(): TableColumn<Employee>[] {
+  protected override get columns(): TableColumn<User>[] {
     return [
-      { field: 'first_name', label: 'Nombre' },
-      { field: 'last_name1', label: 'Apellido' },
-      { field: 'id_number', label: 'Cédula' },
-      { field: 'cost_center_description', label: 'Centro de costos' },
-      { type: 'template', label: 'Usuario', templateName: 'userNameTemplate' },
+      { field: 'username', label: 'Usuario' },
+      { field: 'email', label: 'Correo' },
+      { type: 'template', label: 'Empleado', templateName: 'employeeTemplate' },
+      { type: 'template', label: 'Rol', templateName: 'roleTemplate' },
       { type: 'template', label: 'Estado', templateName: 'userStatusTemplate' },
-      { type: 'template', label: 'Acciones', templateName: 'createUserTemplate', align: 'center' },
+      { type: 'template', label: 'Acciones', templateName: 'accountActionTemplate', align: 'center' },
     ];
   }
 
@@ -97,6 +96,8 @@ export class Users extends BaseCrudPage<Employee> {
         '',
         [Validators.required, Validators.minLength(8), Validators.pattern(/^[A-Za-z0-9._]+$/)],
       ],
+      email: ['', [Validators.email]],
+      employee_local_id: [null],
       password: [null, passwordValidators],
       confirmPassword: [null, passwordValidators],
       role: [null, Validators.required],
@@ -105,6 +106,14 @@ export class Users extends BaseCrudPage<Employee> {
 
   get username() {
     return this.modelForm.get('username');
+  }
+
+  get employeeId() {
+    return this.modelForm.get('employee_local_id');
+  }
+
+  get email() {
+    return this.modelForm.get('email');
   }
 
   get password() {
@@ -123,52 +132,53 @@ export class Users extends BaseCrudPage<Employee> {
     return this.password?.value && this.password?.value === this.confirmPassword?.value;
   }
 
-  protected override actionHandler(event: TableActionEvent<Employee>): void {
-    if (event.type == 'edit' && !event.obj.has_account) {
-      this.dialogService.openToast('Aviso', 'El usuario no tienen cuenta.', 'triangleExclamation');
-      return;
-    }
-
+  protected override actionHandler(event: TableActionEvent<User>): void {
     super.actionHandler(event);
 
     if (event.type == 'create') {
       this.initializeModelForm();
+      this.loadEmployees();
     }
 
     if (event.type == 'edit') {
-      this.modelForm.patchValue(event.obj);
-      this.role?.setValue(event.obj.groups[0]?.id ?? null);
+      this.modelForm.patchValue({
+        username: event.obj.username,
+        email: event.obj.email ?? '',
+        employee_local_id: event.obj.employee?.id ?? null,
+        role: event.obj.groups[0]?.id ?? null,
+      });
+      this.loadEmployees(event.obj.id);
     }
+  }
+
+  private loadEmployees(userId?: number) {
+    this.employeeDirectoryService.available(userId).subscribe((list) =>
+      this.employees.set(
+        list.map((e) => ({
+          id: e.id,
+          label: `${e.first_name} ${e.last_name1} - ${e.id_number}`,
+        })),
+      ),
+    );
   }
 
   protected override submit(): void {
     if (!this.validateModelForm()) return;
 
-    if (this.actionType === 'create' && !this.passwordsMatch) {
+    if ((this.actionType === 'create' || this.password?.value) && !this.passwordsMatch) {
       this.confirmPassword?.markAsTouched();
       return;
     }
 
     this.loaderService.showLoader();
 
-    const group_id = this.role?.value;
-
-    const register: RegisterRequest = {
-      ...this.modelForm.value,
-      employee_local_id: this.rowObject.id,
-      group_id,
-    };
-
-    const user: Partial<User> = {
-      username: this.username?.value,
-      id: this.rowObject.user_id ?? undefined,
-      group_id,
-    };
+    const { username, email, password, employee_local_id, role } = this.modelForm.value;
+    const base = { username, email: email || null, employee_local_id: employee_local_id ?? null, group_id: role };
 
     const request$ =
       this.actionType == 'create'
-        ? this.authService.registerRequest(register)
-        : this.userService.update(this.rowObject.user_id!, user);
+        ? this.authService.registerRequest({ ...base, password } as RegisterRequest)
+        : this.userService.update(this.rowObject.id!, { ...base, ...(password ? { password } : {}) });
 
     request$.pipe(finalize(() => this.reload(() => this.loaderService.hideLoader()))).subscribe({
       next: () => {
@@ -187,26 +197,19 @@ export class Users extends BaseCrudPage<Employee> {
     });
   }
 
-  createAccount(obj: Employee) {
-    this.rowObject = obj;
-    this.actionType = 'create';
-    this.initializeModelForm();
-    this.dialogService.openModal(`Crear cuenta - ${obj.first_name} ${obj.last_name1}`,'Crear cuenta');
-  }
-
-  activateAccount(obj: Employee) {
-    const label = obj.is_account_active ? 'Desactivar' : 'Activar';
+  activateAccount(obj: User) {
+    const label = obj.is_active ? 'Desactivar' : 'Activar';
     const title = `${label} cuenta`;
     this.dialogService.openConfirm(title, '¿Está seguro de realizar esta acción?', label, () => {
       this.loaderService.showLoader();
-      const user: Partial<User> = { is_active: !obj.is_account_active };
+      const user: Partial<User> = { is_active: !obj.is_active };
       this.userService
-        .update(obj.user_id!, user)
+        .update(obj.id, user)
         .pipe(finalize(() => this.reload(() => this.loaderService.hideLoader())))
         .subscribe({
           next: () => {
             this.dialogService.closeConfirm();
-            const actionText = obj.is_account_active ? 'desactivada' : 'activada';
+            const actionText = obj.is_active ? 'desactivada' : 'activada';
             this.dialogService.openToast('Proceso exitoso', `La cuenta "${obj.username}" fue ${actionText} correctamente.`, 'check');
           },
           error: () => this.dialogService.closeConfirm(),
