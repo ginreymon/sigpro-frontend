@@ -44,6 +44,7 @@ export interface EfficiencyReportRow {
   pause_count:        number;
   breaks:             BreakRecord[];
 
-  total_employees:    number;
+  /** Time-weighted effective employees (decimal), as used in the efficiency calculation. */
+  equivalent_employees: number;
   employees:          any[];
 }
