@@ -21,7 +21,6 @@ export interface ProductionRecordContext {
   session_ended: string | null;
   session_is_closed: boolean;
   session_editing_finalized: boolean;
-  session_total_time: number;
   session_user_id: number;
 
   sku_id: number;
