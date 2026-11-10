@@ -1,6 +1,5 @@
-// Filtros compartidos entre app-stamping-record (crear) y app-stamping-quantity-modal
-// (editar): tiempos adicionales y referencias SAM se acotan primero por tipo de
-// máquina del módulo activo, y opcionalmente por máquina específica.
+// Filters shared by app-stamping-record: additional times and SAM references are
+// narrowed first by the active module's machine type, and optionally by a specific machine.
 export function filterByMachineType<T extends { machine_type?: number | null }>(
   items: T[],
   moduleMachineTypeId: number | null,

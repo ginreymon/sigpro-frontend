@@ -55,6 +55,6 @@ export interface OrderToBeOutbound extends BaseEntity {
   detail_count: number;
   detail: OrderToBeOutboundDetail[];
 
-  // Computed by the frontend on load (WorkCenterTotals.mapResponse); it does not come from the API.
+  // Computed by the frontend on load; it does not come from the API.
   operations_status?: OperationsStatus;
 }

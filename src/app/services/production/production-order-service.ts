@@ -5,7 +5,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { DocType } from '../../models/production/doc-type';
 import { ProductionItem } from '../../models/production/production-item';
-import { Component } from '../../models/production/component';
 import { SkuTaskDetail } from '../../models/production/sku-task-detail';
 import { OrderMaterialsResponse } from '../../models/production/order-materials';
 
@@ -20,13 +19,6 @@ export class ProductionOrderService {
   getOrder(po: Partial<ProductionOrder>, detail?: boolean): Observable<ProductionOrder | ProductionItem[]> {
     const params = new HttpParams().set('type', po.documentType!).set('number', po.documentNumber!);
     return this.http.get<any>(`${this.path}/production-orders/${detail ? 'detail/' : ''}`, { params });
-  }
-
-  getComponents(po: Partial<ProductionOrder>): Observable<Component[]> {
-    const params = new HttpParams().set('type', po.documentType!).set('number', po.documentNumber!);
-    return this.http.get<any[]>(`${this.path}/production-components/`, {
-      params,
-    });
   }
 
   getSkuDetail(docType: string, docNumber: number, skuRowId: number, idPlan?: number): Observable<SkuTaskDetail> {

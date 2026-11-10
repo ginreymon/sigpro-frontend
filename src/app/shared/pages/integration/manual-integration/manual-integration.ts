@@ -122,7 +122,7 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
   // A request is in flight: keeps the button disabled so the TEP is not sent twice.
   protected readonly sending = signal(false);
 
-  // One POST to integration/tep/send/ with every picked OP (the same endpoint and body as work-center-totals).
+  // One POST to integration/tep/send/ with every picked OP.
   // The selection is only cleared when the API confirms the send; on an error it is kept to retry.
   private sendTep(): void {
     const request = this.tepRequest();

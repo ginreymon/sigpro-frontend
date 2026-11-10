@@ -10,22 +10,6 @@
  */
 
 /**
- * Converts a YYYY-MM-DD local date string to a UTC ISO datetime string
- * representing local midnight of that day.
- *
- * @param dateStr    - Date string in YYYY-MM-DD format
- * @param offsetDays - Days to add before converting (0 = same day, 1 = next day exclusive end)
- *
- * @example (UTC-5 / Colombia)
- *   localDateToUtcIso('2026-05-27')     → '2026-05-27T05:00:00.000Z'
- *   localDateToUtcIso('2026-05-27', 1)  → '2026-05-28T05:00:00.000Z'
- */
-export function localDateToUtcIso(dateStr: string, offsetDays = 0): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  return new Date(y, m - 1, d + offsetDays, 0, 0, 0).toISOString();
-}
-
-/**
  * Converts a shift time string (HH:MM:SS) to a UTC ISO datetime string,
  * using today's local date as the base.
  *

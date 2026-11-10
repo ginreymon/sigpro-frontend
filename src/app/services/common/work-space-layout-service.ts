@@ -12,10 +12,6 @@ export class WorkSpaceLayoutService {
     this.showHeaderSubject.next(true);
   }
 
-  hideHeader() {
-    this.showHeaderSubject.next(false);
-  }
-
   toggleHeader() {
     this.showHeaderSubject.next(!this.showHeaderSubject.value);
   }

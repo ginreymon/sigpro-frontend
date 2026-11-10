@@ -15,16 +15,6 @@ export interface AppSettingValue {
 export class AppSettingService extends BaseCrudService<AppSetting> {
   _endpoint = '/core/app-settings/';
 
-  getValues(names: string[]): Observable<AppSettingValue[]> {
-    const params = new HttpParams().set('names', names.join(','));
-    return this.http.get<AppSettingValue[]>(`${this.endpoint}values/`, { params });
-  }
-
-  getValuesByKeys(keys: string[]): Observable<AppSettingValue[]> {
-    const params = new HttpParams().set('keys', keys.join(','));
-    return this.http.get<AppSettingValue[]>(`${this.endpoint}values/`, { params });
-  }
-
   getAllKeyedValues(): Observable<AppSettingValue[]> {
     const params = new HttpParams().set('all_keys', 'true');
     return this.http.get<AppSettingValue[]>(`${this.endpoint}values/`, { params });
