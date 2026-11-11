@@ -218,35 +218,41 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   deleteEmployee(_id: number) {
-    const module = this.selectedModule;
-    const isAssigned = module?.employees?.some((e) => e.id === _id);
-    if (!module || !isAssigned) {
+    const session = this.sessionCopy();
+    const snapshot = session?.employees_snapshot ?? [];
+    if (!session || !snapshot.some((e) => e.id === _id)) {
       this.removeEmployeeFromForm(_id);
       return;
     }
 
+    // Built from the persisted session so unsaved form edits are not written by accident.
+    const remaining = snapshot.filter((e) => e.id !== _id);
+    // The PUT closes the session itself when no employees remain.
+    const request$ = this.workSessionService.update(session.id!, {
+      module_id: session.current_module?.id,
+      work_shift_id: session.work_shift.id,
+      employee_ids: remaining.map((e) => e.id),
+      apprentice_ids: remaining.filter((e) => e.is_apprentice).map((e) => e.id),
+    } as Partial<WorkSession>);
+
     this.wslService.start();
-    this.moduleService
-      .removeEmployee(module.id, _id)
-      .pipe(finalize(() => this.wslService.end()))
-      .subscribe({
-        next: ({ session_closed }) => {
-          module.employees = module.employees?.filter((e) => e.id !== _id);
-          this.removeEmployeeFromForm(_id);
-          if (session_closed) {
-            this.currentSession.set(null);
-            this.sessionCopy.set(null);
-          }
-          this.dialogService.openToast('Proceso exitoso', 'Empleado eliminado de la lista correctamente', 'check');
-          this.refreshFromServer();
-        },
-        error: (err) =>
-          this.dialogService.openToast(
-            'No se pudo eliminar',
-            extractFieldErrorMessage(err) ?? 'No se pudo eliminar el empleado. Inténtalo nuevamente.',
-            'fail',
-          ),
-      });
+    request$.pipe(finalize(() => this.wslService.end())).subscribe({
+      next: () => {
+        this.removeEmployeeFromForm(_id);
+        if (!remaining.length) {
+          this.currentSession.set(null);
+          this.sessionCopy.set(null);
+        }
+        this.dialogService.openToast('Proceso exitoso', 'Empleado eliminado de la lista correctamente', 'check');
+        this.refreshFromServer();
+      },
+      error: (err) =>
+        this.dialogService.openToast(
+          'No se pudo eliminar',
+          extractFieldErrorMessage(err) ?? 'No se pudo eliminar el empleado. Inténtalo nuevamente.',
+          'fail',
+        ),
+    });
   }
 
   // Reloads modules and the active session so the screen reflects what the backend persisted.
