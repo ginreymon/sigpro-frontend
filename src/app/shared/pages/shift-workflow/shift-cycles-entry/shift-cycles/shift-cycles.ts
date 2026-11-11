@@ -114,10 +114,12 @@ export class ShiftCycles extends BaseProductionOrderPage {
   });
 
   // Pieces to stamp per ordered unit = sum of stamped_pieces of those SAMs.
+  // A NULL stamped_pieces is omitted from the JSON; default to 1 like the
+  // backend pending_qty formula (ISNULL(stamped_pieces, 1)) to avoid NaN.
   totalStampingFactor = computed(() => {
     const sams = this.samsWithStampedQty();
     if (!sams.length) return null;
-    return sams.reduce((sum, sam) => sum + Number(sam.stamped_pieces), 0);
+    return sams.reduce((sum, sam) => sum + Number(sam.stamped_pieces ?? 1), 0);
   });
 
   // OP-level stamping progress in pieces: ordered units * stamping factor vs.
