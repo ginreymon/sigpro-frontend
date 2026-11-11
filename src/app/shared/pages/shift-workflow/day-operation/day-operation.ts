@@ -20,7 +20,7 @@ import { Employee } from '../../../../models/production/employee';
 import { EmployeesModal, EmployeesSavePayload } from '../../../components/production/modals/employees-modal/employees-modal';
 import { EmployeePicker } from '../../../components/production/widgets/employee-picker/employee-picker';
 import { ReactiveFormsModule } from '@angular/forms';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize, forkJoin, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { DayOperationDetail } from '../../../components/production/cards/day-operation-detail/day-operation-detail';
 import { UiAlert } from '../../../elements/ui-alert/ui-alert';
@@ -218,28 +218,40 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   deleteEmployee(_id: number) {
-    const session = this.sessionCopy();
+    // currentSession / sessionCopy come from GET work-sessions/active/, so they tell whether a session exists.
+    const session = this.sessionCopy() ?? this.currentSession();
     const snapshot = session?.employees_snapshot ?? [];
-    if (!session || !snapshot.some((e) => e.id === _id)) {
+    const module = this.selectedModule;
+
+    let request$: Observable<unknown>;
+    let remainingCount = 1;
+    if (session) {
+      if (!snapshot.some((e) => e.id === _id)) {
+        this.removeEmployeeFromForm(_id);
+        return;
+      }
+      // Built from the persisted session so unsaved form edits are not written by accident.
+      const remaining = snapshot.filter((e) => e.id !== _id);
+      remainingCount = remaining.length;
+      // The PUT closes the session itself when no employees remain.
+      request$ = this.workSessionService.update(session.id!, {
+        module_id: session.current_module?.id,
+        work_shift_id: session.work_shift.id,
+        employee_ids: remaining.map((e) => e.id),
+        apprentice_ids: remaining.filter((e) => e.is_apprentice).map((e) => e.id),
+      } as Partial<WorkSession>);
+    } else if (module?.employees?.some((e) => e.id === _id)) {
+      request$ = this.moduleService.removeEmployee(module.id, _id);
+    } else {
       this.removeEmployeeFromForm(_id);
       return;
     }
-
-    // Built from the persisted session so unsaved form edits are not written by accident.
-    const remaining = snapshot.filter((e) => e.id !== _id);
-    // The PUT closes the session itself when no employees remain.
-    const request$ = this.workSessionService.update(session.id!, {
-      module_id: session.current_module?.id,
-      work_shift_id: session.work_shift.id,
-      employee_ids: remaining.map((e) => e.id),
-      apprentice_ids: remaining.filter((e) => e.is_apprentice).map((e) => e.id),
-    } as Partial<WorkSession>);
 
     this.wslService.start();
     request$.pipe(finalize(() => this.wslService.end())).subscribe({
       next: () => {
         this.removeEmployeeFromForm(_id);
-        if (!remaining.length) {
+        if (!remainingCount) {
           this.currentSession.set(null);
           this.sessionCopy.set(null);
         }
