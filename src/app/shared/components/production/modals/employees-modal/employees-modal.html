@@ -11,6 +11,7 @@
         [apprenticeIds]="currentApprenticeIds()"
         [showApprenticeStatus]="showApprenticeStatus || apprenticeEditable"
         [apprenticeEditable]="apprenticeEditable"
+        [showModule]="true"
         (onToggle)="toggle($event)"
         (onToggleApprentice)="toggleApprentice($event)">
       </app-employee-picker>

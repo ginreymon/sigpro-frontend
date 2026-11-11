@@ -28,6 +28,7 @@ export class EmployeePicker {
   apprenticeIds       = input<number[]>([]);
   showApprenticeStatus = input(false);
   apprenticeEditable  = input(false);
+  showModule          = input(false);
 
   onSelect            = output<number>();
   onToggle            = output<number>();

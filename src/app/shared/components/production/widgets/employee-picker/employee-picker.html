@@ -28,6 +28,13 @@
           </p>
         </div>
         <div class="flex items-center justify-center gap-3">
+          @if (showModule() && emp.last_module?.name?.trim()) {
+            <span
+              [title]="emp.last_module!.name"
+              class="max-w-[8rem] truncate text-xs px-1.5 py-0.5 rounded border font-medium bg-gray-100 border-gray-300 text-gray-600">
+              {{ emp.last_module!.name }}
+            </span>
+          }
           @if (apprenticeEditable()) {
             <app-ui-tooltip [message]="isSelected(emp.id) ? `Peso: ${isApprentice(emp.id)?'0.5':'1'}` : ''" [tooltip]="'left'">
               <button
