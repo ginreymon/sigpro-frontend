@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 import { BaseCrudService } from '../common/base-crud-service';
 import { ProductionRecord } from '../../models/production/production-record';
+import { ManualBatchSimulation } from '../../models/production/manual-batch-simulation';
 
 @Injectable({
   providedIn: 'root',
@@ -26,6 +27,18 @@ export class ProductionRecordService extends BaseCrudService<ProductionRecord> {
     duration_seconds: number,
   ): Observable<ProductionRecord[]> {
     return this.http.post<ProductionRecord[]>(`${this.endpoint}manual-duration-batch/`, {
+      records,
+      duration_seconds,
+    });
+  }
+
+  // Dry run of createManualBatch: returns the allowed duration range and the
+  // estimated efficiency for duration_seconds (null = range only).
+  simulateManualBatch(
+    records: Partial<ProductionRecord>[],
+    duration_seconds: number | null,
+  ): Observable<ManualBatchSimulation> {
+    return this.http.post<ManualBatchSimulation>(`${this.endpoint}manual-duration-batch/simulate/`, {
       records,
       duration_seconds,
     });

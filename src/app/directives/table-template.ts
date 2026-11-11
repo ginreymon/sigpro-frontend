@@ -2,6 +2,8 @@ import { Directive, Input, TemplateRef } from '@angular/core';
 
 export interface TableTemplateContext<T> {
   $implicit: T;
+  // Footer only: sum of the visible colors' per-color totals (see ProductionOrdersTable).
+  colorsTotal?: T;
 }
 
 @Directive({

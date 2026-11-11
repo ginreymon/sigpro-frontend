@@ -141,9 +141,7 @@ export class QuantityModal {
     this.onSave.emit(payload);
   }
 
-  // Hook de extensión (OCP): app-quantity-duration-modal lo sobreescribe para
-  // sumar duration_seconds al payload base sin duplicar el resto de save().
-  // Devolver null cancela el guardado (equivalente a un return temprano).
+  // Builds the record payload from the form; null cancels the save.
   protected buildPayload(): Partial<ProductionRecord> | null {
     const { completed_quantity, rejected_quantity, scrap_quantity } = this.recordForm.value;
     const editRecord = this.qms.editRecord();

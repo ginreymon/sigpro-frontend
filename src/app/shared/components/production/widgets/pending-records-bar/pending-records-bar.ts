@@ -25,6 +25,8 @@ export interface PendingRecordUnits {
 export class PendingRecordsBar {
   records = input<PendingRecordUnits[]>([]);
   forceHidden = input(false);
+  // true while the efficiency pre-calculation triggered by Guardar is running.
+  busy = input(false);
 
   protected hasRecords = computed(() => this.records().length > 0);
   protected pendingCount = computed(() => this.records().length);

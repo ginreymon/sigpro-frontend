@@ -1,7 +1,8 @@
 @if (!isLoading) {
   <app-searcher [live]="true" [intent]="'action'" (onSearch)="search.emit($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
+  <p class="text-xs text-slate-500 mb-2">Elige la referencia (SAM) que vas a registrar. <span class="font-medium text-red-600">* Obligatorio</span></p>
   <app-ui-form-field [controlName]="'stamping_reference_sam'" [label]="'Referencia'">
-    <div class="grid grid-cols-1 gap-2 max-h-[25vh] overflow-y-auto">
+    <div class="grid grid-cols-1 gap-2 max-h-[35vh] overflow-y-auto">
       @for (item of references; track item.id) {
         <app-stamping-reference-card
           [item]="item"

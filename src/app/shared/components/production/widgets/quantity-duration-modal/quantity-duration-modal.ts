@@ -11,14 +11,10 @@ import { QuantityDetail } from '../../cards/quantity-detail/quantity-detail';
 import { SkuQuantityCounter } from '../../cards/sku-quantity-counter/sku-quantity-counter';
 import { QuantityModal } from '../../modals/quantity-modal/quantity-modal';
 
-// Variante de app-quantity-modal para el asistente de shift-cycles-manual
-// (módulos con allows_production_time_adjustment=true): mismo template, mismas
-// validaciones — hereda todo tal cual de QuantityModal. La única diferencia
-// es Guardar: por el momento el guardado real de este flujo no está
-// definido, así que solo se muestra una alerta de confirmación en vez de
-// omitirla silenciosamente; sigue emitiendo onSave con el payload normal
-// para que el llamador (ShiftCyclesManual.saveSKU) mantenga el control de
-// qué hacer con él, igual que en el flujo normal.
+// app-quantity-modal variant for shift-cycles-manual (modules with
+// allows_production_time_adjustment=true): same template and validations,
+// inherited from QuantityModal. It only relabels the button to "Agregar":
+// the record is queued in the manual store and persisted later as a batch.
 @Component({
   selector: 'app-quantity-duration-modal',
   standalone: true,
@@ -28,10 +24,5 @@ import { QuantityModal } from '../../modals/quantity-modal/quantity-modal';
 export class QuantityDurationModal extends QuantityModal {
   protected override get saveButtonLabel(): string {
     return 'Agregar';
-  }
-
-  override save(): void {
-    if (this.recordForm.invalid || this.isSubmitting() || !this.enable) return;   
-    super.save();
   }
 }

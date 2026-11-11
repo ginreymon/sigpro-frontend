@@ -1,6 +1,7 @@
 @if (!isLoading) {
   <app-searcher [live]="true" [intent]="'action'" (onSearch)="search.emit($event)" class="sticky top-0 z-10 bg-white block mb-2"></app-searcher>
-  <div class="flex justify-between mt-4 mb-2">
+  <p class="text-xs text-slate-500 mt-2">Opcional: marca los tiempos adicionales y ajusta su cantidad.</p>
+  <div class="flex justify-between mt-2 mb-2">
     <app-ui-label-button
       [intent]="showOnlySelected ? 'label' : 'action'"
       (onClick)="toggleShowOnlySelected.emit()">
@@ -9,7 +10,7 @@
     <p class="text-xs text-gray-700">Tiempos disponibles ({{ availableCount }})</p>
   </div>
   <app-ui-form-field [controlName]="'additional_times'" [hideLabel]="true">
-    <div class="grid grid-cols-1 gap-2 max-h-[25vh] overflow-y-auto">
+    <div class="grid grid-cols-1 gap-2 max-h-[35vh] overflow-y-auto">
       @for (item of items; track item.id) {
         <app-additional-stamping-time-card
           [item]="item"

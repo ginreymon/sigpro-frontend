@@ -1,12 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, WritableSignal, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { extractFieldErrorMessage } from '../../../../../common/functions/session-errors';
 import { StampingRecordManual } from '../../../../../shared/components/production/widgets/stamping-record-manual/stamping-record-manual';
 import { QuantityDurationModal } from '../../../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
 import { PendingRecordsBar } from '../../../../../shared/components/production/widgets/pending-records-bar/pending-records-bar';
-import { DurationScheduleModal } from '../../../../../shared/components/production/widgets/duration-schedule-modal/duration-schedule-modal';
-import { PendingRecordsReviewModal } from '../../../../../shared/components/production/widgets/pending-records-review-modal/pending-records-review-modal';
-import { finalize } from 'rxjs';
+import { DurationScheduleModal, ManualBatchConfirmation } from '../../../../../shared/components/production/widgets/duration-schedule-modal/duration-schedule-modal';
+import { Observable, finalize } from 'rxjs';
+import { ManualBatchSimulation } from '../../../../../models/production/manual-batch-simulation';
 import { ShiftCycles } from '../shift-cycles/shift-cycles';
 import { ProductionRecord } from '../../../../../models/production/production-record';
 import { ManualProductionRecordsStore } from '../../../../../services/production/manual-production-records-store';
@@ -20,21 +20,22 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ShiftCyclesShell } from '../shift-cycles-shell/shift-cycles-shell';
 import { ShiftCycleActionKey } from '../../../../../shared/components/production/widgets/shift-cycles-fab/shift-cycles-fab';
 
-// Reemplazo de app-shift-cycles para módulos con
-// allows_production_time_adjustment=true (Module.allows_production_time_adjustment):
-// misma lógica (hereda ShiftCycles tal cual), solo cambia el template — al
-// seleccionar un SKU se abre app-quantity-duration-modal (mismo template y
-// validaciones que app-quantity-modal, ver quantity-duration-modal.ts) en
-// vez de app-quantity-modal. El registro de estampación manual con horario
-// propio aún no existe como widget (app-stamping-record no tiene esa
-// pestaña) — hasta que se defina ese flujo, esta página no cubre módulos de
-// estampación con el flag activo.
+// Replacement of app-shift-cycles for modules with
+// allows_production_time_adjustment=true: inherits ShiftCycles and only
+// changes the template. New quantities (production SKUs via
+// app-quantity-duration-modal, stamping via app-stamping-record-manual) are
+// queued in an in-memory store and saved as one batch with a single manual
+// duration confirmed in one modal (see the batch section below). Covers production and stamping.
+// Shape of the in-memory manual stores (production and stamping) used by the batch flow.
+interface ManualBatchStore {
+  records(): any[];
+  clear(): void;
+  removeAt(index: number): void;
+}
+
 @Component({
   selector: 'app-shift-cycles-manual',
-  imports: [
-    ShiftCyclesShell, StampingRecordManual, QuantityDurationModal, PendingRecordsBar, DurationScheduleModal,
-    PendingRecordsReviewModal,
-  ],
+  imports: [ShiftCyclesShell, StampingRecordManual, QuantityDurationModal, PendingRecordsBar, DurationScheduleModal],
   templateUrl: './shift-cycles-manual.html',
   styleUrl: './shift-cycles-manual.css',
 })
@@ -46,10 +47,9 @@ export class ShiftCyclesManual extends ShiftCycles {
   private additionalStampingTimeService = inject(AdditionalStampingTimeService);
   private manualStampingBatchRecordService = inject(StampingRecordService);
 
-  // id de AdditionalStampingTime -> standard_time (minutos por unidad, mismo
-  // criterio que app-additional-stamping-time-card) — usado por
-  // app-pending-records-review-modal (variant 'stamping') para totalizar
-  // minutos en vez de solo contar tiempos seleccionados.
+  // AdditionalStampingTime id -> standard_time (minutes per unit, same
+  // criterion as app-additional-stamping-time-card) — used by
+  // app-duration-schedule-modal (variant 'stamping') to total minutes.
   private additionalStampingTimesList = toSignal(this.additionalStampingTimeService.all(), { initialValue: [] });
   protected additionalTimeMinutes = computed<Record<number, number>>(() =>
     Object.fromEntries(this.additionalStampingTimesList().map((t) => [t.id, Number(t.standard_time) || 0]))
@@ -86,14 +86,10 @@ export class ShiftCyclesManual extends ShiftCycles {
     this.config = { ...this.config, showHourlyRecord: true };
   }
 
-  // app-quantity-duration-modal ya dispara su propia alerta placeholder al
-  // guardar (ver quantity-duration-modal.ts) y sigue emitiendo onSave con el
-  // payload normal. Para un registro NUEVO de este flujo manual, el guardado
-  // real (persistir vía API) todavía no está definido, así que en vez de
-  // llamar a un servicio/endpoint se guarda en ManualProductionRecordsStore
-  // (mismo shape que el POST a production-records/) y la tabla se actualiza
-  // sola en el navegador (pendingRecords). Editar un registro existente
-  // sigue el flujo heredado normal (sí persiste vía API).
+  // A NEW record is queued in ManualProductionRecordsStore (same shape as the
+  // POST to production-records/) instead of calling the API; the table shows
+  // it right away through pendingRecords and the batch wizard persists it
+  // later. Editing an existing record keeps the inherited flow (persists via API).
   override saveSKU(record: Partial<ProductionRecord>): void {
     if (record.id) {
       super.saveSKU(record);
@@ -107,55 +103,68 @@ export class ShiftCyclesManual extends ShiftCycles {
     this.qms.close();
   }
 
-  // Asistente de guardado por lote que sale al pulsar Guardar en
-  // app-pending-records-bar: horario (duration-schedule-modal) → revisión
-  // en tabla (pending-records-review-modal) → confirmar. app-pending-records-bar
-  // se oculta (forceHidden) mientras cualquiera de los dos esté abierto, o
-  // mientras app-quantity-duration-modal (qms, heredado de ShiftCycles) esté
-  // capturando cantidades — ambos flotan en el mismo borde inferior.
+  // "Guardar" in app-pending-records-bar runs the efficiency pre-calculation
+  // (nothing is saved) and only then opens the single confirmation modal
+  // (app-duration-schedule-modal), which reuses that result. The bar is hidden
+  // while the modal (or a quantity capture, qms inherited from ShiftCycles) is open.
   protected scheduleModalVisible = signal(false);
-  protected reviewModalVisible = signal(false);
-  protected batchHidesBar = computed(() => this.scheduleModalVisible() || this.reviewModalVisible() || this.qms.visible());
+  protected batchHidesBar = computed(() => this.scheduleModalVisible() || this.qms.visible());
+  protected batchSaving = signal(false);
 
-  // Expuesto (no private) para que pending-records-review-modal muestre el
-  // horario capturado junto al total de unidades.
-  protected pendingSchedule = signal<{ start_time: string; end_time: string; duration_seconds: number } | null>(null);
+  // Header context of the confirmation modal.
+  protected moduleLabel = computed(() => this.currentSession()?.current_module?.name ?? '');
+  protected referenceLabel = computed(() => {
+    const order = this.productionOrder();
+    return order ? `${order.reference} ${order.description}`.trim() : '';
+  });
 
-  protected onSaveAllPending(): void {
-    this.scheduleModalVisible.set(true);
+  // Simulation callbacks for app-duration-schedule-modal (arrow functions so
+  // they keep `this` when invoked by the presentational modal).
+  protected simulateProduction = (records: Partial<ProductionRecord>[], seconds: number | null) =>
+    this.manualBatchRecordService.simulateManualBatch(records, seconds);
+
+  protected simulateStamping = (records: Partial<StampingRecord>[], seconds: number | null) =>
+    this.manualStampingBatchRecordService.simulateManualBatch(records, seconds);
+
+  protected precalcBusy = signal(false);
+  protected productionPrecalc = signal<ManualBatchSimulation | null>(null);
+  protected stampingPrecalc = signal<ManualBatchSimulation | null>(null);
+
+  private precalculate(
+    request$: Observable<ManualBatchSimulation>,
+    target: (sim: ManualBatchSimulation) => void,
+  ): void {
+    if (this.precalcBusy()) return;
+    this.precalcBusy.set(true);
+    request$.pipe(finalize(() => this.precalcBusy.set(false))).subscribe({
+      next: target,
+      error: (err: HttpErrorResponse) => this.manualBatchDialogService.openToast(
+        'No se pudo calcular la eficiencia',
+        extractFieldErrorMessage(err) ?? 'Intenta de nuevo.',
+        'fail',
+      ),
+    });
   }
 
-  protected onScheduleCancel(): void {
-    this.scheduleModalVisible.set(false);
-  }
+  // Saves the whole queued batch in one request (all-or-nothing) with the
+  // single duration confirmed in the modal. On error the modal stays open and
+  // the records are kept, so the time can be adjusted and confirmed again.
+  private persistBatch(
+    service: { createManualBatch(records: any[], seconds: number): Observable<unknown> },
+    store: ManualBatchStore,
+    visible: WritableSignal<boolean>,
+    schedule: ManualBatchConfirmation,
+  ): void {
+    const records = store.records();
+    if (!records.length || this.batchSaving()) return;
 
-  protected onScheduleNext(schedule: { start_time: string; end_time: string; duration_seconds: number }): void {
-    this.pendingSchedule.set(schedule);
-    this.scheduleModalVisible.set(false);
-    this.reviewModalVisible.set(true);
-  }
-
-  protected onReviewCancel(): void {
-    this.reviewModalVisible.set(false);
-    this.pendingSchedule.set(null);
-  }
-
-  // Persiste el lote completo vía POST /production-records/manual-duration-batch/:
-  // un solo duration_seconds (horario capturado en el paso anterior) cubre
-  // todos los registros pendientes del store, que se crean todo-o-nada.
-  protected onReviewConfirm(): void {
-    const records = this.manualRecordsStore.records();
-    const schedule = this.pendingSchedule();
-    if (!records.length || !schedule) return;
-
-    this.loaderService.showLoader();
-    this.manualBatchRecordService.createManualBatch(records, schedule.duration_seconds)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
+    this.batchSaving.set(true);
+    service.createManualBatch(records, schedule.duration_seconds)
+      .pipe(finalize(() => this.batchSaving.set(false)))
       .subscribe({
         next: () => {
-          this.manualRecordsStore.clear();
-          this.reviewModalVisible.set(false);
-          this.pendingSchedule.set(null);
+          store.clear();
+          visible.set(false);
           this.reloadOrder();
           this.manualBatchDialogService.openToast(
             'Registros guardados',
@@ -164,16 +173,36 @@ export class ShiftCyclesManual extends ShiftCycles {
           );
         },
         error: (err: HttpErrorResponse) => {
-          // No se limpia manualRecordsStore (los registros pendientes se
-          // conservan para reintentar) y se vuelve al estado de selección
-          // (review modal cerrado) para que app-pending-records-bar
-          // reaparezca en vez de quedar oculta tras el modal fallido.
-          this.reviewModalVisible.set(false);
-          this.pendingSchedule.set(null);
           const message = extractFieldErrorMessage(err) ?? 'Error al guardar los registros.';
           this.manualBatchDialogService.openToast('No se pudo guardar', message, 'fail');
         },
       });
+  }
+
+  // Removing a record from the confirmation modal; an empty batch closes it.
+  private removePending(store: ManualBatchStore, visible: WritableSignal<boolean>, index: number): void {
+    store.removeAt(index);
+    if (!store.records().length) visible.set(false);
+  }
+
+  protected onSaveAllPending(): void {
+    this.precalculate(this.simulateProduction(this.manualRecordsStore.records(), null), sim => {
+      this.productionPrecalc.set(sim);
+      this.scheduleModalVisible.set(true);
+    });
+  }
+
+  protected onScheduleCancel(): void {
+    this.scheduleModalVisible.set(false);
+  }
+
+  // POST /production-records/manual-duration-batch/
+  protected onConfirmBatch(schedule: ManualBatchConfirmation): void {
+    this.persistBatch(this.manualBatchRecordService, this.manualRecordsStore, this.scheduleModalVisible, schedule);
+  }
+
+  protected onRemovePending(index: number): void {
+    this.removePending(this.manualRecordsStore, this.scheduleModalVisible, index);
   }
 
   // Espejo de saveSKU pero para el flujo de estampación
@@ -194,72 +223,31 @@ export class ShiftCyclesManual extends ShiftCycles {
     this.shiftModals.closeStampingRecord();
   }
 
-  // Mismo asistente de guardado por lote que scheduleModalVisible/
-  // reviewModalVisible (producción), para el store de estampación.
-  // app-pending-records-bar se oculta mientras cualquiera de los dos esté
-  // abierto, o mientras app-stamping-record-manual esté capturando un
-  // registro nuevo.
+  // Same flow as the production one, for the stamping store.
   protected stampingScheduleModalVisible = signal(false);
-  protected stampingReviewModalVisible = signal(false);
   protected stampingBatchHidesBar = computed(() =>
-    this.stampingScheduleModalVisible() || this.stampingReviewModalVisible() || this.shiftModals.stampingRecordVisible()
+    this.stampingScheduleModalVisible() || this.shiftModals.stampingRecordVisible()
   );
 
-  protected stampingPendingSchedule = signal<{ start_time: string; end_time: string; duration_seconds: number } | null>(null);
-
   protected onStampingSaveAllPending(): void {
-    this.stampingScheduleModalVisible.set(true);
+    this.precalculate(this.simulateStamping(this.manualStampingRecordsStore.records(), null), sim => {
+      this.stampingPrecalc.set(sim);
+      this.stampingScheduleModalVisible.set(true);
+    });
   }
 
   protected onStampingScheduleCancel(): void {
     this.stampingScheduleModalVisible.set(false);
   }
 
-  protected onStampingScheduleNext(schedule: { start_time: string; end_time: string; duration_seconds: number }): void {
-    this.stampingPendingSchedule.set(schedule);
-    this.stampingScheduleModalVisible.set(false);
-    this.stampingReviewModalVisible.set(true);
+  // POST /stamping-records/manual-duration-batch/
+  protected onStampingConfirmBatch(schedule: ManualBatchConfirmation): void {
+    this.persistBatch(
+      this.manualStampingBatchRecordService, this.manualStampingRecordsStore, this.stampingScheduleModalVisible, schedule,
+    );
   }
 
-  protected onStampingReviewCancel(): void {
-    this.stampingReviewModalVisible.set(false);
-    this.stampingPendingSchedule.set(null);
-  }
-
-  // Persiste el lote completo vía POST /stamping-records/manual-duration-batch/,
-  // homólogo a onReviewConfirm (producción): un solo duration_seconds
-  // (horario capturado en el paso anterior) cubre todos los registros
-  // pendientes del store de estampación, que se crean todo-o-nada.
-  protected onStampingReviewConfirm(): void {
-    const records = this.manualStampingRecordsStore.records();
-    const schedule = this.stampingPendingSchedule();
-    if (!records.length || !schedule) return;
-
-    this.loaderService.showLoader();
-    this.manualStampingBatchRecordService.createManualBatch(records, schedule.duration_seconds)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe({
-        next: () => {
-          this.manualStampingRecordsStore.clear();
-          this.stampingReviewModalVisible.set(false);
-          this.stampingPendingSchedule.set(null);
-          this.reloadOrder();
-          this.manualBatchDialogService.openToast(
-            'Registros guardados',
-            `${records.length} registro(s) · horario ${schedule.start_time}-${schedule.end_time}`,
-            'check',
-          );
-        },
-        error: (err: HttpErrorResponse) => {
-          // Igual que onReviewConfirm: no se limpia el store (los registros
-          // pendientes se conservan para reintentar) y se vuelve al estado
-          // de selección (review modal cerrado) para que app-pending-records-bar
-          // reaparezca en vez de quedar oculta tras el modal fallido.
-          this.stampingReviewModalVisible.set(false);
-          this.stampingPendingSchedule.set(null);
-          const message = extractFieldErrorMessage(err) ?? 'Error al guardar los registros.';
-          this.manualBatchDialogService.openToast('No se pudo guardar', message, 'fail');
-        },
-      });
+  protected onRemoveStampingPending(index: number): void {
+    this.removePending(this.manualStampingRecordsStore, this.stampingScheduleModalVisible, index);
   }
 }

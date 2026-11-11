@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { finalize, interval, map } from 'rxjs';
+import { finalize, interval } from 'rxjs';
 import { ProductionOrder } from '../../../../../models/production/production-order';
 import { SkuTaskDetail } from '../../../../../models/production/sku-task-detail';
 import { DialogService } from '../../../../../services/common/dialog-service';
@@ -137,8 +137,13 @@ export class ShiftCycles extends BaseProductionOrderPage {
   // Columna "Piezas" solo aplica a máquinas sin uses_processes_search: en
   // procesos (uses_processes_search=true) el conteo por SAM/referencia no
   // aplica, ya que ahí las unidades se buscan por proceso, no por color/talla.
+  // Processes search (OP/OPT): the backend already returns each color's total
+  // converted to kg in colorRows[].totals, so the column only displays it.
   stampingCustomColumns = computed<ProductionTableCustomColumn[]>(() => {
-    if (this.usesProcessesSearch() || this.totalStampingFactor() == null) return [];
+    if (this.usesProcessesSearch()) {
+      return [{ title: 'Metros', tooltip: 'Total en metros por color', templateName: 'kg' }];
+    }
+    if (this.totalStampingFactor() == null) return [];
     return [{ title: 'Piezas', tooltip: 'Piezas a estampar', templateName: 'piezas' }];
   });
 
@@ -301,15 +306,10 @@ export class ShiftCycles extends BaseProductionOrderPage {
     const activityId = this.currentSession()?.active_activity?.id;
     if (!activityId) return;
 
-    const { duration_seconds, ...rest } = record;
-    const payload: Partial<ProductionRecord> = { ...rest, work_session_activity: activityId };
+    const payload: Partial<ProductionRecord> = { ...record, work_session_activity: activityId };
 
     this.loaderService.showLoader();
-    const save$ = duration_seconds
-      ? this.productionRecordService.createManualBatch([payload], duration_seconds).pipe(map(() => undefined))
-      : this.productionRecordService.create(payload).pipe(map(() => undefined));
-
-    save$
+    this.productionRecordService.create(payload)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: () => {

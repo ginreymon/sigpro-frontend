@@ -6,7 +6,8 @@
     </div>
   } @else {
     @if (!isOrderCompleted) {
-      <div class="mb-4">
+      <div class="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-3 shadow-sm">
+        <p class="text-xs text-slate-500 mb-2">Ingresa las unidades estampadas en este registro. <span class="font-medium text-red-600">* Obligatorio</span></p>
         <app-ui-form-field [controlName]="'completed_quantity'" [label]="'Cantidad producida'">
           @if (usesProcessesSearch) {
             <app-ui-decimal-input [formControl]="completedQuantityControl" [placeholder]="'Máx: ' + totalPendingQuantity" [hasAddon]="true">

@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { WorkSpaceLayout } from '../../../../../layouts/work-space-layout/work-space-layout';
 import { InfoCardTemplate } from '../../../../../template/info-card-template/info-card-template';
@@ -33,7 +34,7 @@ import type { ShiftCycles } from '../shift-cycles/shift-cycles';
   imports: [
     WorkSpaceLayout, InfoCardTemplate, UiButton, UiIcon, StampingShiftSummary, WorkShiftSummary, OrderHeader,
     ProductionOrdersTable, TableTemplate, ShiftCyclesFab, OrderSearcher, RecentRecordsCard, EmployeesModal,
-    BalanceModal, StampingBalanceModal, PauseModal, ShiftTimeAlert, StampingProgressSummary,
+    BalanceModal, StampingBalanceModal, PauseModal, ShiftTimeAlert, StampingProgressSummary, DecimalPipe,
   ],
   templateUrl: './shift-cycles-shell.html',
 })

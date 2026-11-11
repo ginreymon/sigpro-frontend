@@ -19,14 +19,14 @@
       </div>
 
       <div class="flex items-center gap-2 ml-2">
-        <app-ui-button [intent]="'action'" (onClick)="discard()">
+        <app-ui-button [intent]="'action'" [disabled]="busy()" (onClick)="discard()">
           <app-ui-icon [iconName]="'trash'" class="h-4 w-4 mr-1.5"></app-ui-icon>
           Eliminar
         </app-ui-button>
 
-        <app-ui-button (onClick)="save()">
+        <app-ui-button [disabled]="busy()" (onClick)="save()">
           <app-ui-icon [iconName]="'upload'" class="h-4 w-4 mr-1.5"></app-ui-icon>
-          Guardar
+          {{ busy() ? 'Calculando…' : 'Guardar' }}
         </app-ui-button>
       </div>
 

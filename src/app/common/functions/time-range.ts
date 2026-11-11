@@ -1,5 +1,4 @@
-// Compartido entre app-quantity-duration-modal y app-quantity-modal (tab Horario):
-// ambos calculan una duración a partir de un rango de horas "HH:mm".
+// "HH:mm" time helpers.
 export function timeStringToMinutes(value: string | null | undefined): number | null {
   if (!value) return null;
   const [hours, minutes] = value.split(':').map(Number);
@@ -7,19 +6,8 @@ export function timeStringToMinutes(value: string | null | undefined): number | 
   return hours * 60 + minutes;
 }
 
-export function durationMinutesBetween(
-  start: string | null | undefined,
-  end: string | null | undefined,
-): number | null {
-  const startMinutes = timeStringToMinutes(start);
-  const endMinutes = timeStringToMinutes(end);
-  if (startMinutes === null || endMinutes === null || endMinutes <= startMinutes) return null;
-  return endMinutes - startMinutes;
-}
-
-// Resta minutes a hhmm ("HH:mm") y devuelve el resultado en el mismo
-// formato. null si hhmm es inválido o el resultado se sale del día
-// (no soporta cruzar medianoche, igual límite que durationMinutesBetween).
+// Subtracts minutes from hhmm ("HH:mm"), returning the same format. null if
+// hhmm is invalid or the result leaves the day (midnight crossing unsupported).
 export function timeMinusMinutes(hhmm: string | null | undefined, minutes: number): string | null {
   const total = timeStringToMinutes(hhmm);
   if (total === null || !Number.isFinite(minutes)) return null;

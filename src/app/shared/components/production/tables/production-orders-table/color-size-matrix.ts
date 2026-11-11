@@ -1,6 +1,7 @@
 import { ProductionOrder } from '../../../../../models/production/production-order';
 import { ColorRowDetail } from '../../../../../models/production/color-row-detail';
 import { SkuDetail } from '../../../../../models/production/sku-detail';
+import { Totals } from '../../../../../models/production/totals';
 import { ProductionRecord } from '../../../../../models/production/production-record';
 
 const SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -32,7 +33,7 @@ function sortSizes(sizes: SkuDetail[]): SkuDetail[] {
   return [...numberSizes, ...letterSizes];
 }
 
-export function sumInto(total: SkuDetail, s: SkuDetail): void {
+export function sumInto(total: Totals, s: Totals): void {
   total.completedQty += s.completedQty;
   total.orderedQty += s.orderedQty;
   total.plannedQty += s.plannedQty;

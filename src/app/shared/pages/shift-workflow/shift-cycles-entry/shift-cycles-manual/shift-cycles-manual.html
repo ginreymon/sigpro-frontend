@@ -4,6 +4,7 @@
     <app-pending-records-bar
         [records]="manualStampingRecordsStore.records()"
         [forceHidden]="stampingBatchHidesBar()"
+        [busy]="precalcBusy()"
         (onSave)="onStampingSaveAllPending()"
         (onDiscard)="manualStampingRecordsStore.clear()">
     </app-pending-records-bar>
@@ -11,6 +12,7 @@
     <app-pending-records-bar
         [records]="manualRecordsStore.records()"
         [forceHidden]="batchHidesBar()"
+        [busy]="precalcBusy()"
         (onSave)="onSaveAllPending()"
         (onDiscard)="manualRecordsStore.clear()">
     </app-pending-records-bar>
@@ -36,38 +38,34 @@
     <app-duration-schedule-modal
         [visible]="scheduleModalVisible()"
         [enable]="inWindow() || finalizeDay()"
-        (onNext)="onScheduleNext($event)"
-        (onCancel)="onScheduleCancel()">
-    </app-duration-schedule-modal>
-
-    <app-pending-records-review-modal
-        [visible]="reviewModalVisible()"
-        [records]="manualRecordsStore.records()"
-        [schedule]="pendingSchedule()"
         [variant]="'production'"
-        (onConfirm)="onReviewConfirm()"
-        (onCancel)="onReviewCancel()"
-        (onRemove)="manualRecordsStore.removeAt($event)">
-    </app-pending-records-review-modal>
+        [referenceLabel]="referenceLabel()"
+        [moduleLabel]="moduleLabel()"
+        [saving]="batchSaving()"
+        [records]="manualRecordsStore.records()"
+        [simulate]="simulateProduction"
+        [initialSimulation]="productionPrecalc()"
+        (onConfirm)="onConfirmBatch($event)"
+        (onCancel)="onScheduleCancel()"
+        (onRemove)="onRemovePending($event)">
+    </app-duration-schedule-modal>
 
     @if(config.showStampingRecord){
     <app-duration-schedule-modal
         [visible]="stampingScheduleModalVisible()"
         [enable]="inWindow() || finalizeDay()"
-        (onNext)="onStampingScheduleNext($event)"
-        (onCancel)="onStampingScheduleCancel()">
-    </app-duration-schedule-modal>
-
-    <app-pending-records-review-modal
-        [visible]="stampingReviewModalVisible()"
-        [records]="manualStampingRecordsStore.records()"
-        [schedule]="stampingPendingSchedule()"
         [variant]="'stamping'"
+        [referenceLabel]="referenceLabel()"
+        [moduleLabel]="moduleLabel()"
         [additionalTimeMinutes]="additionalTimeMinutes()"
-        (onConfirm)="onStampingReviewConfirm()"
-        (onCancel)="onStampingReviewCancel()"
-        (onRemove)="manualStampingRecordsStore.removeAt($event)">
-    </app-pending-records-review-modal>
+        [saving]="batchSaving()"
+        [records]="manualStampingRecordsStore.records()"
+        [simulate]="simulateStamping"
+        [initialSimulation]="stampingPrecalc()"
+        (onConfirm)="onStampingConfirmBatch($event)"
+        (onCancel)="onStampingScheduleCancel()"
+        (onRemove)="onRemoveStampingPending($event)">
+    </app-duration-schedule-modal>
     }
   </ng-container>
 </app-shift-cycles-shell>

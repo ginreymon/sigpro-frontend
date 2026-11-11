@@ -40,7 +40,9 @@
                         </app-ui-tooltip-fixed>
                     </th>
                     }
+                    @if(!hideTotalColumn){
                     <th class="px-6 py-3 title-font tracking-wider font-medium  text-right">Total</th>
+                    }
                 </tr>
             </thead>
 
@@ -78,9 +80,11 @@
                         </span>
                     </td>
                     }
+                    @if(!hideTotalColumn){
                     <td class="px-6 py-3 text-right font-semibold">
                         {{ skuColor.totals.orderedQty }}
                     </td>
+                    }
 
                 </tr>
                 }
@@ -96,12 +100,14 @@
 
                     @for(col of customColumns; track col.templateName){
                     <td class="text-center text-gray-900">
-                        <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: filteredGrandTotal }"></ng-container>
+                        <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: filteredGrandTotal, colorsTotal: filteredColorsTotal }"></ng-container>
                     </td>
                     }
+                    @if(!hideTotalColumn){
                     <td class="px-6 py-3 text-right font-bold text-gray-900">
                         {{ filteredGrandTotal.orderedQty }}
                     </td>
+                    }
                 </tr>
             </tfoot>
 
@@ -133,9 +139,11 @@
                         <app-ui-icon [iconName]="'chevronRight'" [class]="'w-4 h-4 text-gray-400 transition-transform group-open:rotate-90'"></app-ui-icon>
                         {{ skuColor.color }}
                     </span>
+                    @if(!hideTotalColumn){
                     <span class="flex items-center gap-4">
                         <span class="font-semibold">{{ skuColor.totals.orderedQty }}</span>
                     </span>
+                    }
                 </summary>
 
                 <div class="pl-10 pr-4 divide-y divide-gray-200 bg-gray-50">
@@ -178,9 +186,9 @@
         </div>
 
         <div class="flex justify-between items-center px-4 py-3 font-semibold text-gray-700 border-t border-gray-300">
-            <span>TOTAL</span>
+            <span>{{ hideTotalColumn ? 'TOTAL (metros)' : 'TOTAL' }}</span>
             <span class="flex items-center gap-4">
-                <span class="font-bold text-gray-900">{{ filteredGrandTotal.orderedQty }}</span>
+                <span class="font-bold text-gray-900">{{ (hideTotalColumn ? filteredColorsTotal : filteredGrandTotal).orderedQty }}</span>
             </span>
         </div>
 

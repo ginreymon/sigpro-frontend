@@ -1,42 +1,42 @@
-<div class="flex flex-col gap-6">
-  <section aria-labelledby="home-confeccion-title" class="flex flex-col gap-2">
-    <h2 id="home-confeccion-title" class="text-sm font-semibold text-gray-700">Confección</h2>
+<div class="flex flex-col gap-4">
+  <section aria-labelledby="home-confeccion-title" class="flex flex-col gap-1.5">
+    <h2 id="home-confeccion-title" class="text-xs font-semibold uppercase tracking-wider text-gray-500">Confección</h2>
     <app-home-production-coordinator />
   </section>
 
-  <section aria-labelledby="home-estampacion-title" class="flex flex-col gap-2">
-    <h2 id="home-estampacion-title" class="text-sm font-semibold text-gray-700">Estampación</h2>
+  <section aria-labelledby="home-estampacion-title" class="flex flex-col gap-1.5">
+    <h2 id="home-estampacion-title" class="text-xs font-semibold uppercase tracking-wider text-gray-500">Estampación</h2>
     <app-home-stamping-coordinator />
   </section>
 
-  <section aria-labelledby="home-areas-title" class="flex flex-col gap-2">
-    <h2 id="home-areas-title" class="text-sm font-semibold text-gray-700">Áreas</h2>
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-  @for (area of areas(); track area.routerLink) {
-    <a
-      [routerLink]="area.routerLink"
-      class="group relative flex flex-col items-center justify-center gap-3 bg-white border border-gray-200 rounded-lg p-6 min-h-32 text-center hover:border-brand-400 hover:shadow-md transition-all duration-200 cursor-pointer">
-      <span class="flex items-center justify-center w-14 h-14 rounded-full bg-brand-100 text-brand-700">
-        <app-ui-icon [iconName]="area.iconName" class="w-7 h-7"></app-ui-icon>
-      </span>
-      <span class="flex items-center gap-1 text-sm font-semibold text-gray-700">
-        {{ area.name | titlecase }}
-        <app-ui-icon [iconName]="'chevronRight'" class="w-3 h-3 text-gray-400"></app-ui-icon>
-        {{ area.optionName | titlecase }}
-      </span>
-      <app-ui-icon
-        [iconName]="'chevronRight'"
-        class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-400 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
-      </app-ui-icon>
-    </a>
-  } @empty {
-    <div class="flex flex-col items-center justify-center gap-3 bg-gray-100 border border-gray-200 rounded-lg p-6 min-h-32 text-center">
-      <span class="flex items-center justify-center w-14 h-14 rounded-full bg-gray-200 text-gray-400">
-        <app-ui-icon [iconName]="'magnifyingGlass'" class="w-7 h-7"></app-ui-icon>
-      </span>
-      <span class="text-sm font-semibold text-gray-400">No hay áreas disponibles</span>
+  <section aria-labelledby="home-areas-title" class="flex flex-col gap-1.5">
+    <h2 id="home-areas-title" class="text-xs font-semibold uppercase tracking-wider text-gray-500">Áreas</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      @for (area of areas(); track area.routerLink) {
+        <a
+          [routerLink]="area.routerLink"
+          class="group flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-3 py-2.5 shadow-sm hover:border-brand-400 hover:shadow-md transition-all duration-200 cursor-pointer">
+          <span class="flex items-center justify-center w-9 h-9 shrink-0 rounded-full bg-brand-100 text-brand-700">
+            <app-ui-icon [iconName]="area.iconName" class="w-5 h-5"></app-ui-icon>
+          </span>
+          <span class="flex flex-1 min-w-0 items-center gap-1 text-sm font-semibold text-gray-700">
+            <span class="truncate">{{ area.name | titlecase }}</span>
+            <app-ui-icon [iconName]="'chevronRight'" class="w-3 h-3 shrink-0 text-gray-400"></app-ui-icon>
+            <span class="truncate font-medium text-gray-500">{{ area.optionName | titlecase }}</span>
+          </span>
+          <app-ui-icon
+            [iconName]="'chevronRight'"
+            class="w-4 h-4 shrink-0 text-brand-400 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
+          </app-ui-icon>
+        </a>
+      } @empty {
+        <div class="flex items-center gap-3 bg-gray-100 border border-gray-200 rounded-lg px-3 py-2.5 sm:col-span-2">
+          <span class="flex items-center justify-center w-9 h-9 shrink-0 rounded-full bg-gray-200 text-gray-400">
+            <app-ui-icon [iconName]="'magnifyingGlass'" class="w-5 h-5"></app-ui-icon>
+          </span>
+          <span class="text-sm font-semibold text-gray-400">No hay áreas disponibles</span>
+        </div>
+      }
     </div>
-  }
-</div>
   </section>
 </div>

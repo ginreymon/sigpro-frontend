@@ -3,6 +3,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ProductionOrder } from '../../../../../models/production/production-order';
 import { ColorRowDetail } from '../../../../../models/production/color-row-detail';
 import { SkuDetail } from '../../../../../models/production/sku-detail';
+import { Totals } from '../../../../../models/production/totals';
 import { UiTableButton } from '../../../../elements/ui-table-button/ui-table-button';
 import { UiTooltipFixed } from '../../../../elements/ui-tooltip-fixed/ui-tooltip-fixed';
 import { WorkSession } from '../../../../../models/production/work-session';
@@ -32,9 +33,11 @@ export class ProductionOrdersTable {
   @Input() customColumns: ProductionTableCustomColumn[] = [];
   @Input() colorColumnLabel = 'Color SKU';
   @Input() sizeTooltipLabel = 'Talla';
+  // Hides the generic Total column (its footer sums the size cells, which may be in a different unit than the per-color totals).
+  @Input() hideTotalColumn = false;
 
-  @ContentChildren(TableTemplate) private templates!: QueryList<TableTemplate<SkuDetail>>;
-  protected templateMap = new Map<string, TemplateRef<TableTemplateContext<SkuDetail>>>();
+  @ContentChildren(TableTemplate) private templates!: QueryList<TableTemplate<Totals>>;
+  protected templateMap = new Map<string, TemplateRef<TableTemplateContext<Totals>>>();
 
   ngAfterContentInit(): void {
     this.templates.forEach((t) => this.templateMap.set(t.name, t.template));
@@ -50,8 +53,14 @@ export class ProductionOrdersTable {
   
   protected filteredTotalBySizes: SkuDetail[] = [];
   protected filteredGrandTotal: SkuDetail = emptySize('');
+  // Sum of the per-color totals of the visible colors (same unit as the row totals).
+  protected filteredColorsTotal: SkuDetail = emptySize('');
 
   private updateFilteredTotals(): void {
+    const colorsTotal = emptySize('');
+    this.filteredSkuColors.forEach((c) => sumInto(colorsTotal, c.totals as Totals));
+    this.filteredColorsTotal = colorsTotal;
+
     if (this.selectedColors.size === 0) {
       this.filteredTotalBySizes = this.totalBySizes;
       this.filteredGrandTotal = this.grandTotal ?? emptySize('');

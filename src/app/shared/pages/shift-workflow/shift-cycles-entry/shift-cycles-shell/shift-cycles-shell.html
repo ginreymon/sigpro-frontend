@@ -33,9 +33,13 @@
                 @if(page().stampingProgress(); as progress){
                 <app-stamping-progress-summary class="shrink-0" [orderedQty]="progress.totalPieces" [stampedQtyBase]="progress.stampedPieces"></app-stamping-progress-summary>
                 }
-                <app-production-orders-table class="flex-1 min-h-0" [productionOrder]="page().productionOrder()" [pendingRecords]="page().pendingRecords()" [currentSession]="page().currentSession()" [readOnly]="page().config.readOnlyOrdersTable" [customColumns]="page().stampingCustomColumns()" [colorColumnLabel]="page().usesProcessesSearch() ? 'Color' : 'Color SKU'" [sizeTooltipLabel]="page().usesProcessesSearch() ? 'Unidad' : 'Talla'" (onSelectSKU)="page().openTaskDialog($event)">
+                <app-production-orders-table class="flex-1 min-h-0" [productionOrder]="page().productionOrder()" [pendingRecords]="page().pendingRecords()" [currentSession]="page().currentSession()" [readOnly]="page().config.readOnlyOrdersTable" [customColumns]="page().stampingCustomColumns()" [hideTotalColumn]="page().usesProcessesSearch()"[colorColumnLabel]="page().usesProcessesSearch() ? 'Color' : 'Color SKU'" [sizeTooltipLabel]="page().usesProcessesSearch() ? 'Unidad' : 'Talla'" (onSelectSKU)="page().openTaskDialog($event)">
                     <ng-template appTableTemplate="piezas" let-totals>
                         <p class="text-green-600">{{ totals.orderedQty * (page().totalStampingFactor() ?? 0) }}</p>
+                    </ng-template>
+                    <ng-template appTableTemplate="kg" let-totals let-colorsTotal="colorsTotal">
+                        <!-- Rows: per-color kg. Footer: sum of the visible colors' kg (filteredGrandTotal is in meters). -->
+                        <p class="text-green-600">{{ (colorsTotal ?? totals).orderedQty | number: '1.0-2' }}</p>
                     </ng-template>
                 </app-production-orders-table>
                 </div>
