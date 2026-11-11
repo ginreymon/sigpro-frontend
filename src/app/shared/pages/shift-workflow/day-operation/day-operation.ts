@@ -11,7 +11,7 @@ import { WorkShift } from '../../../../models/production/work-shift';
 import { Module } from '../../../../models/production/module';
 import { Validators } from '@angular/forms';
 import { minArrayLength } from '../../../../common/functions/min-array-length';
-import { parseSessionErrors } from '../../../../common/functions/session-errors';
+import { extractFieldErrorMessage, parseSessionErrors } from '../../../../common/functions/session-errors';
 import { WorkShiftService } from '../../../../services/production/work-shift-service';
 import { ModuleService } from '../../../../services/production/module-service';
 import { EmployeeService } from '../../../../services/production/employee-service';
@@ -218,6 +218,54 @@ export class DayOperation extends BaseCrudPage<WorkSession> {
   }
 
   deleteEmployee(_id: number) {
+    const module = this.selectedModule;
+    const isAssigned = module?.employees?.some((e) => e.id === _id);
+    if (!module || !isAssigned) {
+      this.removeEmployeeFromForm(_id);
+      return;
+    }
+
+    this.wslService.start();
+    this.moduleService
+      .removeEmployee(module.id, _id)
+      .pipe(finalize(() => this.wslService.end()))
+      .subscribe({
+        next: ({ session_closed }) => {
+          module.employees = module.employees?.filter((e) => e.id !== _id);
+          this.removeEmployeeFromForm(_id);
+          if (session_closed) {
+            this.currentSession.set(null);
+            this.sessionCopy.set(null);
+          }
+          this.dialogService.openToast('Proceso exitoso', 'Empleado eliminado de la lista correctamente', 'check');
+          this.refreshFromServer();
+        },
+        error: (err) =>
+          this.dialogService.openToast(
+            'No se pudo eliminar',
+            extractFieldErrorMessage(err) ?? 'No se pudo eliminar el empleado. Inténtalo nuevamente.',
+            'fail',
+          ),
+      });
+  }
+
+  // Reloads modules and the active session so the screen reflects what the backend persisted.
+  private refreshFromServer(): void {
+    const coreModuleId = this.routeContextService.currentModule?.id;
+    const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
+
+    forkJoin({
+      session: this.workSessionService.getActive(scopeParams),
+      modules: this.moduleService.all({ ...scopeParams, for_day_operation: 'true' }),
+    }).subscribe(({ session, modules }) => {
+      this.modules.set(modules.filter((m) => (m?.is_active ?? true) && !m?.is_deleted));
+      if (!session) return;
+      if (this.sessionCopy()) this.sessionCopy.set(session as WorkSession);
+      else this.currentSession.set(session as WorkSession);
+    });
+  }
+
+  private removeEmployeeFromForm(_id: number) {
     const filtered = this.employeeIds?.value.filter((id: number) => id !== _id);
     this.employeeIds?.setValue(filtered);
     const filteredApprentices = this.apprenticeIdsControl?.value.filter((id: number) => id !== _id);
