@@ -1,64 +1,202 @@
 @if(visible){
-<app-box-layout [title]="'Horario del registro'" [classNames]="'max-w-md'">
+<app-box-layout [title]="'Confirmar registro'" [classNames]="'max-w-2xl'">
 
-    <div box-content class="flex flex-col justify-center items-center">
+    <div box-content class="flex flex-col w-full gap-4 mt-4">
 
-        <form class="w-full" [formGroup]="recordForm">
-            <div class="space-y-5">
+        <!-- Referencia y módulo -->
+        <div class="grid grid-cols-2 gap-3 text-sm">
+            <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                <p class="text-xs text-slate-500">Referencia</p>
+                <p class="font-medium text-slate-800 truncate">{{ referenceLabel || '—' }}</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                <p class="text-xs text-slate-500">Módulo</p>
+                <p class="font-medium text-slate-800 truncate">{{ moduleLabel || '—' }}</p>
+            </div>
+        </div>
 
-                <!-- Duración -->
-                <div class="border border-slate-200 rounded-lg bg-slate-50 p-4 mt-4">
+        <!-- Unidades a registrar (puede haber varias referencias / OP) -->
+        <div class="overflow-auto max-h-[28vh] border border-gray-200 rounded-lg">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-gray-100 text-gray-700 sticky top-0">
+                    <tr>
+                        <th class="px-4 py-2 font-medium">OP</th>
+                        @if(variant === 'stamping'){
+                        <th class="px-4 py-2 font-medium text-center">Cantidad</th>
+                        <th class="px-4 py-2 font-medium text-center">Tiempos adicionales (min)</th>
+                        } @else {
+                        <th class="px-4 py-2 font-medium text-center">Completadas</th>
+                        <th class="px-4 py-2 font-medium text-center">Saldos</th>
+                        <th class="px-4 py-2 font-medium text-center">Bajas</th>
+                        }
+                        <th class="px-4 py-2"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @for(record of records; track $index){
+                    <tr>
+                        <td class="px-4 py-2">{{ record.op_type }} {{ record.op_number }}</td>
+                        @if(variant === 'stamping'){
+                        <td class="px-4 py-2 text-center font-semibold text-green-600">{{ record.completed_quantity }}</td>
+                        <td class="px-4 py-2 text-center">{{ additionalTimesMinutes(record) }}</td>
+                        } @else {
+                        <td class="px-4 py-2 text-center font-semibold text-green-600">{{ record.completed_quantity }}</td>
+                        <td class="px-4 py-2 text-center font-semibold text-amber-500">{{ record.rejected_quantity }}</td>
+                        <td class="px-4 py-2 text-center font-semibold text-red-500">{{ record.scrap_quantity }}</td>
+                        }
+                        <td class="pl-4 pr-2 py-2 text-center">
+                            <button type="button" [disabled]="saving" (click)="onRemove.emit($index)" class="text-gray-400 hover:text-brand transition-colors duration-200 ease-in-out cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                                <app-ui-icon [iconName]="'circleXmark'" class="h-5 w-5"></app-ui-icon>
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="text-sm text-brand-700 bg-brand-100 border border-brand-200 rounded-lg px-3 py-2">
+            Total unidades: <span class="font-medium">{{ totalUnits }}</span>
+        </p>
 
-                    <div class="flex flex-row justify-between items-center gap-3">
+        <!-- Tiempo empleado -->
+        <form [formGroup]="form" (ngSubmit)="confirm()" class="flex flex-col gap-4">
 
-                        <div class="w-2/3">
-                            <span class="text-sm text-slate-500 italic">
-                                Ingresa el tiempo total empleado en realizar todas las unidades registradas.
-                            </span>
+            <!-- Instrucción y límites calculados por el backend -->
+            <div class="flex flex-col gap-2.5">
+                <p class="text-sm font-semibold text-slate-800">
+                    Ingresa el tiempo total empleado en realizar todas las unidades registradas.
+                </p>
+
+                @if(loading()){
+                    <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-500">
+                        <span class="inline-block h-4 w-4 rounded-full border-2 border-slate-300 border-t-brand animate-spin"></span>
+                        <span>Calculando eficiencia estimada...</span>
+                    </div>
+                } @else if(simulationError() || !simulation()){
+                    <div class="flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm">
+                        <span class="flex items-center gap-2 text-red-700">
+                            <app-ui-icon [iconName]="'triangleExclamation'" class="h-4 w-4 shrink-0"></app-ui-icon>
+                            <span>{{ simulationError() ?? 'No se pudo calcular la eficiencia.' }} No es posible confirmar.</span>
+                        </span>
+                        <app-ui-button [intent]="'action'" (onClick)="requestSimulation()">Reintentar</app-ui-button>
+                    </div>
+                } @else {
+                    <!-- Límites -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 shadow-sm">
+                            <p class="text-xs text-slate-500">Tiempo mínimo</p>
+                            <p class="text-slate-900">
+                                <span class="text-xl font-semibold tabular-nums">{{ minMinutes }}</span>
+                                <span class="text-xs text-slate-500"> min</span>
+                            </p>
                         </div>
-
-                        <div class="w-1/3 flex justify-end">
-                            <app-ui-hour-input formControlName="duration_minutes" [id]="'duration_minutes'" [title]="'Minutos'" [min]="1" [max]="999">
-                            </app-ui-hour-input>
+                        <div class="rounded-lg border px-3 py-2 shadow-sm" [class]="limitsConflict ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-slate-50'">
+                            <p class="text-xs text-slate-500">Tiempo máximo</p>
+                            <p class="text-slate-900">
+                                @if(maxMinutes !== null){
+                                    <span class="text-xl font-semibold tabular-nums">{{ maxMinutes }}</span>
+                                    <span class="text-xs text-slate-500"> min</span>
+                                } @else {
+                                    <span class="text-sm font-medium text-slate-500">No disponible</span>
+                                }
+                            </p>
                         </div>
-
                     </div>
 
-                </div>
-
-                <!-- Horario -->
-                <div>
-                    <!--
-                        Doble binding con start_time (duration-schedule-modal.ts):
-                        ajustar los minutos recalcula la hora inicial, y viceversa.
-                    -->
-                    <app-time-range-fields
-                        [startCtrl]="'start_time'"
-                        [endCtrl]="'end_time'"
-                        [initialEnd]="currentTimeHHmm"
-                        [disableEnd]="true">
-                    </app-time-range-fields>
-
-                </div>
-
-                @if(startBeforeShiftInvalid){
-                    <app-ui-error-message>
-                        La hora de inicio no puede ser anterior al inicio del turno
-                        ({{ shiftStartTime?.slice(0, 5) }}).
-                    </app-ui-error-message>
+                    <!-- Advertencia (espacio propio) -->
+                    @if(preloadMessage(); as message){
+                        <div class="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800" role="alert">
+                            <app-ui-icon [iconName]="'triangleExclamation'" class="mt-0.5 h-4 w-4 shrink-0"></app-ui-icon>
+                            <span>{{ message }}</span>
+                        </div>
+                    }
                 }
+            </div>
 
+            <!-- Campo -->
+            <div class="flex flex-col gap-1 rounded-lg border border-slate-200 bg-white px-3 py-3 shadow-sm">
+                <label for="duration_minutes" class="text-sm font-semibold text-slate-800">Tiempo total (minutos)</label>
+                <p class="text-xs text-slate-500">Tiempo total utilizado para completar todas las unidades registradas, no el tiempo por unidad.</p>
+                <div class="flex items-center gap-2 mt-1.5">
+                    <div [class]="'rounded-lg ' + (!durationCtrl.dirty && durationCtrl.value !== null ? 'ring-2 ring-brand-200' : '')">
+                        <app-ui-hour-input formControlName="duration_minutes" [id]="'duration_minutes'" [title]="'Minutos'" [min]="1" [max]="999">
+                        </app-ui-hour-input>
+                    </div>
+                    @if(!durationCtrl.dirty && durationCtrl.value !== null){
+                        <span class="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">Recomendado</span>
+                    }
+                </div>
+                <!-- Eficiencia estimada (calculada por el backend con el tiempo ingresado) -->
+                <div class="mt-2 flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
+                     [class]="efficiencyState === 'over' ? 'border-amber-200 bg-amber-50' : efficiencyState === 'ok' ? 'border-green-200 bg-green-50' : efficiencyState === 'error' ? 'border-red-200 bg-red-50' : 'border-slate-200 bg-slate-50'">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-slate-500">Eficiencia estimada (%)</span>
+                        @if(durationMinutes !== null){
+                            <span class="text-xs text-slate-500">con {{ durationMinutes }} min</span>
+                        }
+                    </div>
+                    @switch(efficiencyState){
+                        @case('loading'){
+                            <span class="inline-block h-4 w-4 rounded-full border-2 border-slate-300 border-t-brand animate-spin" aria-label="Calculando"></span>
+                        }
+                        @case('error'){
+                            <span class="flex items-center gap-2 text-sm text-red-700">
+                                No se pudo calcular
+                                <app-ui-button [intent]="'action'" (onClick)="requestSimulation()">Reintentar</app-ui-button>
+                            </span>
+                        }
+                        @case('empty'){
+                            <span class="text-xl font-semibold text-slate-400">—</span>
+                        }
+                        @case('over'){
+                            <span class="flex items-center gap-1.5 text-amber-800">
+                                <app-ui-icon [iconName]="'triangleExclamation'" class="h-4 w-4 shrink-0"></app-ui-icon>
+                                <span class="text-xl font-semibold tabular-nums">{{ simulation()!.efficiency!.toFixed(2) }} %</span>
+                                <span class="text-xs">supera el {{ simulation()!.max_efficiency.toFixed(0) }} %</span>
+                            </span>
+                        }
+                        @default {
+                            <span class="text-xl font-semibold tabular-nums text-green-700">{{ simulation()!.efficiency!.toFixed(2) }} %</span>
+                        }
+                    }
+                </div>
+                @if(showErrors){
+                    <div class="mt-1 flex flex-col gap-0.5">
+                        @for(message of fieldErrors; track message){
+                            <p class="text-sm text-red-600">{{ message }}</p>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Horario (solo lectura) -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 shadow-sm">
+                    <p class="flex items-center gap-1 text-xs text-slate-500">
+                        <app-ui-icon [iconName]="'clock'" class="h-3.5 w-3.5 shrink-0"></app-ui-icon>
+                        Hora inicial
+                    </p>
+                    <p class="text-xl font-semibold tabular-nums text-slate-900">{{ startTime ?? '--:--' }}</p>
+                </div>
+                <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 shadow-sm">
+                    <p class="flex items-center gap-1 text-xs text-slate-500">
+                        <app-ui-icon [iconName]="'clock'" class="h-3.5 w-3.5 shrink-0"></app-ui-icon>
+                        Hora final
+                    </p>
+                    <p class="text-xl font-semibold tabular-nums text-slate-900">{{ endTime() }}</p>
+                </div>
             </div>
         </form>
+
     </div>
 
     <div box-buttons class="flex flex-row gap-3">
-        <app-ui-button [intent]="'cancel'" (onClick)="onCancel.emit()">
+        <app-ui-button [intent]="'cancel'" [disabled]="saving" (onClick)="onCancel.emit()">
             Cancelar
         </app-ui-button>
 
-        <app-ui-button [disabled]="primaryActionDisabled" (onClick)="next()">
-            Siguiente
+        <app-ui-button [disabled]="confirmDisabled" (onClick)="confirm()">
+            {{ saving ? 'Guardando…' : 'Confirmar registro' }}
         </app-ui-button>
     </div>
 
