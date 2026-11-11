@@ -11,6 +11,7 @@ const RENEW_AT_SECONDS = 300; // active user: renew silently when this close to 
 const WARN_AT_SECONDS = 120; // idle user: show the warning modal when this close to expiry
 const ACTIVE_WINDOW_MS = 60_000; // activity newer than this counts as "active now"
 const RENEW_RETRY_MS = 30_000; // minimum gap between automatic renew attempts
+const REASON_SYNC_MS = 150; // wait for the end-reason write that follows a cross-tab clear
 
 /**
  * Idle-session control driven by the real `exp` of the access token (never a bare timer).
@@ -74,17 +75,26 @@ export class SessionService {
     const tokenKey = environment.ACCESS_TOKEN_NAME;
     if (e.key !== null && e.key !== tokenKey) return;
 
-    this.zone.run(() => {
-      if (this.auth.getAccessToken()) {
-        // Another tab renewed the token: restart from the new `exp`.
+    if (this.auth.getAccessToken()) {
+      // Another tab renewed the token: restart from the new `exp`.
+      this.zone.run(() => {
         this.warningVisible.set(false);
         this.lastRenewAttempt = Date.now();
-      } else {
-        // Another tab ended the session (storage cleared / token removed).
-        this.warningVisible.set(false);
-        this.auth.logout(true, this.auth.getSessionEndReason());
-      }
-    });
+      });
+      return;
+    }
+
+    // Another tab ended the session (storage cleared / token removed). The tab that ended it
+    // writes the end reason right after clearing, and that second write can arrive after this
+    // event, so give it a moment before reading it (logout() is single-flight anyway).
+    window.setTimeout(
+      () =>
+        this.zone.run(() => {
+          this.warningVisible.set(false);
+          this.auth.logout(true, this.auth.getSessionEndReason());
+        }),
+      REASON_SYNC_MS,
+    );
   };
 
   private expiryMs(): number | null {

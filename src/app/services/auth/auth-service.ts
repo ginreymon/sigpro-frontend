@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -23,6 +23,8 @@ export class AuthService {
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   private refreshInFlight$: Observable<any> | null = null;
   private loggingOut = false;
+  /** True while a logout that ends in a redirect is running (drives the global overlay). */
+  readonly loggingOutVisible = signal(false);
 
   constructor(
     private http: HttpClient,
@@ -50,6 +52,8 @@ export class AuthService {
   logout(redirect = true, reason?: 'idle') {
     if (this.loggingOut) return;
     this.loggingOut = true;
+    // Immediate visual feedback; stays up until the page load to /login replaces the app.
+    if (redirect) this.loggingOutVisible.set(true);
 
     const refresh = this.getRefreshToken();
 
