@@ -38,10 +38,12 @@
                 {{ hasPendingSession() ? 'Continuar' : 'Comenzar' }}
                 <app-ui-icon [iconName]="'circleRight'" [class]="'w-4 h-4'"></app-ui-icon>
             </app-ui-button>
-            <app-ui-button [intent]="'label'" [classNames]="'relative z-10'" (onClick)="goToModulePanel()">
-                Panel de producción
+            @if (canOpenPanel) {
+            <app-ui-button [intent]="'label'" [classNames]="'relative z-10'" (onClick)="goToAreaPanel()">
+                {{ panelLabel }}
                 <app-ui-icon [iconName]="'circleRight'" [class]="'w-4 h-4'"></app-ui-icon>
             </app-ui-button>
+            }
         </div>
 
         <!-- Decorative circles -->
@@ -50,7 +52,7 @@
     </div>
 
     <!-- Card 2: Turno en curso -->
-    <app-home-production-shift-card [session]="activeSession()"></app-home-production-shift-card>
+    <ng-container *ngComponentOutlet="shiftCard; inputs: { session: activeSession() }" />
 
 </div>
 
