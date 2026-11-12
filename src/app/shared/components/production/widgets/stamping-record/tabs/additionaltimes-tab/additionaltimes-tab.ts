@@ -23,6 +23,8 @@ export class AdditionalTimesTab {
   @Input() quantities: Record<number, number | undefined> = {};
   @Input() submitAttempted = false;
   @Input() hasInvalidQuantity = false;
+  // Efficiency-cap block message of the save attempt (shown above the searcher).
+  @Input() efficiencyError: string | null = null;
   @Output() search = new EventEmitter<string>();
   @Output() toggleShowOnlySelected = new EventEmitter<void>();
   @Output() toggle = new EventEmitter<number>();

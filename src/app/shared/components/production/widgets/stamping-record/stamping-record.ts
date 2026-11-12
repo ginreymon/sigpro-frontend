@@ -13,6 +13,9 @@ import { StampingReferenceSam } from '../../../../../models/stamping/stamping-re
 import { StampingRecord as StampingRecordPayload } from '../../../../../models/stamping/stamping-record';
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
+import { StampingRecordService } from '../../../../../services/stamping/stamping-record-service';
+import { extractFieldErrorMessage } from '../../../../../common/functions/session-errors';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-stamping-record',
@@ -41,6 +44,12 @@ export class StampingRecord {
   // STAMPING_CAL_WINDOW), así que el aviso de ventana no aplica ahí.
   protected showWindowStatus = true;
   protected saveButtonLabel = 'Guardar';
+  // Regular flow validates the 100% efficiency cap before saving; the manual
+  // variant turns it off (its batch is validated in app-duration-schedule-modal).
+  protected checkEfficiency = true;
+  protected checkingEfficiency = signal(false);
+  protected efficiencyError = signal<string | null>(null);
+  private stampingRecordService = inject(StampingRecordService);
 
   protected tabs: TabItem[] = [
     { key: 'reference', label: 'Referencia' },
@@ -251,6 +260,7 @@ export class StampingRecord {
           this.selectedAdditionalTimeIds.set([]);
           this.additionalTimeQuantities.set({});
           this.submitAttempted.set(false);
+          this.efficiencyError.set(null);
         });
       }
     });
@@ -268,6 +278,7 @@ export class StampingRecord {
 
   protected onTabChange(key: string): void {
     this.activeTab.set(key);
+    this.efficiencyError.set(null);
     // Each tab renders its own app-searcher instance (@if/@else-if), so it
     // always mounts empty — reset the matching filter signal too, or the
     // list stays filtered by a stale query the visible input no longer shows.
@@ -362,7 +373,27 @@ export class StampingRecord {
       })),
     };
 
-    this.onSave.emit(payload);
+    if (!this.checkEfficiency) {
+      this.onSave.emit(payload);
+      return;
+    }
+
+    // Efficiency cap (backend is the only source of the numbers): save only on an explicit `allowed`;
+    // an error or an invalid answer blocks until a new attempt validates.
+    if (this.checkingEfficiency()) return;
+    this.efficiencyError.set(null);
+    this.checkingEfficiency.set(true);
+    this.stampingRecordService.simulateRecord(payload)
+      .pipe(finalize(() => this.checkingEfficiency.set(false)))
+      .subscribe({
+        next: (sim) => {
+          if (sim?.allowed === true) this.onSave.emit(payload);
+          else this.efficiencyError.set(sim?.message ?? 'No se pudo validar la eficiencia. Intenta de nuevo.');
+        },
+        error: (err) => this.efficiencyError.set(
+          extractFieldErrorMessage(err) ?? 'No se pudo validar la eficiencia. Intenta de nuevo.',
+        ),
+      });
   }
 
   private validateRecordForm(): boolean {

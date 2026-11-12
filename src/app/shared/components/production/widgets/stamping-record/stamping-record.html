@@ -46,6 +46,7 @@
           [quantities]="additionalTimeQuantities()"
           [submitAttempted]="submitAttempted()"
           [hasInvalidQuantity]="hasInvalidAdditionalTimeQuantity"
+          [efficiencyError]="efficiencyError()"
           (search)="searchAdditionalTimes($event)"
           (toggleShowOnlySelected)="showOnlySelectedAdditionalTimes.set(!showOnlySelectedAdditionalTimes())"
           (toggle)="toggleAdditionalTime($event)"
@@ -83,7 +84,7 @@
 
     @if (!isOrderCompleted()) {
       @if (isLastTab) {
-        <app-ui-button class="shrink-0" [disabled]="!inWindow" (onClick)="register()">
+        <app-ui-button class="shrink-0" [disabled]="!inWindow || checkingEfficiency()" (onClick)="register()">
           {{ saveButtonLabel }}
         </app-ui-button>
       } @else {
