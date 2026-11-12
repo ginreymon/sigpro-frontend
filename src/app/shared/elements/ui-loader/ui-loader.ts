@@ -16,9 +16,6 @@ export class UiLoader {
     this.localShowLoader = value;
   }
 
-  /** Optional description shown under the spinner. */
-  @Input() message: string | null = null;
-
   constructor(private loaderService: LoaderService) { }
 
   get showLoader() {

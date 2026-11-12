@@ -1,5 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthLayout } from '../../../layouts/auth-layout/auth-layout';
 import { RouterLink } from '@angular/router';
@@ -38,10 +37,6 @@ export class Login extends BaseAuthComponent {
       username: ['', [Validators.required, Validators.minLength(5)]],
       password: ['', [Validators.required, Validators.minLength(8)]],
     });
-
-    if (inject(ActivatedRoute).snapshot.queryParamMap.get('reason') === 'idle') {
-      this.errorMessage.set('Tu sesión ha expirado por inactividad. Inicia sesión nuevamente');
-    }
   }
 
   get username() {
@@ -58,7 +53,6 @@ export class Login extends BaseAuthComponent {
       return;
     }
 
-    this.errorMessage.set('');
     this.isLoading.set(true);
     this.loaderService.showLoader();
     this.auth.logout(false);

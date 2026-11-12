@@ -1,27 +1,18 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth/auth-service';
-import { SessionService } from '../services/auth/session-service';
 import { catchError, switchMap, throwError } from 'rxjs';
-
-// Backend envelope codes of an authentication 401 (expired/invalid access token or none sent).
-// Any other 401 is not an authentication failure and must not touch the session.
-const AUTH_ERROR_CODES = ['token_not_valid', 'not_authenticated'];
-
-// A 401 refresh is only honoured when the user was active recently, so background
-// requests of an idle tab cannot keep the session alive.
-const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
+import { Router } from '@angular/router';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
-  const session = inject(SessionService);
   const accessToken = auth.getAccessToken();
+  const router = inject(Router);
   let authReq = req;
 
   const publicUrls = [
     '/token/refresh',
     '/auth/login',
-    '/auth/logout',
     '/auth/password-reset-request',
     '/auth/password-reset-confirm',
   ];
@@ -40,25 +31,35 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      const isAuthError = error.status === 401 && AUTH_ERROR_CODES.includes(error.error?.code);
-      if (!isAuthError) return throwError(() => error);
+      if (error.status === 401) {
+        const refreshToken = auth.getRefreshToken();
 
-      if (!auth.getRefreshToken() || !session.isActive(ACTIVE_WINDOW_MS)) {
-        auth.expireSession();
-        return throwError(() => error);
+        if (!refreshToken) {
+          auth.logout();
+          router.navigateByUrl('/login');
+          return throwError(() => error);
+        }
+
+        return auth.refreshToken().pipe(
+          switchMap((res: any) => {
+            const newReq = req.clone({
+              setHeaders: {
+                Authorization: `Bearer ${res.access}`,
+              },
+            });
+
+            return next(newReq);
+          }),
+
+          catchError((err) => {
+            auth.logout();
+            router.navigateByUrl('/login');
+            return throwError(() => err);
+          }),
+        );
       }
 
-      return auth.refreshToken().pipe(
-        // Only a rejected refresh (401) ends the session; network/5xx errors just propagate.
-        catchError((err: HttpErrorResponse) => {
-          if (err.status === 401) auth.expireSession();
-          return throwError(() => err);
-        }),
-        // Errors of the retried request are not authentication failures of the refresh.
-        switchMap((res: any) =>
-          next(req.clone({ setHeaders: { Authorization: `Bearer ${res.access}` } })),
-        ),
-      );
+      return throwError(() => error);
     }),
   );
 };
