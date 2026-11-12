@@ -2,13 +2,15 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { UiIcon } from '../../../../shared/elements/ui-icon/ui-icon';
 import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
 import { HomeProductionShiftCard } from '../../../../shared/components/production/cards/home-production-shift-card/home-production-shift-card';
+import { HomeShiftSkeleton } from '../../../../shared/components/production/cards/home-shift-skeleton/home-shift-skeleton';
+import { Router } from '@angular/router';
 import { WorkSessionService } from '../../../../services/production/work-session-service';
 import { WorkSession } from '../../../../models/production/work-session';
 import { ShiftNavigationService } from '../../../../services/core/shift-navigation-service';
 
 @Component({
   selector: 'app-home-thread-trimmer',
-  imports: [UiIcon, UiButton, HomeProductionShiftCard],
+  imports: [UiIcon, UiButton, HomeProductionShiftCard, HomeShiftSkeleton],
   templateUrl: './home-thread-trimmer.html',
   styleUrl: './home-thread-trimmer.css',
 })
@@ -19,9 +21,14 @@ export class HomeThreadTrimmer implements OnInit {
 
   private workSessionService = inject(WorkSessionService);
   private shiftNav = inject(ShiftNavigationService);
+  private router = inject(Router);
 
   goToShiftCycles() {
     this.activeSession() ? this.shiftNav.goToShiftCycles() : this.shiftNav.goToDayOperation();
+  }
+
+  goToModulePanel() {
+    this.router.navigateByUrl('/production/module-panel');
   }
 
   ngOnInit(): void {

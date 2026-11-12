@@ -3,12 +3,13 @@ import { Router } from '@angular/router';
 import { UiIcon } from '../../../../shared/elements/ui-icon/ui-icon';
 import { UiButton } from '../../../../shared/elements/ui-button/ui-button';
 import { HomeStampingShiftCard } from '../../../../shared/components/production/cards/home-stamping-shift-card/home-stamping-shift-card';
+import { HomeShiftSkeleton } from '../../../../shared/components/production/cards/home-shift-skeleton/home-shift-skeleton';
 import { WorkSessionService } from '../../../../services/production/work-session-service';
 import { WorkSession } from '../../../../models/production/work-session';
 
 @Component({
   selector: 'app-home-screen-printer',
-  imports: [UiIcon, UiButton, HomeStampingShiftCard],
+  imports: [UiIcon, UiButton, HomeStampingShiftCard, HomeShiftSkeleton],
   templateUrl: './home-screen-printer.html',
   styleUrl: './home-screen-printer.css',
 })
@@ -22,6 +23,10 @@ export class HomeScreenPrinter implements OnInit {
 
   goToShiftCycles() {
     this.router.navigateByUrl(this.activeSession() ? 'stamping/shift-cycles' : 'stamping/day-operation');
+  }
+
+  goToModulePanel() {
+    this.router.navigateByUrl('/production/module-panel');
   }
 
   ngOnInit(): void {
