@@ -6,14 +6,14 @@
   <ng-container hourlyWidget>
     <app-shift-hourly-record
         [class.hidden]="!!shiftModals.activeModal() || qms.visible()"
-        [enabled]="currentSession() !== null"
+        [enabled]="config.showHourlyRecord && currentSession() !== null"
         [activityId]="currentSession()?.active_activity?.id"
         [activeBreak]="currentSession()?.active_activity?.active_break ?? null"
         [currentSession]="currentSession()"
         [lastProductionRecord]="currentSession()?.active_activity?.last_production_record"
         (onFinalize)="refreshSession()"
         (onActivityPaused)="onPauseSaved($event)"
-        (inWindowChange)="inWindow.set($event)"
+        (inWindowChange)="config.showHourlyRecord && inWindow.set($event)"
     ></app-shift-hourly-record>
   </ng-container>
 

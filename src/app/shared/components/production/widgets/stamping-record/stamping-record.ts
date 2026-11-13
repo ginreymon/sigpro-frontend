@@ -191,8 +191,11 @@ export class StampingRecord {
   protected get windowRange(): { start: string; end: string } {
     const now = new Date();
     const hourStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
-    const nextHour = new Date(hourStart.getTime() + 3600_000);
     const windowSeconds = this.appConfig.stampingCalibrationWindowSeconds;
+    // Past HH:00 the active window is the one centred on the hour just started,
+    // not on the next one (otherwise the displayed range jumps at HH:00).
+    const elapsedInHour = (now.getTime() - hourStart.getTime()) / 1000;
+    const nextHour = elapsedInHour <= windowSeconds ? hourStart : new Date(hourStart.getTime() + 3600_000);
     const start = new Date(nextHour.getTime() - windowSeconds * 1000);
     const end = new Date(nextHour.getTime() + windowSeconds * 1000);
     const fmt = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
