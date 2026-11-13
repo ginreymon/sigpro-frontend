@@ -49,8 +49,6 @@ export class StampingRecord {
   protected checkEfficiency = true;
   protected checkingEfficiency = signal(false);
   protected efficiencyError = signal<string | null>(null);
-  // Quantity + additional times that the backend rejected: Guardar stays disabled until they change.
-  private blockedAttempt = signal<string | null>(null);
   private stampingRecordService = inject(StampingRecordService);
 
   protected tabs: TabItem[] = [
@@ -238,18 +236,6 @@ export class StampingRecord {
     return this.tabsView.findIndex((tab) => tab.key === this.activeTab());
   }
 
-  private attemptKey(): string {
-    return JSON.stringify([
-      this.recordForm.value.completed_quantity,
-      this.recordForm.value.stamping_reference_sam,
-      this.selectedAdditionalTimeIds().map((id) => [id, this.getQuantity(id)]),
-    ]);
-  }
-
-  protected get efficiencyBlocked(): boolean {
-    return !!this.efficiencyError() && this.blockedAttempt() === this.attemptKey();
-  }
-
   protected get isLastTab(): boolean {
     return this.currentTabIndex === this.tabsView.length - 1;
   }
@@ -402,10 +388,7 @@ export class StampingRecord {
       .subscribe({
         next: (sim) => {
           if (sim?.allowed === true) this.onSave.emit(payload);
-          else {
-            this.efficiencyError.set(sim?.message ?? 'No se pudo validar la eficiencia. Intenta de nuevo.');
-            this.blockedAttempt.set(this.attemptKey());
-          }
+          else this.efficiencyError.set(sim?.message ?? 'No se pudo validar la eficiencia. Intenta de nuevo.');
         },
         error: (err) => this.efficiencyError.set(
           extractFieldErrorMessage(err) ?? 'No se pudo validar la eficiencia. Intenta de nuevo.',
