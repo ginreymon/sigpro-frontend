@@ -1,14 +1,19 @@
-<form [formGroup]="form" class="flex flex-row items-start gap-1 w-full">
+<form [formGroup]="form" class="flex flex-col md:flex-row md:items-start gap-1 w-full">
 
   <app-date-range-fields startCtrl="start_date" endCtrl="end_date" [limitToOneMonth]="limitToOneMonth" class="flex-1"></app-date-range-fields>
 
-  <app-ui-button
-    [classNames]="'mt-5'"
-    [disabled]="form.invalid"
-    [type]="'button'"
-    (onClick)="submit()">
-    <app-ui-icon [iconName]="'magnifyingGlass'" [class]="'w-4 h-4'"></app-ui-icon>
-    Consultar
-  </app-ui-button>
+  <!-- The spacer reuses the field label typography (text-xs; the label sits directly on the input, no gap), so the button starts exactly at the top of the inputs without a hardcoded offset. -->
+  <div class="flex flex-col w-full md:w-auto">
+    <span class="hidden md:block text-xs" aria-hidden="true">&nbsp;</span>
+    <app-ui-button
+      class="flex"
+      [classNames]="'w-full md:w-auto'"
+      [disabled]="form.invalid"
+      [type]="'button'"
+      (onClick)="submit()">
+      <app-ui-icon [iconName]="'magnifyingGlass'" [class]="'w-4 h-4'"></app-ui-icon>
+      Consultar
+    </app-ui-button>
+  </div>
 
 </form>
