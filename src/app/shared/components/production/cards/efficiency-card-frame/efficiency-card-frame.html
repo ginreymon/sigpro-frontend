@@ -26,7 +26,7 @@
         <dt class="text-gray-400">Encomendados</dt>
         <dd class="text-right font-medium text-gray-400">{{ mod.employees_snapshot ?? 0 }} / {{ mod.operator_count }}</dd>
         <dt class="text-gray-400">Inicio</dt>
-        <dd class="text-right font-medium text-gray-400">{{ (mod.started_at | date: 'dd/MM/yyyy HH:mm') || '—' }}</dd>
+        <dd class="text-right font-medium text-gray-400">{{ ((mod.shift_start_utc ?? mod.work_shift_start_utc) | date: 'dd/MM/yyyy HH:mm' : '-0500') || '—' }}</dd>
       </dl>
     </div>
 

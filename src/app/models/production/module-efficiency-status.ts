@@ -11,6 +11,8 @@ export interface ModuleEfficiencyStatus {
   work_session_activity_id: number;
   start_time: string;
   work_shift_start_utc: string;
+  // Shift start in UTC as sent by the API (mapper renames work_shift_start_utc); shown in Colombia time (UTC-5).
+  shift_start_utc?: string;
   started_at: string;
   ended_at?: string;
   operator_count?: number;
