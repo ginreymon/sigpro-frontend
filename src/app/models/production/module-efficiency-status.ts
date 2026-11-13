@@ -30,6 +30,7 @@ export interface ModuleEfficiencyStatus {
   total_scrap?: number;
   total_rejected?: number;
   total_produced?: number;
+  minutos_producidos?: number;
   unit_target?: number;
 
   employees_snapshot?: number;

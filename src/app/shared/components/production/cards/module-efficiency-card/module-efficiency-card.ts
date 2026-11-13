@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ProgressBar } from '../../../widgets/progress-bar/progress-bar';
 import { ModuleEfficiencyStatus } from '../../../../../models/production/module-efficiency-status';
+import { HourlyTargetBlock } from '../hourly-target-block/hourly-target-block';
 import { EfficiencyCardFrame } from '../efficiency-card-frame/efficiency-card-frame';
 
 const BAR_COLORS: Record<string, string> = {
@@ -14,12 +15,14 @@ type StatType = 'completed' | 'rejected' | 'scrap';
 @Component({
   selector: 'app-module-efficiency-card',
   standalone: true,
-  imports: [ProgressBar, EfficiencyCardFrame],
+  imports: [ProgressBar, EfficiencyCardFrame, HourlyTargetBlock],
   templateUrl: './module-efficiency-card.html',
 })
 export class ModuleEfficiencyCard {
   @Input({ required: true }) mod!: ModuleEfficiencyStatus;
   @Input() emptyLabel?: string;
+  // true: quantity bars (original layout). false: hourly target + total produced.
+  @Input() showQuantityBars = true;
   @Output() cardClick = new EventEmitter<ModuleEfficiencyStatus>();
 
   barColor(type: StatType): string {

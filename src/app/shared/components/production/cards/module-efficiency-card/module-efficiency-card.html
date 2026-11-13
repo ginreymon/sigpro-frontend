@@ -5,6 +5,15 @@
   [emptyLabel]="emptyLabel"
   (cardClick)="cardClick.emit($event)">
 
+@if (!showQuantityBars) {
+  <app-hourly-target-block
+    [units]="mod.total_produced ?? 0"
+    [producedMinutes]="mod.minutos_producidos ?? 0"
+    [employees]="mod.employees_snapshot ?? 0"
+    [operators]="mod.operator_count ?? 0"
+    [muted]="mod.status !== 'ACTIVE'">
+  </app-hourly-target-block>
+} @else {
   <div>
     <div class="flex justify-between text-xs mb-1">
       <span class="text-gray-400">Completadas</span>
@@ -40,5 +49,6 @@
       [color]="barColor('scrap')">
     </app-progress-bar>
   </div>
+}
 
 </app-efficiency-card-frame>

@@ -1,5 +1,5 @@
 <div
-  class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer"
+  class="h-full bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer"
   (click)="onClick()">
 
   <div class="flex justify-between items-start">
@@ -22,9 +22,12 @@
   <div class="mt-2 flex flex-col gap-3">
     <div>
       <span [class]="efficiencyClass()">{{ mod.efficiency.toFixed(2) }}%</span>
-      <div class="mt-1 text-xs text-gray-500">
-        <span>{{ mod.employees_snapshot ?? 0 }} / {{ mod.operator_count }} Encomendados</span>
-      </div>
+      <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
+        <dt class="text-gray-400">Encomendados</dt>
+        <dd class="text-right font-medium text-gray-600">{{ mod.employees_snapshot ?? 0 }} / {{ mod.operator_count }}</dd>
+        <dt class="text-gray-400">Inicio</dt>
+        <dd class="text-right font-medium text-gray-600">{{ (mod.started_at | date: 'dd/MM/yyyy HH:mm') || '—' }}</dd>
+      </dl>
     </div>
 
     <div class="space-y-2">

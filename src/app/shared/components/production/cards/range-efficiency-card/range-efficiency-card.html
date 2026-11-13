@@ -1,5 +1,5 @@
 <div
-  [class]="'bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between' + (isCompact ? '' : ' hover:shadow-md transition-shadow cursor-pointer')"
+  [class]="'h-full bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between' + (isCompact ? '' : ' hover:shadow-md transition-shadow cursor-pointer')"
   (click)="onClick()">
 
   <div class="flex justify-between items-start">
@@ -28,7 +28,14 @@
       }
     </div>
 
-    @if (!isCompact) {
+    @if (!showQuantityBars) {
+    <app-hourly-target-block
+      [units]="summary.totalProduced"
+      [producedMinutes]="summary.producedMinutes"
+      [employees]="summary.employeesSnapshot ?? 0"
+      [operators]="summary.operatorCount">
+    </app-hourly-target-block>
+    } @else if (!isCompact) {
     <div class="space-y-2">
       <div>
         <div class="flex justify-between text-xs mb-1">

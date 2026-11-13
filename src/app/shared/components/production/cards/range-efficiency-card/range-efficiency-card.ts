@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { UpperCasePipe } from '@angular/common';
 import { ProgressBar } from '../../../widgets/progress-bar/progress-bar';
+import { HourlyTargetBlock } from '../hourly-target-block/hourly-target-block';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
 import { efficiencyTextColor } from '../../../../../common/functions/efficiency-color';
 import { ModuleEfficiencySummary } from '../../../../../common/interfaces/module-efficiency-summary';
@@ -8,7 +9,7 @@ import { ModuleEfficiencySummary } from '../../../../../common/interfaces/module
 @Component({
   selector: 'app-range-efficiency-card',
   standalone: true,
-  imports: [ProgressBar, UpperCasePipe],
+  imports: [ProgressBar, UpperCasePipe, HourlyTargetBlock],
   templateUrl: './range-efficiency-card.html',
 })
 export class RangeEfficiencyCard {
@@ -18,6 +19,8 @@ export class RangeEfficiencyCard {
   @Input() unitLabel = 'MÓDULO';
   // 'compact' shows only name and efficiency, and the card is purely informative (no hover, no click).
   @Input() displayMode: 'full' | 'compact' = 'full';
+  // true: completed/rejected/scrap bars (original layout). false: hourly target + total produced.
+  @Input() showQuantityBars = true;
   @Output() cardClick = new EventEmitter<ModuleEfficiencySummary>();
 
   get isCompact(): boolean {

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { UpperCasePipe } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { UiBadge, BadgeIntent } from '../../../../elements/ui-badge/ui-badge';
 import { ModuleEfficiencyStatus } from '../../../../../models/production/module-efficiency-status';
 import { AppConfigService } from '../../../../../services/core/app-config-service';
@@ -22,7 +22,7 @@ const STATUS_INTENTS: Record<string, BadgeIntent> = {
 @Component({
   selector: 'app-efficiency-card-frame',
   standalone: true,
-  imports: [UiBadge, UpperCasePipe],
+  imports: [UiBadge, UpperCasePipe, DatePipe],
   templateUrl: './efficiency-card-frame.html',
 })
 export class EfficiencyCardFrame {

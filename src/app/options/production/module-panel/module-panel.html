@@ -29,7 +29,7 @@
     @if (showDateFilter()) {
 
       @if (rangeLoading()) {
-        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
+        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); grid-auto-rows: 1fr">
           @for (skeleton of [1, 2, 3]; track skeleton) {
             <div class="h-56 skeleton rounded-xl"></div>
           }
@@ -39,9 +39,9 @@
           <p class="text-sm text-gray-400">Sin registros para el período seleccionado</p>
         </div>
       } @else if (rangeSearched()) {
-        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
+        <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); grid-auto-rows: 1fr">
           @for (summary of rangeAllSummaries(); track summary.moduleId) {
-            <app-range-efficiency-card [summary]="summary" displayMode="compact"></app-range-efficiency-card>
+            <app-range-efficiency-card [summary]="summary" displayMode="compact" [showQuantityBars]="false"></app-range-efficiency-card>
           }
         </div>
       } @else {
@@ -52,17 +52,18 @@
 
     } @else {
 
-      <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))">
+      <div class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); grid-auto-rows: 1fr">
 
         @if (modules().length === 0) {
           <app-module-efficiency-card
             [mod]="plantaModule()"
+            [showQuantityBars]="false"
             [emptyLabel]="'SIN DATOS'"
             (cardClick)="openSheet($event)">
           </app-module-efficiency-card>
         } @else {
           @for (mod of allModules(); track mod.module_id) {
-            <app-module-efficiency-card [mod]="mod" (cardClick)="openSheet($event)"></app-module-efficiency-card>
+            <app-module-efficiency-card [mod]="mod" [showQuantityBars]="false" (cardClick)="openSheet($event)"></app-module-efficiency-card>
           }
         }
 

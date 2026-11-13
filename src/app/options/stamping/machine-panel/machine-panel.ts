@@ -66,6 +66,7 @@ export class MachinePanel extends ModuleRangePanelBase {
       total_ordered:      relevant.reduce((s, m) => s + (m.total_ordered      ?? 0), 0),
       total_planned:      relevant.reduce((s, m) => s + (m.total_planned      ?? 0), 0),
       total_produced:     relevant.reduce((s, m) => s + (m.total_produced     ?? 0), 0),
+      minutos_producidos: completedSource.reduce((s, m) => s + (m.minutos_producidos ?? 0), 0),
       last_worked_date:       lastWorkedDate,
       last_worked_efficiency: lastWorkedEfficiency,
     };

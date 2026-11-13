@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ProgressBar } from '../../../widgets/progress-bar/progress-bar';
 import { ModuleEfficiencyStatus } from '../../../../../models/production/module-efficiency-status';
+import { HourlyTargetBlock } from '../hourly-target-block/hourly-target-block';
 import { EfficiencyCardFrame } from '../efficiency-card-frame/efficiency-card-frame';
 
 const COMPLETED_COLOR = '#16a34a';
@@ -8,12 +9,14 @@ const COMPLETED_COLOR = '#16a34a';
 @Component({
   selector: 'app-stamping-efficiency-card',
   standalone: true,
-  imports: [ProgressBar, EfficiencyCardFrame],
+  imports: [ProgressBar, EfficiencyCardFrame, HourlyTargetBlock],
   templateUrl: './stamping-efficiency-card.html',
 })
 export class StampingEfficiencyCard {
   @Input({ required: true }) mod!: ModuleEfficiencyStatus;
   @Input() emptyLabel?: string;
+  // true: quantity bars (original layout). false: hourly target + total produced.
+  @Input() showQuantityBars = true;
   @Output() cardClick = new EventEmitter<ModuleEfficiencyStatus>();
 
   formatLastWorkedDate(): string {

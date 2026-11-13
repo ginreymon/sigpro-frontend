@@ -77,6 +77,9 @@ export abstract class ModuleRangePanelBase {
       totalRejected: sum('total_rejected'),
       totalScrap: sum('total_scrap'),
       unitTarget: Math.round(sum('unit_target')),
+      // Stamping rows have no total_produced (no scrap/rejected there: produced == completed), so fall back per row.
+      totalProduced: rows.reduce((s, r) => s + (r.total_produced ?? r.total_completed ?? 0), 0),
+      producedMinutes: sum('minutos_producidos'),
     };
   }
 

@@ -21,5 +21,6 @@ export interface ModuleEfficiencyRow {
   total_rejected: number | null;
   total_produced: number | null;
   unit_target: number | null;
+  minutos_producidos?: number | null;
   efficiency: number;
 }
