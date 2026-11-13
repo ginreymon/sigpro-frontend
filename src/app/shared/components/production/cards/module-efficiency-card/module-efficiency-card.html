@@ -8,7 +8,8 @@
 @if (!showQuantityBars) {
   <app-hourly-target-block
     [units]="mod.total_produced ?? 0"
-    [producedMinutes]="mod.minutos_producidos ?? 0"
+    [unitTarget]="mod.unit_target ?? 0"
+    [installedMinutes]="mod.minutos_instalados ?? 0"
     [employees]="mod.employees_snapshot ?? 0"
     [operators]="mod.operator_count ?? 0"
     [muted]="mod.status !== 'ACTIVE'">

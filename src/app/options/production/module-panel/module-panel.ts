@@ -56,7 +56,7 @@ export class ModulePanel extends ModuleRangePanelBase {
       total_ordered:      source.reduce((s, m) => s + (m.total_ordered      ?? 0), 0),
       total_planned:      source.reduce((s, m) => s + (m.total_planned      ?? 0), 0),
       total_produced:     source.reduce((s, m) => s + (m.total_produced     ?? 0), 0),
-      minutos_producidos: source.reduce((s, m) => s + (m.minutos_producidos ?? 0), 0),
+      minutos_instalados: source.reduce((s, m) => s + (m.minutos_instalados ?? 0), 0),
     };
   });
 

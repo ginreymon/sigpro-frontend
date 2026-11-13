@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-// Hourly target = (units / standard hours produced) * active operators; 0 without minutes.
+// Hourly target = (unit_target / installed hours) * active operators, always rounded up to a whole number; 0 without installed minutes.
 @Component({
   selector: 'app-hourly-target-block',
   standalone: true,
@@ -8,7 +8,9 @@ import { Component, Input } from '@angular/core';
 })
 export class HourlyTargetBlock {
   @Input() units = 0;
-  @Input() producedMinutes = 0;
+  // Target units for the period and installed minutes (net worked time x employees).
+  @Input() unitTarget = 0;
+  @Input() installedMinutes = 0;
   // Active employees; operators is the fallback when it is 0 or missing.
   @Input() employees = 0;
   @Input() operators = 0;
@@ -16,7 +18,7 @@ export class HourlyTargetBlock {
   @Input() muted = false;
 
   get hasMinutes(): boolean {
-    return this.producedMinutes > 0;
+    return this.installedMinutes > 0;
   }
 
   get activeEmployees(): number {
@@ -25,6 +27,6 @@ export class HourlyTargetBlock {
 
   get hourlyTarget(): number {
     if (!this.hasMinutes) return 0;
-    return Math.round((this.units / (this.producedMinutes / 60)) * this.activeEmployees * 100) / 100;
+    return Math.ceil((this.unitTarget / (this.installedMinutes / 60)) * this.activeEmployees - 1e-9);
   }
 }

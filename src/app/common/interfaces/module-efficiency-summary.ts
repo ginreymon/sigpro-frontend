@@ -9,7 +9,7 @@ export interface ModuleEfficiencySummary {
   totalScrap: number;
   unitTarget: number;
   totalProduced: number;
-  producedMinutes: number;
+  installedMinutes: number;
   // Active employees; absent in range rows, so operatorCount is the fallback.
   employeesSnapshot?: number;
 }

@@ -31,7 +31,8 @@
     @if (!showQuantityBars) {
     <app-hourly-target-block
       [units]="summary.totalProduced"
-      [producedMinutes]="summary.producedMinutes"
+      [unitTarget]="summary.unitTarget"
+      [installedMinutes]="summary.installedMinutes"
       [employees]="summary.employeesSnapshot ?? 0"
       [operators]="summary.operatorCount">
     </app-hourly-target-block>

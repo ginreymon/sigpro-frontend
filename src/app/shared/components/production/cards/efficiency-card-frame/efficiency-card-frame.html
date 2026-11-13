@@ -24,9 +24,9 @@
       <span [class]="efficiencyClass()">{{ mod.efficiency.toFixed(2) }}%</span>
       <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
         <dt class="text-gray-400">Encomendados</dt>
-        <dd class="text-right font-medium text-gray-600">{{ mod.employees_snapshot ?? 0 }} / {{ mod.operator_count }}</dd>
+        <dd class="text-right font-medium text-gray-400">{{ mod.employees_snapshot ?? 0 }} / {{ mod.operator_count }}</dd>
         <dt class="text-gray-400">Inicio</dt>
-        <dd class="text-right font-medium text-gray-600">{{ (mod.started_at | date: 'dd/MM/yyyy HH:mm') || '—' }}</dd>
+        <dd class="text-right font-medium text-gray-400">{{ (mod.started_at | date: 'dd/MM/yyyy HH:mm') || '—' }}</dd>
       </dl>
     </div>
 
