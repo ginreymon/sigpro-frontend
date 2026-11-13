@@ -16,6 +16,8 @@ export class HourlyTargetBlock {
   @Input() operators = 0;
   // Greys the block out when the module is not active (live cards).
   @Input() muted = false;
+  // false (date-filtered range cards): only the total units are shown.
+  @Input() showTarget = true;
 
   get hasMinutes(): boolean {
     return this.installedMinutes > 0;

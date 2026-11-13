@@ -30,6 +30,7 @@
 
     @if (!showQuantityBars) {
     <app-hourly-target-block
+      [showTarget]="false"
       [units]="summary.totalProduced"
       [unitTarget]="summary.unitTarget"
       [installedMinutes]="summary.installedMinutes"
