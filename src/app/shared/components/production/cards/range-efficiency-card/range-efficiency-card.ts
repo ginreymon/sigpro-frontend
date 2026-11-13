@@ -16,9 +16,16 @@ export class RangeEfficiencyCard {
 
   @Input({ required: true }) summary!: ModuleEfficiencySummary;
   @Input() unitLabel = 'MÓDULO';
+  // 'compact' shows only name and efficiency, and the card is purely informative (no hover, no click).
+  @Input() displayMode: 'full' | 'compact' = 'full';
   @Output() cardClick = new EventEmitter<ModuleEfficiencySummary>();
 
+  get isCompact(): boolean {
+    return this.displayMode === 'compact';
+  }
+
   onClick(): void {
+    if (this.isCompact) return;
     this.cardClick.emit(this.summary);
   }
 
