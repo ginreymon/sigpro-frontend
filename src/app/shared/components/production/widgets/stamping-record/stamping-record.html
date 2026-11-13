@@ -84,7 +84,7 @@
 
     @if (!isOrderCompleted()) {
       @if (isLastTab) {
-        <app-ui-button class="shrink-0" [disabled]="!inWindow || checkingEfficiency()" (onClick)="register()">
+        <app-ui-button class="shrink-0" [disabled]="!inWindow || checkingEfficiency() || efficiencyBlocked" (onClick)="register()">
           {{ saveButtonLabel }}
         </app-ui-button>
       } @else {
