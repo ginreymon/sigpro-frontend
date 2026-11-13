@@ -11,6 +11,8 @@ import { ModuleProductivityService } from '../interfaces/module-productivity-ser
 import { ModuleEfficiencySummary } from '../interfaces/module-efficiency-summary';
 import { DateRangeValue } from '../../shared/components/form-controls/date-range-form/date-range-form';
 
+const STATUS_ORDER: Record<ModuleEfficiencyStatus['status'], number> = { ACTIVE: 0, PAUSED: 1, INACTIVE: 2, DISABLED: 3 };
+
 // Base compartida por ModulePanel y MachinePanel: mismo polling de "hoy",
 // mismas cards del rango consultado en el date-range-form. plantaModule()
 // queda abstracto porque cada panel arma la card PLANTA distinto (stamping
@@ -46,8 +48,9 @@ export abstract class ModuleRangePanelBase {
     return this.plantaModule().status === 'INACTIVE' ? mods.length : this.activeModuleCount();
   });
 
+  // Live view: summary card first, then modules ordered ACTIVE > PAUSED > INACTIVE > DISABLED (stable within a status).
   readonly allModules = computed<ModuleEfficiencyStatus[]>(() =>
-    this.modules().length ? [this.plantaModule(), ...this.modules()] : [],
+    this.modules().length ? [this.plantaModule(), ...[...this.modules()].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status])] : [],
   );
 
   // Cards informativas del rango consultado en el formulario de fecha: mismo
