@@ -55,15 +55,13 @@ export class Login extends BaseAuthComponent {
 
     this.isLoading.set(true);
     this.loaderService.showLoader();
-    this.auth.logout(false);
+    this.auth.logout(false, false);
     const loginData: LoginRequest = this.loginForm.value;
 
     this.auth.login(loginData)
     .pipe(finalize(() => { this.isLoading.set(false); this.loaderService.hideLoader(); }))
     .subscribe({
       next: (res) => {
-        this.auth.setAccessToken(res.access);
-        this.auth.setRefreshToken(res.refresh);       
         this.menu.loadMenu().subscribe({
           next: () => {
             this.router.navigateByUrl('/');

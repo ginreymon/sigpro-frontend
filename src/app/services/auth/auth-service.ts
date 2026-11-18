@@ -1,7 +1,16 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, tap, Observable, shareReplay, finalize } from 'rxjs';
+import {
+  BehaviorSubject,
+  tap,
+  Observable,
+  shareReplay,
+  finalize,
+  firstValueFrom,
+  catchError,
+  of,
+} from 'rxjs';
 import { LoginRequest } from '../../models/auth/login-request';
 import { ResetPwRequest } from '../../models/auth/reset-pw-request';
 import { ConfirmPwRequest } from '../../models/auth/confirm-pw-request';
@@ -14,9 +23,16 @@ import { MenuService } from '../core/menu-service';
   providedIn: 'root',
 })
 export class AuthService {
-  private path: string = `${environment.BASE_API_URL}/auth`;
+  // Read lazily: BASE_API_URL is resolved by an app initializer after this service may be created.
+  private get path(): string {
+    return `${environment.BASE_API_URL}/auth`;
+  }
 
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
+  // The access token lives only in memory. The refresh token is an HttpOnly cookie
+  // managed by the browser and the backend; JavaScript never reads it.
+  private accessToken: string | null = null;
+
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   private refreshInFlight$: Observable<any> | null = null;
 
@@ -27,20 +43,36 @@ export class AuthService {
   ) {}
 
   login(data: LoginRequest): Observable<any> {
-    return this.http.post(`${this.path}/login/`, data).pipe(
+    return this.http.post<any>(`${this.path}/login/`, data, { withCredentials: true }).pipe(
       tap((res) => {
-        if (res) {
+        if (res?.access) {
+          this.accessToken = res.access;
           this.isAuthenticatedSubject.next(true);
         }
       }),
     );
   }
 
-  logout(redirect = true) {
+  /**
+   * Clears the local session. `revokeServerSession` also asks the backend to delete the
+   * refresh cookie; skip it right before a login so the two requests cannot race.
+   */
+  logout(redirect = true, revokeServerSession = true) {
+    if (revokeServerSession) {
+      this.http
+        .post(`${this.path}/logout/`, {}, { withCredentials: true })
+        .subscribe({ error: () => {} });
+    }
+    this.accessToken = null;
     localStorage.clear();
     this.menuService.clearDynamicRoutes();
     this.isAuthenticatedSubject.next(false);
     if (redirect) this.router.navigateByUrl('/login');
+  }
+
+  /** App startup: recovers the in-memory access token from the refresh cookie. */
+  restoreSession(): Promise<void> {
+    return firstValueFrom(this.refreshToken().pipe(catchError(() => of(null)))).then(() => {});
   }
 
   passwordRequest(data: ResetPwRequest): Observable<any> {
@@ -57,14 +89,21 @@ export class AuthService {
 
   refreshToken(): Observable<any> {
     if (!this.refreshInFlight$) {
+      // DUAL MODE: a session created before the cookie existed still has its refresh token
+      // in localStorage; send it once so the backend can migrate it to the cookie.
+      const legacyRefresh = localStorage.getItem(environment.REFRESH_TOKEN_NAME);
+
       this.refreshInFlight$ = this.http
-        .post(`${this.path}/token/refresh/`, {
-          refresh: this.getRefreshToken(),
-        })
+        .post<any>(
+          `${this.path}/token/refresh/`,
+          legacyRefresh ? { refresh: legacyRefresh } : {},
+          { withCredentials: true, headers: this.csrfHeader() },
+        )
         .pipe(
-          tap((res: any) => {
-            this.setAccessToken(res.access);
-            if (res.refresh) this.setRefreshToken(res.refresh);
+          tap((res) => {
+            this.accessToken = res.access;
+            this.isAuthenticatedSubject.next(true);
+            this.clearLegacyTokens();
           }),
           shareReplay(1),
           finalize(() => (this.refreshInFlight$ = null)),
@@ -77,20 +116,8 @@ export class AuthService {
     return this.http.get(`${this.path}/has-access/`, { params: { optionId } });
   }
 
-  setAccessToken(token: string) {
-    localStorage.setItem(environment.ACCESS_TOKEN_NAME, token);
-  }
-
-  setRefreshToken(token: string) {
-    localStorage.setItem(environment.REFRESH_TOKEN_NAME, token);
-  }
-
-  getAccessToken() {
-    return localStorage.getItem(environment.ACCESS_TOKEN_NAME);
-  }
-
-  getRefreshToken() {
-    return localStorage.getItem(environment.REFRESH_TOKEN_NAME);
+  getAccessToken(): string | null {
+    return this.accessToken;
   }
 
   getUser() {
@@ -100,7 +127,14 @@ export class AuthService {
     return jwtDecode<any>(token);
   }
 
-  private hasToken(): boolean {
-    return !!this.getAccessToken();
+  // The backend sets the (non HttpOnly) csrftoken cookie; echo it in the header it validates.
+  private csrfHeader(): Record<string, string> {
+    const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return match ? { 'X-CSRFToken': decodeURIComponent(match[1]) } : {};
+  }
+
+  private clearLegacyTokens() {
+    localStorage.removeItem(environment.ACCESS_TOKEN_NAME);
+    localStorage.removeItem(environment.REFRESH_TOKEN_NAME);
   }
 }
