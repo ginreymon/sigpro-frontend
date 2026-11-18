@@ -71,13 +71,16 @@
 
     @for(item of rowObject.documents; track item.op_rowid){
 
-    <app-ui-accordion-item [expanded]="expandedDocumentIndexes().has($index)" (toggle)="toggleDocumentExpanded($index)">
+    <!-- Color only: the open OP is tinted brand so it reads as the one being edited. -->
+    <app-ui-accordion-item [class]="expandedDocumentIndexes().has($index) ? 'block rounded-lg bg-brand-50 transition-colors' : 'block transition-colors'"
+      [expanded]="expandedDocumentIndexes().has($index)" (toggle)="toggleDocumentExpanded($index)">
 
       <ng-container accordion-header>
         <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="item.erp_completed_operation" [class.bg-gray-300]="!item.erp_completed_operation"></span>
 
         <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium text-gray-700 truncate">{{ item.op_type }}  {{ item.op_number }}</p>
+          <p class="text-sm font-medium truncate" [class.text-gray-700]="!expandedDocumentIndexes().has($index)"
+            [class.text-brand-700]="expandedDocumentIndexes().has($index)">{{ item.op_type }}  {{ item.op_number }}</p>
           <p class="text-xs text-slate-500 truncate">Referencia : {{ item.reference || '—' }}</p>
         </div>
 
@@ -101,7 +104,8 @@
         <app-ui-badge [active]="selectedSkuIdsOf(item.op_rowid).length > 0" activeText="Por integrar" inactiveText="Sin seleccionar"></app-ui-badge>
       </ng-container>
 
-      <div accordion-body>
+      <!-- Inner boxes (ERP status, quantity, time and SKU matrix) stand out on the tint: white with a soft brand border. -->
+      <div accordion-body class="[&_section]:bg-white [&_section]:border-brand-200 [&_.overflow-x-auto]:bg-white [&_.overflow-x-auto]:border-brand-200">
         @if (expandedDocumentIndexes().has($index)) {
           @if (item.detail?.colorRows?.length) {
             <app-document-integration-matrix [document]="item" [selectedSkuIds]="selectedSkuIdsOf(item.op_rowid)" [submitted]="submitted() || hasInvalidSelection()"
