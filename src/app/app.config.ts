@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  inject,
   LOCALE_ID,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
@@ -9,6 +10,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './interceptors/auth-interceptor';
 import { routes } from './app.routes';
 import { resolveApiBaseUrl } from './services/core/api-base-url-initializer';
+import { AuthService } from './services/auth/auth-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,6 +19,13 @@ export const appConfig: ApplicationConfig = {
     // After the first navigation, download the user's own (menu-based) lazy pages in the
     // background so opening them later has no loading delay.
     provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideAppInitializer(async () => {
+      // Inject first (before any await); the base URL must be resolved before the first request.
+      const auth = inject(AuthService);
+      await resolveApiBaseUrl();
+      await auth.restoreSession();
+    }),
+    provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     { provide: LOCALE_ID, useValue: 'es-CO' },
   ],

@@ -13,6 +13,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const publicUrls = [
     '/token/refresh',
     '/auth/login',
+    '/auth/logout',
     '/auth/password-reset-request',
     '/auth/password-reset-confirm',
   ];
@@ -32,14 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        const refreshToken = auth.getRefreshToken();
-
-        if (!refreshToken) {
-          auth.logout();
-          router.navigateByUrl('/login');
-          return throwError(() => error);
-        }
-
+        // The refresh token is an HttpOnly cookie: the backend decides if it is still valid.
         return auth.refreshToken().pipe(
           switchMap((res: any) => {
             const newReq = req.clone({
