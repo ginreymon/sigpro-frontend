@@ -92,9 +92,13 @@ export class ProductionContextService {
       session: prefetched
         ? of(prefetched.value)
         : this.workSessionService.getActive(scopeParams).pipe(catchError(() => of(null))),
+      // Document types only feed the order searcher. When the OP comes defined (URL params) the
+      // searcher is hidden; if it appears later (e.g. "search another order") it loads them itself.
       docTypes: cached
         ? of(cached.docTypes)
-        : this.poService.getDocType().pipe(catchError(() => of([]))),
+        : docType && docNumber
+          ? of([])
+          : this.poService.getDocType().pipe(catchError(() => of([]))),
       workBreaks: cached
         ? of(cached.workBreaks)
         : loadWorkBreaks
