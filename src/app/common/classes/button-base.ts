@@ -6,6 +6,8 @@ export type ButtonBaseType ='hover' | 'cancel' | 'accept' | 'action' | 'black' |
 export abstract class ButtonBase {
   @Input() intent: ButtonBaseType = 'accept';
   @Input() disabled: boolean = false;
+  // Keeps the button look unchanged on mouse over; the button stays clickable.
+  @Input() noHover: boolean = false;
   @Input() classNames: string = '';
   @Input() type: string = 'button';
   @Input() formId: string | null = null;
@@ -28,7 +30,7 @@ export abstract class ButtonBase {
   get intents(): Record<string, string> {
     const result: Record<string, string> = {};
 
-    if (!this.disabled) return this._intents;
+    if (!this.disabled && !this.noHover) return this._intents;
 
     for (const key in this._intents) {
       result[key] = this._intents[key].replace(/\bhover:[^\s]+/g, '').trim();

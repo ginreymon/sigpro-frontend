@@ -6,9 +6,7 @@
             [searchPlaceholder]="'Ej: CF022, 40478 (n.º de OP) o texto del error'">
 
             <ng-template appTableTemplate="opsTemplate" let-row>
-                <span class="inline-block w-24 rounded-full bg-brand-100 py-1 text-center text-xs font-semibold text-brand-700">
-                    {{ row.details.length }} {{ row.details.length == 1 ? 'Orden' : 'Órdenes' }}
-                </span>
+                <app-ops-popover [heading]="siesaDocument(row)" [items]="opItems(row)"></app-ops-popover>
             </ng-template>
 
             <ng-template appTableTemplate="statusTemplate" let-row>
@@ -34,7 +32,7 @@
     </div>
 </app-work-space-layout>
 
-<app-side-modal-layout [hideCancel]="true" (onAccept)="closeModelForm()">
+<app-side-modal-layout [hideCancel]="true" [noHover]="true" (onAccept)="closeModelForm()">
 
     <div class="mb-4 flex items-center gap-3">
         
@@ -111,7 +109,9 @@
                     <p class="text-xs text-slate-500 truncate">Movimiento #{{ detail.record_number }} · Operación {{ detail.operation_number }}</p>
                 </div>
 
-                <app-ui-badge [active]="!!detail.operation_completed" activeText="Completa" inactiveText="Diferencia"></app-ui-badge>
+                @if (detail.operation_completed) {
+                <app-ui-badge [active]="true" activeText="Completa"></app-ui-badge>
+                }
             </ng-container>
 
             <div accordion-body class="bg-slate-50 rounded-lg p-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-slate-600">
@@ -122,13 +122,13 @@
                 <p> <strong>Tipo de tiempo:</strong> {{ detail.time_mode === 'real' ? 'Real' : detail.time_mode === 'standard' ? 'Estándar' : '—' }} </p>
                 <p> <strong>Seg./unidad enviados:</strong> {{ detail.sent_seconds_per_unit ?? '—' }} </p>
                 <p class="col-span-2"> <strong>Seg./unidad real:</strong> {{ detail.real_seconds_by_unit ?? '—' }} </p>
-                <p class="col-span-2"> <strong>Registros:</strong> {{ detail.register_ids.join(', ') || '—' }} </p>
-
-                @if (detail.origin_id === 1 && isExpanded('detail-' + $index)) {
-                <div class="col-span-2 mt-2">
-                    <app-op-sku-matrix-readonly [opType]="detail.op_document_type_id" [opNumber]="detail.op_document_number"></app-op-sku-matrix-readonly>
+                <div class="col-span-2">
+                    <app-ui-disclosure-triangle [expanded]="isExpanded('records-' + $index)" (expandedChange)="toggleExpanded('records-' + $index)"
+                        [disabled]="!detail.register_ids.length">
+                        <span disclosure-header class="text-sm"> <strong>Registros:</strong> {{ detail.register_ids.length }} </span>
+                        <p disclosure-body class="text-sm break-words"> {{ detail.register_ids.join(', ') }} </p>
+                    </app-ui-disclosure-triangle>
                 </div>
-                }
             </div>
 
         </app-ui-accordion-item>

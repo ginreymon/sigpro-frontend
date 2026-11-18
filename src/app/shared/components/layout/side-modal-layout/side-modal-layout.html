@@ -11,7 +11,7 @@
           {{ title | titlecase }}
         </h3>
 
-        <app-ui-close-button (onClose)="close()"></app-ui-close-button>
+        <app-ui-close-button [className]="noHover ? 'border-gray-300 text-gray-600' : null" (onClose)="close()"></app-ui-close-button>
       </div>
 
       <div class="flex-1 py-6 overflow-y-auto text-gray-600">
@@ -21,13 +21,13 @@
       <div class="border-t border-gray-200 pt-4 flex justify-end gap-3">
       
         @if(!hideCancel){
-        <app-ui-button intent="cancel" (onClick)="close()">
+        <app-ui-button intent="cancel" [noHover]="noHover" (onClick)="close()">
           {{ cancelLabel ?? 'Cancelar'}}
         </app-ui-button>
         }
       
         @if(!hideAccept){
-        <app-ui-button (onClick)="accept()">
+        <app-ui-button [noHover]="noHover" (onClick)="accept()">
           {{ acceptLabel ?? 'Aceptar'}}
         </app-ui-button>
         }

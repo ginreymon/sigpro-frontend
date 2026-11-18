@@ -15,7 +15,8 @@ import { TepSubmission, TepSubmissionStatus } from '../../../models/integration/
 import { TepSubmissionService } from '../../../services/integration/tep-submission-service';
 import { CharSquare } from '../../../shared/components/widgets/char-square/char-square';
 import { UiCopyText } from '../../../shared/elements/ui-copy-text/ui-copy-text';
-import { OpSkuMatrixReadonly } from '../../../shared/components/widgets/op-sku-matrix-readonly/op-sku-matrix-readonly';
+import { OpsPopover, OpsPopoverItem } from '../../../shared/components/widgets/ops-popover/ops-popover';
+import { UiDisclosureTriangle } from '../../../shared/elements/ui-disclosure-triangle/ui-disclosure-triangle';
 
 const STATUS_INTENT: Record<TepSubmissionStatus, BadgeIntent> = {
   pending: 'warning',
@@ -30,7 +31,7 @@ const ORIGIN_LABEL: Record<number, string> = {
 
 @Component({
   selector: 'app-siesa-outbound',
-  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, UiAccordionItem, TableTemplate, DatePipe, DecimalPipe, CharSquare, UiCopyText, OpSkuMatrixReadonly],
+  imports: [WorkSpaceLayout, DataTable, Metadata, SideModalLayout, UiBadge, UiAccordionItem, TableTemplate, DatePipe, DecimalPipe, CharSquare, UiCopyText, OpsPopover, UiDisclosureTriangle],
   templateUrl: './siesa-outbound.html',
 })
 export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
@@ -40,7 +41,7 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
   // crear/editar/eliminar desde la UI.
   protected override get actions(): TableActions {
     return {
-      view: { enabled: true, title: 'Detalle del envío', iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: true, title: 'Detalle del documento', iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: false },
       delete: { enabled: false },
       create: { enabled: false },
@@ -62,12 +63,13 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
 
   protected override get columns(): TableColumn<TepSubmission>[] {
     return [
+      // `field` makes it the primary (leftmost) column of the compact table layout.
+      { field: 'document_number', type: 'template', label: 'Documentos', templateName: 'siesaDocumentTemplate', filterValue: (r) => this.siesaDocument(r) },
       { type: 'template', label: 'Fecha', templateName: 'createdAtTemplate', filterValue: (r) => this.datePipe.transform(r.created_at, 'dd/MM/yyyy HH:mm') },
       { field: 'status_display', type: 'template', label: 'Estado', templateName: 'statusTemplate' },
-      { type: 'template', label: 'Número Doc.', templateName: 'siesaDocumentTemplate', filterValue: (r) => this.siesaDocument(r) },
       { field: 'work_center_id', label: 'Centro de trabajo', align: 'center' },
       { type: 'template', label: 'Respuesta', templateName: 'responseTemplate', filterValue: (r) => this.responseSummary(r) },
-      { type: 'template', label: 'Documentos', templateName: 'opsTemplate', align: 'center' },
+      { type: 'template', label: 'Órdenes', templateName: 'opsTemplate', align: 'center' },
     ];
   }
 
@@ -96,6 +98,24 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
   protected siesaDocument(submission: Partial<Pick<TepSubmission, 'document_type_id' | 'document_number'>>): string {
     const { document_type_id: type, document_number: number } = submission;
     return type && number ? `${type}-${String(number).padStart(8, '0')}` : '—';
+  }
+
+  // OPs of a submission for the shared OPs popover (one entry per OP, a movement list can repeat it);
+  // cached per row so the bound input keeps its reference.
+  private readonly opItemsByRow = new WeakMap<TepSubmission, OpsPopoverItem[]>();
+
+  protected opItems(submission: TepSubmission): OpsPopoverItem[] {
+    let items = this.opItemsByRow.get(submission);
+    if (!items) {
+      const byOp = new Map<string, OpsPopoverItem>();
+      for (const detail of submission.details) {
+        const title = `${detail.op_document_type_id} ${detail.op_document_number}`;
+        if (!byOp.has(title)) byOp.set(title, { key: title, title });
+      }
+      items = [...byOp.values()];
+      this.opItemsByRow.set(submission, items);
+    }
+    return items;
   }
 
   protected statusIntent(status: TepSubmissionStatus): BadgeIntent {

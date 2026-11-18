@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, LOCALE_ID, signal } from '@angular/core';
+import { Component, inject, LOCALE_ID, signal } from '@angular/core';
 import { formatDate, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
@@ -17,6 +17,7 @@ import { DocumentIntegrationMatrix } from './options/production/document-integra
 import { DocumentIntegrationStamping } from './options/stamping/document-integration-stamping/document-integration-stamping';
 import { SelectionSummary } from './components/integration-time-inputs/integration-time-inputs';
 import { UiLabelButton } from '../../../elements/ui-label-button/ui-label-button';
+import { OpsPopover, OpsPopoverItem } from '../../../components/widgets/ops-popover/ops-popover';
 import { UiOriginBadge } from '../../../elements/ui-origin-badge/ui-origin-badge';
 import { TableTemplate } from '../../../../directives/table-template';
 import { OrderByWorkCenter, WorkCenterDocument } from '../../../../models/integration/order-by-work-center';
@@ -50,6 +51,7 @@ const NO_SELECTION: number[] = [];
     DocumentIntegrationMatrix,
     DocumentIntegrationStamping,
     UiLabelButton,
+    OpsPopover,
     UiOriginBadge,
     UiIcon,
     UiAlert,
@@ -151,45 +153,20 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
       });
   }
 
-  // Work center whose OPs mini-card is open, with the viewport position of its arrow.
-  // The card sits below the arrow, or above it when there is more room there; `maxHeight` keeps it
-  // inside the viewport on any screen size.
-  protected readonly opsCard = signal<{
-    row: OrderByWorkCenter;
-    left: number;
-    width: number;
-    maxHeight: number;
-    top?: number;
-    bottom?: number;
-  } | null>(null);
+  // OPs of a work center for the shared OPs popover; cached per row so the bound input keeps its reference.
+  private readonly opItemsByRow = new WeakMap<OrderByWorkCenter, OpsPopoverItem[]>();
 
-  protected toggleOpsCard(row: OrderByWorkCenter, event: Event): void {
-    event.stopPropagation();
-    if (this.opsCard()?.row === row) {
-      this.closeOpsCard();
-      return;
+  protected opItems(row: OrderByWorkCenter): OpsPopoverItem[] {
+    let items = this.opItemsByRow.get(row);
+    if (!items) {
+      items = (row.documents ?? []).map((doc) => ({
+        key: doc.op_rowid,
+        title: `${doc.op_type} ${doc.op_number}`,
+        subtitle: `Referencia: ${doc.reference || '—'}`,
+      }));
+      this.opItemsByRow.set(row, items);
     }
-    const margin = 8;
-    const gap = 4;
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const width = Math.min(288, window.innerWidth - margin * 2);
-    const left = Math.max(margin, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - margin));
-    const spaceBelow = window.innerHeight - rect.bottom - gap - margin;
-    const spaceAbove = rect.top - gap - margin;
-    const below = spaceBelow >= 200 || spaceBelow >= spaceAbove;
-    const maxHeight = Math.min(320, below ? spaceBelow : spaceAbove);
-    this.opsCard.set(
-      below
-        ? { row, left, width, maxHeight, top: rect.bottom + gap }
-        : { row, left, width, maxHeight, bottom: window.innerHeight - rect.top + gap },
-    );
-  }
-
-  // Position is computed from the viewport when opening, so it is stale after a resize.
-  @HostListener('window:resize')
-  @HostListener('document:keydown.escape')
-  protected closeOpsCard(): void {
-    this.opsCard.set(null);
+    return items;
   }
 
   protected expandedDocumentIndexes = signal<Set<number>>(new Set());

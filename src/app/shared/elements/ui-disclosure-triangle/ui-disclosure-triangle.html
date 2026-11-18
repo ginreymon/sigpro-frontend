@@ -1,0 +1,19 @@
+<div>
+
+  <button type="button" (click)="toggle()" [disabled]="disabled()" [attr.aria-expanded]="expanded()"
+    class="w-full flex items-center gap-2 py-1 text-left cursor-pointer disabled:cursor-not-allowed">
+
+    <app-ui-icon [iconName]="'chevronRight'"
+      [class]="'h-4 w-4 text-gray-400 shrink-0 transition-transform ' + (expanded() ? 'rotate-90' : '')"></app-ui-icon>
+
+    <ng-content select="[disclosure-header]"></ng-content>
+
+  </button>
+
+  @if (expanded()) {
+  <div class="pl-6 pb-1">
+    <ng-content select="[disclosure-body]"></ng-content>
+  </div>
+  }
+
+</div>
