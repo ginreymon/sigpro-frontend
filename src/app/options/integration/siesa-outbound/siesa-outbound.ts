@@ -15,6 +15,7 @@ import { TepSubmission, TepSubmissionStatus } from '../../../models/integration/
 import { TepSubmissionService } from '../../../services/integration/tep-submission-service';
 import { CharSquare } from '../../../shared/components/widgets/char-square/char-square';
 import { UiCopyText } from '../../../shared/elements/ui-copy-text/ui-copy-text';
+import { formatDecimalHours } from '../../../common/functions/tep-time';
 import { OpsPopover, OpsPopoverItem } from '../../../shared/components/widgets/ops-popover/ops-popover';
 import { UiDisclosureTriangle } from '../../../shared/elements/ui-disclosure-triangle/ui-disclosure-triangle';
 
@@ -107,12 +108,13 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
   protected opItems(submission: TepSubmission): OpsPopoverItem[] {
     let items = this.opItemsByRow.get(submission);
     if (!items) {
-      const byOp = new Map<string, OpsPopoverItem>();
+      // Time sent per OP: the sum of the hours of all its movements.
+      const hoursByOp = new Map<string, number>();
       for (const detail of submission.details) {
         const title = `${detail.op_document_type_id} ${detail.op_document_number}`;
-        if (!byOp.has(title)) byOp.set(title, { key: title, title });
+        hoursByOp.set(title, (hoursByOp.get(title) ?? 0) + Number(detail.hours));
       }
-      items = [...byOp.values()];
+      items = [...hoursByOp].map(([title, hours]) => ({ key: title, title, time: formatDecimalHours(hours) }));
       this.opItemsByRow.set(submission, items);
     }
     return items;

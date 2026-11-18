@@ -115,7 +115,7 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
     }
     this.dialogService.openConfirm(
       'Integrar',
-      'Al realizar esta acción ya no se podrá revertir. ¿Desea continuar con la integración?',
+      'Al realizar esta acción ya no se podrá revertir. ¿Desea continuar con la integración (TP)?',
       'Integrar',
       () => this.sendTep(),
     );

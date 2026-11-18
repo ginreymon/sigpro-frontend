@@ -31,6 +31,13 @@ export function realTimeMinutes(units: number, op: { seconds_by_unit?: number | 
   return Math.round((units * Number(op.seconds_by_unit ?? 0)) / 60);
 }
 
+// Decimal hours (as the API stores the time sent in a TEP) as "HH:MM".
+export function formatDecimalHours(hours: number | string): string {
+  const totalMinutes = Math.round(Number(hours) * 60);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(Math.floor(totalMinutes / 60))}:${pad(totalMinutes % 60)}`;
+}
+
 function secondsToTepTime(seconds: number): TepTime {
   const totalMinutes = Math.round(seconds / 60);
   return { hours: Math.floor(totalMinutes / 60), minutes: totalMinutes % 60 };

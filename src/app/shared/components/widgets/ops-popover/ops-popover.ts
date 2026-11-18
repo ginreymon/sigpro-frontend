@@ -6,6 +6,8 @@ export interface OpsPopoverItem {
   key: string | number;
   title: string;
   subtitle?: string | null;
+  // Time sent for the OP, already formatted (e.g. "01:30"); shown at the right of the title when present.
+  time?: string;
 }
 
 interface OpsPopoverPosition {
