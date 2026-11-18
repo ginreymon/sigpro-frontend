@@ -11,6 +11,9 @@ registerLocaleData(localeEsCO);
 // Longest the boot loader waits for the first page and the fonts before showing the app anyway.
 const BOOT_TIMEOUT_MS = 8000;
 
+// Minimum time the boot loader stays visible, measured from page navigation start (one full animation cycle).
+const MIN_BOOT_MS = 3000;
+
 // Hide the boot loader only when the app is rendered, its first (lazy) page is loaded and the fonts are ready,
 // so the user never sees an empty screen or text that changes font.
 function revealApp(): void {
@@ -29,6 +32,8 @@ bootstrapApplication(App, appConfig)
     const fonts = Promise.all([document.fonts.load('400 1em "Hanken Grotesk"'), document.fonts.load('600 1em "Hanken Grotesk"')]);
     const timeout = new Promise<void>((resolve) => setTimeout(resolve, BOOT_TIMEOUT_MS));
     await Promise.race([Promise.all([firstPage, fonts]), timeout]);
+    // Only the remainder is waited, so slow loads get no extra delay.
+    await new Promise<void>((resolve) => setTimeout(resolve, Math.max(0, MIN_BOOT_MS - performance.now())));
   })
   .catch((err) => console.error(err))
   .finally(revealApp);
