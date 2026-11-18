@@ -34,31 +34,102 @@
       justify-content: center;
       height: 100vh;
       background: #f3f4f6;
-      gap: 16px;
     }
-    #app-boot-loader .spinner {
-      width: 80px;
-      height: 80px;
-      border: 6px solid #e5e7eb;
-      border-top-color: #180393;
-      border-radius: 50%;
-      animation: boot-spin 0.75s linear infinite;
+    #app-boot-loader .tiles {
+      --s: clamp(36px, 11vw, 64px);
+      display: flex;
+      gap: calc(var(--s) * 0.14);
     }
-    #app-boot-loader .label {
+    #app-boot-loader .tile {
+      width: var(--s);
+      height: var(--s);
+      border-radius: 14%;
+      background: #180393;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: 'Hanken Grotesk', sans-serif;
-      font-size: 26px;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      color: #9ca3af;
-      text-transform: uppercase;
+      font-weight: 700;
+      font-size: calc(var(--s) * 0.78);
+      line-height: 1;
+      opacity: 0;
+      will-change: transform, opacity;
+      animation: 3s linear infinite;
     }
-    @keyframes boot-spin {
-      to { transform: rotate(360deg); }
+    #app-boot-loader .tile:nth-child(1) { animation-name: boot-tile-0; }
+    #app-boot-loader .tile:nth-child(2) { animation-name: boot-tile-1; }
+    #app-boot-loader .tile:nth-child(3) { animation-name: boot-tile-2; }
+    #app-boot-loader .tile:nth-child(4) { animation-name: boot-tile-3; }
+    #app-boot-loader .tile:nth-child(5) { animation-name: boot-tile-4; }
+    #app-boot-loader .tile:nth-child(6) { animation-name: boot-tile-5; }
+    @keyframes boot-tile-0 {
+      0%, 0% { transform: translateY(-70vh); opacity: 0; animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      0.33% { opacity: 1; }
+      10% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      14% { transform: translateY(-14px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      18% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      20% { transform: translateY(-4px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      22%, 85% { transform: translateY(0); opacity: 1; }
+      93.33%, 100% { transform: translateY(0); opacity: 0; }
     }
+    @keyframes boot-tile-1 {
+      0%, 8.67% { transform: translateY(-70vh); opacity: 0; animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      9% { opacity: 1; }
+      18.67% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      22.67% { transform: translateY(-14px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      26.67% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      28.67% { transform: translateY(-4px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      30.67%, 85% { transform: translateY(0); opacity: 1; }
+      93.33%, 100% { transform: translateY(0); opacity: 0; }
+    }
+    @keyframes boot-tile-2 {
+      0%, 17.33% { transform: translateY(-70vh); opacity: 0; animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      17.67% { opacity: 1; }
+      27.33% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      31.33% { transform: translateY(-14px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      35.33% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      37.33% { transform: translateY(-4px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      39.33%, 85% { transform: translateY(0); opacity: 1; }
+      93.33%, 100% { transform: translateY(0); opacity: 0; }
+    }
+    @keyframes boot-tile-3 {
+      0%, 26% { transform: translateY(-70vh); opacity: 0; animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      26.33% { opacity: 1; }
+      36% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      40% { transform: translateY(-14px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      44% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      46% { transform: translateY(-4px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      48%, 85% { transform: translateY(0); opacity: 1; }
+      93.33%, 100% { transform: translateY(0); opacity: 0; }
+    }
+    @keyframes boot-tile-4 {
+      0%, 34.67% { transform: translateY(-70vh); opacity: 0; animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      35% { opacity: 1; }
+      44.67% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      48.67% { transform: translateY(-14px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      52.67% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      54.67% { transform: translateY(-4px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      56.67%, 85% { transform: translateY(0); opacity: 1; }
+      93.33%, 100% { transform: translateY(0); opacity: 0; }
+    }
+    @keyframes boot-tile-5 {
+      0%, 43.33% { transform: translateY(-70vh); opacity: 0; animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      43.67% { opacity: 1; }
+      53.33% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      57.33% { transform: translateY(-14px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      61.33% { transform: translateY(0); animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+      63.33% { transform: translateY(-4px); animation-timing-function: cubic-bezier(.55,0,1,.45); }
+      65.33%, 85% { transform: translateY(0); opacity: 1; }
+      93.33%, 100% { transform: translateY(0); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #app-boot-loader .tile { animation: none; opacity: 1; will-change: auto; }
+    }
+
   </style>
   <div id="app-boot-loader">
-    <div class="spinner"></div>
-    <span class="label">SIGPRO</span>
+    <div class="tiles" aria-label="SIGPRO"><span class="tile">S</span><span class="tile">I</span><span class="tile">G</span><span class="tile">P</span><span class="tile">R</span><span class="tile">O</span></div>
   </div>
   <app-root></app-root>
 </body>
