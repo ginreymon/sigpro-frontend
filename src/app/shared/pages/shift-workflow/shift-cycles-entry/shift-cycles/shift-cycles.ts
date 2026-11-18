@@ -310,12 +310,11 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
     this.loaderService.showLoader();
     this.productionRecordService.create(payload)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: () => {
           this.shiftModals.openShiftHourlyRecord();
           this.qms.close();
-          this.refreshAfterSave();
+          this.refreshAfterSave(() => this.loaderService.hideLoader());
           const parts: string[] = [];
           if (payload.completed_quantity) parts.push(`Completadas: ${payload.completed_quantity}`);
           if (payload.rejected_quantity) parts.push(`Saldos: ${payload.rejected_quantity}`);
@@ -323,6 +322,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
           this.dialogService.openToast('Cantidades guardadas', parts.join(' · '), 'check');
         },
         error: () => {
+          this.loaderService.hideLoader();
           this.dialogService.openToast('No se pudo guardar', 'Error al guardar el registro.', 'fail');
         },
       });
@@ -336,14 +336,14 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
     this.loaderService.showLoader();
     this.stampingRecordService.create(payload)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: () => {
           this.shiftModals.closeStampingRecord();
-          this.refreshAfterSave();
+          this.refreshAfterSave(() => this.loaderService.hideLoader());
           this.dialogService.openToast('Registro guardado', `Completadas: ${payload.completed_quantity}`, 'check');
         },
         error: (err) => {
+          this.loaderService.hideLoader();
           const message = apiNonFieldErrors(err)[0] ?? 'Error al guardar el registro.';
           this.dialogService.openToast('No se pudo guardar', message, 'fail');
         },
@@ -360,11 +360,10 @@ export class ShiftCycles extends BaseProductionOrderPage {
 
     this.loaderService.showLoader();
     this.productionRecordService.patch(id, payload)
-      .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: () => {
           this.shiftModals.openShiftHourlyRecord();
-          this.refreshAfterSave();
+          this.refreshAfterSave(() => this.loaderService.hideLoader());
           this.shiftModals.reloadBalance();
           this.qms.close();
           const parts: string[] = [];
@@ -374,6 +373,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
           this.dialogService.openToast('Registro actualizado', parts.join(' · '), 'check');
         },
         error: () => {
+          this.loaderService.hideLoader();
           this.dialogService.openToast('No se pudo actualizar', 'Error al guardar el registro.', 'fail');
         },
       });

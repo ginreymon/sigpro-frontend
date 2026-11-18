@@ -1,7 +1,7 @@
 import { Directive, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { finalize, Observable } from 'rxjs';
+import { finalize, forkJoin, Observable } from 'rxjs';
 import { WorkSpaceLoaderService } from '../../services/common/work-space-loader-service';
 import { LoaderService } from '../../services/common/loader-service';
 import { ProductionContextService } from '../../services/production/production-context-service';
@@ -101,23 +101,41 @@ export abstract class BaseProductionOrderPage implements OnInit {
 
   private refreshingAfterSave = false;
 
-  // Silent refresh after a record is saved: re-fetches only the order and the shift summary and
-  // updates them in place. The page is not rebuilt, so no skeleton and no loader overlay.
-  refreshAfterSave(): void {
+  private refreshDoneCallbacks: Array<() => void> = [];
+
+  // Refresh after a record is saved: re-fetches only the order and the shift summary and updates
+  // them in place (no skeleton, page not rebuilt). `onDone` runs once both have finished and the
+  // components are updated, whether they succeeded or not (used to hide the loader).
+  refreshAfterSave(onDone?: () => void): void {
+    if (onDone) this.refreshDoneCallbacks.push(onDone);
     const current = this.productionOrder();
     if (!current) {
+      // No OP in memory: the full reload runs its own loader, so pending callbacks are dropped.
+      this.refreshDoneCallbacks = [];
       this.reloadOrder();
       return;
     }
     if (this.refreshingAfterSave) return;
     this.refreshingAfterSave = true;
-    this.contextService.requestSummaryRefresh();
-    this.contextService
-      .fetchOrder(current.documentType, current.documentNumber, this.currentSession(), this.orderLoader)
-      .pipe(finalize(() => (this.refreshingAfterSave = false)))
-      .subscribe((order) => {
+    forkJoin({
+      order: this.contextService.fetchOrder(current.documentType, current.documentNumber, this.currentSession(), this.orderLoader),
+      summary: this.contextService.requestSummaryRefresh(),
+    })
+      .pipe(
+        finalize(() => {
+          this.refreshingAfterSave = false;
+          this.flushRefreshCallbacks();
+        }),
+      )
+      .subscribe(({ order }) => {
         if (order) this.setDocument(order);
       });
+  }
+
+  private flushRefreshCallbacks(): void {
+    const callbacks = this.refreshDoneCallbacks;
+    this.refreshDoneCallbacks = [];
+    callbacks.forEach((cb) => cb());
   }
 
   protected beforeLoad(): void {}

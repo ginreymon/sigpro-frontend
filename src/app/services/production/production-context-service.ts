@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { BehaviorSubject, catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, forkJoin, map, Observable, of, Subject, switchMap, take, tap, timeout } from 'rxjs';
 import { ProductionContext } from '../../models/production/production-context';
 import { ProductionOrder } from '../../models/production/production-order';
 import { EfficiencyPeriod } from '../../models/production/efficiency-period';
@@ -41,9 +41,18 @@ export class ProductionContextService {
 
   // Bumped after a record is saved: summary cards watching it refresh their numbers in place.
   readonly summaryRefresh = signal(0);
+  private summaryRefreshed$ = new Subject<void>();
 
-  requestSummaryRefresh(): void {
+  // Asks the summary cards to refresh; the returned observable completes when they have finished
+  // (the timeout keeps a page without a mounted card from waiting forever).
+  requestSummaryRefresh(): Observable<void> {
+    const done$ = this.summaryRefreshed$.pipe(take(1), timeout({ first: 15000, with: () => of(undefined) }));
     this.summaryRefresh.update((n) => n + 1);
+    return done$;
+  }
+
+  notifySummaryRefreshed(): void {
+    this.summaryRefreshed$.next();
   }
 
   // Resolves one order with the page's own loader (or the generic production-orders/detail).

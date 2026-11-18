@@ -51,6 +51,7 @@ export class WorkShiftSummary implements OnInit {
   }
 
   private activeSession: WorkSession | null = null;
+  private refreshRequested = false;
 
   constructor() {
     // Refresh the numbers in place after a record is saved (the first run is the initial value).
@@ -62,7 +63,12 @@ export class WorkShiftSummary implements OnInit {
         return;
       }
       const s = this.activeSession;
-      if (s && this.configLoaded) untracked(() => this.loadProductivityCards(s));
+      if (s && this.configLoaded) {
+        this.refreshRequested = true;
+        untracked(() => this.loadProductivityCards(s));
+      } else {
+        this.contextService.notifySummaryRefreshed();
+      }
     });
   }
 
@@ -112,7 +118,14 @@ export class WorkShiftSummary implements OnInit {
   protected loadProductivityCards(s: WorkSession): void {
     const moduleId = s.current_module?.id;
 
-    this.getModuleSummary().pipe(finalize(() => this.summaryLoading.set(false))).subscribe({
+    this.getModuleSummary().pipe(finalize(() => {
+      this.summaryLoading.set(false);
+      // Tell the page that a requested refresh has finished (the cards are already updated).
+      if (this.refreshRequested) {
+        this.refreshRequested = false;
+        this.contextService.notifySummaryRefreshed();
+      }
+    })).subscribe({
       next: (rows) => {
         const row = rows.find(r => r.module_id === moduleId);
         const summary: EfficiencyPeriod = {
