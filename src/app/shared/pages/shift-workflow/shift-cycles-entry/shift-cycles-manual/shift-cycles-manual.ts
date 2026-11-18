@@ -169,7 +169,7 @@ export class ShiftCyclesManual extends ShiftCycles {
         next: () => {
           store.clear();
           visible.set(false);
-          this.reloadOrder();
+          this.refreshAfterSave();
           this.manualBatchDialogService.openToast(
             'Registros guardados',
             `${records.length} registro(s) · horario ${schedule.start_time}-${schedule.end_time}`,

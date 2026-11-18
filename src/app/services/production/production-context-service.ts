@@ -39,6 +39,29 @@ export class ProductionContextService {
     this.prefetchedSession = { value: session };
   }
 
+  // Bumped after a record is saved: summary cards watching it refresh their numbers in place.
+  readonly summaryRefresh = signal(0);
+
+  requestSummaryRefresh(): void {
+    this.summaryRefresh.update((n) => n + 1);
+  }
+
+  // Resolves one order with the page's own loader (or the generic production-orders/detail).
+  fetchOrder(
+    docType: string,
+    docNumber: number,
+    session: ProductionContext['session'],
+    orderLoader?: (docType: string, docNumber: number, session: ProductionContext['session']) => Observable<ProductionOrder | null>,
+  ): Observable<ProductionOrder | null> {
+    return (
+      orderLoader
+        ? orderLoader(docType, docNumber, session)
+        : this.poService.getOrder({ documentType: docType, documentNumber: docNumber }, true).pipe(
+            map((order) => order as ProductionOrder),
+          )
+    ).pipe(catchError(() => of(null)));
+  }
+
   get snapshot(): ProductionContext | null {
     return this._context$.value;
   }
@@ -98,15 +121,7 @@ export class ProductionContextService {
         const type = docType ?? record?.op_type;
         const number = docNumber ?? record?.op_number;
 
-        const order$ = type && number
-          ? (
-              orderLoader
-                ? orderLoader(type, number, session)
-                : this.poService.getOrder({ documentType: type, documentNumber: number }, true).pipe(
-                    map(order => order as ProductionOrder),
-                  )
-            ).pipe(catchError(() => of(null)))
-          : of(null);
+        const order$ = type && number ? this.fetchOrder(type, number, session, orderLoader) : of(null);
 
         return order$.pipe(
           map(order => ({ session, docTypes, workBreaks, employees, workShifts, modules, order }))

@@ -99,6 +99,27 @@ export abstract class BaseProductionOrderPage implements OnInit {
     this.loadContext(current?.documentType, current?.documentNumber, true);
   }
 
+  private refreshingAfterSave = false;
+
+  // Silent refresh after a record is saved: re-fetches only the order and the shift summary and
+  // updates them in place. The page is not rebuilt, so no skeleton and no loader overlay.
+  refreshAfterSave(): void {
+    const current = this.productionOrder();
+    if (!current) {
+      this.reloadOrder();
+      return;
+    }
+    if (this.refreshingAfterSave) return;
+    this.refreshingAfterSave = true;
+    this.contextService.requestSummaryRefresh();
+    this.contextService
+      .fetchOrder(current.documentType, current.documentNumber, this.currentSession(), this.orderLoader)
+      .pipe(finalize(() => (this.refreshingAfterSave = false)))
+      .subscribe((order) => {
+        if (order) this.setDocument(order);
+      });
+  }
+
   protected beforeLoad(): void {}
   protected onContextLoaded(context: ProductionContext): void {}
   protected onContextError(): void {}

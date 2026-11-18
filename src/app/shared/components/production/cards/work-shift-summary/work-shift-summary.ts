@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, effect, ElementRef, HostListener, inject, Input, OnInit, signal, untracked } from '@angular/core';
 import { finalize, Observable } from 'rxjs';
 import { WorkShiftCard } from '../../../../../common/interfaces/work-shift-card';
 import { shiftTimeToUtcIso } from '../../../../../common/functions/date-utils';
@@ -50,6 +50,22 @@ export class WorkShiftSummary implements OnInit {
     this.employeesDropdownOpen.set(false);
   }
 
+  private activeSession: WorkSession | null = null;
+
+  constructor() {
+    // Refresh the numbers in place after a record is saved (the first run is the initial value).
+    let first = true;
+    effect(() => {
+      this.contextService.summaryRefresh();
+      if (first) {
+        first = false;
+        return;
+      }
+      const s = this.activeSession;
+      if (s && this.configLoaded) untracked(() => this.loadProductivityCards(s));
+    });
+  }
+
   ngOnInit(): void {
     this.appConfig.load().subscribe(() => {
       this.configLoaded = true;
@@ -62,6 +78,7 @@ export class WorkShiftSummary implements OnInit {
 
   @Input()
   set session(s: WorkSession | null) {
+    this.activeSession = s;
     if (!s) {
       this.cards.set([]);
       return;

@@ -315,7 +315,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
         next: () => {
           this.shiftModals.openShiftHourlyRecord();
           this.qms.close();
-          this.reloadOrder();
+          this.refreshAfterSave();
           const parts: string[] = [];
           if (payload.completed_quantity) parts.push(`Completadas: ${payload.completed_quantity}`);
           if (payload.rejected_quantity) parts.push(`Saldos: ${payload.rejected_quantity}`);
@@ -340,7 +340,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
       .subscribe({
         next: () => {
           this.shiftModals.closeStampingRecord();
-          this.reloadOrder();
+          this.refreshAfterSave();
           this.dialogService.openToast('Registro guardado', `Completadas: ${payload.completed_quantity}`, 'check');
         },
         error: (err) => {
@@ -364,7 +364,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
       .subscribe({
         next: () => {
           this.shiftModals.openShiftHourlyRecord();
-          this.reloadOrder();
+          this.refreshAfterSave();
           this.shiftModals.reloadBalance();
           this.qms.close();
           const parts: string[] = [];
