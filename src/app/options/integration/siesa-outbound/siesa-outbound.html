@@ -124,7 +124,7 @@
                 <p class="col-span-2"> <strong>Seg./unidad real:</strong> {{ detail.real_seconds_by_unit ?? '—' }} </p>
                 <p class="col-span-2"> <strong>Registros:</strong> {{ detail.register_ids.join(', ') || '—' }} </p>
 
-                @if (detail.origin_id === 1) {
+                @if (detail.origin_id === 1 && isExpanded('detail-' + $index)) {
                 <div class="col-span-2 mt-2">
                     <app-op-sku-matrix-readonly [opType]="detail.op_document_type_id" [opNumber]="detail.op_document_number"></app-op-sku-matrix-readonly>
                 </div>

@@ -105,8 +105,9 @@ export class AuthService {
             this.isAuthenticatedSubject.next(true);
             this.clearLegacyTokens();
           }),
-          shareReplay(1),
+          // finalize before shareReplay: reset only when the HTTP call ends, not when one subscriber leaves.
           finalize(() => (this.refreshInFlight$ = null)),
+          shareReplay(1),
         );
     }
     return this.refreshInFlight$;

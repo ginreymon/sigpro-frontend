@@ -134,12 +134,14 @@ export class SewingSAM extends AdminOnlyCrudPage<SkuItemReference> {
       ? this.referenceSamService.patch(this.rowObject.sam_id!, { sam: this.modelForm.value.sam })
       : this.referenceSamService.create({ rowid_item: this.rowObject.rowid_item!, sam: this.modelForm.value.sam });
 
-    request$.pipe(finalize(() => this.reload(() => this.loaderService.hideLoader()))).subscribe({
+    request$.subscribe({
       next: () => {
         this.closeModelForm();
         this.dialogService.openToast('Proceso exitoso', `SAM ${isUpdate ? 'actualizado' : 'asignado'} correctamente.`, 'check');
+        this.reload(() => this.loaderService.hideLoader());
       },
       error: () => {
+        this.loaderService.hideLoader();
         this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
       },
     });

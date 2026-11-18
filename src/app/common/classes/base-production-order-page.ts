@@ -41,12 +41,13 @@ export abstract class BaseProductionOrderPage implements OnInit {
     });
   }
 
-  protected loadContext(docType?: string, docNumber?: number): void {
+  protected loadContext(docType?: string, docNumber?: number, reuseCatalogs = false): void {
     this.isLoading.set(true);
     this.wslService.start();
     this.loaderService.showLoader();
     this.contextService
-      .load(docType, docNumber, this.loadExtras, this.loadExtras, this.loadExtras, this.loadExtras, this.orderLoader)
+      // work-shifts and modules are never read from the context by these pages, so they are not requested.
+      .load(docType, docNumber, this.loadExtras, this.loadExtras, false, false, this.orderLoader, reuseCatalogs)
       .pipe(finalize(() => {
         this.isLoading.set(false);
         this.wslService.end();
@@ -94,7 +95,8 @@ export abstract class BaseProductionOrderPage implements OnInit {
     const current = this.productionOrder();
     this.productionOrder.set(null);
     this.beforeLoad();
-    this.loadContext(current?.documentType, current?.documentNumber);
+    // Catalogs do not change when a record is saved: refresh only the session and the order.
+    this.loadContext(current?.documentType, current?.documentNumber, true);
   }
 
   protected beforeLoad(): void {}

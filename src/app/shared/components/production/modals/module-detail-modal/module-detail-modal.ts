@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild, inject, signal, computed } from '@angular/core';
-import { Observable, finalize, switchMap } from 'rxjs';
+import { Observable, Subscription, finalize, switchMap } from 'rxjs';
 import { DecimalPipe, DatePipe, formatDate, UpperCasePipe } from '@angular/common';
 import { BottomSheetShell } from '../../../layout/bottom-sheet-shell/bottom-sheet-shell';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
@@ -166,8 +166,12 @@ export class ModuleDetailModal implements OnChanges {
     return `RESUMEN · MÓDULO ${this.module?.number} / ${this.module?.name?.toUpperCase()}`;
   }
 
+  private searchSub?: Subscription;
+
   onSearch(value: DateRangeValue): void {
     if (!this.module) return;
+    // Cancel the previous search so an older response cannot overwrite the newer one.
+    this.searchSub?.unsubscribe();
     this.isLoading.set(true);
     this.hasSearched.set(true);
     this.rows.set([]);
@@ -176,7 +180,7 @@ export class ModuleDetailModal implements OnChanges {
 
     const service = this.service ?? this.productivityService;
 
-    this.appConfig.load().pipe(
+    this.searchSub = this.appConfig.load().pipe(
       switchMap(() => service.getModuleEfficiency(
         value.startDate,
         value.endDate,

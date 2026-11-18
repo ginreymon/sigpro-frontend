@@ -82,13 +82,15 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
       ? this.crudService.update(this.rowObject.id!, payload)
       : this.crudService.create(payload);
 
-    request$.pipe(finalize(() => this.reload(() => this.loaderService.hideLoader()))).subscribe({
+    // Reload only on success: after an error nothing changed on the server.
+    request$.subscribe({
       next: () => {
         callback?.();
         this.closeModelForm();
         const actionVerb = this.actionType === 'create' ? 'creó' : 'actualizó';
         const label = this.entityName.charAt(0).toUpperCase() + this.entityName.slice(1);
         this.dialogService.openToast(label, `Se ${actionVerb} correctamente.`, 'check');
+        this.reload(() => this.loaderService.hideLoader());
       },
       error: (err) => {
         this.loaderService.hideLoader();

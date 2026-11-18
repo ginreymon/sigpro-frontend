@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize } from 'rxjs';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { AppSetting } from '../../../models/core/app-setting';
 import { AppSettingService } from '../../../services/core/app-setting-service';
@@ -118,13 +117,14 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
     };
     this.crudService
       .patch(this.rowObject.id!, payload)
-      .pipe(finalize(() => this.reload(() => this.loaderService.hideLoader())))
       .subscribe({
         next: () => {
           this.closeModelForm();
           this.dialogService.openToast('Proceso exitoso', 'El registro fue actualizado correctamente.', 'check');
+          this.reload(() => this.loaderService.hideLoader());
         },
         error: () => {
+          this.loaderService.hideLoader();
           this.errorMessage.set('Ocurrió un error. Intente nuevamente.');
         },
       });

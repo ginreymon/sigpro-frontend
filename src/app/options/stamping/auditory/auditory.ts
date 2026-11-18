@@ -20,7 +20,7 @@ import { AuditQuantityModal, AuditedColorQuantity } from '../../../shared/compon
 import { AuditQuantityModalService } from '../../../services/common/audit-quantity-modal-service';
 import { DialogService } from '../../../services/common/dialog-service';
 import { AuditRecordService } from '../../../services/stamping/audit-record-service';
-import { AuditRecord, AuditRecordBulkPayload, AuditedOpSummary, AuditStatus } from '../../../models/stamping/audit-record';
+import { AuditRecord, AuditRecordBulkPayload, AuditedOpSummary } from '../../../models/stamping/audit-record';
 import { OPStampingService } from '../../../services/stamping/op-stamping-service';
 import { StampingOrderDetail } from '../../../models/stamping/stamping-order-detail';
 import { PaginatedResponse } from '../../../common/interfaces/paginated-response';
@@ -42,6 +42,10 @@ const TABS: TabItem[] = [
 })
 export class StampingAuditory extends BaseProductionOrderPage {
   protected override loadExtras = false;
+  // Same source as shift-cycles: stamping-orders/detail already carries everything, so the generic
+  // production-orders/detail is not requested on the deep-link path.
+  protected override orderLoader = (docType: string, docNumber: number) =>
+    this.opStampingService.getOrderDetail(docType, docNumber);
 
   // OP search here is by number only, across doc types — same traceability
   // lookup used by the stamping module's shift-cycles searcher.
@@ -72,7 +76,6 @@ export class StampingAuditory extends BaseProductionOrderPage {
   // Instant "is_audited" flag for the loaded OP, from the lightweight status
   // endpoint (GET /audit-records/status/?docType=&docNumber=) — resolves as
   // soon as the OP is found, without waiting on the full per-color fetch.
-  protected auditStatus = signal<AuditStatus | null>(null);
   // Full color set for the loaded OP at the moment a row's edit icon was
   // clicked — needed to merge the modal's single-color result back into a
   // complete replaceBulk payload (the other colors must survive the replace).
@@ -210,7 +213,6 @@ export class StampingAuditory extends BaseProductionOrderPage {
   goToSearch(): void {
     this.productionOrder.set(null);
     this.auditRecordsAll.set([]);
-    this.auditStatus.set(null);
     this.stampingOrderDetail.set(null);
   }
 
@@ -228,15 +230,16 @@ export class StampingAuditory extends BaseProductionOrderPage {
   private loadOrderExtras(order: ProductionOrder): void {
     this.loaderService.showLoader();
     forkJoin({
-      status: this.auditRecordService.getStatus(order.documentType, order.documentNumber),
       records: this.auditRecordService.all({ op_number: order.documentNumber, op_rowid: order.rowId, op_type: order.documentType }),
-      detail: this.opStampingService
-        .getOrderDetail(order.documentType, order.documentNumber)
-        .pipe(catchError(() => of(null))),
+      // The searcher already fetched stamping-orders/detail: reuse it instead of requesting it again.
+      detail: 'referenceSams' in order
+        ? of(order as StampingOrderDetail)
+        : this.opStampingService
+            .getOrderDetail(order.documentType, order.documentNumber)
+            .pipe(catchError(() => of(null))),
     })
       .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe(({ status, records, detail }) => {
-        this.auditStatus.set(status);
+      .subscribe(({ records, detail }) => {
         this.auditRecordsAll.set(records);
         this.stampingOrderDetail.set(detail);
       });
@@ -252,6 +255,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
   }
 
   private loadAuditedOps(): void {
+    this.auditedOpsDirty = false;
     const offset = (this.auditedOpsPage - 1) * this.auditedOpsLimit;
     this.wslService.start();
     this.auditRecordService
@@ -317,7 +321,6 @@ export class StampingAuditory extends BaseProductionOrderPage {
               const current = this.productionOrder();
               if (current && current.documentNumber === row.op_number && current.documentType === row.op_type) {
                 this.auditRecordsAll.set([]);
-                this.auditStatus.set(null);
               }
 
               this.dialogService.openToast('Auditoría eliminada', `Se eliminó la auditoría de la OP ${row.op_number}.`, 'check');
@@ -393,7 +396,6 @@ export class StampingAuditory extends BaseProductionOrderPage {
           .subscribe({
             next: () => {
               this.auditRecordsAll.set([]);
-              this.auditStatus.set(null);
               this.loadAuditedOps();
               this.dialogService.openToast('Auditoría eliminada', `Se eliminó la auditoría de la OP ${order.documentNumber}.`, 'check');
             },

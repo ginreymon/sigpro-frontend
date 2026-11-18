@@ -1,6 +1,6 @@
 import { DestroyRef, Signal, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { interval, of } from 'rxjs';
+import { interval, of, Subscription } from 'rxjs';
 import { catchError, finalize, startWith, switchMap, take } from 'rxjs/operators';
 import { AppConfigService } from '../../services/core/app-config-service';
 import { LoaderService } from '../../services/common/loader-service';
@@ -151,11 +151,15 @@ export abstract class ModuleRangePanelBase {
     }
   }
 
+  private rangeSub?: Subscription;
+
   onRangeSearch(value: DateRangeValue): void {
+    // Cancel a previous search still in flight (double click / re-submit).
+    this.rangeSub?.unsubscribe();
     this.rangeLoading.set(true);
     this.rangeSearched.set(true);
 
-    this.productivityService.getModuleEfficiency(value.startDate, value.endDate).pipe(
+    this.rangeSub = this.productivityService.getModuleEfficiency(value.startDate, value.endDate).pipe(
       finalize(() => this.rangeLoading.set(false)),
     ).subscribe({ next: (rows) => this.rangeRows.set(rows) });
   }

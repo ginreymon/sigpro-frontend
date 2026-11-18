@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 import { WorkSessionService } from '../../../../services/production/work-session-service';
 import { RouteContextService } from '../../../../services/core/route-context-service';
+import { ProductionContextService } from '../../../../services/production/production-context-service';
 import { LoaderService } from '../../../../services/common/loader-service';
 import { ShiftCycles } from './shift-cycles/shift-cycles';
 import { ShiftCyclesManual } from './shift-cycles-manual/shift-cycles-manual';
@@ -22,6 +23,7 @@ export class ShiftCyclesEntry implements OnInit {
   private workSessionService = inject(WorkSessionService);
   private routeContextService = inject(RouteContextService);
   private loaderService = inject(LoaderService);
+  private contextService = inject(ProductionContextService);
 
   protected checked = signal(false);
   protected manual = signal(false);
@@ -35,6 +37,7 @@ export class ShiftCyclesEntry implements OnInit {
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe({
         next: (session) => {
+          this.contextService.prefetchSession(session);
           this.manual.set(!!session?.current_module?.allows_production_time_adjustment);
           this.checked.set(true);
         },

@@ -31,6 +31,14 @@ export class ProductionContextService {
     this.efficiencyPeriod.set(data);
   }
 
+  // Session already fetched by the shift-cycles entry; consumed once by the next load() so the
+  // same work-sessions/active request is not sent twice.
+  private prefetchedSession: { value: ProductionContext['session'] } | null = null;
+
+  prefetchSession(session: ProductionContext['session']): void {
+    this.prefetchedSession = { value: session };
+  }
+
   get snapshot(): ProductionContext | null {
     return this._context$.value;
   }
@@ -47,23 +55,41 @@ export class ProductionContextService {
     // (ej. stamping-orders/detail, que ya trae colorRows + referenceSams en
     // un solo viaje) para no tener que pegarle también al endpoint genérico.
     orderLoader?: (docType: string, docNumber: number, session: ProductionContext['session']) => Observable<ProductionOrder | null>,
+    // Reuse the catalogs of the current snapshot instead of requesting them again (used to refresh
+    // only the session and the order after a save).
+    reuseCatalogs = false,
   ): Observable<ProductionContext> {
+    const cached = reuseCatalogs ? this.snapshot : null;
+    const prefetched = this.prefetchedSession;
+    this.prefetchedSession = null;
     const coreModuleId = this.routeContextService.currentModule?.id;
     const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
 
     return forkJoin({
-      session: this.workSessionService.getActive(scopeParams).pipe(catchError(() => of(null))),
-      docTypes: this.poService.getDocType().pipe(catchError(() => of([]))),
-      workBreaks: loadWorkBreaks
+      session: prefetched
+        ? of(prefetched.value)
+        : this.workSessionService.getActive(scopeParams).pipe(catchError(() => of(null))),
+      docTypes: cached
+        ? of(cached.docTypes)
+        : this.poService.getDocType().pipe(catchError(() => of([]))),
+      workBreaks: cached
+        ? of(cached.workBreaks)
+        : loadWorkBreaks
         ? this.workBreakService.all().pipe(catchError(() => of([])))
         : of([]),
-      employees: loadEmployees
+      employees: cached
+        ? of(cached.employees)
+        : loadEmployees
         ? this.employeeService.all(scopeParams).pipe(catchError(() => of([])))
         : of([]),
-      workShifts: loadWorkShifts
+      workShifts: cached
+        ? of(cached.workShifts)
+        : loadWorkShifts
         ? this.workShiftService.all(scopeParams).pipe(catchError(() => of([])))
         : of([]),
-      modules: loadModules
+      modules: cached
+        ? of(cached.modules)
+        : loadModules
         ? this.moduleService.all(scopeParams).pipe(catchError(() => of([])))
         : of([]),
     }).pipe(

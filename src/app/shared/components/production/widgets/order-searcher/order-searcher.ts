@@ -73,7 +73,7 @@ export class OrderSearcher implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.preloadedDocTypes?.length) {
+    if (this.preloadedDocTypes) {
       // El SP de tipos de documento devuelve códigos de ancho fijo con
       // espacios ('OP ', 'PS ') — normalizar acá igual que en getDocTypes(),
       // o el filtro de restrictToOpAndOpt (comparación exacta) los pierde.

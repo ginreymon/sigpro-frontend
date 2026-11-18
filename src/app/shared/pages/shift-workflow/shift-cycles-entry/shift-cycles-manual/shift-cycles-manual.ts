@@ -5,7 +5,7 @@ import { StampingRecordManual } from '../../../../../shared/components/productio
 import { QuantityDurationModal } from '../../../../../shared/components/production/widgets/quantity-duration-modal/quantity-duration-modal';
 import { PendingRecordsBar } from '../../../../../shared/components/production/widgets/pending-records-bar/pending-records-bar';
 import { DurationScheduleModal, ManualBatchConfirmation } from '../../../../../shared/components/production/widgets/duration-schedule-modal/duration-schedule-modal';
-import { Observable, finalize } from 'rxjs';
+import { Observable, finalize, of } from 'rxjs';
 import { ManualBatchSimulation } from '../../../../../models/production/manual-batch-simulation';
 import { ShiftCycles } from '../shift-cycles/shift-cycles';
 import { ProductionRecord } from '../../../../../models/production/production-record';
@@ -50,7 +50,11 @@ export class ShiftCyclesManual extends ShiftCycles {
   // AdditionalStampingTime id -> standard_time (minutes per unit, same
   // criterion as app-additional-stamping-time-card) — used by
   // app-duration-schedule-modal (variant 'stamping') to total minutes.
-  private additionalStampingTimesList = toSignal(this.additionalStampingTimeService.all(), { initialValue: [] });
+  private additionalStampingTimesList = toSignal(
+    // Only the stamping duration modal reads these times; production pages skip the request.
+    this.config.showStampingRecord ? this.additionalStampingTimeService.all() : of([]),
+    { initialValue: [] },
+  );
   protected additionalTimeMinutes = computed<Record<number, number>>(() =>
     Object.fromEntries(this.additionalStampingTimesList().map((t) => [t.id, Number(t.standard_time) || 0]))
   );

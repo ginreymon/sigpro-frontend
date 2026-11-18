@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, signal, inject } from '@angular/core';
-import { Observable, finalize, switchMap } from 'rxjs';
+import { Observable, Subscription, finalize, switchMap } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { BottomSheetShell } from '../../../layout/bottom-sheet-shell/bottom-sheet-shell';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
@@ -89,12 +89,16 @@ export class BalanceSummaryModal implements OnChanges {
     }
   }
 
+  private loadSub?: Subscription;
+
   private loadData(): void {
     if (!this.startDate || !this.endDate) return;
+    // Cancel the previous load so an older response cannot overwrite the newer one.
+    this.loadSub?.unsubscribe();
     this.isLoading.set(true);
     this.hasSearched.set(false);
     this.paginatedResponse.set(null);
-    this.appConfig.load().pipe(
+    this.loadSub = this.appConfig.load().pipe(
       switchMap(() => this.productivityService.getBalanceSummary({
         startDate: this.startDate!,
         endDate: this.endDate!,

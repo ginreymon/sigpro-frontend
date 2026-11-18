@@ -67,7 +67,7 @@ export class TablePager {
   }
 
   goToPage(page: number) {
-    if (page < 1 || page > this.totalPages) return;
+    if (page < 1 || page > this.totalPages || page === this.currentPage) return;
     this.onChange.emit({ page, pageSize: this.pageSize });
   }
 

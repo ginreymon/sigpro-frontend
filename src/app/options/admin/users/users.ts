@@ -9,7 +9,6 @@ import { UiLabelButton } from '../../../shared/elements/ui-label-button/ui-label
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { RoleService } from '../../../services/user/role-service';
 import { Role } from '../../../models/user/role';
-import { finalize } from 'rxjs';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
@@ -180,13 +179,15 @@ export class Users extends BaseCrudPage<User> {
         ? this.authService.registerRequest({ ...base, password } as RegisterRequest)
         : this.userService.update(this.rowObject.id!, { ...base, ...(password ? { password } : {}) });
 
-    request$.pipe(finalize(() => this.reload(() => this.loaderService.hideLoader()))).subscribe({
+    request$.subscribe({
       next: () => {
         this.closeModelForm();
         const actionText = this.actionType === 'create' ? 'creada' : 'actualizada';
         this.dialogService.openToast('Proceso exitoso', `La cuenta fue ${actionText} correctamente.`, 'check');
+        this.reload(() => this.loaderService.hideLoader());
       },
       error: (err) => {
+        this.loaderService.hideLoader();
         const hasFieldErrors = this.markServerFieldErrors(err);
         this.errorMessage.set(
           hasFieldErrors
@@ -205,14 +206,17 @@ export class Users extends BaseCrudPage<User> {
       const user: Partial<User> = { is_active: !obj.is_active };
       this.userService
         .update(obj.id, user)
-        .pipe(finalize(() => this.reload(() => this.loaderService.hideLoader())))
         .subscribe({
           next: () => {
             this.dialogService.closeConfirm();
             const actionText = obj.is_active ? 'desactivada' : 'activada';
             this.dialogService.openToast('Proceso exitoso', `La cuenta "${obj.username}" fue ${actionText} correctamente.`, 'check');
+            this.reload(() => this.loaderService.hideLoader());
           },
-          error: () => this.dialogService.closeConfirm(),
+          error: () => {
+            this.loaderService.hideLoader();
+            this.dialogService.closeConfirm();
+          },
         });
     });
   } 
