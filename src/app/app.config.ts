@@ -15,7 +15,6 @@ import { AuthService } from './services/auth/auth-service';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideAppInitializer(resolveApiBaseUrl),
     // After the first navigation, download the user's own (menu-based) lazy pages in the
     // background so opening them later has no loading delay.
     provideRouter(routes, withPreloading(PreloadAllModules)),
@@ -25,7 +24,6 @@ export const appConfig: ApplicationConfig = {
       await resolveApiBaseUrl();
       await auth.restoreSession();
     }),
-    provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     { provide: LOCALE_ID, useValue: 'es-CO' },
   ],
