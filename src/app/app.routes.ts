@@ -1,26 +1,46 @@
 import { Routes } from '@angular/router';
-import { Login } from './pages/auth/login/login';
-import { Home } from './pages/home/home';
 import { Layout } from './layouts/layout/layout';
-import { NotFound } from './pages/not-found/not-found';
-import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
-import { ConfirmPassword } from './pages/auth/confirm-password/confirm-password';
 import { authGuard } from './guards/auth-guard';
-import { NotAuthorized } from './pages/not-authorized/not-authorized';
 import { getDynamicRoutes } from './routes/get-dynamic-routes';
-import { UpdateAvailable } from './shared/components/notifications/update-available/update-available';
 
+// Layout stays eager (shell of every private page); every page is loaded on demand.
 export const routes: Routes = [
-  { path: 'login', component: Login },
-  { path: 'forgot-password', component: ForgotPassword },
-  { path: 'confirm-password', component: ConfirmPassword },
-  { path: 'not-authorized', component: NotAuthorized },
-  { path: 'app-update', component: UpdateAvailable, data: { alwaysVisible: true } },
+  { path: 'login', loadComponent: () => import('./pages/auth/login/login').then((m) => m.Login) },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./pages/auth/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+  },
+  {
+    path: 'confirm-password',
+    loadComponent: () =>
+      import('./pages/auth/confirm-password/confirm-password').then((m) => m.ConfirmPassword),
+  },
+  {
+    path: 'not-authorized',
+    loadComponent: () =>
+      import('./pages/not-authorized/not-authorized').then((m) => m.NotAuthorized),
+  },
+  {
+    path: 'app-update',
+    loadComponent: () =>
+      import('./shared/components/notifications/update-available/update-available').then(
+        (m) => m.UpdateAvailable,
+      ),
+    data: { alwaysVisible: true },
+  },
   {
     path: '',
     component: Layout,
     canActivate: [authGuard],
-    children: [{ path: '', component: Home, pathMatch: 'full' }, ...getDynamicRoutes()],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/home/home').then((m) => m.Home),
+        pathMatch: 'full',
+      },
+      ...getDynamicRoutes(),
+    ],
   },
-  { path: '**', component: NotFound },
+  { path: '**', loadComponent: () => import('./pages/not-found/not-found').then((m) => m.NotFound) },
 ];

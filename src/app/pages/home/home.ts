@@ -1,7 +1,7 @@
-import { Component, OnInit, Type } from '@angular/core';
+import { Component, OnInit, signal, Type } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { AuthService } from '../../services/auth/auth-service';
-import { homeComponentMap, HomeDefault } from '../../routes/home-component-map';
+import { homeComponentMap, homeDefaultLoader } from '../../routes/home-component-map';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +11,7 @@ import { homeComponentMap, HomeDefault } from '../../routes/home-component-map';
 })
 export class Home implements OnInit {
   greeting = '';
-  homeComponent: Type<any> = HomeDefault;
+  homeComponent = signal<Type<any> | null>(null);
 
   constructor(private authService: AuthService) { }
 
@@ -22,12 +22,12 @@ export class Home implements OnInit {
     return 'Buenas noches';
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     const user = this.authService.getUser();
     if (!user) return; 
 
     this.greeting = `${this.getGreeting()},`;
-    this.homeComponent = homeComponentMap[user.home_view ?? ''] ?? HomeDefault;
+    this.homeComponent.set(await (homeComponentMap[user.home_view ?? ''] ?? homeDefaultLoader)());
   }
 
   get username() {

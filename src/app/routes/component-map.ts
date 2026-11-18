@@ -1,59 +1,37 @@
 import { Type } from '@angular/core';
-import { Roles } from '../options/admin/roles/roles';
-import { Users } from '../options/admin/users/users';
-import { DayOperation } from '../shared/pages/shift-workflow/day-operation/day-operation';
-import { WorkShifts } from '../options/admin/work-shifts/work-shifts';
-import { Modules } from '../options/admin/modules/modules';
-import { WorkBreaks } from '../options/admin/work-breaks/work-breaks';
-import { RestrictedWorkTime } from '../options/admin/restricted-work-time/restricted-work-time';
-import { GeneralConfig } from '../options/admin/general-config/general-config';
-import { ShiftCyclesEntry } from '../shared/pages/shift-workflow/shift-cycles-entry/shift-cycles-entry';
-import { SewingSAM } from '../options/admin/sewing-sam/sewing-sam';
-import { AppSettings } from '../options/configuration/app-settings/app-settings';
-import { ModulePanel } from '../options/production/module-panel/module-panel';
-import { OrderDetail } from '../options/production/order-detail/order-detail';
-import { DataExport } from '../shared/pages/shift-workflow/data-export/data-export';
-import { Processes } from '../options/stamping/processes/processes';
-import { MachineTypes } from '../options/stamping/machine-types/machine-types';
-import { Machines } from '../options/stamping/machines/machines';
-import { StampingSam } from '../options/admin/stamping-sam/stamping-sam';
-import { AdditionalTimes } from '../options/stamping/additional-times/additional-times';
-import { MachinesConfig } from '../options/stamping/machines-config/machines-config';
-import { SewingConfig } from '../options/production/sewing-config/sewing-config';
-import { MachinePanel } from '../options/stamping/machine-panel/machine-panel';
-import { StampingAuditory } from '../options/stamping/auditory/auditory';
-import { SiesaOutbound } from '../options/integration/siesa-outbound/siesa-outbound';
-import { ManualIntegration } from '../shared/pages/integration/manual-integration/manual-integration';
 
-export const componentMap: Record<string, Type<any>> = {
-  'configuration/app-settings': AppSettings,
-  'admin/roles': Roles,
-  'admin/users': Users,
-  'admin/work-shifts': WorkShifts,
-  'admin/modules': Modules,
-  'admin/work-breaks': WorkBreaks,
-  'admin/restricted-work-time': RestrictedWorkTime,
-  'admin/general-config': GeneralConfig,
-  'admin/sewing-sam': SewingSAM,
-  'admin/stamping-sam': StampingSam,
-  'stamping/stamping-sam': StampingSam,
-  'production/sewing-sam': SewingSAM,
-  'production/day-operation': DayOperation,
-  'production/shift-cycles': ShiftCyclesEntry,
-  'production/data-export': DataExport,
-  'stamping/data-export': DataExport,
-  'production/module-panel': ModulePanel,
-  'production/sewing-config': SewingConfig,
-  'production/order-detail': OrderDetail,
-  'stamping/processes': Processes,
-  'stamping/machine-types': MachineTypes,
-  'stamping/machines': Machines,
-  'stamping/additional-times': AdditionalTimes,
-  'stamping/machines-config': MachinesConfig,
-  'stamping/day-operation': DayOperation,
-  'stamping/shift-cycles': ShiftCyclesEntry,
-  'stamping/machine-panel': MachinePanel,
-  'stamping/auditory': StampingAuditory,
-  'integration/siesa-outbound': SiesaOutbound,
-  'integration/manual-integration': ManualIntegration,
+// Each page is loaded on demand (own chunk) the first time its route is visited.
+export type ComponentLoader = () => Promise<Type<any>>;
+
+export const componentMap: Record<string, ComponentLoader> = {
+  'configuration/app-settings': () => import('../options/configuration/app-settings/app-settings').then((m) => m.AppSettings),
+  'admin/roles': () => import('../options/admin/roles/roles').then((m) => m.Roles),
+  'admin/users': () => import('../options/admin/users/users').then((m) => m.Users),
+  'admin/work-shifts': () => import('../options/admin/work-shifts/work-shifts').then((m) => m.WorkShifts),
+  'admin/modules': () => import('../options/admin/modules/modules').then((m) => m.Modules),
+  'admin/work-breaks': () => import('../options/admin/work-breaks/work-breaks').then((m) => m.WorkBreaks),
+  'admin/restricted-work-time': () => import('../options/admin/restricted-work-time/restricted-work-time').then((m) => m.RestrictedWorkTime),
+  'admin/general-config': () => import('../options/admin/general-config/general-config').then((m) => m.GeneralConfig),
+  'admin/sewing-sam': () => import('../options/admin/sewing-sam/sewing-sam').then((m) => m.SewingSAM),
+  'admin/stamping-sam': () => import('../options/admin/stamping-sam/stamping-sam').then((m) => m.StampingSam),
+  'stamping/stamping-sam': () => import('../options/admin/stamping-sam/stamping-sam').then((m) => m.StampingSam),
+  'production/sewing-sam': () => import('../options/admin/sewing-sam/sewing-sam').then((m) => m.SewingSAM),
+  'production/day-operation': () => import('../shared/pages/shift-workflow/day-operation/day-operation').then((m) => m.DayOperation),
+  'production/shift-cycles': () => import('../shared/pages/shift-workflow/shift-cycles-entry/shift-cycles-entry').then((m) => m.ShiftCyclesEntry),
+  'production/data-export': () => import('../shared/pages/shift-workflow/data-export/data-export').then((m) => m.DataExport),
+  'stamping/data-export': () => import('../shared/pages/shift-workflow/data-export/data-export').then((m) => m.DataExport),
+  'production/module-panel': () => import('../options/production/module-panel/module-panel').then((m) => m.ModulePanel),
+  'production/sewing-config': () => import('../options/production/sewing-config/sewing-config').then((m) => m.SewingConfig),
+  'production/order-detail': () => import('../options/production/order-detail/order-detail').then((m) => m.OrderDetail),
+  'stamping/processes': () => import('../options/stamping/processes/processes').then((m) => m.Processes),
+  'stamping/machine-types': () => import('../options/stamping/machine-types/machine-types').then((m) => m.MachineTypes),
+  'stamping/machines': () => import('../options/stamping/machines/machines').then((m) => m.Machines),
+  'stamping/additional-times': () => import('../options/stamping/additional-times/additional-times').then((m) => m.AdditionalTimes),
+  'stamping/machines-config': () => import('../options/stamping/machines-config/machines-config').then((m) => m.MachinesConfig),
+  'stamping/day-operation': () => import('../shared/pages/shift-workflow/day-operation/day-operation').then((m) => m.DayOperation),
+  'stamping/shift-cycles': () => import('../shared/pages/shift-workflow/shift-cycles-entry/shift-cycles-entry').then((m) => m.ShiftCyclesEntry),
+  'stamping/machine-panel': () => import('../options/stamping/machine-panel/machine-panel').then((m) => m.MachinePanel),
+  'stamping/auditory': () => import('../options/stamping/auditory/auditory').then((m) => m.StampingAuditory),
+  'integration/siesa-outbound': () => import('../options/integration/siesa-outbound/siesa-outbound').then((m) => m.SiesaOutbound),
+  'integration/manual-integration': () => import('../shared/pages/integration/manual-integration/manual-integration').then((m) => m.ManualIntegration),
 };
