@@ -101,7 +101,7 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
   // The central modal (ModalLayout) shows what will be integrated for the work center.
   protected integrate(row: OrderByWorkCenter): void {
     this.rowObject = row;
-    this.dialogService.openModal('Integrar OPs', 'Integrar');
+    this.dialogService.openModal('Enviar a Siesa', 'Integrar TP');
   }
 
   // "Integrar" button of the central modal: asks for confirmation first, then sends the TEP.
@@ -348,7 +348,7 @@ export class ManualIntegration extends BaseCrudPage<OrderByWorkCenter> {
       { field: 'origin', type: 'template', label: 'Área', templateName: 'originTemplate' },
       { field: 'code', type: 'template', label: 'Centro de trabajo', templateName: 'workCenterTemplate' },
       { type: 'template', label: 'Órdenes', templateName: 'documentsTemplate', align: 'center' },
-      { type: 'template', label: 'Acciones', templateName: 'integrateTemplate', align: 'center' },
+      { type: 'template', label: '', templateName: 'integrateTemplate', align: 'right' },
     ];
   }
 }

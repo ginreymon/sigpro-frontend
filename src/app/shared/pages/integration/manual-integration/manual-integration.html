@@ -11,7 +11,7 @@
                 </ng-template>
 
                 <ng-template appTableTemplate="workCenterTemplate" let-row>
-                    {{ row.code?.trim() }}{{ row.description ? ' · ' + row.description.trim() : '' }}
+                    {{ row.code?.trim() }}<span class="hidden sm:inline">{{ row.description ? ' · ' + row.description.trim() : '' }}</span>
                 </ng-template>
 
                 <ng-template appTableTemplate="lastEndTemplate" let-row>
