@@ -19,6 +19,7 @@ import { UiTooltip } from '../../../../elements/ui-tooltip/ui-tooltip';
 import { ShiftCyclesFab } from "../shift-cycles-fab/shift-cycles-fab";
 import { SHIFT_CYCLES_CONFIG } from '../../../../../common/const/shift-cycles-config';
 import { isWithinHourlyWindow } from '../../../../../common/functions/hourly-window';
+import { apiErrorCode } from '../../../../../common/functions/api-error';
 
 @Component({
   selector: 'app-shift-hourly-record',
@@ -149,11 +150,12 @@ export class ShiftHourlyRecord implements OnInit, OnChanges, OnDestroy {
           this.currentBreak.set(null);
           this.isOpen.set(true);
         },
-        error: () => {
+        error: (err) => {
           this.isPaused.set(false);
           this.currentBreak.set(null);
           this.isOpen.set(true);
           this.dialogService.openToast('No se pudo reanudar', 'Hubo un problema al intentar reanudar la actividad.', 'fail');
+          if (apiErrorCode(err) === 'business_rule') this.shiftModals.sessionStale$.next();
         },
       });
   }

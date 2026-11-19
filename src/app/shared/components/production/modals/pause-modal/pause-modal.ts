@@ -18,7 +18,8 @@ import { DialogService } from '../../../../../services/common/dialog-service';
 import { UiIcon } from "../../../../elements/ui-icon/ui-icon";
 import { PauseModalService } from '../../../../../services/common/pause-modal-service';
 import { RouteContextService } from '../../../../../services/core/route-context-service';
-import { apiErrorDetail } from '../../../../../common/functions/api-error';
+import { apiErrorCode, apiErrorDetail } from '../../../../../common/functions/api-error';
+import { ShiftModalsService } from '../../../../../services/common/shift-modals-service';
 
 @Component({
   selector: 'app-pause-modal',
@@ -32,6 +33,7 @@ export class PauseModal implements OnInit {
   private loaderService = inject(LoaderService);
   private dialogService = inject(DialogService);
   private pms = inject(PauseModalService);
+  private shiftModals = inject(ShiftModalsService);
   private routeContextService = inject(RouteContextService);
   private fb = inject(FormBuilder);
 
@@ -143,6 +145,8 @@ export class PauseModal implements OnInit {
         error: (err: HttpErrorResponse) => {
           const message = apiErrorDetail(err, 'Hubo un problema al intentar pausar la actividad.');
           this.dialogService.openToast('No se pudo pausar', message, 'fail');
+          // Re-read the session; the pause is not retried.
+          if (apiErrorCode(err) === 'business_rule') this.shiftModals.sessionStale$.next();
         },
       });
   }

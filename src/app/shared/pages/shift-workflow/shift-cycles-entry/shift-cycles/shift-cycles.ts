@@ -211,6 +211,9 @@ export class ShiftCycles extends BaseProductionOrderPage {
     this.shiftModals.pauseSaved$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(record => this.onPauseSaved(record));
+    this.shiftModals.sessionStale$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.refreshSession());
   }
 
   protected override beforeLoad(): void {

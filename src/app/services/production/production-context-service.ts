@@ -71,6 +71,14 @@ export class ProductionContextService {
     ).pipe(catchError(() => of(null)));
   }
 
+  // Single place that requests work-sessions/active for the current module. Called on load and after
+  // anything that can swap the active activity (a record for another SKU opens a new one).
+  fetchActiveSession(): Observable<ProductionContext['session']> {
+    const coreModuleId = this.routeContextService.currentModule?.id;
+    const scopeParams = coreModuleId ? { core_module_id: coreModuleId } : undefined;
+    return this.workSessionService.getActive(scopeParams).pipe(catchError(() => of(null)));
+  }
+
   get snapshot(): ProductionContext | null {
     return this._context$.value;
   }
@@ -100,7 +108,7 @@ export class ProductionContextService {
     return forkJoin({
       session: prefetched
         ? of(prefetched.value)
-        : this.workSessionService.getActive(scopeParams).pipe(catchError(() => of(null))),
+        : this.fetchActiveSession(),
       // Document types only feed the order searcher. When the OP comes defined (URL params) the
       // searcher is hidden; if it appears later (e.g. "search another order") it loads them itself.
       docTypes: cached

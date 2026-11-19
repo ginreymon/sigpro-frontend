@@ -36,6 +36,8 @@ export class ShiftModalsService {
 
   readonly employeesSaved$ = new Subject<EmployeesSavedData>();
   readonly pauseSaved$ = new Subject<WorkBreakRecord>();
+  // The backend rejected a pause/resume by state: the local session is outdated and must be re-read.
+  readonly sessionStale$ = new Subject<void>();
 
   /**
    * Set by `openShiftHourlyRecord()`, consumed by the *next* ShiftHourlyRecord

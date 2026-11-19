@@ -120,6 +120,8 @@ export abstract class BaseProductionOrderPage implements OnInit {
     forkJoin({
       order: this.contextService.fetchOrder(current.documentType, current.documentNumber, this.currentSession(), this.orderLoader),
       summary: this.contextService.requestSummaryRefresh(),
+      // A save can replace the active activity (new SKU opens a new one), so its id must be re-read.
+      session: this.contextService.fetchActiveSession(),
     })
       .pipe(
         finalize(() => {
@@ -127,7 +129,11 @@ export abstract class BaseProductionOrderPage implements OnInit {
           this.flushRefreshCallbacks();
         }),
       )
-      .subscribe(({ order }) => {
+      .subscribe(({ order, session }) => {
+        if (session) {
+          this.currentSession.set(session);
+          this.contextService.updateSession(session);
+        }
         if (order) this.setDocument(order);
       });
   }
