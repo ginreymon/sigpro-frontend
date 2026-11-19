@@ -55,7 +55,8 @@ export class Roles extends BaseCrudPage<Role> {
   homeViews = signal<HomeView[]>([]);
   private titleCase = new TitleCasePipe();
   /** Read-only module -> page tree of the role shown in the side modal. */
-  viewedTree = signal<UiTreeNode[]>([]);
+  private viewedOptions = signal<Option[]>([]);
+  viewedTree = computed<UiTreeNode[]>(() => this.buildViewedTree(this.viewedOptions()));
 
   constructor(
     private roleService: RoleService,
@@ -82,7 +83,7 @@ export class Roles extends BaseCrudPage<Role> {
   protected override get columns(): TableColumn<Role>[] {
     return [
       { field: 'name', label: 'Nombre' },
-      { type: 'template', label: 'Opciones/Páginas', templateName: 'optionsCountTemplate' },
+      { type: 'template', label: 'Opciones/Páginas', templateName: 'optionsCountTemplate', align: 'center' },
       { type: 'template', label: 'Vista de inicio', templateName: 'homeViewTemplate' },
       { field: 'user_count', label: 'Usuarios' },
       { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
@@ -127,7 +128,7 @@ export class Roles extends BaseCrudPage<Role> {
   protected override actionHandler(event: TableActionEvent<Role>): void {
     super.actionHandler(event);
     if (event.type == 'view') {
-      this.viewedTree.set(this.buildViewedTree(event.obj.options ?? []));
+      this.viewedOptions.set(event.obj.options ?? []);
     }
     if (event.type == 'edit') {
       this.modelForm.patchValue(event.obj);
@@ -152,13 +153,14 @@ export class Roles extends BaseCrudPage<Role> {
   }
 
   /** Groups a role's assigned options by module, keeping the module order of the catalog. */
-  private buildViewedTree(options: Option[]): UiTreeNode[] {
+  private buildViewedTree(assigned: Option[]): UiTreeNode[] {
+    const assignedIds = new Set(assigned.map((option) => option.id));
     return this.modules()
       .map((module) => ({
         id: `m-${module.id}`,
         label: this.titleCase.transform(module.name),
-        children: options
-          .filter((option) => option.module_id === module.id)
+        children: (module.options ?? [])
+          .filter((option) => assignedIds.has(option.id))
           .map((option) => ({
             id: option.id,
             label: this.titleCase.transform(option.title || option.name) + (option.state ? '' : ' (inactiva)'),
