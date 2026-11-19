@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
@@ -16,7 +16,7 @@ import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Module } from '../../../models/core/module';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
-import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
+import { UiTree, UiTreeId, UiTreeNode } from '../../../shared/elements/ui-tree/ui-tree';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { UiAccordionItem } from '../../../shared/elements/ui-accordion-item/ui-accordion-item';
 import { TableTemplate } from '../../../directives/table-template';
@@ -38,7 +38,7 @@ import { TitleCasePipe } from '@angular/common';
     ReactiveFormsModule,
     UiFormField,    
     UiErrorMessage,
-    UiOptionCard,
+    UiTree,
     UiBadge,
     UiAccordionItem,
     TableTemplate,
@@ -54,6 +54,7 @@ export class Roles extends BaseCrudPage<Role> {
   protected override entityName: string = 'rol';
   modules = signal<Module[]>([]);
   homeViews = signal<HomeView[]>([]);
+  private titleCase = new TitleCasePipe();
   expandedOptionIds = signal<Set<number>>(new Set());
 
   constructor(
@@ -88,11 +89,34 @@ export class Roles extends BaseCrudPage<Role> {
     ];
   }
 
-  expandedModuleIds = signal<Set<number>>(new Set());
+  /** Module -> option tree; module ids are prefixed so they never collide with option ids. */
+  optionTree = computed<UiTreeNode[]>(() =>
+    this.modules()
+      .filter((module) => module.state)
+      .map((module) => ({
+        id: `m-${module.id}`,
+        label: this.titleCase.transform(module.name),
+        children: (module.options ?? [])
+          .filter((option) => option.state)
+          .map((option) => ({
+            id: option.id,
+            label: this.titleCase.transform(option.title || option.name),
+            description: option.description || 'Sin descripción',
+          })),
+      }))
+      .filter((node) => node.children.length),
+  );
+
+  /** Selected ids that are actually visible in the tree (hidden inactive ones are kept but not counted). */
+  selectedVisibleCount(): number {
+    const selected = new Set<number>(this.optionIds?.value ?? []);
+    return this.optionTree().reduce((sum, m) => sum + m.children!.filter((o) => selected.has(o.id as number)).length, 0);
+  }
+
+  totalOptionCount = computed(() => this.optionTree().reduce((sum, m) => sum + m.children!.length, 0));
 
   protected override closeModelForm(): void {
     this.expandedOptionIds.set(new Set());
-    this.expandedModuleIds.set(new Set());
     super.closeModelForm();
   }
 
@@ -108,25 +132,6 @@ export class Roles extends BaseCrudPage<Role> {
       expanded.add(id);
     }
     this.expandedOptionIds.set(expanded);
-  }
-
-  isModuleExpanded(id: number): boolean {
-    return this.expandedModuleIds().has(id);
-  }
-
-  toggleModuleExpanded(id: number): void {
-    const expanded = new Set(this.expandedModuleIds());
-    if (expanded.has(id)) {
-      expanded.delete(id);
-    } else {
-      expanded.add(id);
-    }
-    this.expandedModuleIds.set(expanded);
-  }
-
-  selectedOptionCount(module: Module): number {
-    const selected: number[] = this.optionIds?.value ?? [];
-    return (module.options ?? []).filter((o) => selected.includes(o.id)).length;
   }
 
   protected override initializeModelForm(): void {
@@ -161,16 +166,9 @@ export class Roles extends BaseCrudPage<Role> {
     return this.modelForm?.get('home_view_id');
   }
 
-  toggleOption(id: number) {
-    const current = this.optionIds?.value ?? [];
-    if (current.includes(id)) {
-      this.optionIds?.setValue(current.filter((x: number) => x !== id));
-    } else {
-      this.optionIds?.setValue([...current, id]);
-    }
-  }
-
-  isSelected(id: number) {
-    return this.optionIds?.value?.includes(id);
+  onOptionsChange(ids: UiTreeId[]): void {
+    this.optionIds?.setValue(ids as number[]);
+    this.optionIds?.markAsDirty();
+    this.optionIds?.markAsTouched();
   }
 }

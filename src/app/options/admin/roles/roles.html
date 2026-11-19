@@ -71,7 +71,8 @@
   
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'roleForm'" (onCancel)="closeModelForm()">    
+<app-modal-layout [formId]="'roleForm'" [classNames]="'max-w-2xl'" (onCancel)="closeModelForm()">
+  <p modal-bottom class="text-xs text-slate-500">{{ selectedVisibleCount() }}/{{ totalOptionCount() }} opciones seleccionadas</p>
   <form id="roleForm" [formGroup]="modelForm" (ngSubmit)="submit()">  
     <fieldset [disabled]="showLoader()">
 
@@ -86,39 +87,8 @@
       </app-ui-form-field>
 
       <app-ui-form-field [label]="'Opciones'" [controlName]="'option_ids'">
-          <div class="divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-y-auto max-h-[45vh]">
-
-            @for (module of modules(); track module.id) {
-              <app-ui-accordion-item [expanded]="isModuleExpanded(module.id)" (toggle)="toggleModuleExpanded(module.id)">
-
-                <ng-container accordion-header>
-                  <span class="h-2 w-2 rounded-full shrink-0" [class.bg-brand-500]="module.state" [class.bg-gray-300]="!module.state"></span>
-
-                  <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-gray-700 truncate">{{ module.name | titlecase }}</p>
-                    <p class="text-xs text-slate-500 truncate">{{ (module.options ?? []).length }} opciones en total</p>
-                  </div>
-
-                  <app-ui-badge intent="default" [label]="selectedOptionCount(module) + '/' + (module.options ?? []).length + ' seleccionadas'"></app-ui-badge>
-                </ng-container>
-
-                <div accordion-body class="grid grid-cols-2 md:grid-cols-3 gap-3 items-stretch">
-                  @for (option of module.options; track option.id) {
-                    <app-ui-option-card (onToggle)="toggleOption(option.id)" [selected]="isSelected(option.id)">
-                      <div class="font-medium text-sm">
-                        {{ option.title | titlecase }}
-                      </div>
-                      <div class="text-xs text-gray-500">
-                        {{ option.description || 'Sin descripción' }}
-                      </div>
-                    </app-ui-option-card>
-                  }
-                </div>
-
-              </app-ui-accordion-item>
-            }
-
-          </div>
+          <app-ui-tree [nodes]="optionTree()" [selected]="optionIds?.value ?? []" (selectedChange)="onOptionsChange($event)"
+            [emptyText]="'No hay opciones disponibles'" [ariaLabel]="'Opciones del rol'"></app-ui-tree>
       </app-ui-form-field>
 
       @if(errorMessage()){
