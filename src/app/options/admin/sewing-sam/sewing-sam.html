@@ -67,15 +67,17 @@
 </app-side-modal-layout>
 
 
-<app-modal-layout [formId]="'samForm'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'samForm'" [mode]="actionType" [subtitle]="'Ajusta el SAM (minutos estándar) de la referencia de confección.'" (onCancel)="closeModelForm()">
 
   <form id="samForm" [formGroup]="modelForm" (ngSubmit)="submit()">
-    <fieldset [disabled]="showLoader()">
+    <fieldset [disabled]="showLoader()" class="space-y-2">
 
-      <app-ui-form-field [controlName]="'sam'" [label]="'SAM (minutos estándar)'">
-        <app-ui-input formControlName="sam" [id]="'sam'" [placeholder]="'Ej: 4.1260'" [control]="sam" [type]="'number'" [isFloat]="true">
-        </app-ui-input>
-      </app-ui-form-field>
+      <app-ui-form-section [title]="'Tiempo estándar'">
+        <app-ui-form-field [controlName]="'sam'" [label]="'SAM (minutos estándar)'">
+          <app-ui-input formControlName="sam" [id]="'sam'" [placeholder]="'Ej: 4.1260'" [control]="sam" [type]="'number'" [isFloat]="true">
+          </app-ui-input>
+        </app-ui-form-field>
+      </app-ui-form-section>
 
       <app-ui-info-panel [align]="'column'" [lines]="samInfoLines"></app-ui-info-panel>
 

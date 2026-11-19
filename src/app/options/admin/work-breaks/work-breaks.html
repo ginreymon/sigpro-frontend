@@ -46,22 +46,26 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'workbreakForm'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'workbreakForm'" [mode]="actionType" [subtitle]="'Define una pausa y su duración en minutos.'" (onCancel)="closeModelForm()">
 
     <form id="workbreakForm" [formGroup]="modelForm" (ngSubmit)="submit()">
-        <fieldset [disabled]="showLoader()">
+        <fieldset [disabled]="showLoader()" class="space-y-2">
 
-            <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
-                <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
-            </app-ui-form-field>
+            <app-ui-form-section [title]="'Datos de la pausa'" [cols]="2">
+                <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
+                    <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'duration'" [label]="'Minutos'">
-                <app-ui-input formControlName="duration" [id]="'duration'" [placeholder]="'Minutos'" [control]="duration" [type]="'number'"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'duration'" [label]="'Minutos'">
+                    <app-ui-input formControlName="duration" [id]="'duration'" [placeholder]="'Minutos'" [control]="duration" [type]="'number'"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'description'" [label]="'Descripción'">
-                <app-ui-input formControlName="description" [id]="'description'" [placeholder]="'Descripción'" [control]="description"></app-ui-input>
-            </app-ui-form-field>
+                <div class="sm:col-span-2">
+                    <app-ui-form-field [controlName]="'description'" [label]="'Descripción'">
+                        <app-ui-input formControlName="description" [id]="'description'" [placeholder]="'Descripción'" [control]="description"></app-ui-input>
+                    </app-ui-form-field>
+                </div>
+            </app-ui-form-section>
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
@@ -71,4 +75,3 @@
     </form>
 
 </app-modal-layout>
-

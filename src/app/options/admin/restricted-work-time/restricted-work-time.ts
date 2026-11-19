@@ -11,6 +11,7 @@ import { ModalLayout } from '../../../shared/components/layout/modal-layout/moda
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { UiTextarea } from '../../../shared/elements/ui-textarea/ui-textarea';
@@ -34,6 +35,7 @@ import { UiInfoPanel } from "../../../shared/elements/ui-info-panel/ui-info-pane
     ReactiveFormsModule,
     UiErrorMessage,
     UiFormField,
+    UiFormSection,
     UiInput,
     UiSelect,
     UiTextarea,

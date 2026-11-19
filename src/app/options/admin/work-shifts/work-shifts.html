@@ -58,65 +58,68 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'workshiftForm'" (onCancel)="closeModelForm()">    
-   
+<app-modal-layout [formId]="'workshiftForm'" [mode]="actionType" [subtitle]="'Define el horario de trabajo y la ubicación donde aplica.'" (onCancel)="closeModelForm()">
+
     <form id="workshiftForm" [formGroup]="modelForm" (ngSubmit)="submit()">
-        <fieldset [disabled]="showLoader()">
-    
-            <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
-                <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
-            </app-ui-form-field>
-    
-            <app-ui-form-field [controls]="timeControls">
-               
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        
-                    <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium mb-2" for="startHour">Hora inicio turno</label>
+        <fieldset [disabled]="showLoader()" class="space-y-2">
 
-                        <div class="flex items-center gap-3">
-                            <app-ui-hour-input formControlName="startHour" [id]="'startHour'" [title]="'Hora'" [min]="0" [max]="23" [control]="startHour"></app-ui-hour-input>
-                            <span class="text-3xl font-bold text-slate-400">:</span>
-                            <app-ui-hour-input formControlName="startMinutes" [id]="'startMinutes'" [title]="'Minutos'" [min]="0" [max]="59" [control]="startMinutes"></app-ui-hour-input>
+            <app-ui-form-section [title]="'Datos generales'" [cols]="2">
+                <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
+                    <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
+                </app-ui-form-field>
+
+                <app-ui-form-field [controlName]="'location_id'" [label]="'Ubicación'">
+                    <app-ui-select [className]="'w-full'" formControlName="location_id" [id]="'location_id'" [control]="locationId" [items]="productionAreas()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+                </app-ui-form-field>
+
+                @if(actionType == 'edit'){
+                <app-ui-form-field [controlName]="'is_active'" [label]="'Estado'" [layout]="'horizontal'">
+                    <app-ui-checkbox formControlName="is_active" [id]="'is_active'" [control]="isActive"></app-ui-checkbox>
+                </app-ui-form-field>
+                }
+            </app-ui-form-section>
+
+            <app-ui-form-section [title]="'Horario'" [description]="'La hora de inicio debe ser menor que la de finalización.'">
+                <app-ui-form-field [controls]="timeControls">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium mb-2" for="startHour">Hora inicio turno</label>
+
+                            <div class="flex items-center gap-3">
+                                <app-ui-hour-input formControlName="startHour" [id]="'startHour'" [title]="'Hora'" [min]="0" [max]="23" [control]="startHour"></app-ui-hour-input>
+                                <span class="text-3xl font-bold text-slate-400">:</span>
+                                <app-ui-hour-input formControlName="startMinutes" [id]="'startMinutes'" [title]="'Minutos'" [min]="0" [max]="59" [control]="startMinutes"></app-ui-hour-input>
+                            </div>
                         </div>
-                    </div>
-        
-                    <div class="flex flex-col gap-2">
-                        <label class="text-sm font-medium mb-2" for="endHour">Hora finalización turno</label>
-                        
-                        <div class="flex items-center gap-3">
-                            <app-ui-hour-input formControlName="endHour" [id]="'endHour'" [title]="'Hora'" [min]="0" [max]="23" [control]="endHour"></app-ui-hour-input>
-                            <span class="text-3xl font-bold text-slate-400">:</span>
-                            <app-ui-hour-input formControlName="endMinutes" [id]="'endMinutes'" [title]="'Minutos'" [min]="0" [max]="59" [control]="endMinutes"></app-ui-hour-input>
+
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium mb-2" for="endHour">Hora finalización turno</label>
+
+                            <div class="flex items-center gap-3">
+                                <app-ui-hour-input formControlName="endHour" [id]="'endHour'" [title]="'Hora'" [min]="0" [max]="23" [control]="endHour"></app-ui-hour-input>
+                                <span class="text-3xl font-bold text-slate-400">:</span>
+                                <app-ui-hour-input formControlName="endMinutes" [id]="'endMinutes'" [title]="'Minutos'" [min]="0" [max]="59" [control]="endMinutes"></app-ui-hour-input>
+                            </div>
                         </div>
+
                     </div>
-        
-                </div>
-                
-            </app-ui-form-field>
 
-            @if (timeOrderInvalid) {
-              <app-ui-error-message>La hora de inicio debe ser menor que la hora de finalización</app-ui-error-message>
-            }          
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'location_id'" [label]="'Ubicación'">
-                <app-ui-select [className]="'w-full'" formControlName="location_id" [id]="'location_id'" [control]="locationId" [items]="productionAreas()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-            </app-ui-form-field>
+                @if (timeOrderInvalid) {
+                <app-ui-error-message>La hora de inicio debe ser menor que la hora de finalización</app-ui-error-message>
+                }
 
-            @if(actionType == 'edit'){
-            <app-ui-form-field [controlName]="'is_active'" [label]="'Estado'" [layout]="'horizontal'">
-                <app-ui-checkbox formControlName="is_active" [id]="'is_active'" [control]="isActive"></app-ui-checkbox>             
-            </app-ui-form-field>
-            }     
+                <app-ui-info-panel [lines]="[{ label: 'Tiempo total', value: totalTime }]"></app-ui-info-panel>
+            </app-ui-form-section>
 
-            <app-ui-info-panel [lines]="[{ label: 'Tiempo total', value: totalTime }]"></app-ui-info-panel>
-    
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
             }
-    
+
         </fieldset>
     </form>
-    
-</app-modal-layout>
 
+</app-modal-layout>

@@ -1,0 +1,19 @@
+<section class="rounded-lg border border-slate-200 p-5">
+
+  @if (title) {
+  <header class="mb-4">
+    <h4 class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+      <span class="h-3 w-1 rounded-full bg-brand-500"></span>
+      {{ title }}
+    </h4>
+    @if (description) {
+    <p class="mt-0.5 pl-3 text-xs text-slate-500">{{ description }}</p>
+    }
+  </header>
+  }
+
+  <div class="grid grid-cols-1 gap-x-5 gap-y-3" [class]="gridClass">
+    <ng-content></ng-content>
+  </div>
+
+</section>

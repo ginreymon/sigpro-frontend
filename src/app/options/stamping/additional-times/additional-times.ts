@@ -13,6 +13,7 @@ import { SideModalLayout } from '../../../shared/components/layout/side-modal-la
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdditionalStampingTimeService } from '../../../services/stamping/additional-stamping-time-service';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
@@ -38,6 +39,7 @@ import { UiStepListInput } from '../../../shared/elements/ui-step-list-input/ui-
     SideModalLayout,
     ReactiveFormsModule,
     UiFormField,
+    UiFormSection,
     UiInput,
     UiCheckbox,
     UiBadge,

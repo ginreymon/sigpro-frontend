@@ -81,24 +81,29 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'userForm'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'userForm'" [mode]="actionType" [subtitle]="'Cuenta de acceso, contraseña y rol del usuario.'" (onCancel)="closeModelForm()">
 
     <form id="userForm" [formGroup]="modelForm" (ngSubmit)="submit()">
-        <fieldset [disabled]="showLoader()">
+        <fieldset [disabled]="showLoader()" class="space-y-2">
 
-            <app-ui-form-field [controlName]="'username'" [label]="'Nombre de usuario'">
-                <app-ui-input formControlName="username" [id]="'username'" [placeholder]="'Nombre de usuario'" [control]="username"></app-ui-input>
-            </app-ui-form-field>      
+            <app-ui-form-section [title]="'Cuenta'" [cols]="2">
+                <app-ui-form-field [controlName]="'username'" [label]="'Nombre de usuario'">
+                    <app-ui-input formControlName="username" [id]="'username'" [placeholder]="'Nombre de usuario'" [control]="username"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'email'" [label]="'Correo electrónico (opcional)'">
-                <app-ui-input formControlName="email" [id]="'email'" [placeholder]="'Correo electrónico'" [control]="email"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'email'" [label]="'Correo electrónico (opcional)'">
+                    <app-ui-input formControlName="email" [id]="'email'" [placeholder]="'Correo electrónico'" [control]="email"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'employee_local_id'" [label]="'Empleado (opcional)'">
-                <app-ui-combobox [className]="'w-full'" formControlName="employee_local_id" [id]="'employee_local_id'" [control]="employeeId" [items]="employees()" [key]="'label'" [keyValue]="'id'" [placeholder]="'Sin empleado - buscar por nombre o cédula'"></app-ui-combobox>
-            </app-ui-form-field>
+                <div class="sm:col-span-2">
+                    <app-ui-form-field [controlName]="'employee_local_id'" [label]="'Empleado (opcional)'">
+                        <app-ui-combobox [className]="'w-full'" formControlName="employee_local_id" [id]="'employee_local_id'" [control]="employeeId" [items]="employees()" [key]="'label'" [keyValue]="'id'" [placeholder]="'Sin empleado - buscar por nombre o cédula'"></app-ui-combobox>
+                    </app-ui-form-field>
+                </div>
+            </app-ui-form-section>
 
             @if(actionType == 'create' || actionType == 'edit'){
+            <app-ui-form-section [title]="'Seguridad'" [description]="actionType == 'edit' ? 'Déjalo vacío para conservar la contraseña actual.' : null" [cols]="2">
                 <app-ui-form-field [controlName]="'password'" [label]="actionType == 'edit' ? 'Nueva contraseña (opcional)' : 'Contraseña'">
                     <div class="relative">
                         <app-ui-input formControlName="password" [id]="'password'" [type]="showPassword()?'text':'password'" [placeholder]="'Contraseña'" [control]="password"></app-ui-input>
@@ -114,28 +119,33 @@
                 </app-ui-form-field>
 
                 @if(confirmPassword?.touched && password?.value && !passwordsMatch) {
-                <app-ui-error-message>Las contraseñas no coinciden</app-ui-error-message>
-                }   
-            }               
-
-            <app-ui-form-field [label]="'Role'" [controlName]="'role'">
-                
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-3 items-stretch py-2">
-                    @for(rol of roles(); track rol.id){
-                    <app-ui-option-card (onToggle)="toggleRole(rol.id)" [selected]="isSelected(rol.id)">
-                        <div class="font-medium text-sm">
-                            {{ rol.name | titlecase }}
-                        </div>
-                        <div class="text-xs text-gray-500">
-                            @for(option of rol.options; track option){
-                            <span>{{ option.name | titlecase }} / </span>
-                            }
-                        </div>
-                    </app-ui-option-card>
-                    }
+                <div class="sm:col-span-2">
+                    <app-ui-error-message>Las contraseñas no coinciden</app-ui-error-message>
                 </div>
-            
-            </app-ui-form-field>
+                }
+            </app-ui-form-section>
+            }
+
+            <app-ui-form-section [title]="'Rol'" [description]="'Selecciona el rol que define los accesos del usuario.'">
+                <app-ui-form-field [label]="'Rol'" [controlName]="'role'" [hideLabel]="true">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+                        @for(rol of roles(); track rol.id){
+                        <app-ui-option-card (onToggle)="toggleRole(rol.id)" [selected]="isSelected(rol.id)">
+                            <div class="font-medium text-sm">
+                                {{ rol.name | titlecase }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                @for(option of rol.options; track option){
+                                <span>{{ option.name | titlecase }} / </span>
+                                }
+                            </div>
+                        </app-ui-option-card>
+                        }
+                    </div>
+
+                </app-ui-form-field>
+            </app-ui-form-section>
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
@@ -145,4 +155,3 @@
     </form>
 
 </app-modal-layout>
-

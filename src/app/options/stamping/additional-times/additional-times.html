@@ -59,46 +59,52 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'additionalStampingTimeForm'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'additionalStampingTimeForm'" [mode]="actionType" [subtitle]="'Tiempo adicional de estampación con su máquina, proceso y pasos.'" (onCancel)="closeModelForm()">
 
     <form id="additionalStampingTimeForm" [formGroup]="modelForm" (ngSubmit)="submit()">
-        <fieldset [disabled]="showLoader()">
+        <fieldset [disabled]="showLoader()" class="space-y-2">
 
-            <app-ui-form-field [controlName]="'code_number'" [label]="'Código'">
-                <app-ui-input formControlName="code_number" [id]="'code_number'" [placeholder]="'Código'" [control]="codeNumber"></app-ui-input>
-            </app-ui-form-field>
+            <app-ui-form-section [title]="'Identificación'" [cols]="2">
+                <app-ui-form-field [controlName]="'code_number'" [label]="'Código'">
+                    <app-ui-input formControlName="code_number" [id]="'code_number'" [placeholder]="'Código'" [control]="codeNumber"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'engineering_code'" [label]="'Código ingeniería'">
-                <app-ui-input formControlName="engineering_code" [id]="'engineering_code'" [placeholder]="'Código ingeniería'" [control]="engineeringCode"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'engineering_code'" [label]="'Código ingeniería'">
+                    <app-ui-input formControlName="engineering_code" [id]="'engineering_code'" [placeholder]="'Código ingeniería'" [control]="engineeringCode"></app-ui-input>
+                </app-ui-form-field>
+            </app-ui-form-section>
 
-            <app-ui-form-field [controlName]="'machine'" [label]="'Máquina (opcional)'">
-                <app-ui-select [className]="'w-full'" formControlName="machine" [id]="'machine'" [control]="machine" [items]="machines()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-            </app-ui-form-field>
+            <app-ui-form-section [title]="'Máquina y proceso'" [cols]="2">
+                <app-ui-form-field [controlName]="'machine'" [label]="'Máquina (opcional)'">
+                    <app-ui-select [className]="'w-full'" formControlName="machine" [id]="'machine'" [control]="machine" [items]="machines()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'machine_type'" [label]="'Tipo de Máquina'">
-                <app-ui-select [className]="'w-full'" formControlName="machine_type" [id]="'machine_type'" [control]="machineType" [items]="machineTypes()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'machine_type'" [label]="'Tipo de Máquina'">
+                    <app-ui-select [className]="'w-full'" formControlName="machine_type" [id]="'machine_type'" [control]="machineType" [items]="machineTypes()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'process'" [label]="'Proceso'">
-                <app-ui-input formControlName="process" [id]="'process'" [placeholder]="'Proceso'" [control]="process"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'process'" [label]="'Proceso'">
+                    <app-ui-input formControlName="process" [id]="'process'" [placeholder]="'Proceso'" [control]="process"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'standard_time'" [label]="'Tiempo estándar'">
-                <app-ui-input [type]="'number'" [isFloat]="true" formControlName="standard_time" [id]="'standard_time'" [placeholder]="'Ej: 0.1500'" [control]="standardTime"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'standard_time'" [label]="'Tiempo estándar'">
+                    <app-ui-input [type]="'number'" [isFloat]="true" formControlName="standard_time" [id]="'standard_time'" [placeholder]="'Ej: 0.1500'" [control]="standardTime"></app-ui-input>
+                </app-ui-form-field>
+            </app-ui-form-section>
 
-            <app-ui-form-field [controlName]="'steps'" [label]="'Pasos del proceso'">
-                <app-ui-step-list-input formControlName="steps" [id]="'steps'" [control]="steps"
-                    [descriptionPlaceholder]="'Describe el paso'" [timePlaceholder]="'Tiempo'"
-                    [addLabel]="'Agregar paso'"></app-ui-step-list-input>
-            </app-ui-form-field>
+            <app-ui-form-section [title]="'Pasos del proceso'">
+                <app-ui-form-field [controlName]="'steps'" [label]="'Pasos del proceso'" [hideLabel]="true">
+                    <app-ui-step-list-input formControlName="steps" [id]="'steps'" [control]="steps"
+                        [descriptionPlaceholder]="'Describe el paso'" [timePlaceholder]="'Tiempo'"
+                        [addLabel]="'Agregar paso'"></app-ui-step-list-input>
+                </app-ui-form-field>
 
-            @if(actionType == 'edit'){
-            <app-ui-form-field [controlName]="'is_active'" [label]="'Registro activo'" [layout]="'horizontal'">
-                <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
-            </app-ui-form-field>
-            }
+                @if(actionType == 'edit'){
+                <app-ui-form-field [controlName]="'is_active'" [label]="'Registro activo'" [layout]="'horizontal'">
+                    <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
+                </app-ui-form-field>
+                }
+            </app-ui-form-section>
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>

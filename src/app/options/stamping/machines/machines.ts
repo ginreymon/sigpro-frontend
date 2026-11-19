@@ -12,6 +12,7 @@ import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
 import { StampingMachineTypeService } from '../../../services/stamping/stamping-machine-type-service';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
@@ -33,6 +34,7 @@ import { TitleCasePipe } from '@angular/common';
     SideModalLayout,
     ReactiveFormsModule,
     UiFormField,
+    UiFormSection,
     UiInput,
     UiSelect,
     UiCheckbox,

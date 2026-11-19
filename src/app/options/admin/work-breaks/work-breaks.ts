@@ -10,6 +10,7 @@ import { SideModalLayout } from '../../../shared/components/layout/side-modal-la
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { WorkBreakService } from '../../../services/production/work-break-service';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { TableTemplate } from '../../../directives/table-template';
@@ -29,6 +30,7 @@ import { TitleCasePipe } from '@angular/common';
     SideModalLayout,
     ReactiveFormsModule,
     UiFormField,
+    UiFormSection,
     UiInput,
     UiBadge,
     TableTemplate,

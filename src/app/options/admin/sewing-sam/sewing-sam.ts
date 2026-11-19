@@ -18,6 +18,7 @@ import { SideModalLayout } from '../../../shared/components/layout/side-modal-la
 import { TableTemplate } from '../../../directives/table-template';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { Metadata } from "../../../shared/components/widgets/metadata/metadata";
 import { SamTargetCalculator } from '../../../shared/components/production/widgets/sam-target-calculator/sam-target-calculator';
@@ -27,7 +28,7 @@ import { InfoPanelLine, UiInfoPanel } from '../../../shared/elements/ui-info-pan
 
 @Component({
   selector: 'app-sewing-sam',
-  imports: [WorkSpaceLayout, DataTable, ModalLayout, SideModalLayout, ReactiveFormsModule, UiErrorMessage, UiFormField, UiInput, TableTemplate, CharSquare, Metadata, SamTargetCalculator, SamTargetCalculatorPanel, UiInfoPanel],
+  imports: [WorkSpaceLayout, DataTable, ModalLayout, SideModalLayout, ReactiveFormsModule, UiErrorMessage, UiFormField, UiFormSection, UiInput, TableTemplate, CharSquare, Metadata, SamTargetCalculator, SamTargetCalculatorPanel, UiInfoPanel],
   providers: [SamCalculatorStateService],
   templateUrl: './sewing-sam.html',
   styleUrl: './sewing-sam.css',

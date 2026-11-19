@@ -1,9 +1,25 @@
-<div [class]="'bg-brand-50 p-6 rounded mt-4 flex gap-4 ' + (align === 'row'
-    ? 'flex-col sm:flex-row items-center justify-between'
-    : 'flex-col items-start justify-between')">
-    @for (line of lines; track line.label) {
-        <p [class]="'text-sm text-brand-400 ' + (invertStyles ? 'font-bold text-primary' : 'italic')">
-            {{ line.label }}: <strong [class]="invertStyles ? 'italic font-normal' : 'font-bold text-primary'">{{ line.value }}</strong>
-        </p>
+<div class="flex overflow-hidden rounded-lg border border-brand-100 bg-brand-50/60">
+
+    <span class="w-1 shrink-0 bg-brand-500" aria-hidden="true"></span>
+
+    @if (align === 'row') {
+    <dl class="flex flex-1 flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3">
+        @for (line of lines; track line.label) {
+        <div class="flex flex-col gap-0.5">
+            <dt [class]="'text-xs font-medium tracking-wide ' + (invertStyles ? 'text-brand-700' : 'text-slate-500')">{{ line.label }}</dt>
+            <dd [class]="'text-lg tabular-nums ' + (invertStyles ? 'font-normal text-slate-500' : 'font-semibold text-brand-700')">{{ line.value }}</dd>
+        </div>
+        }
+    </dl>
+    } @else {
+    <dl class="flex-1 divide-y divide-brand-100 px-4">
+        @for (line of lines; track line.label) {
+        <div class="flex items-baseline justify-between gap-4 py-2.5">
+            <dt [class]="'text-sm ' + (invertStyles ? 'font-semibold text-brand-700' : 'text-slate-500')">{{ line.label }}</dt>
+            <dd [class]="'text-sm tabular-nums text-right ' + (invertStyles ? 'font-normal text-slate-500' : 'font-semibold text-brand-700')">{{ line.value }}</dd>
+        </div>
+        }
+    </dl>
     }
+
 </div>

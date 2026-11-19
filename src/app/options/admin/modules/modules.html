@@ -84,15 +84,12 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'moduleForm'" (onCancel)="closeModelForm()">
-
-    <div class="max-h-[50vh] overflow-y-auto">
+<app-modal-layout [formId]="'moduleForm'" [mode]="actionType" [subtitle]="'Define el módulo, su ubicación y el centro de trabajo asociado.'" (onCancel)="closeModelForm()">
 
     <form id="moduleForm" [formGroup]="modelForm" (ngSubmit)="submit()">
-        <fieldset [disabled]="showLoader()">
+        <fieldset [disabled]="showLoader()" class="space-y-2">
 
-            <div class="mt-4 space-y-4">
-
+            <app-ui-form-section [title]="'Identificación'" [cols]="2">
                 <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
                     <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
                 </app-ui-form-field>
@@ -107,12 +104,10 @@
 
                 <app-ui-form-field [controlName]="'location_id'" [label]="'Ubicación'">
                     <app-ui-select [className]="'w-full'" formControlName="location_id" [id]="'location_id'" [control]="locationId" [items]="productionAreas()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
-                </app-ui-form-field>               
-
-                <app-ui-form-field [controlName]="'allows_production_time_adjustment'" [label]="'Tiempo manual'" [layout]="'horizontal'">
-                    <app-ui-checkbox formControlName="allows_production_time_adjustment" [control]="allowsProductionTimeAdjustment" [id]="'allows_production_time_adjustment'"></app-ui-checkbox>
                 </app-ui-form-field>
+            </app-ui-form-section>
 
+            <app-ui-form-section [title]="'Centro de trabajo y cuenta'" [cols]="2">
                 <app-ui-form-field [controlName]="'work_center_id'" [label]="'Centro de trabajo'">
                     <app-ui-select [className]="'w-full'" formControlName="work_center_id" [id]="'work_center_id'" [control]="workCenter" [items]="workCenters()" [key]="'description'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
@@ -121,7 +116,13 @@
                     <app-ui-select [className]="'w-full'" formControlName="assigned_user_id" [id]="'assigned_user_id'" [control]="assignedUserId" [items]="users()" [key]="'username'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
 
-                @if(isStampingLocation){
+                <app-ui-form-field [controlName]="'allows_production_time_adjustment'" [label]="'Tiempo manual'" [layout]="'horizontal'">
+                    <app-ui-checkbox formControlName="allows_production_time_adjustment" [control]="allowsProductionTimeAdjustment" [id]="'allows_production_time_adjustment'"></app-ui-checkbox>
+                </app-ui-form-field>
+            </app-ui-form-section>
+
+            @if(isStampingLocation){
+            <app-ui-form-section [title]="'Estampación'" [description]="'Solo aplica a módulos de la ubicación de estampación.'" [cols]="2">
                 <app-ui-form-field [controlName]="'machine'" [label]="'Máquina asignada'">
                     <app-ui-select [className]="'w-full'" formControlName="machine" [id]="'machine'" [control]="machine" [items]="machines()" [key]="'name'" [keyValue]="'id'" [showDefaultOption]="true"></app-ui-select>
                 </app-ui-form-field>
@@ -129,9 +130,8 @@
                 <app-ui-form-field [controlName]="'uses_processes_search'" [label]="'Otros formatos (OP)'" [layout]="'horizontal'">
                     <app-ui-checkbox formControlName="uses_processes_search" [control]="usesProcessesSearch" [id]="'uses_processes_search'"></app-ui-checkbox>
                 </app-ui-form-field>
-                }
-
-            </div>
+            </app-ui-form-section>
+            }
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
@@ -140,7 +140,4 @@
         </fieldset>
     </form>
 
-    </div>
-
 </app-modal-layout>
-

@@ -58,34 +58,40 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'employeeContinuousWorkLimitForm'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'employeeContinuousWorkLimitForm'" [mode]="actionType" [subtitle]="'Limita los minutos de trabajo continuo de un empleado.'" (onCancel)="closeModelForm()">
 
     <form id="employeeContinuousWorkLimitForm" [formGroup]="modelForm" (ngSubmit)="submit()">
-        <fieldset [disabled]="showLoader()">
+        <fieldset [disabled]="showLoader()" class="space-y-2">
 
-            <app-ui-form-field [controlName]="'employee_id'" [label]="'Empleado'">
-                <app-ui-select [className]="'w-full'" formControlName="employee_id" [id]="'employee_id'"
-                    [control]="employeeId" [items]="employees()" [key]="'full_name'" [keyValue]="'id'"
-                    [showDefaultOption]="true"></app-ui-select>
-            </app-ui-form-field>
+            <app-ui-form-section [title]="'Empleado y límite'" [cols]="2">
+                <app-ui-form-field [controlName]="'employee_id'" [label]="'Empleado'">
+                    <app-ui-select [className]="'w-full'" formControlName="employee_id" [id]="'employee_id'"
+                        [control]="employeeId" [items]="employees()" [key]="'full_name'" [keyValue]="'id'"
+                        [showDefaultOption]="true"></app-ui-select>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'continuous_work_minutes'" [label]="'Máx. minutos continuos'">
-                <app-ui-input formControlName="continuous_work_minutes" [id]="'continuous_work_minutes'"
-                    [placeholder]="'Máx. minutos por hora'" [control]="continuousWorkMinutes" [type]="'number'"></app-ui-input>
-            </app-ui-form-field>
+                <app-ui-form-field [controlName]="'continuous_work_minutes'" [label]="'Máx. minutos continuos'">
+                    <app-ui-input formControlName="continuous_work_minutes" [id]="'continuous_work_minutes'"
+                        [placeholder]="'Máx. minutos por hora'" [control]="continuousWorkMinutes" [type]="'number'"></app-ui-input>
+                </app-ui-form-field>
 
-            <app-ui-form-field [controlName]="'description'" [label]="'Descripción'">
-                <app-ui-textarea formControlName="description" [id]="'description'"
-                    [placeholder]="'Descripción'" [control]="description" [rows]="4"></app-ui-textarea>
-            </app-ui-form-field>
+                <div class="sm:col-span-2">
+                    <app-ui-info-panel [lines]="[{ label: 'Máx. minutos continuos', value: continuousWorkMinutesInfo }]"></app-ui-info-panel>
+                </div>
+            </app-ui-form-section>
 
-            @if(actionType == 'edit'){
-            <app-ui-form-field [controlName]="'is_active'" [label]="'Estado'" [layout]="'horizontal'">
-                <app-ui-checkbox formControlName="is_active" [id]="'is_active'" [control]="isActive"></app-ui-checkbox>
-            </app-ui-form-field>
-            }
+            <app-ui-form-section [title]="'Detalle'">
+                <app-ui-form-field [controlName]="'description'" [label]="'Descripción'">
+                    <app-ui-textarea formControlName="description" [id]="'description'"
+                        [placeholder]="'Descripción'" [control]="description" [rows]="4"></app-ui-textarea>
+                </app-ui-form-field>
 
-            <app-ui-info-panel [lines]="[{ label: 'Máx. minutos continuos', value: continuousWorkMinutesInfo }]"></app-ui-info-panel>
+                @if(actionType == 'edit'){
+                <app-ui-form-field [controlName]="'is_active'" [label]="'Estado'" [layout]="'horizontal'">
+                    <app-ui-checkbox formControlName="is_active" [id]="'is_active'" [control]="isActive"></app-ui-checkbox>
+                </app-ui-form-field>
+                }
+            </app-ui-form-section>
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>

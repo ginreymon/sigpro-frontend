@@ -11,6 +11,8 @@ import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { distinctUntilChanged, finalize, Subscription } from 'rxjs';
 import { StampingReferenceSamService } from '../../../services/stamping/stamping-reference-sam-service';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
+import { UiInfoPanel } from '../../../shared/elements/ui-info-panel/ui-info-panel';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { UiCombobox } from '../../../shared/elements/ui-combobox/ui-combobox';
@@ -67,6 +69,8 @@ const TAB_FIELDS: Record<string, string[]> = {
     SideModalLayout,
     ReactiveFormsModule,
     UiFormField,
+    UiFormSection,
+    UiInfoPanel,
     UiInput,
     UiCheckbox,
     TableTemplate,

@@ -8,6 +8,7 @@ import { SideModalLayout } from '../../../shared/components/layout/side-modal-la
 import { ModalLayout } from '../../../shared/components/layout/modal-layout/modal-layout';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { WorkCenterService } from '../../../services/production/work-center-service';
@@ -38,6 +39,7 @@ import { UserService } from '../../../services/user/user-service';
     ModalLayout,
     ReactiveFormsModule,
     UiFormField,
+    UiFormSection,
     UiInput,
     UiSelect,
     TableTemplate,

@@ -11,6 +11,7 @@ import { ModalLayout } from '../../../shared/components/layout/modal-layout/moda
 import { AbstractControl, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { UiHourInput } from '../../../shared/elements/ui-hour-input/ui-hour-input';
@@ -36,6 +37,7 @@ import { UiInfoPanel } from '../../../shared/elements/ui-info-panel/ui-info-pane
     ReactiveFormsModule,
     UiErrorMessage,    
     UiFormField,
+    UiFormSection,
     UiInput,
     UiSelect,
     UiHourInput,
