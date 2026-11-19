@@ -117,8 +117,17 @@ export class WorkShiftSummary implements OnInit {
 
   protected loadProductivityCards(s: WorkSession): void {
     const moduleId = s.current_module?.id;
+    // No module on the session: do not query (and never invent an id).
+    if (moduleId === undefined) {
+      this.summaryLoading.set(false);
+      if (this.refreshRequested) {
+        this.refreshRequested = false;
+        this.contextService.notifySummaryRefreshed();
+      }
+      return;
+    }
 
-    this.getModuleSummary().pipe(finalize(() => {
+    this.getModuleSummary(moduleId).pipe(finalize(() => {
       this.summaryLoading.set(false);
       // Tell the page that a requested refresh has finished (the cards are already updated).
       if (this.refreshRequested) {
@@ -178,8 +187,8 @@ export class WorkShiftSummary implements OnInit {
     }));
   }
 
-  protected getModuleSummary(): Observable<ModuleEfficiencyStatus[]> {
-    return this.productivityService.getModuleShiftSummary();
+  protected getModuleSummary(moduleId: number): Observable<ModuleEfficiencyStatus[]> {
+    return this.productivityService.getModuleShiftSummary(undefined, moduleId);
   }
 
   protected getEffectiveSam(): number | undefined {
