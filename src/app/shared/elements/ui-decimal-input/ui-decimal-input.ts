@@ -30,6 +30,9 @@ export class UiDecimalInput extends BaseControlValueAccessor<number | null> {
     const input = event.target as HTMLInputElement;
     let raw = input.value.replace(/[^0-9.,]/g, '');
 
+    // decimals = 0 means integers only: no separator at all.
+    if (this.decimals === 0) raw = raw.replace(/[.,]/g, '');
+
     const firstSeparator = raw.search(/[.,]/);
     if (firstSeparator !== -1) {
       const integerPart = raw.slice(0, firstSeparator).replace(/[.,]/g, '');
