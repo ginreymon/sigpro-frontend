@@ -1,9 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Location } from '@angular/common';
 import { ErrorPage } from '../../layouts/error-page/error-page';
 import { UiIcon } from '../../shared/elements/ui-icon/ui-icon';
-import { AuthService } from '../../services/auth/auth-service';
 
 @Component({
   selector: 'app-not-found',
@@ -13,13 +12,13 @@ import { AuthService } from '../../services/auth/auth-service';
 })
 export class NotFound {
   private location = inject(Location);
-  private authService = inject(AuthService);
+  private router = inject(Router);
 
   goBack() {
     this.location.back();
   }
 
   goHome() {
-    this.authService.logout();
+    this.router.navigateByUrl('/');
   }
 }
