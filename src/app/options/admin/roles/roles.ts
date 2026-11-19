@@ -14,11 +14,11 @@ import { HomeView } from '../../../models/core/home-view';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Module } from '../../../models/core/module';
+import { Option } from '../../../models/core/option';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { UiTree, UiTreeId, UiTreeNode } from '../../../shared/elements/ui-tree/ui-tree';
 import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
-import { UiAccordionItem } from '../../../shared/elements/ui-accordion-item/ui-accordion-item';
 import { TableTemplate } from '../../../directives/table-template';
 import { minArrayLength } from '../../../common/functions/min-array-length';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
@@ -40,7 +40,6 @@ import { TitleCasePipe } from '@angular/common';
     UiErrorMessage,
     UiTree,
     UiBadge,
-    UiAccordionItem,
     TableTemplate,
     CharSquare,
     Metadata,
@@ -55,7 +54,8 @@ export class Roles extends BaseCrudPage<Role> {
   modules = signal<Module[]>([]);
   homeViews = signal<HomeView[]>([]);
   private titleCase = new TitleCasePipe();
-  expandedOptionIds = signal<Set<number>>(new Set());
+  /** Read-only module -> page tree of the role shown in the side modal. */
+  viewedTree = signal<UiTreeNode[]>([]);
 
   constructor(
     private roleService: RoleService,
@@ -115,24 +115,6 @@ export class Roles extends BaseCrudPage<Role> {
 
   totalOptionCount = computed(() => this.optionTree().reduce((sum, m) => sum + m.children!.length, 0));
 
-  protected override closeModelForm(): void {
-    this.expandedOptionIds.set(new Set());
-    super.closeModelForm();
-  }
-
-  isOptionExpanded(id: number): boolean {
-    return this.expandedOptionIds().has(id);
-  }
-
-  toggleOptionExpanded(id: number): void {
-    const expanded = new Set(this.expandedOptionIds());
-    if (expanded.has(id)) {
-      expanded.delete(id);
-    } else {
-      expanded.add(id);
-    }
-    this.expandedOptionIds.set(expanded);
-  }
 
   protected override initializeModelForm(): void {
     this.modelForm = this.fb.group({
@@ -144,6 +126,9 @@ export class Roles extends BaseCrudPage<Role> {
 
   protected override actionHandler(event: TableActionEvent<Role>): void {
     super.actionHandler(event);
+    if (event.type == 'view') {
+      this.viewedTree.set(this.buildViewedTree(event.obj.options ?? []));
+    }
     if (event.type == 'edit') {
       this.modelForm.patchValue(event.obj);
       const ids = event.obj.options.map((op) => {
@@ -164,6 +149,31 @@ export class Roles extends BaseCrudPage<Role> {
 
   get homeViewId() {
     return this.modelForm?.get('home_view_id');
+  }
+
+  /** Groups a role's assigned options by module, keeping the module order of the catalog. */
+  private buildViewedTree(options: Option[]): UiTreeNode[] {
+    return this.modules()
+      .map((module) => ({
+        id: `m-${module.id}`,
+        label: this.titleCase.transform(module.name),
+        children: options
+          .filter((option) => option.module_id === module.id)
+          .map((option) => ({
+            id: option.id,
+            label: this.titleCase.transform(option.title || option.name) + (option.state ? '' : ' (inactiva)'),
+            description: option.description || undefined,
+          })),
+      }))
+      .filter((node) => node.children.length);
+  }
+
+  viewedModuleCount(): number {
+    return this.viewedTree().length;
+  }
+
+  viewedOptionCount(): number {
+    return this.viewedTree().reduce((sum, m) => sum + m.children!.length, 0);
   }
 
   onOptionsChange(ids: UiTreeId[]): void {

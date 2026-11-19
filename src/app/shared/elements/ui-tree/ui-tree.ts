@@ -51,6 +51,27 @@ export class UiTree {
     return map;
   });
 
+  /** Ids of every node that has children. */
+  private parentIds = computed(() => {
+    const ids: UiTreeId[] = [];
+    const walk = (node: UiTreeNode) => {
+      if (node.children) {
+        ids.push(node.id);
+        node.children.forEach(walk);
+      }
+    };
+    this.nodes().forEach(walk);
+    return ids;
+  });
+
+  expandAll(): void {
+    this.toggledIds.set(new Set(this.defaultExpanded() ? [] : this.parentIds()));
+  }
+
+  collapseAll(): void {
+    this.toggledIds.set(new Set(this.defaultExpanded() ? this.parentIds() : []));
+  }
+
   isExpanded(id: UiTreeId): boolean {
     return this.defaultExpanded() !== this.toggledIds().has(id);
   }

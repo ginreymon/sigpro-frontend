@@ -14,7 +14,9 @@
         @if (hasChildren(node)) {
           <app-ui-icon [iconName]="isExpanded(node.id) ? 'angleUp' : 'angleDown'" [class]="'h-4 w-4 text-gray-400 shrink-0'"></app-ui-icon>
         } @else {
-          <span class="h-4 w-4 shrink-0"></span>
+          <span class="h-4 w-4 shrink-0 flex items-center justify-center" aria-hidden="true">
+            @if (!selectable()) { <span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span> }
+          </span>
         }
 
         @if (selectable()) {
