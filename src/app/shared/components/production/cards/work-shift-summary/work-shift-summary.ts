@@ -84,7 +84,13 @@ export class WorkShiftSummary implements OnInit {
 
   @Input()
   set session(s: WorkSession | null) {
+    const prev = this.activeSession;
     this.activeSession = s;
+    // After a save the page hands over the re-read session right after this card already refreshed
+    // the summary for the same module and shift: reuse it instead of requesting it a second time.
+    this.reuseRefreshedSummary = !!s && !!prev && this.summaryFreshFromRefresh && !!this.lastSummary
+      && prev.current_module?.id === s.current_module?.id && prev.work_shift.id === s.work_shift.id;
+    this.summaryFreshFromRefresh = false;
     if (!s) {
       this.cards.set([]);
       return;
@@ -114,9 +120,18 @@ export class WorkShiftSummary implements OnInit {
   // tarjeta "Meta" (ej. cuando el SAM efectivo se conoce después, ver
   // StampingShiftSummary.refreshMetaCard) sin repetir la llamada HTTP.
   private lastSummary: EfficiencyPeriod | null = null;
+  private summaryFreshFromRefresh = false;
+  private reuseRefreshedSummary = false;
 
   protected loadProductivityCards(s: WorkSession): void {
     const moduleId = s.current_module?.id;
+    if (this.reuseRefreshedSummary && this.lastSummary) {
+      this.reuseRefreshedSummary = false;
+      this.summaryLoading.set(false);
+      this.applySummaryToCards(s, this.lastSummary);
+      return;
+    }
+    this.reuseRefreshedSummary = false;
     // No module on the session: do not query (and never invent an id).
     if (moduleId === undefined) {
       this.summaryLoading.set(false);
@@ -127,6 +142,7 @@ export class WorkShiftSummary implements OnInit {
       return;
     }
 
+    const fromRefresh = this.refreshRequested;
     this.getModuleSummary(moduleId).pipe(finalize(() => {
       this.summaryLoading.set(false);
       // Tell the page that a requested refresh has finished (the cards are already updated).
@@ -153,6 +169,7 @@ export class WorkShiftSummary implements OnInit {
         };
 
         this.lastSummary = summary;
+        this.summaryFreshFromRefresh = fromRefresh;
         this.contextService.setEfficiency(summary);
         this.applySummaryToCards(s, summary);
       },
