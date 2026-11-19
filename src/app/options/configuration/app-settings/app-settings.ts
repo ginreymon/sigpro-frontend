@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { BaseCrudPage } from '../../../common/classes/base-crud-page';
-import { AppSetting } from '../../../models/core/app-setting';
+import { AppSetting, AppSettingDataTypeCode } from '../../../models/core/app-setting';
 import { AppSettingService } from '../../../services/core/app-setting-service';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TableActions } from '../../../common/interfaces/table-actions';
@@ -16,11 +16,23 @@ import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
-import { UiLargeInput } from '../../../shared/elements/ui-large-input/ui-large-input';
+import { UiTextarea } from '../../../shared/elements/ui-textarea/ui-textarea';
+import { UiDecimalInput } from '../../../shared/elements/ui-decimal-input/ui-decimal-input';
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
-import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { TableTemplate } from '../../../directives/table-template';
+
+/** Rejects text that is not valid JSON (empty is handled by `required`). */
+function jsonValidator(control: AbstractControl): ValidationErrors | null {
+  const text = control.value;
+  if (typeof text !== 'string' || !text.trim()) return null;
+  try {
+    JSON.parse(text);
+    return null;
+  } catch {
+    return { json: true };
+  }
+}
 
 @Component({
   selector: 'app-app-settings',
@@ -35,9 +47,9 @@ import { TableTemplate } from '../../../directives/table-template';
     UiFormField,
     UiInput,
     UiSelect,
-    UiLargeInput,
+    UiTextarea,
+    UiDecimalInput,
     UiCheckbox,
-    UiBadge,
     UiErrorMessage,
     TableTemplate,  
   ],
@@ -68,7 +80,6 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
       { field: 'name', label: 'Nombre' },
       { type: 'template', label: 'Valor', templateName: 'valueTemplate' },
       { type: 'template', label: 'Tipo', templateName: 'dataTypeTemplate' },
-      { type: 'template', label: 'Estado', templateName: 'statusTemplate' },
     ];
   }
 
@@ -92,19 +103,27 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
     this.modelForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       value: ['', [Validators.required]],
+      value_number: this.fb.control<number | null>(null),
+      value_bool: this.fb.control<boolean>(false),
       data_type: ['STRING', [Validators.required]],
       description: [null],
-      is_active: [true],
     });
   }
 
   protected override actionHandler(event: TableActionEvent<AppSetting>): void {
     super.actionHandler(event);
     if (event.type === 'edit') {
-      this.modelForm.patchValue({ ...event.obj, data_type: event.obj.data_type_code });
+      const code = event.obj.data_type_code;
+      const raw = event.obj.value ?? '';
+      this.modelForm.patchValue({
+        ...event.obj,
+        data_type: code,
+        value_number: this.isNumeric(code) && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null,
+        value_bool: raw.trim().toLowerCase() === 'true',
+      });
+      this.applyValueValidators(code);
       this.name?.disable();
       this.dataType?.disable();
-      this.isActive?.disable();
     }
   }
 
@@ -112,7 +131,7 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
     if (!this.validateModelForm()) return;
     this.loaderService.showLoader();
     const payload: Partial<AppSetting> = {
-      value: this.value?.value,
+      value: this.resolveValue(),
       description: this.description?.value,
     };
     this.crudService
@@ -130,9 +149,37 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
       });
   }
 
+  isNumeric(code: string | undefined): boolean {
+    return code === 'INTEGER' || code === 'DECIMAL';
+  }
+
+  /** Only the control that matches the data type is required/validated. */
+  private applyValueValidators(code: AppSettingDataTypeCode): void {
+    const textValidators =
+      code === 'STRING' ? [Validators.required] : code === 'JSON' ? [Validators.required, jsonValidator] : [];
+    this.value?.setValidators(textValidators);
+    this.valueNumber?.setValidators(this.isNumeric(code) ? [Validators.required] : []);
+    this.value?.updateValueAndValidity();
+    this.valueNumber?.updateValueAndValidity();
+  }
+
+  /** The API stores the value as text, so each type is sent in its canonical text form. */
+  private resolveValue(): string {
+    switch (this.dataType?.value as AppSettingDataTypeCode) {
+      case 'BOOLEAN':
+        return this.valueBool?.value ? 'true' : 'false';
+      case 'INTEGER':
+      case 'DECIMAL':
+        return String(this.valueNumber?.value);
+      default:
+        return this.value?.value;
+    }
+  }
+
   get name() { return this.modelForm?.get('name'); }
   get value() { return this.modelForm?.get('value'); }
   get dataType() { return this.modelForm?.get('data_type'); }
   get description() { return this.modelForm?.get('description'); }
-  get isActive() { return this.modelForm?.get('is_active'); }
+  get valueNumber() { return this.modelForm?.get('value_number'); }
+  get valueBool() { return this.modelForm?.get('value_bool'); }
 }

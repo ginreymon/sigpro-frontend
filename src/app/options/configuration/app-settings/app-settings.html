@@ -17,10 +17,6 @@
                 {{ getDataTypeLabel(row.data_type_code) }}
             </ng-template>
 
-            <ng-template appTableTemplate="statusTemplate" let-row>
-                <app-ui-badge [active]="row.is_active"></app-ui-badge>
-            </ng-template>
-
         </app-data-table>
     </div>
 </app-work-space-layout>
@@ -41,7 +37,6 @@
         <p><strong>Valor:</strong> {{ rowObject.value }}</p>
         <p><strong>Tipo de dato:</strong> {{ getDataTypeLabel(rowObject.data_type_code) }}</p>
         <p><strong>Descripción:</strong> {{ rowObject.description || 'Sin descripción' }}</p>
-        <p><strong>Estado activo:</strong> {{ rowObject.is_active ? 'Sí' : 'No' }}</p>
     </div>
 
     <app-metadata [rowObject]="rowObject"></app-metadata>
@@ -58,15 +53,6 @@
                     [id]="'name'"
                     [placeholder]="'Nombre de la configuración'"
                     [control]="name">
-                </app-ui-input>
-            </app-ui-form-field>
-
-            <app-ui-form-field [controlName]="'value'" [label]="'Valor'">
-                <app-ui-input
-                    formControlName="value"
-                    [id]="'value'"
-                    [placeholder]="'Valor de la configuración'"
-                    [control]="value">
                 </app-ui-input>
             </app-ui-form-field>
 
@@ -89,19 +75,46 @@
                 }
             </app-ui-form-field>
 
+            @switch (dataType?.value) {
+                @case ('BOOLEAN') {
+                    <app-ui-form-field [controlName]="'value_bool'" [label]="'Valor'" [layout]="'horizontal'">
+                        <app-ui-checkbox formControlName="value_bool" [control]="valueBool" [id]="'value_bool'"></app-ui-checkbox>
+                    </app-ui-form-field>
+                }
+                @case ('INTEGER') {
+                    <app-ui-form-field [controlName]="'value_number'" [label]="'Valor'">
+                        <app-ui-decimal-input formControlName="value_number" [id]="'value_number'" [decimals]="0"
+                            [placeholder]="'Número entero'" [control]="valueNumber"></app-ui-decimal-input>
+                    </app-ui-form-field>
+                }
+                @case ('DECIMAL') {
+                    <app-ui-form-field [controlName]="'value_number'" [label]="'Valor'">
+                        <app-ui-decimal-input formControlName="value_number" [id]="'value_number'" [decimals]="6"
+                            [placeholder]="'Número decimal'" [control]="valueNumber"></app-ui-decimal-input>
+                    </app-ui-form-field>
+                }
+                @case ('JSON') {
+                    <app-ui-form-field [controlName]="'value'" [label]="'Valor (JSON)'">
+                        <app-ui-textarea formControlName="value" [id]="'value'" [rows]="5"
+                            [placeholder]="'JSON válido'" [control]="value"></app-ui-textarea>
+                    </app-ui-form-field>
+                }
+                @default {
+                    <app-ui-form-field [controlName]="'value'" [label]="'Valor'">
+                        <app-ui-input formControlName="value" [id]="'value'"
+                            [placeholder]="'Valor de la configuración'" [control]="value"></app-ui-input>
+                    </app-ui-form-field>
+                }
+            }
+
             <app-ui-form-field [controlName]="'description'" [label]="'Descripción'">
-                <app-ui-large-input
+                <app-ui-textarea
                     formControlName="description"
                     [id]="'description'"
+                    [rows]="5"
                     [placeholder]="'Descripción opcional'">
-                </app-ui-large-input>
+                </app-ui-textarea>
             </app-ui-form-field>
-
-            @if(actionType === 'edit'){
-            <app-ui-form-field [controlName]="'is_active'" [label]="'Activo'" [layout]="'horizontal'">
-                <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
-            </app-ui-form-field>
-            }
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
