@@ -1,53 +1,36 @@
-<div class="sm:hidden">
-  <app-drag-carousel [leadingPadding]="true" [verticalPadding]="true">
-    @for (tab of tabs; track tab.key; let last = $last) {
-      <div class="flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          [disabled]="tab.disabled"
-          (click)="setTab(tab.key)"
-          [class.text-brand-400]="activeTab() === tab.key && !tab.hasError"
-          [class.text-gray-500]="activeTab() !== tab.key && !tab.disabled && !tab.hasError"
-          [class.text-red-500]="tab.hasError"
-          [class.opacity-50]="tab.disabled"
-          [class.cursor-not-allowed]="tab.disabled"
-          [class.pointer-events-none]="tab.disabled"
-          class="px-1 py-0.5 rounded hover:bg-gray-100 hover:text-brand-700 transition-colors cursor-pointer whitespace-nowrap">
-          {{ tab.label }}
-        </button>
-        @if (!last) {
-          <app-ui-icon [iconName]="'chevronRight'" class="h-4 w-4 text-gray-400 shrink-0"></app-ui-icon>
+<nav aria-label="Navegación por pestañas" class="w-full flex" [class.justify-start]="align === 'left'" [class.justify-center]="align === 'center'" [class.justify-end]="align === 'right'">
+  <div
+    #track
+    role="tablist"
+    class="scrollbar-none inline-flex max-w-full items-center gap-1 overflow-x-auto overscroll-x-contain rounded-xl border border-gray-200 bg-gray-100/70 p-1 snap-x">
+    @for (tab of tabs; track tab.key) {
+      <button
+        type="button"
+        role="tab"
+        [attr.data-key]="tab.key"
+        [attr.aria-selected]="activeTab() === tab.key"
+        [disabled]="tab.disabled"
+        (click)="setTab(tab.key)"
+        class="relative inline-flex h-10 sm:h-8 shrink-0 snap-start items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 sm:px-4 text-sm font-medium transition-all duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand-400"
+        [class.bg-brand]="activeTab() === tab.key && !tab.hasError"
+        [class.bg-red-500]="activeTab() === tab.key && tab.hasError"
+        [class.text-white]="activeTab() === tab.key"
+        [class.shadow-sm]="activeTab() === tab.key"
+        [class.text-red-500]="tab.hasError && activeTab() !== tab.key"
+        [class.text-gray-500]="activeTab() !== tab.key && !tab.hasError"
+        [class.hover:bg-white/60]="activeTab() !== tab.key && !tab.disabled"
+        [class.hover:text-brand-700]="activeTab() !== tab.key && !tab.disabled && !tab.hasError"
+        [class.opacity-50]="tab.disabled"
+        [class.cursor-not-allowed]="tab.disabled"
+        [class.pointer-events-none]="tab.disabled">
+        @if (tab.icon) {
+          <app-ui-icon [iconName]="tab.icon" class="h-4 w-4 shrink-0"></app-ui-icon>
         }
-      </div>
-    }
-  </app-drag-carousel>
-</div>
-
-<nav aria-label="breadcrumbs" class="hidden sm:block w-full">
-  <ol
-    class="flex items-center flex-wrap gap-2 text-sm w-full"
-    [class.justify-start]="align === 'left'"
-    [class.justify-center]="align === 'center'"
-    [class.justify-end]="align === 'right'">
-    @for (tab of tabs; track tab.key; let last = $last) {
-      <li class="flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          [disabled]="tab.disabled"
-          (click)="setTab(tab.key)"
-          [class.text-brand-400]="activeTab() === tab.key && !tab.hasError"
-          [class.text-gray-500]="activeTab() !== tab.key && !tab.disabled && !tab.hasError"
-          [class.text-red-500]="tab.hasError"
-          [class.opacity-50]="tab.disabled"
-          [class.cursor-not-allowed]="tab.disabled"
-          [class.pointer-events-none]="tab.disabled"
-          class="px-1 py-0.5 rounded hover:bg-gray-100 hover:text-brand-700 transition-colors cursor-pointer whitespace-nowrap">
-          {{ tab.label }}
-        </button>
-        @if (!last) {
-          <app-ui-icon [iconName]="'chevronRight'" class="h-4 w-4 text-gray-400 shrink-0"></app-ui-icon>
+        {{ tab.label }}
+        @if (activeTab() === tab.key) {
+          <span aria-hidden="true" class="absolute inset-x-3 bottom-0.5 h-px rounded-full bg-white"></span>
         }
-      </li>
+      </button>
     }
-  </ol>
+  </div>
 </nav>

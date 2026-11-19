@@ -1,5 +1,5 @@
 <div class="flex flex-col h-full min-h-full">
-  <app-ui-breadcrumb [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" class="mb-2 border-b border-slate-200 lg:border-b-0" [align]="'right'"></app-ui-breadcrumb>
+  <app-ui-breadcrumb [tabs]="tabs" [activeKey]="activeTab()" (tabChange)="onTabChange($event)" class="mb-3" [align]="'right'"></app-ui-breadcrumb>
 
   <div class="flex-1 min-h-0">
     @if (activeTab() === 'sewing-sam') {

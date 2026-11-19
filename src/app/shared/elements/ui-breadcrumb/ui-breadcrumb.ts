@@ -1,14 +1,14 @@
-import { Component, Input, Output, EventEmitter, signal, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, effect, ElementRef, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { UiIcon } from '../ui-icon/ui-icon';
 import { TabItem } from '../ui-tabs/ui-tabs';
-import { DragCarousel } from '../../components/widgets/drag-carousel/drag-carousel';
 
 export type UiBreadcrumbAlign = 'left' | 'center' | 'right';
 
 @Component({
   selector: 'app-ui-breadcrumb',
-  imports: [UiIcon, DragCarousel],
+  imports: [UiIcon],
   templateUrl: './ui-breadcrumb.html',
+  styleUrl: './ui-breadcrumb.css',
   host: { class: 'block' },
 })
 export class UiBreadcrumb implements OnChanges {
@@ -17,7 +17,21 @@ export class UiBreadcrumb implements OnChanges {
   @Input() align: UiBreadcrumbAlign = 'left';
   @Output() tabChange = new EventEmitter<string>();
 
+  @ViewChild('track') private track?: ElementRef<HTMLElement>;
+
   activeTab = signal('');
+
+  constructor() {
+    // Keep the active tab visible when the strip scrolls horizontally (small screens).
+    effect(() => {
+      const key = this.activeTab();
+      queueMicrotask(() =>
+        this.track?.nativeElement
+          .querySelector<HTMLElement>(`[data-key="${key}"]`)
+          ?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }),
+      );
+    });
+  }
 
   @Input() set activeKey(key: string) {
     if (key && key !== this.activeTab()) this.activeTab.set(key);
