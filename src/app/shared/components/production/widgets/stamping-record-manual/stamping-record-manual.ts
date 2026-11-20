@@ -37,7 +37,6 @@ import { ManualStampingRecordsStore } from '../../../../../services/stamping/man
 export class StampingRecordManual extends StampingRecord implements OnChanges {
   protected override showWindowStatus = false;
   protected override saveButtonLabel = 'Agregar';
-  protected override checkEfficiency = false;
 
   private manualStampingRecordsStore = inject(ManualStampingRecordsStore);
 

@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
 import { BaseCrudService } from '../common/base-crud-service';
 import { StampingRecord } from '../../models/stamping/stamping-record';
-import { ManualBatchSimulation, SingleRecordSimulation } from '../../models/production/manual-batch-simulation';
+import { ManualBatchSimulation } from '../../models/production/manual-batch-simulation';
 
 @Injectable({
   providedIn: 'root',
@@ -27,11 +27,6 @@ export class StampingRecordService extends BaseCrudService<StampingRecord> {
       records,
       duration_seconds,
     });
-  }
-
-  // Dry run of a regular create(): efficiency check of one record before saving.
-  simulateRecord(record: Partial<StampingRecord>): Observable<SingleRecordSimulation> {
-    return this.http.post<SingleRecordSimulation>(`${this.endpoint}simulate/`, record);
   }
 
   // Dry run of createManualBatch: returns the allowed duration range and the
