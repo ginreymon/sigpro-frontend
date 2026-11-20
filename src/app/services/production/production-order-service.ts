@@ -12,7 +12,10 @@ import { OrderMaterialsResponse } from '../../models/production/order-materials'
   providedIn: 'root',
 })
 export class ProductionOrderService {
-  private path: string = `${environment.BASE_API_URL}/production`;
+  // Read lazily: BASE_API_URL is resolved by an app initializer after this service may be created.
+  private get path(): string {
+    return `${environment.BASE_API_URL}/production`;
+  }
 
   constructor(private http: HttpClient) {}
 
