@@ -11,7 +11,10 @@ import { getDynamicRoutes } from '../../routes/get-dynamic-routes';
   providedIn: 'root',
 })
 export class MenuService {
-  private path: string = `${environment.BASE_API_URL}/core/menu/`;
+  // Read lazily: BASE_API_URL is resolved by an app initializer after this service may be created.
+  private get path(): string {
+    return `${environment.BASE_API_URL}/core/menu/`;
+  }
 
   private menuSubject = new BehaviorSubject<Module[] | null>(null);
   public menu$ = this.menuSubject.asObservable();

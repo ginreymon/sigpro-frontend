@@ -31,7 +31,10 @@ interface ProcessesOrderResponse extends Omit<StampingOrderDetail, 'colorRows'> 
   providedIn: 'root',
 })
 export class OPStampingService {
-  private path: string = `${environment.BASE_API_URL}/stamping`;
+  // Read lazily: BASE_API_URL is resolved by an app initializer after this service may be created.
+  private get path(): string {
+    return `${environment.BASE_API_URL}/stamping`;
+  }
 
   constructor(private http: HttpClient) {}
 

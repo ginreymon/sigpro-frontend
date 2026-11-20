@@ -24,7 +24,10 @@ export interface EfficiencyReportParams {
   providedIn: 'root',
 })
 export class ProductivityService {
-  private path = `${environment.BASE_API_URL}/production/productivity`;
+  // Read lazily: BASE_API_URL is resolved by an app initializer after this service may be created.
+  private get path(): string {
+    return `${environment.BASE_API_URL}/production/productivity`;
+  }
 
   constructor(private http: HttpClient) {}
 
