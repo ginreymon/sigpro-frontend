@@ -10,7 +10,6 @@ import { UiIcon } from '../../shared/elements/ui-icon/ui-icon';
   templateUrl: './update-page.html',
 })
 export class UpdatePage {
-  @Input() pillLabel = '';
   @Input() title = '';
   @Input() description = '';
   @Input() badgeLabel = '';

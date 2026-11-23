@@ -8,7 +8,6 @@ import { UiIcon } from '../../shared/elements/ui-icon/ui-icon';
 })
 export class ErrorPage {
   @Input() code = '';
-  @Input() pillLabel = 'Error del Sistema';
   @Input() title = '';
   @Input() description = '';
   @Input() errorId = '';
