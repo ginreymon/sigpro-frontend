@@ -11,5 +11,6 @@ export const homeComponentMap: Record<string, ComponentLoader> = {
   'HomeProductionCoordinator': () => import('../pages/home/views/home-production-coordinator/home-production-coordinator').then((m) => m.HomeProductionCoordinator),
   'HomeStampingCoordinator': () => import('../pages/home/views/home-stamping-coordinator/home-stamping-coordinator').then((m) => m.HomeStampingCoordinator),
   'HomeEngineer': () => import('../pages/home/views/home-engineer/home-engineer').then((m) => m.HomeEngineer),
+  'HomeAdmin': () => import('../pages/home/views/home-system-monitoring/home-system-monitoring').then((m) => m.HomeSystemMonitoring),
   'HomeScreenPrinter': () => import('../pages/home/views/home-screen-printer/home-screen-printer').then((m) => m.HomeScreenPrinter),
 };

@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   inject,
   LOCALE_ID,
   provideAppInitializer,
@@ -11,10 +12,12 @@ import { authInterceptor } from './interceptors/auth-interceptor';
 import { routes } from './app.routes';
 import { resolveApiBaseUrl } from './services/core/api-base-url-initializer';
 import { AuthService } from './services/auth/auth-service';
+import { ClientErrorHandler } from './services/system-monitoring/client-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    { provide: ErrorHandler, useClass: ClientErrorHandler },
     // After the first navigation, download the user's own (menu-based) lazy pages in the
     // background so opening them later has no loading delay.
     provideRouter(routes, withPreloading(PreloadAllModules)),

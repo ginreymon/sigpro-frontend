@@ -1,0 +1,275 @@
+<div class="flex flex-col gap-4">
+  @if (loading() && !summary()) {
+    <div class="flex flex-col gap-4 motion-safe:animate-pulse" role="status" aria-label="Cargando estado del sistema">
+      <div class="h-16 rounded-xl bg-gray-100"></div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="h-64 rounded-xl bg-gray-100 lg:col-span-2"></div>
+        <div class="h-64 rounded-xl bg-gray-100"></div>
+      </div>
+    </div>
+  } @else if (!summary()) {
+    <div class="flex flex-wrap items-center gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3" role="alert">
+      <app-ui-icon [iconName]="'triangleExclamation'" class="w-5 h-5 shrink-0 text-red-700"></app-ui-icon>
+      <p class="flex-1 min-w-48 text-sm text-red-700">
+        No se pudo cargar el estado del sistema. Verifica tu conexión o tus permisos e intenta de nuevo.
+      </p>
+      <app-ui-button intent="danger" (onClick)="load()">Reintentar</app-ui-button>
+    </div>
+  } @else {
+    @let s = summary()!;
+    @let overall = view(s.overall);
+
+    <!-- Overall status -->
+    <section class="flex flex-wrap items-center gap-x-4 gap-y-2 bg-white border border-gray-200 rounded-xl px-4 py-3">
+      <span class="flex items-center justify-center w-10 h-10 rounded-full" [class]="overall.soft">
+        <span class="w-3 h-3 rounded-full" [class]="overall.dot"></span>
+      </span>
+      <div class="flex-1 min-w-48" aria-live="polite">
+        <h2 class="text-lg font-semibold text-gray-800">{{ overall.headline }}</h2>
+        <p class="text-sm text-slate-500">
+          Actualizado {{ updatedAt() | date: 'HH:mm:ss' }} · se refresca cada minuto
+          @if (failed()) {
+            · <span class="text-red-700 font-medium">no se pudo actualizar</span>
+          }
+        </p>
+      </div>
+      <app-ui-badge [intent]="s.environment === 'production' ? 'default' : 'warning'" [label]="s.environment === 'production' ? 'Producción' : 'Desarrollo'"></app-ui-badge>
+      <app-ui-button intent="action" (onClick)="load()" [disabled]="loading()">
+        <app-ui-icon [iconName]="'arrowsRotate'" class="w-4 h-4"></app-ui-icon>
+        Actualizar
+      </app-ui-button>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="flex flex-col gap-4 lg:col-span-2">
+        <!-- Services -->
+        <section class="bg-white border border-gray-200 rounded-xl" aria-labelledby="mon-services">
+          <h2 id="mon-services" class="px-4 py-3 text-sm font-semibold text-gray-700 border-b border-gray-200">Servicios</h2>
+          <ul class="divide-y divide-gray-100">
+            <li class="flex items-center gap-3 px-4 py-2.5">
+              <span class="flex-1 text-sm font-medium text-gray-700">Backend</span>
+              <span class="text-sm text-slate-500 tabular-nums">En línea {{ uptime(s.services.backend.uptime_seconds) }}</span>
+              <app-ui-badge [intent]="view(s.services.backend.status).intent" [label]="view(s.services.backend.status).label"></app-ui-badge>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2.5">
+              <span class="flex-1 text-sm font-medium text-gray-700">Base de datos</span>
+              <span class="text-sm text-slate-500 tabular-nums">
+                @if (s.services.database.latency_ms !== null) { {{ s.services.database.latency_ms | number: '1.0-0' }} ms } @else { Sin conexión }
+              </span>
+              <app-ui-badge [intent]="view(s.services.database.status).intent" [label]="view(s.services.database.status).label"></app-ui-badge>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2.5">
+              <span class="flex-1 text-sm font-medium text-gray-700">API</span>
+              <span class="text-sm text-slate-500 tabular-nums">
+                @if (s.services.api.total >= 10) { {{ s.services.api.availability | number: '1.0-1' }} % disponible } @else { Pocas peticiones registradas }
+              </span>
+              <app-ui-badge [intent]="view(s.services.api.status).intent" [label]="view(s.services.api.status).label"></app-ui-badge>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2.5">
+              <span class="flex-1 text-sm font-medium text-gray-700">Frontend</span>
+              <span class="text-sm text-slate-500 tabular-nums">{{ s.services.frontend.errors_last_15min }} errores en 15 min</span>
+              <app-ui-badge [intent]="view(s.services.frontend.status).intent" [label]="view(s.services.frontend.status).label"></app-ui-badge>
+            </li>
+            <li class="flex items-center gap-3 px-4 py-2.5">
+              <span class="flex-1 text-sm font-medium text-gray-700">SIESA</span>
+              <span class="text-sm text-slate-500">
+                @if (s.services.siesa.last_checked) { Última llamada {{ ms(s.services.siesa.last_checked) | date: 'HH:mm' }} } @else { Sin llamadas desde el reinicio }
+              </span>
+              <app-ui-badge [intent]="view(s.services.siesa.status).intent" [label]="view(s.services.siesa.status).label"></app-ui-badge>
+            </li>
+          </ul>
+        </section>
+
+        <!-- API + activity -->
+        <section class="grid grid-cols-2 sm:grid-cols-4 bg-white border border-gray-200 rounded-xl divide-x divide-gray-100" aria-label="Indicadores">
+          <div class="px-4 py-3">
+            <p class="text-xs text-slate-500">Disponibilidad API</p>
+            <p class="text-xl font-semibold text-gray-800 tabular-nums">
+              @if (s.services.api.availability !== null) { {{ s.services.api.availability | number: '1.0-1' }} % } @else { — }
+            </p>
+          </div>
+          <div class="px-4 py-3">
+            <p class="text-xs text-slate-500">Latencia p95</p>
+            <p class="text-xl font-semibold text-gray-800 tabular-nums">
+              @if (s.services.api.p95_ms !== null) { {{ s.services.api.p95_ms | number: '1.0-0' }} ms } @else { — }
+            </p>
+          </div>
+          <div class="px-4 py-3">
+            <p class="text-xs text-slate-500">Latencia BD</p>
+            <p class="text-xl font-semibold text-gray-800 tabular-nums">
+              @if (s.services.database.latency_ms !== null) { {{ s.services.database.latency_ms | number: '1.0-0' }} ms } @else { — }
+            </p>
+          </div>
+          <div class="px-4 py-3">
+            <p class="text-xs text-slate-500">Usuarios activos (5 min)</p>
+            <p class="text-xl font-semibold text-gray-800 tabular-nums">{{ s.active_users }}</p>
+          </div>
+        </section>
+        @if (s.services.api.since) {
+          <p class="-mt-2 px-1 text-xs text-slate-500">
+            Métricas de API desde {{ ms(s.services.api.since) | date: 'dd/MM HH:mm' }} ({{ s.services.api.total }} peticiones; se reinician al reiniciar el servidor).
+          </p>
+        }
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <!-- Alerts -->
+        <section class="bg-white border border-gray-200 rounded-xl" aria-labelledby="mon-alerts">
+          <h2 id="mon-alerts" class="px-4 py-3 text-sm font-semibold text-gray-700 border-b border-gray-200">Alertas</h2>
+          @if (s.alerts.length) {
+            <ul class="divide-y divide-gray-100">
+              @for (a of s.alerts; track a.message) {
+                <li class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700">
+                  <app-ui-icon [iconName]="'triangleExclamation'" class="w-4 h-4 shrink-0" [class]="a.level === 'down' ? 'text-red-700' : 'text-amber-700'"></app-ui-icon>
+                  {{ a.message }}
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="px-4 py-3 text-sm text-slate-500">Sin alertas activas.</p>
+          }
+        </section>
+
+        <!-- Quick links -->
+        @if (quickLinks().length) {
+          <nav class="bg-white border border-gray-200 rounded-xl" aria-labelledby="mon-links">
+            <h2 id="mon-links" class="px-4 py-3 text-sm font-semibold text-gray-700 border-b border-gray-200">Accesos rápidos</h2>
+            <ul class="p-1.5">
+              @for (l of quickLinks(); track l.route) {
+                <li>
+                  <a [routerLink]="l.route" class="flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-brand-200 outline-none transition-colors duration-200">
+                    <app-ui-icon [iconName]="l.iconName" class="w-4 h-4 shrink-0 text-brand-700"></app-ui-icon>
+                    <span class="flex-1">{{ l.label }}</span>
+                    <app-ui-icon [iconName]="'chevronRight'" class="w-3 h-3 text-gray-400"></app-ui-icon>
+                  </a>
+                </li>
+              }
+            </ul>
+          </nav>
+        }
+      </div>
+    </div>
+
+    <!-- Recent server errors -->
+    <section class="bg-white border border-gray-200 rounded-xl" aria-labelledby="mon-errors">
+      <h2 id="mon-errors" class="px-4 py-3 text-sm font-semibold text-gray-700 border-b border-gray-200">Errores recientes del servidor</h2>
+      @if (s.recent_errors.length) {
+        <ul class="divide-y divide-gray-100">
+          @for (e of s.recent_errors; track e.ts) {
+            <li class="flex items-center gap-3 px-4 py-2.5 text-sm">
+              <span class="w-16 shrink-0 text-slate-500 tabular-nums">{{ ms(e.ts) | date: 'HH:mm:ss' }}</span>
+              <span class="w-14 shrink-0 font-medium text-gray-700">{{ e.method }}</span>
+              <span class="flex-1 min-w-0 truncate text-gray-700" [title]="e.route">{{ e.route }}</span>
+              <app-ui-badge intent="danger" [label]="'' + e.status"></app-ui-badge>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="px-4 py-3 text-sm text-slate-500">No se han registrado errores 5xx desde el último reinicio del servidor.</p>
+      }
+    </section>
+
+    <!-- Developer diagnostics (admin/system-diagnostics only) -->
+    @if (canDiagnose()) {
+      <h2 class="mt-2 text-base font-semibold text-gray-800">Diagnóstico técnico</h2>
+      @if (diagnostics(); as d) {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <section class="bg-white border border-gray-200 rounded-xl px-4 py-3 flex flex-col gap-3" aria-labelledby="mon-host">
+            <h3 id="mon-host" class="text-sm font-semibold text-gray-700">Servidor <span class="font-normal text-slate-500">· {{ d.hostname }}</span></h3>
+            @for (m of [
+              { label: 'CPU', value: d.host.cpu_percent, detail: (d.host.cpu_percent | number: '1.0-0') + ' %' },
+              { label: 'Memoria', value: d.host.memory_percent, detail: (d.host.memory_used_mb | number: '1.0-0') + ' / ' + (d.host.memory_total_mb | number: '1.0-0') + ' MB' },
+              { label: 'Disco', value: d.host.disk_percent, detail: (d.host.disk_free_gb | number: '1.0-1') + ' GB libres' }
+            ]; track m.label) {
+              <div>
+                <div class="flex justify-between text-sm"><span class="font-medium text-gray-700">{{ m.label }}</span><span class="text-slate-500 tabular-nums">{{ m.detail }}</span></div>
+                <div class="mt-1 h-2 rounded-full bg-gray-100" role="progressbar" [attr.aria-label]="m.label" [attr.aria-valuenow]="m.value" aria-valuemin="0" aria-valuemax="100">
+                  <div class="h-2 rounded-full transition-[width] duration-200" [class]="meterClass(m.value)" [style.width.%]="m.value"></div>
+                </div>
+              </div>
+            }
+            <p class="text-sm text-slate-500">
+              BD: @if (d.database.size_mb !== null) { {{ d.database.size_mb | number: '1.0-0' }} MB } @else { tamaño no disponible }
+              · @if (d.database.user_sessions !== null) { {{ d.database.user_sessions }} sesiones } @else { sesiones sin permiso (VIEW SERVER STATE) }
+            </p>
+            <div class="flex items-center gap-2">
+              <app-ui-button intent="action" (onClick)="checkSiesa()" [disabled]="siesaChecking()">Probar conexión SIESA</app-ui-button>
+              @if (siesaCheck(); as r) {
+                <app-ui-badge [intent]="view(r.status).intent" [label]="view(r.status).label + (r.latency_ms ? ' · ' + (r.latency_ms | number: '1.0-0') + ' ms' : '')"></app-ui-badge>
+              }
+            </div>
+          </section>
+
+          <section class="bg-white border border-gray-200 rounded-xl lg:col-span-2" aria-labelledby="mon-slow">
+            <h3 id="mon-slow" class="px-4 py-3 text-sm font-semibold text-gray-700 border-b border-gray-200">Endpoints más lentos</h3>
+            @if (d.slow_endpoints.length) {
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="text-xs text-slate-500">
+                    <tr>
+                      <th scope="col" class="px-4 py-2 text-left font-medium">Endpoint</th>
+                      <th scope="col" class="px-2 py-2 text-right font-medium">Peticiones</th>
+                      <th scope="col" class="px-2 py-2 text-right font-medium">Prom. (ms)</th>
+                      <th scope="col" class="px-2 py-2 text-right font-medium">p95 (ms)</th>
+                      <th scope="col" class="px-4 py-2 text-right font-medium">Errores 5xx</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    @for (r of d.slow_endpoints; track r.method + r.route) {
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2 max-w-xs truncate text-gray-700" [title]="r.route"><span class="font-medium">{{ r.method }}</span> {{ r.route }}</td>
+                        <td class="px-2 py-2 text-right tabular-nums">{{ r.count | number }}</td>
+                        <td class="px-2 py-2 text-right tabular-nums">{{ r.avg_ms | number: '1.0-0' }}</td>
+                        <td class="px-2 py-2 text-right tabular-nums">{{ r.p95_ms | number: '1.0-0' }}</td>
+                        <td class="px-4 py-2 text-right tabular-nums" [class.text-red-700]="r.errors" [class.font-medium]="r.errors">{{ r.errors }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="px-4 py-3 text-sm text-slate-500">Aún no hay peticiones registradas.</p>
+            }
+          </section>
+
+          <section class="bg-white border border-gray-200 rounded-xl lg:col-span-2" aria-labelledby="mon-client-errors">
+            <h3 id="mon-client-errors" class="px-4 py-3 text-sm font-semibold text-gray-700 border-b border-gray-200">Errores del navegador</h3>
+            @if (d.client_errors.length) {
+              <ul class="divide-y divide-gray-100">
+                @for (e of d.client_errors; track e.ts) {
+                  <li class="px-4 py-2.5 text-sm">
+                    <p class="flex gap-3">
+                      <span class="shrink-0 text-slate-500 tabular-nums">{{ ms(e.ts) | date: 'HH:mm:ss' }}</span>
+                      <span class="flex-1 min-w-0 truncate font-medium text-gray-700" [title]="e.message">{{ e.message }}</span>
+                      <span class="shrink-0 text-slate-500">{{ e.path }}</span>
+                    </p>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="px-4 py-3 text-sm text-slate-500">Sin errores reportados por los navegadores.</p>
+            }
+          </section>
+
+          <section class="bg-white border border-gray-200 rounded-xl" aria-labelledby="mon-users">
+            <h3 id="mon-users" class="px-4 py-3 text-sm font-semibold text-gray-700 border-b border-gray-200">Usuarios activos</h3>
+            @if (d.active_users.length) {
+              <ul class="divide-y divide-gray-100 max-h-56 overflow-y-auto">
+                @for (u of d.active_users; track u.user_id) {
+                  <li class="flex items-center justify-between gap-3 px-4 py-2 text-sm">
+                    <span class="truncate text-gray-700">{{ u.username }}</span>
+                    <span class="shrink-0 text-slate-500 tabular-nums">{{ ms(u.ts) | date: 'HH:mm:ss' }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="px-4 py-3 text-sm text-slate-500">Nadie ha hecho peticiones en los últimos 5 minutos.</p>
+            }
+          </section>
+        </div>
+      } @else {
+        <p class="text-sm text-slate-500">Cargando diagnóstico…</p>
+      }
+    }
+  }
+</div>
