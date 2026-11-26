@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { WorkSpaceLayout } from '../../../layouts/work-space-layout/work-space-layout';
@@ -13,7 +13,7 @@ import { DataTable } from '../../../shared/components/table/data-table/data-tabl
 import { BaseProductionOrderPage } from '../../../common/classes/base-production-order-page';
 import { ProductionOrder } from '../../../models/production/production-order';
 import { UiButton } from '../../../shared/elements/ui-button/ui-button';
-import { UiBadge } from '../../../shared/elements/ui-badge/ui-badge';
+import { UiBadge, BadgeIntent } from '../../../shared/elements/ui-badge/ui-badge';
 import { SideModalLayout } from '../../../shared/components/layout/side-modal-layout/side-modal-layout';
 import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { AuditQuantityModal, AuditedColorQuantity } from '../../../shared/components/production/modals/audit-quantity-modal/audit-quantity-modal';
@@ -37,7 +37,7 @@ const TABS: TabItem[] = [
 
 @Component({
   selector: 'app-stamping-auditory',
-  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, OrderSkuAuditTable, OrderSearcher, UiButton, AuditQuantityModal, DataTable, TableTemplate, UiBadge, DatePipe, SideModalLayout, Metadata],
+  imports: [WorkSpaceLayout, UiTabs, UiIcon, OrderHeader, OrderSkuAuditTable, OrderSearcher, UiButton, AuditQuantityModal, DataTable, TableTemplate, UiBadge, DatePipe, DecimalPipe, SideModalLayout, Metadata],
   templateUrl: './auditory.html',
 })
 export class StampingAuditory extends BaseProductionOrderPage {
@@ -114,14 +114,27 @@ export class StampingAuditory extends BaseProductionOrderPage {
   private auditedOpsLimit = environment.DEFAULT_PAGE_SIZE;
   private auditedOpsSearchTerm = '';
 
+  // Display mapping of the backend's cut_completed (true / false / null) — no completion logic here.
+  protected cutStatus(op: AuditedOpSummary): { intent: BadgeIntent; label: string } {
+    if (op.cut_completed == null) return { intent: 'inactive', label: 'Sin datos' };
+    return op.cut_completed ? { intent: 'active', label: 'Completo' } : { intent: 'warning', label: 'Pendiente' };
+  }
+
+  // Plain difference of the backend's two cut quantities; null when either is missing or nothing is left.
+  protected cutRemaining(op: AuditedOpSummary): number | null {
+    const t = op.cut_tracking;
+    if (t?.qty_to_execute == null || t.qty_completed == null) return null;
+    const remaining = t.qty_to_execute - t.qty_completed;
+    return remaining > 0 ? remaining : null;
+  }
+
   protected auditedOpsColumns: TableColumn<AuditedOpSummary>[] = [
-    { field: 'op_type', label: 'Tipo' },
-    { field: 'op_number', label: 'OP' },
-    { field: 'total_ordered_quantity', label: 'Ordenada', align: 'right' },
-    { field: 'total_audited_quantity', label: 'Auditada', align: 'right' },
+    { field: 'updated_at', label: 'Fecha', type: 'template', templateName: 'auditedAtTemplate' },
+    { field: 'op_type', label: 'Tipo OP' },
+    { field: 'op_number', label: 'N° OP' },
+    { field: 'cut_completed', label: 'Estado en corte', type: 'template', templateName: 'cutStatusTemplate', align: 'center', filterValue: (row) => this.cutStatus(row).label },
     { field: 'matches_total', label: 'Resultado', type: 'template', templateName: 'matchesTotalTemplate', align: 'center' },
-    { field: 'updated_by_username', label: 'Auditada por' },
-    { field: 'updated_at', label: 'Fecha auditoría', type: 'template', templateName: 'auditedAtTemplate' },
+    { field: 'is_audited', label: 'Estado de auditoría', type: 'template', templateName: 'auditStatusTemplate', align: 'center' },
   ];
 
   protected auditedOpsActions: TableActions = {

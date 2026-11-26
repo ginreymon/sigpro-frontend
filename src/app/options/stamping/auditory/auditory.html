@@ -64,6 +64,14 @@
             </app-ui-badge>
           </ng-template>
 
+          <ng-template appTableTemplate="cutStatusTemplate" let-row>
+            <app-ui-badge [intent]="cutStatus(row).intent" [label]="cutStatus(row).label"></app-ui-badge>
+          </ng-template>
+
+          <ng-template appTableTemplate="auditStatusTemplate" let-row>
+            <app-ui-badge [intent]="row.is_audited ? 'active' : 'inactive'" [label]="row.is_audited ? 'Auditada' : 'Pendiente'"></app-ui-badge>
+          </ng-template>
+
           <ng-template appTableTemplate="auditedAtTemplate" let-row>
             {{ row.updated_at | date:'dd/MM/yyyy HH:mm' }}
           </ng-template>
@@ -97,32 +105,90 @@
 <app-side-modal-layout [hideCancel]="true" (onAccept)="closeAuditedOpDetail()">
 
   @if (selectedAuditedOp(); as op) {
-  <div class="mb-4 flex items-center justify-between gap-4">
-    <div>
-      <h3 class="text-2xl font-semibold text-slate-900 mb-2">{{ op.op_type }} {{ op.op_number }}</h3>
-      <p class="text-sm text-slate-500 mb-0.5">Ordenada: {{ op.total_ordered_quantity }} · Auditada: {{ op.total_audited_quantity }}</p>
-    </div>
-    <app-ui-badge
-      [intent]="op.matches_total ? 'active' : op.total_audited_quantity > op.total_ordered_quantity ? 'warning' : 'danger'"
-      [label]="op.matches_total ? 'Completo' : op.total_audited_quantity > op.total_ordered_quantity ? 'Sobrante' : 'Faltante'">
-    </app-ui-badge>
+  <div class="mb-6">
+    <h3 class="text-2xl font-semibold text-slate-900">{{ op.op_type }} {{ op.op_number }}</h3>
+    <p class="text-sm text-slate-500 mt-1">
+      Auditada el {{ op.updated_at | date:'dd/MM/yyyy HH:mm' }}@if (op.updated_by_username) { por {{ op.updated_by_username }}}
+    </p>
   </div>
 
-  <div class="mt-4 mb-2 divide-y divide-slate-200 border border-slate-200 rounded-lg">
-    @for (record of selectedAuditedOpRecords(); track record.color) {
-    <div class="flex items-center justify-between gap-3 px-4 py-3">
-      <span class="text-sm font-medium text-gray-700">{{ record.color }}</span>
-      <span class="flex items-center gap-4 text-sm">
-        <span class="text-gray-500">Ordenada: {{ record.ordered_quantity }}</span>
-        <span [class]="record.quantities_match ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'">
-          Auditada: {{ record.audited_quantity }}
-        </span>
-      </span>
+  <section class="mb-6" aria-labelledby="cut-heading">
+    <div class="flex items-center justify-between gap-3 mb-3">
+      <h4 id="cut-heading" class="text-lg font-semibold text-gray-700">Corte</h4>
+      <app-ui-badge [intent]="cutStatus(op).intent" [label]="cutStatus(op).label"></app-ui-badge>
     </div>
-    } @empty {
-    <p class="text-sm text-slate-400 px-4 py-3">Sin colores auditados.</p>
+
+    @if (op.cut_tracking; as cut) {
+      <p class="text-sm text-slate-600 mb-3">
+        @if (op.cut_completed) {
+          Estado de la OP en corte: <strong class="font-semibold text-gray-700">Completa</strong>.
+        } @else {
+          Estado de la OP en corte: <strong class="font-semibold text-gray-700">Pendiente</strong>@if (cutRemaining(op) !== null) {. Faltan {{ cutRemaining(op) | number:'1.0-2' }} por ejecutar}.
+        }
+      </p>
+      <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm border border-slate-200 rounded-lg p-4">
+        <div class="col-span-2">
+          <dt class="text-slate-500">Operación</dt>
+          <dd class="font-medium text-gray-700">{{ cut.operation ?? '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Por ejecutar</dt>
+          <dd class="font-semibold text-gray-700 tabular-nums">{{ cut.qty_to_execute !== null ? (cut.qty_to_execute | number:'1.0-2') : '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-slate-500">Completada</dt>
+          <dd class="font-semibold text-gray-700 tabular-nums">{{ cut.qty_completed !== null ? (cut.qty_completed | number:'1.0-2') : '—' }}</dd>
+        </div>
+        @if (cutRemaining(op) !== null) {
+        <div>
+          <dt class="text-slate-500">Restante</dt>
+          <dd class="font-semibold text-amber-700 tabular-nums">{{ cutRemaining(op) | number:'1.0-2' }}</dd>
+        </div>
+        }
+      </dl>
+    } @else {
+      <p class="text-sm text-slate-600 border border-slate-200 rounded-lg p-4">
+        Estado de la OP en corte: <strong class="font-semibold text-gray-700">Sin datos</strong>. No hay trazabilidad de corte para esta OP, lo que no significa que esté pendiente.
+      </p>
     }
-  </div>
+  </section>
+
+  <section class="mb-6" aria-labelledby="audit-heading">
+    <div class="flex items-center justify-between gap-3 mb-3">
+      <h4 id="audit-heading" class="text-lg font-semibold text-gray-700">Auditoría</h4>
+      <app-ui-badge
+        [intent]="op.matches_total ? 'active' : op.total_audited_quantity > op.total_ordered_quantity ? 'warning' : 'danger'"
+        [label]="op.matches_total ? 'Completo' : op.total_audited_quantity > op.total_ordered_quantity ? 'Sobrante' : 'Faltante'">
+      </app-ui-badge>
+    </div>
+
+    <dl class="grid grid-cols-2 gap-x-4 text-sm mb-3">
+      <div>
+        <dt class="text-slate-500">Ordenada</dt>
+        <dd class="font-semibold text-gray-700 tabular-nums">{{ op.total_ordered_quantity | number:'1.0-2' }}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">Auditada</dt>
+        <dd class="font-semibold text-gray-700 tabular-nums">{{ op.total_audited_quantity | number:'1.0-2' }}</dd>
+      </div>
+    </dl>
+
+    <div class="divide-y divide-slate-200 border border-slate-200 rounded-lg">
+      @for (record of selectedAuditedOpRecords(); track record.color) {
+      <div class="flex items-center justify-between gap-3 px-4 py-3">
+        <span class="text-sm font-medium text-gray-700">{{ record.color }}</span>
+        <span class="flex items-center gap-4 text-sm tabular-nums">
+          <span class="text-slate-500">Ordenada: {{ record.ordered_quantity | number:'1.0-2' }}</span>
+          <span [class]="record.quantities_match ? 'text-green-700 font-semibold' : 'text-red-700 font-semibold'">
+            Auditada: {{ record.audited_quantity | number:'1.0-2' }}
+          </span>
+        </span>
+      </div>
+      } @empty {
+      <p class="text-sm text-slate-500 px-4 py-3">Sin colores auditados.</p>
+      }
+    </div>
+  </section>
 
   <app-metadata [rowObject]="op"></app-metadata>
   }

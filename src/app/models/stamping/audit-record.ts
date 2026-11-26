@@ -29,6 +29,17 @@ export interface AuditedOpSummary extends AuditEntity {
   total_audited_quantity: number;
   matches_total: boolean;
   is_audited: boolean;
+  // Cutting (CR001) progress from the backend; null when the OP has no cut
+  // traceability (no CR001 operation or not in a valid production state).
+  cut_completed: boolean | null;
+  cut_tracking: CutTracking | null;
+}
+
+export interface CutTracking {
+  qty_to_execute: number | null;
+  qty_completed: number | null;
+  is_completed: boolean | null;
+  operation: string | null;
 }
 
 // Lightweight audit status for a single OP (docType/docNumber) — no per-color
