@@ -49,10 +49,13 @@ export function calculateTimeByBaseQuantity({ units, secondsPerUnit, extraSecond
 }
 
 // Recorded time mode (TEP_TIME_CALCULATION_MODE = false): (base_route_quantity - 10) / units, in hours,
-// shown as HH:MM. 0:00 without units or without base_route_quantity.
+// shown as HH:MM. 0:00 without units, without base_route_quantity, or when the divisor is not positive
+// (base_route_quantity <= offset), which would give negative or infinite time.
 export function calculateTimeByRecordedTime({ units, baseRouteQuantity }: TepTimeParams): TepTime {
   if (!units || baseRouteQuantity == null) return { hours: 0, minutes: 0 };
-  return secondsToTepTime((units / (baseRouteQuantity - BASE_ROUTE_QUANTITY_OFFSET)) * 3600);
+  const divisor = baseRouteQuantity - BASE_ROUTE_QUANTITY_OFFSET;
+  if (divisor <= 0) return { hours: 0, minutes: 0 };
+  return secondsToTepTime((units / divisor) * 3600);
 }
 
 // Single entry point of the "Tiempo (HH:MM)" of the integrate modal: picks the calculation by the
