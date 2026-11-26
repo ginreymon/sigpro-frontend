@@ -87,7 +87,7 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
 
   protected override get actions(): TableActions {
     return {
-      view: { enabled: true, title: 'Ver configuración', iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: true, title: 'Configuración', iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: true, title: 'Editar configuración', iconName: 'pencil', toolTip: 'Editar' },
       delete: { enabled: false, title: 'Eliminar configuración', iconName: 'trash', toolTip: 'Eliminar' },
       create: { enabled: false, title: 'Crear configuración' },

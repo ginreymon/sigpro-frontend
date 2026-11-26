@@ -42,7 +42,7 @@ export class SiesaOutbound extends BaseCrudPage<TepSubmission> {
   // crear/editar/eliminar desde la UI.
   protected override get actions(): TableActions {
     return {
-      view: { enabled: true, title: 'Detalle del documento', iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: true, title: 'Envío TEP', iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: false },
       delete: { enabled: false },
       create: { enabled: false },
