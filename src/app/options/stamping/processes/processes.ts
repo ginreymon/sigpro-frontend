@@ -21,10 +21,12 @@ import { TableActionEvent } from '../../../common/interfaces/table-action-event'
 import { UiSelect } from '../../../shared/elements/ui-select/ui-select';
 import { StampingMachine } from '../../../models/stamping/stamping-machine';
 import { StampingMachineService } from '../../../services/stamping/stamping-machine-service';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 
 @Component({
   selector: 'app-processes',
   imports: [
+    UiFormSection,
     WorkSpaceLayout,
     DataTable,
     UiErrorMessage,

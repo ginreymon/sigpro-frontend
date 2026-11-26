@@ -56,7 +56,7 @@ export class SewingSAM extends AdminOnlyCrudPage<SkuItemReference> {
   protected override get actions(): TableActions {
     if (!this.isAdminModule) return super.actions;
     return {
-      view: { enabled: true, title: 'Ver Referencia', iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: true, title: 'Referencia', iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: true, title: 'SAM', iconName: 'pencil', toolTip: 'SAM' },
       delete: { enabled: false },
       create: { enabled: false },
@@ -112,7 +112,7 @@ export class SewingSAM extends AdminOnlyCrudPage<SkuItemReference> {
           next: (data) => this.samRecord.set(data),
         });
       }
-      this.dialogService.openSideModal('Ver Referencia', 'Cerrar');
+      this.dialogService.openSideModal('Referencia', 'Cerrar');
     }
 
     if (event.type === 'edit') {

@@ -21,6 +21,7 @@ import { UiDecimalInput } from '../../../shared/elements/ui-decimal-input/ui-dec
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { TableTemplate } from '../../../directives/table-template';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 
 /** Rejects text that is not valid JSON (empty is handled by `required`). */
 function jsonValidator(control: AbstractControl): ValidationErrors | null {
@@ -37,6 +38,7 @@ function jsonValidator(control: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-app-settings',
   imports: [
+    UiFormSection,
     WorkSpaceLayout,
     DataTable,
     SideModalLayout,
@@ -85,7 +87,7 @@ export class AppSettings extends BaseCrudPage<AppSetting> {
 
   protected override get actions(): TableActions {
     return {
-      view: { enabled: true, title: 'Ver configuración', iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: true, title: 'Configuración', iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: true, title: 'Editar configuración', iconName: 'pencil', toolTip: 'Editar' },
       delete: { enabled: false, title: 'Eliminar configuración', iconName: 'trash', toolTip: 'Eliminar' },
       create: { enabled: false, title: 'Crear configuración' },

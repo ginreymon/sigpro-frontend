@@ -26,10 +26,12 @@ import { CharSquare } from "../../../shared/components/widgets/char-square/char-
 import { Metadata } from '../../../shared/components/widgets/metadata/metadata';
 import { TableColumn } from '../../../common/interfaces/table-column';
 import { TitleCasePipe } from '@angular/common';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 
 @Component({
   selector: 'app-roles',
   imports: [
+    UiFormSection,
     WorkSpaceLayout,
     DataTable,   
     SideModalLayout,

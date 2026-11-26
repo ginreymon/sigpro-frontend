@@ -1,25 +1,28 @@
 <div class="fixed inset-0 flex items-center justify-center overflow-x-hidden overflow-y-auto transition-all duration-300 cursor-default" [ngClass]="zClass"
-     [class]="transparent ? 'bg-transparent cursor-pointer' : 'bg-black/50 bg-opacity-10'"
+     [class]="transparent ? 'bg-transparent cursor-pointer' : 'bg-slate-900/40'"
      (click)="transparent && onRestoreClick.emit()">
-    <div [class]="`bg-white px-3 sm:px-6 py-3 sm:py-6 rounded-xl shadow-xl w-full max-h-[90vh] flex flex-col mx-2 sm:mx-4 transition-opacity duration-300 ${classNames ? classNames : 'max-w-xl'}`"
+    <div [class]="`bg-white rounded-xl shadow-xl w-full max-h-[90vh] flex flex-col overflow-hidden mx-2 sm:mx-4 transition-opacity duration-300 ${classNames ? classNames : 'max-w-xl'}`"
          [class.opacity-20]="transparent">
 
         @if(title){
-        <div class="flex items-center justify-between shrink-0">
-            <h2 class="text-lg font-semibold text-gray-900">{{ title | titlecase }}</h2>
+        <div class="flex items-center justify-between gap-4 shrink-0 border-b border-slate-200 px-4 sm:px-6 py-4">
+            <div class="flex flex-wrap items-center gap-2 min-w-0">
+                <h2 class="text-lg font-semibold text-slate-900">{{ title | titlecase }}</h2>
+                <app-ui-modal-badge [purpose]="purpose"></app-ui-modal-badge>
+            </div>
             <ng-content select="[box-header-actions]"></ng-content>
         </div>
         }
 
         @if(message){
-        <p class="text-gray-600 mt-2 shrink-0">{{ message }}</p>
+        <p class="text-slate-600 px-4 sm:px-6 pt-4 shrink-0">{{ message }}</p>
         }
 
-        <div class="flex-1 min-h-0 overflow-y-auto">
+        <div class="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4">
             <ng-content select="[box-content]"></ng-content>
         </div>
 
-        <div class="mt-4 flex justify-end gap-3 shrink-0">
+        <div class="flex justify-end gap-3 shrink-0 border-t border-slate-200 bg-slate-50 px-4 sm:px-6 py-3">
             <ng-content select="[box-buttons]"></ng-content>
         </div>
 

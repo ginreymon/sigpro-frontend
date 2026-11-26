@@ -1,5 +1,5 @@
 @if (isOpen() && !currentSession?.editing_finalized) {
-<app-box-layout [title]="isPaused() ? 'Jornada pausada' : 'Registro hora'" [classNames]="'max-w-md'" [transparent]="isTransparent()"  (onRestoreClick)="isTransparent.set(false)">
+<app-box-layout [purpose]="isPaused() ? null : 'register'" [title]="isPaused() ? 'Jornada pausada' : 'Registro hora'" [classNames]="'max-w-md'" [transparent]="isTransparent()"  (onRestoreClick)="isTransparent.set(false)">
 
   <app-ui-tooltip box-header-actions [message]="'Transparente'">
     <button class="p-1 rounded hover:bg-gray-100 transition-colors text-gray-400 cursor-pointer"
@@ -10,7 +10,7 @@
 
   <div box-content [class]="'flex flex-col items-center'">
 
-    <app-order-info-bar class="w-full mt-4"></app-order-info-bar>
+    <app-order-info-bar class="w-full"></app-order-info-bar>
 
     <app-time-progress-circle
       [startTime]="hourStart()"
@@ -50,7 +50,7 @@
     }
   </div>
 
-  <div box-buttons class="w-full flex flex-row items-center gap-3 border-t border-slate-200 pt-4">
+  <div box-buttons class="w-full flex flex-row items-center gap-3">
     @if (isPaused()) {
       @if (currentBreak()?.custom_reason) {
         <app-ui-button class="ml-auto shrink-0" [intent]="'action'" (onClick)="resume()">

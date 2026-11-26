@@ -138,7 +138,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
   ];
 
   protected auditedOpsActions: TableActions = {
-    view: { enabled: true, title: 'Detalle auditoría', iconName: 'eye', toolTip: 'Ver detalle' },
+    view: { enabled: true, title: 'Auditoría', iconName: 'eye', toolTip: 'Ver detalle' },
     edit: { enabled: false },
     delete: { enabled: true, title: 'Eliminar auditoría', iconName: 'trash', toolTip: 'Eliminar' },
     create: { enabled: false },
@@ -305,7 +305,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
       .subscribe((records) => {
         this.selectedAuditedOp.set(row);
         this.selectedAuditedOpRecords.set(records);
-        this.dialogService.openSideModal('Detalle auditoría', 'Cerrar');
+        this.dialogService.openSideModal('Auditoría', 'Cerrar');
       });
   }
 

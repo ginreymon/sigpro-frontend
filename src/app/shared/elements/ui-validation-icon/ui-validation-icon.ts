@@ -10,4 +10,6 @@ import { BaseInputIcon } from '../../../common/classes/base-input-icon';
 })
 export class UiValidationIcon extends BaseInputIcon {
   @Input() matchPattern: boolean = false;
+  /** Icon shown when invalid; defaults to the shared 'fail' icon. */
+  @Input() failIcon: string = 'fail';
 }

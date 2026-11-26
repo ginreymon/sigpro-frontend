@@ -18,6 +18,7 @@ import { UiOptionCard } from '../../../../elements/ui-option-card/ui-option-card
 import { OPStampingService } from '../../../../../services/stamping/op-stamping-service';
 import { OrderTraceability } from '../../../../../models/stamping/order-traceability';
 import { ProductionContextService } from '../../../../../services/production/production-context-service';
+import { AppConfigService } from '../../../../../services/core/app-config-service';
 
 @Component({
   selector: 'app-order-searcher',
@@ -45,6 +46,7 @@ export class OrderSearcher implements OnInit {
   poService = inject(ProductionOrderService);
   opStampingService = inject(OPStampingService);
   contextService = inject(ProductionContextService);
+  appConfig = inject(AppConfigService);
   wslService = inject(WorkSpaceLoaderService);
   loaderServive = inject(LoaderService);
   @Output() onFoundDoc = new EventEmitter<ProductionOrder | null>();
@@ -148,7 +150,9 @@ export class OrderSearcher implements OnInit {
         .getTraceability(documentNumber, documentType)
         .subscribe({
           next: (ops) => {
-            const activeOps = ops.filter((o) => o.status === 1 || o.status === 2);
+            const activeOps = this.appConfig.showAllProductionOrders
+              ? ops
+              : ops.filter((o) => o.status === 1 || o.status === 2);
             if (!activeOps.length) {
               this.loaderServive.hideLoader();
               this.errorMessage.set('No se encontraron resultados');

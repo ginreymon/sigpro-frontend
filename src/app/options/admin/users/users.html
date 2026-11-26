@@ -48,9 +48,7 @@
 
     </div>
 
-    <div class="mb-4 border-t border-slate-200 pt-4">
-
-        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Empleado asociado </h4>
+    <app-ui-form-section [title]="'Empleado asociado'">
 
         <div class="space-y-2 text-sm">
             @if(rowObject.employee){
@@ -61,12 +59,10 @@
             }
         </div>
 
-    </div>
+    </app-ui-form-section>
 
     @if(rowObject.groups?.length){
-    <div class="mb-4 border-t border-slate-200 pt-4">
-
-        <h4 class="text-xl font-semibold text-gray-700 mb-2"> Roles </h4>
+    <app-ui-form-section [title]="'Roles'">
 
         <div class="space-y-2 text-sm">
             <p>
@@ -76,7 +72,7 @@
             </p>
         </div>
 
-    </div>
+    </app-ui-form-section>
     }
 
 </app-side-modal-layout>
@@ -114,7 +110,7 @@
                 <app-ui-form-field [controlName]="'confirmPassword'" [label]="'Confirmar contraseña'">
                     <div class="relative">
                         <app-ui-input formControlName="confirmPassword" [id]="'confirmPassword'" [type]="'password'" [placeholder]="'Confirmar contraseña'" [control]="confirmPassword" [extraInvalid]="!!(confirmPassword?.touched && !passwordsMatch)"></app-ui-input>
-                        <app-ui-validation-icon [control]="confirmPassword" [extraInvalid]="!!(confirmPassword?.touched && !passwordsMatch)" [matchPattern]="passwordsMatch"></app-ui-validation-icon>
+                        <app-ui-validation-icon [failIcon]="'circleXmarkRegular'" [control]="confirmPassword" [extraInvalid]="!!(confirmPassword?.touched && !passwordsMatch)" [matchPattern]="passwordsMatch"></app-ui-validation-icon>
                     </div>
                 </app-ui-form-field>
 
@@ -129,18 +125,25 @@
             <app-ui-form-section [title]="'Rol'" [description]="'Selecciona el rol que define los accesos del usuario.'">
                 <app-ui-form-field [label]="'Rol'" [controlName]="'role'" [hideLabel]="true">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+                    <div role="radiogroup" aria-label="Rol" class="space-y-2">
                         @for(rol of roles(); track rol.id){
-                        <app-ui-option-card (onToggle)="toggleRole(rol.id)" [selected]="isSelected(rol.id)">
-                            <div class="font-medium text-sm">
-                                {{ rol.name | titlecase }}
+                        <app-ui-select-accordion-item [selected]="isSelected(rol.id)" [expandLabel]="'Ver accesos de ' + rol.name" (onSelect)="toggleRole(rol.id)">
+                            <div item-header>
+                                <div class="text-sm font-medium text-slate-900">{{ rol.name | titlecase }}</div>
+                                <div class="text-xs text-slate-500">{{ rol.options.length }} {{ rol.options.length == 1 ? 'acceso' : 'accesos' }}</div>
                             </div>
-                            <div class="text-xs text-gray-500">
-                                @for(option of rol.options; track option){
-                                <span>{{ option.name | titlecase }} / </span>
+                            <div item-body>
+                                @if(rol.options.length){
+                                <ul class="flex flex-wrap gap-1.5">
+                                    @for(option of rol.options; track option){
+                                    <li class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{{ option.name | titlecase }}</li>
+                                    }
+                                </ul>
+                                } @else {
+                                <p class="text-xs text-slate-400 italic">Sin accesos asignados</p>
                                 }
                             </div>
-                        </app-ui-option-card>
+                        </app-ui-select-accordion-item>
                         }
                     </div>
 

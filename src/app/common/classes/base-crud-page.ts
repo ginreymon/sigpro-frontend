@@ -17,9 +17,14 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
   protected errorMessage = signal<string | null>(null);
   protected abstract entityName: string;
 
+  /** Entity name with a leading capital; the modal badge already states the action (Ver detalles, Editar...). */
+  protected get entityTitle(): string {
+    return this.entityName.charAt(0).toUpperCase() + this.entityName.slice(1);
+  }
+
   protected get actions(): TableActions {
     return {
-      view: { enabled: true, title: `Ver ${this.entityName}`, iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: true, title: this.entityTitle, iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: true, title: `Editar ${this.entityName}`, iconName: 'pencil', toolTip: 'Editar' },
       delete: { enabled: true, title: `Eliminar ${this.entityName}`, iconName: 'trash', toolTip: 'Eliminar' },
       create: { enabled: true, title: `Crear ${this.entityName}`, },
@@ -88,7 +93,7 @@ export abstract class BaseCrudPage<T extends BaseEntity> extends ActionsCrudPage
         callback?.();
         this.closeModelForm();
         const actionVerb = this.actionType === 'create' ? 'creó' : 'actualizó';
-        const label = this.entityName.charAt(0).toUpperCase() + this.entityName.slice(1);
+        const label = this.entityTitle;
         this.dialogService.openToast(label, `Se ${actionVerb} correctamente.`, 'check');
         this.reload(() => this.loaderService.hideLoader());
       },

@@ -1,5 +1,6 @@
-<app-modal-layout [visible]="visible" [title]="'Encomendados'" [acceptLabel]="'Actualizar'" [hideAccept]="readOnly" (onAccept)="save()" (onCancel)="cancel()">
+<app-modal-layout [visible]="visible" [mode]="readOnly ? 'view' : 'update'" [title]="'Encomendados'" [acceptLabel]="'Actualizar'" [hideAccept]="readOnly" (onAccept)="save()" (onCancel)="cancel()">
 
+  <app-ui-form-section>
   <app-ui-form-field [label]="'Empleados'">
     <div class="flex flex-col max-h-[50vh]">
       <app-employee-picker
@@ -17,6 +18,7 @@
       </app-employee-picker>
     </div>
   </app-ui-form-field>
+  </app-ui-form-section>
 
   @if (attempted() && selectedIds().length === 0) {
     <app-ui-error-message>Debe seleccionar al menos un empleado</app-ui-error-message>

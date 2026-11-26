@@ -10,8 +10,8 @@ import { BaseCrudPage } from '../../../common/classes/base-crud-page';
 import { RoleService } from '../../../services/user/role-service';
 import { Role } from '../../../models/user/role';
 import { UiFormField } from '../../../shared/elements/ui-form-field/ui-form-field';
+import { UiSelectAccordionItem } from '../../../shared/elements/ui-select-accordion-item/ui-select-accordion-item';
 import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
-import { UiOptionCard } from '../../../shared/elements/ui-option-card/ui-option-card';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../services/auth/auth-service';
 import { UiInput } from '../../../shared/elements/ui-input/ui-input';
@@ -40,7 +40,7 @@ import { TitleCasePipe } from '@angular/common';
     UiLabelButton,   
     UiFormField,
     UiFormSection,
-    UiOptionCard,
+    UiSelectAccordionItem,
     ReactiveFormsModule,
     UiInput,
     UiErrorMessage,
