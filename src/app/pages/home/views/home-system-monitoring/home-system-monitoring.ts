@@ -24,18 +24,19 @@ const STATUS_VIEW: Record<ServiceStatus, { intent: BadgeIntent; label: string; h
   unknown: { intent: 'inactive', label: 'Sin datos', headline: 'Sin datos suficientes', dot: 'bg-gray-400', soft: 'bg-gray-100' },
 };
 
-interface QuickLink {
+interface AreaConfigLink {
+  area: string; // production area shown as the group header
   label: string;
   option: string; // "module/option", shown only when the role has it
   iconName: string;
 }
 
-const QUICK_LINKS: QuickLink[] = [
-  { label: 'Usuarios', option: 'admin/users', iconName: 'user' },
-  { label: 'Roles', option: 'admin/roles', iconName: 'lock' },
-  { label: 'Auditoría', option: 'stamping/auditory', iconName: 'fileLines' },
-  { label: 'Variables globales', option: 'configuration/app-settings', iconName: 'gears' },
-  { label: 'Configuración general', option: 'admin/general-config', iconName: 'gear' },
+// To add a production area or one of its configuration pages, add one entry here.
+const AREA_CONFIGS: AreaConfigLink[] = [
+  { area: 'Confección', label: 'Configuración de confección', option: 'production/sewing-config', iconName: 'gears' },
+  { area: 'Confección', label: 'SAM de confección', option: 'admin/sewing-sam', iconName: 'gear' },
+  { area: 'Estampación', label: 'Configuración de máquinas', option: 'stamping/machines-config', iconName: 'gears' },
+  { area: 'Estampación', label: 'SAM de estampación', option: 'admin/stamping-sam', iconName: 'gear' },
 ];
 
 @Component({
@@ -64,9 +65,15 @@ export class HomeSystemMonitoring implements OnInit {
       ),
   );
   readonly canDiagnose = computed(() => this.optionKeys().has(DIAGNOSTICS_OPTION));
-  readonly quickLinks = computed(() =>
-    QUICK_LINKS.filter((l) => this.optionKeys().has(l.option)).map((l) => ({ ...l, route: `/${l.option}` })),
-  );
+  /** Allowed configuration links grouped by production area, in declaration order. */
+  readonly areaGroups = computed(() => {
+    const groups = new Map<string, (AreaConfigLink & { route: string })[]>();
+    for (const l of AREA_CONFIGS) {
+      if (!this.optionKeys().has(l.option)) continue;
+      groups.set(l.area, [...(groups.get(l.area) ?? []), { ...l, route: `/${l.option}` }]);
+    }
+    return [...groups].map(([area, links]) => ({ area, links }));
+  });
 
   ngOnInit(): void {
     this.load();
