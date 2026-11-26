@@ -70,6 +70,12 @@ export class AppConfigService {
     return this.get(AppSettingKey.TEP_TIME_CALCULATION_MODE) === 'true';
   }
 
+  // true: orders are shown/processable regardless of ERP status, audit or completion.
+  // Missing setting -> false (current behavior).
+  get showAllProductionOrders(): boolean {
+    return this.get(AppSettingKey.SHOW_ALL_PRODUCTION_ORDERS) === 'true';
+  }
+
   get stampingCalibrationWindowSeconds(): number {
     return this.getNumber(AppSettingKey.STAMPING_CALIBRATION_WINDOW, 15) * 60;
   }
