@@ -45,7 +45,7 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'appSettingForm'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'appSettingForm'" [mode]="actionType == 'delete' ? 'delete' : 'configure'" (onCancel)="closeModelForm()">
     <form id="appSettingForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()" class="space-y-2">
 

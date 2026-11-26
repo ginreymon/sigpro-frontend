@@ -32,7 +32,7 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'stampingProcessForm'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'stampingProcessForm'" [mode]="actionType" (onCancel)="closeModelForm()">
 
     <form id="stampingProcessForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()" class="space-y-2">

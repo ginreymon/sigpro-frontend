@@ -1,4 +1,4 @@
-<app-modal-layout [visible]="visible" [title]="'Encomendados'" [acceptLabel]="'Actualizar'" [hideAccept]="readOnly" (onAccept)="save()" (onCancel)="cancel()">
+<app-modal-layout [visible]="visible" [mode]="readOnly ? 'view' : 'update'" [title]="'Encomendados'" [acceptLabel]="'Actualizar'" [hideAccept]="readOnly" (onAccept)="save()" (onCancel)="cancel()">
 
   <app-ui-form-section>
   <app-ui-form-field [label]="'Empleados'">

@@ -56,7 +56,7 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'roleForm'" [classNames]="'max-w-2xl'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'roleForm'" [mode]="actionType" [classNames]="'max-w-2xl'" (onCancel)="closeModelForm()">
   <p modal-bottom class="text-xs text-slate-500">{{ selectedVisibleCount() }}/{{ totalOptionCount() }} opciones seleccionadas</p>
   <form id="roleForm" [formGroup]="modelForm" (ngSubmit)="submit()">  
     <fieldset [disabled]="showLoader()" class="space-y-2">

@@ -31,7 +31,7 @@
 
 </app-side-modal-layout>
 
-<app-modal-layout [formId]="'stampingMachineTypeForm'" (onCancel)="closeModelForm()">
+<app-modal-layout [formId]="'stampingMachineTypeForm'" [mode]="actionType" (onCancel)="closeModelForm()">
 
     <form id="stampingMachineTypeForm" [formGroup]="modelForm" (ngSubmit)="submit()">
         <fieldset [disabled]="showLoader()" class="space-y-2">

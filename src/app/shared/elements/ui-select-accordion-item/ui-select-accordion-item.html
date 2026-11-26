@@ -1,0 +1,36 @@
+<div [class]="`rounded-lg border transition-colors duration-200 ${selected ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-200' : 'border-slate-300 bg-white'}`">
+
+  <div class="flex items-stretch">
+
+    <button type="button" role="radio" [attr.aria-checked]="selected" [disabled]="disabled"
+      class="flex flex-1 min-w-0 items-center gap-3 rounded-lg px-3 py-3 text-left cursor-pointer disabled:cursor-default focus-visible:outline-2 focus-visible:outline-brand-500"
+      (click)="onSelect.emit()">
+
+      <span [class]="`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${selected ? 'border-brand-500' : 'border-slate-400'}`" aria-hidden="true">
+        @if (selected) {
+        <span class="h-2 w-2 rounded-full bg-brand-500"></span>
+        }
+      </span>
+
+      <span class="min-w-0 flex-1">
+        <ng-content select="[item-header]"></ng-content>
+      </span>
+
+    </button>
+
+    <button type="button"
+      class="flex w-11 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:text-brand-700 cursor-pointer focus-visible:outline-2 focus-visible:outline-brand-500"
+      [attr.aria-expanded]="expanded()" [attr.aria-controls]="bodyId" [attr.aria-label]="expandLabel"
+      (click)="expanded.set(!expanded())">
+      <app-ui-icon [iconName]="expanded() ? 'angleUp' : 'angleDown'" [class]="'h-4 w-4'"></app-ui-icon>
+    </button>
+
+  </div>
+
+  @if (expanded()) {
+  <div [id]="bodyId" class="border-t border-slate-200 px-3 py-3">
+    <ng-content select="[item-body]"></ng-content>
+  </div>
+  }
+
+</div>

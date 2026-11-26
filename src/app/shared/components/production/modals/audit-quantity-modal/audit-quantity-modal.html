@@ -1,5 +1,5 @@
 @if (visible()) {
-<app-box-layout [title]="isEditMode() ? 'Editar cantidad auditada' : 'Ingresar cantidad auditada'" [classNames]="'max-w-md'">
+<app-box-layout [purpose]="isEditMode() ? 'edit' : 'register'" [title]="isEditMode() ? 'Editar cantidad auditada' : 'Ingresar cantidad auditada'" [classNames]="'max-w-md'">
 
     <div box-content class="flex flex-col h-full min-h-0 items-center">
 

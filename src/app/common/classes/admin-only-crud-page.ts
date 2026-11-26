@@ -15,7 +15,7 @@ export abstract class AdminOnlyCrudPage<T extends BaseEntity> extends BaseCrudPa
   protected override get actions(): TableActions {
     if (this.isAdminModule) return super.actions;
     return {
-      view: { enabled: true, title: `Ver ${this.entityName}`, iconName: 'eye', toolTip: 'Ver' },
+      view: { enabled: true, title: this.entityTitle, iconName: 'eye', toolTip: 'Ver' },
       edit: { enabled: false },
       delete: { enabled: false },
       create: { enabled: false },
