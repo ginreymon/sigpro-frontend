@@ -21,6 +21,7 @@ import { UiDecimalInput } from '../../../shared/elements/ui-decimal-input/ui-dec
 import { UiCheckbox } from '../../../shared/elements/ui-checkbox/ui-checkbox';
 import { UiErrorMessage } from '../../../shared/elements/ui-error-message/ui-error-message';
 import { TableTemplate } from '../../../directives/table-template';
+import { UiFormSection } from '../../../shared/elements/ui-form-section/ui-form-section';
 
 /** Rejects text that is not valid JSON (empty is handled by `required`). */
 function jsonValidator(control: AbstractControl): ValidationErrors | null {
@@ -37,6 +38,7 @@ function jsonValidator(control: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-app-settings',
   imports: [
+    UiFormSection,
     WorkSpaceLayout,
     DataTable,
     SideModalLayout,

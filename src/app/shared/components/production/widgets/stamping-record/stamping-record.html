@@ -2,7 +2,7 @@
 <app-box-layout [title]="'Registro Hora'" [classNames]="'max-w-md'">
 
   <div box-content class="flex flex-col">
-    <app-ui-tabs class="w-full border-t border-slate-200 mt-4"
+    <app-ui-tabs class="w-full"
       [tabs]="tabsView"
       [activeKey]="activeTab()"
       (tabChange)="onTabChange($event)">
@@ -67,7 +67,7 @@
     }
   </div>
 
-  <div box-buttons class="w-full flex flex-row items-center gap-3 border-t border-slate-200 pt-4">
+  <div box-buttons class="w-full flex flex-row items-center gap-3">
     @if (!isOrderCompleted()) {
       <app-shift-cycles-fab
         [inWindow]="inWindow"

@@ -7,6 +7,7 @@ import { EmployeeService } from '../../../../../services/production/employee-ser
 import { LoaderService } from '../../../../../services/common/loader-service';
 import { EmployeePicker } from '../../widgets/employee-picker/employee-picker';
 import { finalize } from 'rxjs';
+import { UiFormSection } from '../../../../elements/ui-form-section/ui-form-section';
 
 export interface EmployeesSavePayload {
   ids: number[];
@@ -15,7 +16,7 @@ export interface EmployeesSavePayload {
 
 @Component({
   selector: 'app-employees-modal',
-  imports: [ModalLayout, UiErrorMessage, UiFormField, EmployeePicker],
+  imports: [ModalLayout, UiFormSection, UiErrorMessage, UiFormField, EmployeePicker],
   templateUrl: './employees-modal.html',
   styleUrl: './employees-modal.css',
 })

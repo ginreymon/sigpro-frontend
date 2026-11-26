@@ -26,8 +26,7 @@
     </div>
   </div>
 
-  <div class="mb-4 border-t border-slate-200 pt-4">
-    <h4 class="text-xl font-semibold text-gray-700 mb-2">Clasificación</h4>
+  <app-ui-form-section [title]="'Clasificación'">
     <div class="space-y-2 text-sm">
 
       <p><strong>Marca:</strong> {{ rowObject.brand }}</p>
@@ -49,10 +48,9 @@
       <p><strong>Canal:</strong> {{ rowObject.channel }}</p>
 
     </div>
-  </div>
+  </app-ui-form-section>
 
-  <div class="mb-4 border-t border-slate-200 pt-4">
-    <h4 class="text-xl font-semibold text-gray-700 mb-2">SAM</h4>
+  <app-ui-form-section [title]="'SAM'">
     <div class="space-y-2 text-sm">
       @if (rowObject.sam_value) {
       <p><strong> Valor SAM: </strong> <span class="font-semibold text-green-600">{{ rowObject.sam_value }}</span></p>
@@ -60,7 +58,7 @@
       <p class="text-slate-400 italic">Sin SAM asignado</p>
       }
     </div>
-  </div>
+  </app-ui-form-section>
 
   <app-metadata [rowObject]="samRecord()" [loading]="samRecordLoading()"></app-metadata>
 

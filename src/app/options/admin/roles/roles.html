@@ -59,9 +59,9 @@
 <app-modal-layout [formId]="'roleForm'" [classNames]="'max-w-2xl'" (onCancel)="closeModelForm()">
   <p modal-bottom class="text-xs text-slate-500">{{ selectedVisibleCount() }}/{{ totalOptionCount() }} opciones seleccionadas</p>
   <form id="roleForm" [formGroup]="modelForm" (ngSubmit)="submit()">  
-    <fieldset [disabled]="showLoader()">
+    <fieldset [disabled]="showLoader()" class="space-y-2">
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+      <app-ui-form-section [title]="'General'" [cols]="2">
         <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
           <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre'" [control]="name"></app-ui-input>
         </app-ui-form-field>
@@ -71,8 +71,9 @@
             [items]="homeViews()" [key]="'label'" [keyValue]="'id'" [showDefaultOption]="true"
             [placeholder]="'Sin vista asignada'"></app-ui-select>
         </app-ui-form-field>
-      </div>
+      </app-ui-form-section>
 
+      <app-ui-form-section [title]="'Accesos'">
       <app-ui-form-field [label]="'Accesos del rol'" [controlName]="'option_ids'">
           <div class="flex items-center justify-between gap-3 mb-2">
             <p class="text-xs text-slate-500">Marca los módulos o páginas que este rol puede usar.</p>
@@ -84,6 +85,7 @@
           <app-ui-tree #optionsTree [nodes]="optionTree()" [selected]="optionIds?.value ?? []" (selectedChange)="onOptionsChange($event)"
             [emptyText]="'No hay opciones disponibles'" [ariaLabel]="'Opciones del rol'"></app-ui-tree>
       </app-ui-form-field>
+      </app-ui-form-section>
 
       @if(errorMessage()){
         <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>

@@ -34,8 +34,9 @@
 <app-modal-layout [formId]="'stampingMachineTypeForm'" (onCancel)="closeModelForm()">
 
     <form id="stampingMachineTypeForm" [formGroup]="modelForm" (ngSubmit)="submit()">
-        <fieldset [disabled]="showLoader()">
+        <fieldset [disabled]="showLoader()" class="space-y-2">
 
+            <app-ui-form-section [title]="'Tipo de máquina'">
             <app-ui-form-field [controlName]="'name'" [label]="'Nombre'">
                 <app-ui-input formControlName="name" [id]="'name'" [placeholder]="'Nombre del tipo de máquina'" [control]="name"></app-ui-input>
             </app-ui-form-field>
@@ -45,6 +46,7 @@
                 <app-ui-checkbox formControlName="is_active" [control]="isActive" [id]="'is_active'"></app-ui-checkbox>
             </app-ui-form-field>
             }
+            </app-ui-form-section>
 
             @if(errorMessage()){
             <app-ui-error-message>{{ errorMessage() }}</app-ui-error-message>
