@@ -12,6 +12,13 @@
                         </span>
                     </app-ui-large-input>
                 </app-ui-form-field>
+                @if (isKg()) {
+                <app-ui-form-field [controlName]="metersControlName" [label]="'Metros equivalentes'">
+                    <app-ui-large-input [type]="'number'" [formControlName]="metersControlName" [placeholder]="'Metros'" [hasAddon]="true">
+                        <span right-addon class="text-gray-500">m</span>
+                    </app-ui-large-input>
+                </app-ui-form-field>
+                }
             </fieldset>
         </form>
 

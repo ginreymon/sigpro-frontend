@@ -15,10 +15,13 @@ export interface AuditedColorQuantity {
   quantity: number;
   orderedQty: number;
   skuRowIds: number[];
+  // CALANDRA only: meters equivalent to `quantity` (kg). Omitted for other orders.
+  meters?: number | null;
 }
 
 const PACKAGE_SIZE = 80;
 const QUANTITY_CONTROL = 'quantity';
+const METERS_CONTROL = 'meters';
 
 @Component({
   selector: 'app-audit-quantity-modal',
@@ -33,6 +36,7 @@ export class AuditQuantityModal {
   @Output() onSave = new EventEmitter<AuditedColorQuantity>();
 
   protected readonly quantityControlName = QUANTITY_CONTROL;
+  protected readonly metersControlName = METERS_CONTROL;
 
   protected visible = this.aqms.visible;
   protected productionOrder = this.aqms.productionOrder;
@@ -56,6 +60,8 @@ export class AuditQuantityModal {
 
   protected quantityForm: FormGroup = this.fb.group({
     [QUANTITY_CONTROL]: [null, [Validators.required, Validators.min(0), this.integerValidator]],
+    // Meters: only required (and shown) for CALANDRA; see the effect below.
+    [METERS_CONTROL]: [null, [Validators.min(0), this.twoDecimalsValidator]],
   });
 
   constructor() {
@@ -64,7 +70,14 @@ export class AuditQuantityModal {
     // nothing saved yet (fresh entry), matching isEditMode().
     effect(() => {
       if (this.aqms.visible()) {
-        this.quantityForm.reset({ [QUANTITY_CONTROL]: this.aqms.existingQuantity() });
+        const metersControl = this.quantityForm.get(METERS_CONTROL)!;
+        // Meters are mandatory for CALANDRA orders (kg unit) and unused otherwise.
+        if (this.isKg()) metersControl.addValidators(Validators.required);
+        else metersControl.removeValidators(Validators.required);
+        this.quantityForm.reset({
+          [QUANTITY_CONTROL]: this.aqms.existingQuantity(),
+          [METERS_CONTROL]: this.aqms.existingMeters(),
+        });
       }
     });
   }
@@ -95,6 +108,13 @@ export class AuditQuantityModal {
     return Number.isInteger(Number(value)) ? null : { notInteger: true };
   }
 
+  // Meters are stored with 2 decimals (DECIMAL(12,2)).
+  private twoDecimalsValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (value === null || value === undefined || value === '') return null;
+    return /^\d+(\.\d{1,2})?$/.test(String(value)) ? null : { tooManyDecimals: true };
+  }
+
   cancel(): void {
     this.aqms.close();
   }
@@ -108,6 +128,7 @@ export class AuditQuantityModal {
       quantity: Number(this.quantityForm.value[QUANTITY_CONTROL]),
       orderedQty: data.total,
       skuRowIds: data.skuRowIds,
+      ...(this.isKg() ? { meters: Number(this.quantityForm.value[METERS_CONTROL]) } : {}),
     });
     this.aqms.close();
   }

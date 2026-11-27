@@ -76,7 +76,7 @@
                     @for(col of customColumns; track col.templateName){
                     <td class="text-center">
                         <span class="text-gray-700 px-6 w-16 inline-flex justify-center items-center rounded-full font-semibold py-1">
-                            <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: skuColor.totals }"></ng-container>
+                            <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: skuColor.totals, color: skuColor.color }"></ng-container>
                         </span>
                     </td>
                     }
@@ -100,7 +100,7 @@
 
                     @for(col of customColumns; track col.templateName){
                     <td class="text-center text-gray-900">
-                        <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: filteredGrandTotal, colorsTotal: filteredColorsTotal }"></ng-container>
+                        <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: filteredGrandTotal, colorsTotal: filteredColorsTotal, colors: filteredSkuColors }"></ng-container>
                     </td>
                     }
                     @if(!hideTotalColumn){
@@ -176,7 +176,7 @@
                             {{ col.title }}
                         </span>
                         <span class="text-gray-700 px-6 w-16 inline-flex justify-center items-center rounded-full font-semibold py-1">
-                            <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: skuColor.totals }"></ng-container>
+                            <ng-container *ngTemplateOutlet="templateMap.get(col.templateName) ?? null; context: { $implicit: skuColor.totals, color: skuColor.color }"></ng-container>
                         </span>
                     </div>
                     }

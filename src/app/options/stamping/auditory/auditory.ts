@@ -188,6 +188,14 @@ export class StampingAuditory extends BaseProductionOrderPage {
     return allColorsMatch ? 'approved' : 'incomplete';
   });
 
+  // CALANDRA (kg unit) also needs the meters of every color before the audit can be approved;
+  // other machine types keep the plain allColorsAudited() rule. The API enforces it as well.
+  protected canApprove = computed(() => {
+    if (!this.allColorsAudited()) return false;
+    if (!this.quantityUnit()) return true;
+    return this.auditRecordsAll().every((r) => r.audited_meters != null);
+  });
+
   protected isConfirmed = computed(() => this.auditRecordsAll().some((r) => r.is_audited));
 
   // % of quantity audited — total ordered quantity across every color of the
@@ -375,8 +383,8 @@ export class StampingAuditory extends BaseProductionOrderPage {
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe((records) => {
         this.currentAuditRecords = records;
-        const existingQuantity = records.find((r) => r.color === color)?.audited_quantity ?? null;
-        this.auditQuantityModal.open(order, color, existingQuantity);
+        const existing = records.find((r) => r.color === color);
+        this.auditQuantityModal.open(order, color, existing?.audited_quantity ?? null, this.toMeters(existing?.audited_meters));
       });
   }
 
@@ -396,12 +404,26 @@ export class StampingAuditory extends BaseProductionOrderPage {
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe((records) => {
         this.currentAuditRecords = records;
+
+        // CALANDRA: meters are mandatory and typed by hand, so without saved meters the
+        // one-click check opens the modal instead of auditing with kg alone.
+        if (this.quantityUnit()) {
+          const meters = this.toMeters(records.find((r) => r.color === match.color)?.audited_meters);
+          if (meters === null) {
+            this.auditQuantityModal.open(order, match.color, null, null);
+            return;
+          }
+        }
+
         const quantity = Number(match.totals?.orderedQty) || 0;
         this.onAuditQuantitySaved({
           color: match.color,
           quantity,
           orderedQty: quantity,
           skuRowIds: match.skus.map((s) => s.skuRowId),
+          ...(this.quantityUnit()
+            ? { meters: this.toMeters(records.find((r) => r.color === match.color)?.audited_meters) }
+            : {}),
         });
       });
   }
@@ -449,8 +471,9 @@ export class StampingAuditory extends BaseProductionOrderPage {
           this.dialogService.openToast('Auditoría confirmada', `Se confirmó la auditoría de la OP ${order.documentNumber}.`, 'check');
           this.activeTab.set('tab2');
         },
-        error: () => {
-          this.dialogService.openToast('No se pudo confirmar', 'Error al confirmar la auditoría.', 'fail');
+        error: (err) => {
+          const message = err?.error?.audited_meters ?? 'Error al confirmar la auditoría.';
+          this.dialogService.openToast('No se pudo confirmar', message, 'fail');
         },
       });
   }
@@ -476,6 +499,8 @@ export class StampingAuditory extends BaseProductionOrderPage {
         sku_rowids: r.skuRowIds,
         ordered_quantity: r.orderedQty,
         audited_quantity: r.quantity,
+        // Only CALANDRA sends meters; for the rest the key is omitted and the payload is unchanged.
+        ...(r.meters !== undefined ? { audited_meters: r.meters } : {}),
       })),
     };
 
@@ -503,7 +528,14 @@ export class StampingAuditory extends BaseProductionOrderPage {
         quantity: r.audited_quantity,
         orderedQty: r.ordered_quantity,
         skuRowIds: r.sku_rowids,
+        // Keep the meters already saved for the colors that are not being edited.
+        ...(this.quantityUnit() ? { meters: this.toMeters(r.audited_meters) } : {}),
       }));
     return [...others, edited];
+  }
+
+  // The API returns DECIMAL as a string ("12.50"); null when no meters were saved.
+  private toMeters(value: number | string | null | undefined): number | null {
+    return value == null ? null : Number(value);
   }
 }

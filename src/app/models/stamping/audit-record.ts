@@ -9,6 +9,8 @@ export interface AuditRecord extends AuditEntity {
   sku_rowids: number[];
   ordered_quantity: number;
   audited_quantity: number;
+  // Meters entered manually for CALANDRA orders (decimal; the API returns it as a string). Null otherwise.
+  audited_meters: number | string | null;
   total_ordered_quantity: number;
   is_audited: boolean;
 
@@ -62,5 +64,6 @@ export interface AuditRecordBulkPayload {
     sku_rowids: number[];
     ordered_quantity: number;
     audited_quantity: number;
+    audited_meters?: number | null;
   }[];
 }

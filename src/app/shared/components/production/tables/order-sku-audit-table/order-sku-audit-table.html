@@ -30,6 +30,10 @@
 
                     <th class="px-6 py-3 title-font tracking-wider font-medium text-right">Auditada@if(unit){ ({{ unit }})}</th>
 
+                    @if(unit){
+                    <th class="px-6 py-3 title-font tracking-wider font-medium text-right">Metros (m)</th>
+                    }
+
                     @if(hasAnyAction){
                     <th class="px-6 py-3 title-font tracking-wider font-medium text-center">Acciones</th>
                     }
@@ -60,6 +64,10 @@
                         </div>
                     </td>
 
+                    @if(unit){
+                    <td class="px-6 py-3 text-right font-semibold">{{ auditedMeters(row.color) ?? '' }}</td>
+                    }
+
                     @if(hasAnyAction){
                     <td class="px-6 py-3">
                         <div class="inline-flex items-center justify-center gap-3 w-full">
@@ -86,7 +94,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td [attr.colspan]="displaySizes.length + 3 + (hasAnyAction ? 1 : 0)">
+                    <td [attr.colspan]="displaySizes.length + 3 + (unit ? 1 : 0) + (hasAnyAction ? 1 : 0)">
                         <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
                             <app-ui-icon [iconName]="'magnifyingGlass'" class="h-12 w-12"></app-ui-icon>
                             <p class="text-sm text-gray-400 font-normal">No hay registros para mostrar</p>
@@ -117,6 +125,10 @@
                             </app-ui-icon>
                         </div>
                     </td>
+
+                    @if(unit){
+                    <td class="px-6 py-3 text-right font-semibold">{{ formatTotal(footerMeters) }}</td>
+                    }
 
                     @if(hasAnyAction){
                     <td class="px-6 py-3"></td>
@@ -175,6 +187,13 @@
                             </app-ui-icon>
                         </span>
                     </div>
+
+                    @if(unit){
+                    <div class="flex justify-between items-center text-sm min-h-11 py-1.5">
+                        <span class="text-gray-500">Metros (m)</span>
+                        <span class="font-semibold">{{ auditedMeters(row.color) ?? '' }}</span>
+                    </div>
+                    }
 
                     @if(hasAnyAction){
                     <div class="flex justify-between items-center text-sm min-h-11 py-1.5">

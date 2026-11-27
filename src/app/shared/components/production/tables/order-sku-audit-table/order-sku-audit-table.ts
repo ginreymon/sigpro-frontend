@@ -104,6 +104,16 @@ export class OrderSkuAuditTable {
     return this.auditByColor.get(color)?.audited_quantity ?? null;
   }
 
+  // Meters (CALANDRA, i.e. when `unit` is set) are a separate manual value, never mixed with the kg above.
+  protected auditedMeters(color: string): number | null {
+    const meters = this.auditByColor.get(color)?.audited_meters;
+    return meters == null ? null : Number(meters);
+  }
+
+  protected get footerMeters(): number {
+    return this.filteredRows.reduce((sum, r) => sum + (this.auditedMeters(r.color) ?? 0), 0);
+  }
+
   // Footer totals — always sum the currently filtered rows (not the full
   // unfiltered set), so the footer stays consistent with what's on screen
   // when the Color SKU filter narrows the rows.

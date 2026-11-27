@@ -18,6 +18,8 @@ import { StampingRecord as StampingRecordModel } from '../../../../../models/sta
 import { OPStampingService } from '../../../../../services/stamping/op-stamping-service';
 import { filterByMachineType } from '../../../../../common/functions/additional-time-filters';
 import { StampingRecordService } from '../../../../../services/stamping/stamping-record-service';
+import { AuditRecordService } from '../../../../../services/stamping/audit-record-service';
+import { AuditRecord } from '../../../../../models/stamping/audit-record';
 import { ProductionContext } from '../../../../../models/production/production-context';
 import { BaseProductionOrderPage } from '../../../../../common/classes/base-production-order-page';
 import { parseSessionErrors } from '../../../../../common/functions/session-errors';
@@ -57,6 +59,7 @@ export class ShiftCycles extends BaseProductionOrderPage {
   private appConfig = inject(AppConfigService);
   private productionRecordService = inject(ProductionRecordService);
   private stampingRecordService = inject(StampingRecordService);
+  private auditRecordService = inject(AuditRecordService);
   private opStampingService = inject(OPStampingService);
   recentRecordsService: RecentRecordsService | null =
     this.config.showStampingRecord ? this.stampingRecordService : null;
@@ -141,11 +144,49 @@ export class ShiftCycles extends BaseProductionOrderPage {
   // converted to kg in colorRows[].totals, so the column only displays it.
   stampingCustomColumns = computed<ProductionTableCustomColumn[]>(() => {
     if (this.usesProcessesSearch()) {
-      return [{ title: 'Metros', tooltip: 'Total en metros por color', templateName: 'kg' }];
+      // kg and meters are different measures: ordered kg (ERP), audited kg and the meters
+      // typed during the audit each get their own column.
+      return [
+        { title: 'Kg', tooltip: 'Kg ordenados por color', templateName: 'kg' },
+        { title: 'Kg aud.', tooltip: 'Kg auditados por color', templateName: 'auditedKg' },
+        { title: 'Metros', tooltip: 'Metros registrados en la auditoría por color', templateName: 'auditedMeters' },
+      ];
     }
     if (this.totalStampingFactor() == null) return [];
     return [{ title: 'Piezas', tooltip: 'Piezas a estampar', templateName: 'piezas' }];
   });
+
+  // Persisted audit rows (one per color) of the loaded OP — only fetched for processes orders
+  // (CALANDRA), where they feed the "Kg aud." and "Metros" columns.
+  private auditRecords = signal<AuditRecord[]>([]);
+
+  override setDocument(doc: ProductionOrder | null): void {
+    super.setDocument(doc);
+    this.auditRecords.set([]);
+    if (!doc || !this.usesProcessesSearch()) return;
+    this.auditRecordService
+      .all({ op_number: doc.documentNumber, op_rowid: doc.rowId, op_type: doc.documentType })
+      .subscribe((records) => this.auditRecords.set(records));
+  }
+
+  // null when the color has no saved audit (or no meters yet).
+  auditedKg(color: string): number | null {
+    return this.auditRecords().find((r) => r.color === color)?.audited_quantity ?? null;
+  }
+
+  auditedMeters(color: string): number | null {
+    const meters = this.auditRecords().find((r) => r.color === color)?.audited_meters;
+    return meters == null ? null : Number(meters);
+  }
+
+  // Footer sums over the colors currently visible in the table.
+  sumAuditedKg(colors: { color: string }[]): number {
+    return colors.reduce((sum, c) => sum + (this.auditedKg(c.color) ?? 0), 0);
+  }
+
+  sumAuditedMeters(colors: { color: string }[]): number {
+    return colors.reduce((sum, c) => sum + (this.auditedMeters(c.color) ?? 0), 0);
+  }
 
   contextDocTypes = computed(() => this.context()?.docTypes ?? []);
 

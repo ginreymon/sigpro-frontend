@@ -41,6 +41,14 @@
                         <!-- Rows: per-color kg. Footer: sum of the visible colors' kg (filteredGrandTotal is in meters). -->
                         <p class="text-green-600">{{ (colorsTotal ?? totals).orderedQty | number: '1.0-2' }}</p>
                     </ng-template>
+                    <ng-template appTableTemplate="auditedKg" let-totals let-color="color" let-colors="colors">
+                        <!-- Persisted audited kg: per color in rows, sum of the visible colors in the footer. -->
+                        <p class="text-green-600">{{ (color !== undefined ? page().auditedKg(color) : page().sumAuditedKg(colors ?? [])) | number: '1.0-2' }}</p>
+                    </ng-template>
+                    <ng-template appTableTemplate="auditedMeters" let-totals let-color="color" let-colors="colors">
+                        <!-- Persisted meters typed during the audit (separate from kg). -->
+                        <p class="text-green-600">{{ (color !== undefined ? page().auditedMeters(color) : page().sumAuditedMeters(colors ?? [])) | number: '1.0-2' }}</p>
+                    </ng-template>
                 </app-production-orders-table>
                 </div>
                 } @else {
