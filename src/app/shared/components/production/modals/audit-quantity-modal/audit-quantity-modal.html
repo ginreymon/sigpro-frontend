@@ -7,7 +7,9 @@
             <fieldset>
                 <app-ui-form-field [controlName]="quantityControlName" [label]="colorData()?.color ?? ''">
                     <app-ui-large-input [type]="'number'" [formControlName]="quantityControlName" [placeholder]="'Total: ' + (colorData()?.total ?? 0)" [hasAddon]="true">
-                        <span right-addon [class]="matches() ? 'text-green-600' : 'text-red-500'">{{ packages() }} paq / {{ remainder() }} unid</span>
+                        <span right-addon [class]="matches() ? 'text-green-600' : 'text-red-500'">
+                            @if (isKg()) { kg } @else { {{ packages() }} paq / {{ remainder() }} unid }
+                        </span>
                     </app-ui-large-input>
                 </app-ui-form-field>
             </fieldset>
@@ -17,7 +19,7 @@
         <app-ui-success-message class="w-full">Arqueo completo.</app-ui-success-message>
         } @else if (missing() !== 0) {
         <app-ui-error-message class="w-full">
-            {{ missing() > 0 ? 'Faltan ' + missing() : 'Sobran ' + -missing() }} unidades por ingresar.
+            {{ missing() > 0 ? 'Faltan ' + missing() : 'Sobran ' + -missing() }} {{ isKg() ? 'kg' : 'unidades' }} por ingresar.
         </app-ui-error-message>
         }
 
@@ -28,7 +30,7 @@
                     <p class="text-m font-semibold mb-1 text-slate-700">{{ productionOrder()?.documentNumber }}</p>
                 </div>
                 <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
-                    <h3 class="text-gray-700 text-xs">Ingresado</h3>
+                    <h3 class="text-gray-700 text-xs">Ingresado{{ isKg() ? ' (kg)' : '' }}</h3>
                     <p [class]="'text-m font-semibold mb-1 ' + (matches() ? 'text-green-600' : 'text-red-500')">{{ enteredQty() }}</p>
                 </div>
                 <div class="h-full flex flex-col items-start border-l px-2 border-gray-400">
@@ -36,7 +38,7 @@
                     <p class="text-m font-semibold mb-1 text-slate-700">{{ packages() }}</p>
                 </div>
                 <div class="h-full flex flex-col items-end border-l pl-2 border-gray-400">
-                    <h3 class="text-gray-700 text-xs">Total color</h3>
+                    <h3 class="text-gray-700 text-xs">Total color{{ isKg() ? ' (kg)' : '' }}</h3>
                     <p class="text-m font-semibold mb-1 text-slate-900">{{ colorData()?.total ?? 0 }}</p>
                 </div>
             </div>

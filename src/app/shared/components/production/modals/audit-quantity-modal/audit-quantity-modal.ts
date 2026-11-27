@@ -8,6 +8,7 @@ import { UiErrorMessage } from '../../../../elements/ui-error-message/ui-error-m
 import { UiSuccessMessage } from '../../../../elements/ui-success-message/ui-success-message';
 import { ProgressBar } from '../../../widgets/progress-bar/progress-bar';
 import { AuditQuantityModalService } from '../../../../../services/common/audit-quantity-modal-service';
+import { isProcessesOrder } from '../../../../../common/functions/processes-machine-type';
 
 export interface AuditedColorQuantity {
   color: string;
@@ -36,6 +37,8 @@ export class AuditQuantityModal {
   protected visible = this.aqms.visible;
   protected productionOrder = this.aqms.productionOrder;
   protected isEditMode = computed(() => this.aqms.existingQuantity() !== null);
+  // Processes orders (CALANDRA) are audited in kg; the package split only applies to units.
+  protected isKg = computed(() => isProcessesOrder(this.productionOrder()?.referenceSams));
 
   // The single color being audited — never the full order color set.
   protected colorData = computed(() => {

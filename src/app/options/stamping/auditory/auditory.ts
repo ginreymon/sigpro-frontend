@@ -29,6 +29,7 @@ import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { TableTemplate } from '../../../directives/table-template';
 import { SHIFT_CYCLES_CONFIG } from '../../../common/const/shift-cycles-config';
+import { isProcessesOrder } from '../../../common/functions/processes-machine-type';
 
 const TABS: TabItem[] = [
   { key: 'tab1', label: 'Orden OP' },
@@ -43,9 +44,10 @@ const TABS: TabItem[] = [
 export class StampingAuditory extends BaseProductionOrderPage {
   protected override loadExtras = false;
   // Same source as shift-cycles: stamping-orders/detail already carries everything, so the generic
-  // production-orders/detail is not requested on the deep-link path.
+  // production-orders/detail is not requested on the deep-link path. Processes machines (CALANDRA)
+  // are detected from the SAM machine type and loaded from production-orders/processes.
   protected override orderLoader = (docType: string, docNumber: number) =>
-    this.opStampingService.getOrderDetail(docType, docNumber);
+    this.opStampingService.getOrderByMachineType(docType, docNumber);
 
   // OP search here is by number only, across doc types — same traceability
   // lookup used by the stamping module's shift-cycles searcher.
@@ -102,9 +104,18 @@ export class StampingAuditory extends BaseProductionOrderPage {
     return orderedQty * sam.stamped_pieces;
   });
 
-  protected headerExtraCards = computed(() => [
-    { title: 'Piezas a estampar', data: this.piecesToStamp() != null ? String(this.piecesToStamp()) : 'No configurado' },
-  ]);
+  // Processes machines (CALANDRA) measure the order in kg: every quantity on this page is kg.
+  protected quantityUnit = computed<string | null>(() =>
+    isProcessesOrder(this.productionOrder()?.referenceSams) ? 'kg' : null,
+  );
+
+  protected headerExtraCards = computed(() => {
+    if (this.quantityUnit()) {
+      const kg = this.productionOrder()?.orderedQty;
+      return [{ title: 'Kg a estampar', data: kg != null ? String(kg) : 'No configurado' }];
+    }
+    return [{ title: 'Piezas a estampar', data: this.piecesToStamp() != null ? String(this.piecesToStamp()) : 'No configurado' }];
+  });
 
   // "Auditoría" tab — global list of every OP already confirmed
   // (is_audited=True), independent of whichever OP is loaded in "Orden OP".

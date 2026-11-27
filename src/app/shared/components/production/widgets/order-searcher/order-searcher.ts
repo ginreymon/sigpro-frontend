@@ -60,6 +60,8 @@ export class OrderSearcher implements OnInit {
   // namespace /stamping/ — nunca caer al genérico /production/production-orders/detail,
   // aunque el módulo no tenga uses_processes_search. Ver fetchOrder().
   @Input() useStampingDetail = false;
+  // Pages without a module session (auditory) pick the loader from the order's SAM machine type instead.
+  @Input() resolveByMachineType = false;
 
   protected visibleDoctypes = computed(() =>
     this.restrictToOpAndOpt()
@@ -121,6 +123,7 @@ export class OrderSearcher implements OnInit {
   // el fallback tampoco debe salirse a /production/production-orders/detail:
   // usa /stamping/stamping-orders/detail (mismo dato + orderedQty/referenceSams).
   private fetchOrder(docType: string, docNumber: number): Observable<ProductionOrder> {
+    if (this.resolveByMachineType) return this.opStampingService.getOrderByMachineType(docType, docNumber);
     const usesProcessesSearch = this.contextService.snapshot?.session?.current_module?.machine?.uses_processes_search;
     if (usesProcessesSearch) return this.opStampingService.getProductionOrderProcesses(docType, docNumber);
     if (this.useStampingDetail) return this.opStampingService.getOrderDetail(docType, docNumber);

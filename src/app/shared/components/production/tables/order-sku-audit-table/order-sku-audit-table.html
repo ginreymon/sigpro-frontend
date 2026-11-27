@@ -18,7 +18,7 @@
                         </div>
                     </th>
 
-                    @for(size of sizes; track size){
+                    @for(size of displaySizes; track size){
                     <th class="title-font tracking-wider font-medium text-center px-8">
                         <span class="text-gray-700 bg-gray-100 px-6 w-16 inline-flex justify-center items-center rounded-full text-xs font-semibold py-1">
                             {{ size }}
@@ -26,9 +26,9 @@
                     </th>
                     }
 
-                    <th class="px-6 py-3 title-font tracking-wider font-medium text-right">Total</th>
+                    <th class="px-6 py-3 title-font tracking-wider font-medium text-right">Total@if(unit){ ({{ unit }})}</th>
 
-                    <th class="px-6 py-3 title-font tracking-wider font-medium text-right">Auditada</th>
+                    <th class="px-6 py-3 title-font tracking-wider font-medium text-right">Auditada@if(unit){ ({{ unit }})}</th>
 
                     @if(hasAnyAction){
                     <th class="px-6 py-3 title-font tracking-wider font-medium text-center">Acciones</th>
@@ -42,7 +42,7 @@
 
                     <td class="px-6 py-3 font-medium">{{ row.color }}</td>
 
-                    @for(size of sizes; track size){
+                    @for(size of displaySizes; track size){
                     <td class="text-center">{{ row[size] }}</td>
                     }
 
@@ -86,7 +86,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td [attr.colspan]="sizes.length + 3 + (hasAnyAction ? 1 : 0)">
+                    <td [attr.colspan]="displaySizes.length + 3 + (hasAnyAction ? 1 : 0)">
                         <div class="flex flex-col items-center justify-center min-h-36 gap-3 text-gray-300">
                             <app-ui-icon [iconName]="'magnifyingGlass'" class="h-12 w-12"></app-ui-icon>
                             <p class="text-sm text-gray-400 font-normal">No hay registros para mostrar</p>
@@ -100,7 +100,7 @@
                 <tr>
                     <td class="px-6 py-3 font-semibold">TOTAL</td>
 
-                    @for(size of sizes; track size){
+                    @for(size of displaySizes; track size){
                     <td class="text-center font-semibold">{{ footerSizeTotal(size) }}</td>
                     }
 
@@ -139,7 +139,7 @@
                     <app-ui-icon [iconName]="'filter'" [class]="'w-3.5 h-3.5'"></app-ui-icon>
                 </button>
             </span>
-            <span>Total</span>
+            <span>Total@if(unit){ ({{ unit }})}</span>
         </div>
 
         <div class="divide-y divide-gray-200">
@@ -154,7 +154,7 @@
                 </summary>
 
                 <div class="pl-10 pr-4 divide-y divide-gray-200 bg-gray-50">
-                    @for(size of sizes; track size){
+                    @for(size of displaySizes; track size){
                     <div class="flex justify-between items-center text-sm min-h-11 py-1.5">
                         <span class="text-gray-700 bg-gray-100 px-4 w-14 inline-flex justify-center items-center rounded-full text-xs font-semibold py-1">
                             {{ size }}
@@ -164,7 +164,7 @@
                     }
 
                     <div class="flex justify-between items-center text-sm min-h-11 py-1.5">
-                        <span class="text-gray-500">Auditada</span>
+                        <span class="text-gray-500">Auditada@if(unit){ ({{ unit }})}</span>
                         <span class="inline-flex items-center gap-2">
                             <span [class]="'font-semibold ' + (matchesTotal(row) === true ? 'text-green-600' : matchesTotal(row) === false ? 'text-red-600' : '')">
                                 {{ auditedQty(row.color) ?? '' }}
@@ -210,7 +210,7 @@
         </div>
 
         <div class="flex justify-between items-center px-4 py-3 bg-gray-100 text-gray-800 sticky bottom-0 z-20 text-sm font-semibold">
-            <span>Total</span>
+            <span>Total@if(unit){ ({{ unit }})}</span>
             <span class="flex items-center gap-4">
                 <span>{{ footerTotal }}</span>
                 <span class="text-gray-500 font-normal inline-flex items-center gap-1">

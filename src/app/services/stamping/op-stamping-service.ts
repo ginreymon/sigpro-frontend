@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of, switchMap } from 'rxjs';
+import { isProcessesOrder } from '../../common/functions/processes-machine-type';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { StampingOrderDetail } from '../../models/stamping/stamping-order-detail';
@@ -41,6 +42,16 @@ export class OPStampingService {
   getOrderDetail(docType: string, docNumber: number): Observable<StampingOrderDetail> {
     const params = new HttpParams().set('type', docType).set('number', docNumber);
     return this.http.get<StampingOrderDetail>(`${this.path}/stamping-orders/detail/`, { params });
+  }
+
+  // Loads the stamping detail (its referenceSams carry the machine type) and, when the order belongs
+  // to a processes machine (e.g. CALANDRA), reloads it from production-orders/processes. Works for OP and OPT.
+  getOrderByMachineType(docType: string, docNumber: number): Observable<StampingOrderDetail> {
+    return this.getOrderDetail(docType, docNumber).pipe(
+      switchMap((detail) =>
+        isProcessesOrder(detail.referenceSams) ? this.getProductionOrderProcesses(docType, docNumber) : of(detail),
+      ),
+    );
   }
 
   getTraceability(docNumber: number, docType?: string | null): Observable<OrderTraceability[]> {

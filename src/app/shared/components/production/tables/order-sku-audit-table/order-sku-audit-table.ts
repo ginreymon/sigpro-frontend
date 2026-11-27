@@ -26,6 +26,13 @@ export class OrderSkuAuditTable {
   protected sizes: string[] = [];
   protected rows: OpColorRow[] = [];
 
+  // Quantity unit suffix for the Total/Auditada headers (e.g. 'kg'). When set, the order has no real
+  // size breakdown (processes orders carry one synthetic row per color), so the size columns are hidden.
+  @Input() unit: string | null = null;
+
+  protected get displaySizes(): string[] {
+    return this.unit ? [] : this.sizes;
+  }
   private auditByColor = new Map<string, AuditRecord>();
 
   @Input() set auditRecords(records: AuditRecord[] | null) {
