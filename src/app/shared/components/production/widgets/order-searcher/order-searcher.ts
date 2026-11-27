@@ -4,7 +4,7 @@ import { UiFormField } from '../../../../elements/ui-form-field/ui-form-field';
 import { UiInput } from '../../../../elements/ui-input/ui-input';
 import { UiSelect } from '../../../../elements/ui-select/ui-select';
 import { DocType } from '../../../../../models/production/doc-type';
-import { finalize, Observable } from 'rxjs';
+import { finalize, Observable, switchMap } from 'rxjs';
 import { ProductionOrderService } from '../../../../../services/production/production-order-service';
 import { WorkSpaceLoaderService } from '../../../../../services/common/work-space-loader-service';
 import { UiIcon } from '../../../../elements/ui-icon/ui-icon';
@@ -146,8 +146,11 @@ export class OrderSearcher implements OnInit {
     if (this.traceabilityMode) {
       this.results.set([]);
       const { documentType, documentNumber } = this.orderForm.value;
-      this.opStampingService
-        .getTraceability(documentNumber, documentType)
+      // The settings map is empty until loaded; without this, a direct visit to the page leaves
+      // showAllProductionOrders false and hides OPs with status 0/3. load() is cached (shareReplay).
+      this.appConfig
+        .load()
+        .pipe(switchMap(() => this.opStampingService.getTraceability(documentNumber, documentType)))
         .subscribe({
           next: (ops) => {
             const activeOps = this.appConfig.showAllProductionOrders
