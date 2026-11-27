@@ -29,7 +29,7 @@ import { TableActions } from '../../../common/interfaces/table-actions';
 import { TableActionEvent } from '../../../common/interfaces/table-action-event';
 import { TableTemplate } from '../../../directives/table-template';
 import { SHIFT_CYCLES_CONFIG } from '../../../common/const/shift-cycles-config';
-import { isProcessesOrder } from '../../../common/functions/processes-machine-type';
+import { getQuantityUnit } from '../../../common/functions/processes-machine-type';
 
 const TABS: TabItem[] = [
   { key: 'tab1', label: 'Orden OP' },
@@ -105,14 +105,12 @@ export class StampingAuditory extends BaseProductionOrderPage {
   });
 
   // Processes machines (CALANDRA) measure the order in kg: every quantity on this page is kg.
-  protected quantityUnit = computed<string | null>(() =>
-    isProcessesOrder(this.productionOrder()?.referenceSams) ? 'kg' : null,
-  );
+  protected quantityUnit = computed<string | null>(() => getQuantityUnit(this.productionOrder()?.referenceSams));
 
   protected headerExtraCards = computed(() => {
     if (this.quantityUnit()) {
       const kg = this.productionOrder()?.orderedQty;
-      return [{ title: 'Kg a estampar', data: kg != null ? String(kg) : 'No configurado' }];
+      return [{ title: 'Total a auditar', data: kg != null ? `${kg} ${this.quantityUnit()}` : 'No configurado' }];
     }
     return [{ title: 'Piezas a estampar', data: this.piecesToStamp() != null ? String(this.piecesToStamp()) : 'No configurado' }];
   });
@@ -160,6 +158,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
   // OP-level totals) plus the row's own audit metadata.
   protected selectedAuditedOp = signal<AuditedOpSummary | null>(null);
   protected selectedAuditedOpRecords = signal<AuditRecord[]>([]);
+  protected selectedAuditedOpUnit = signal<string | null>(null);
 
   protected hasAuditRecords = computed(() => this.auditRecordsAll().length > 0);
 
@@ -310,12 +309,16 @@ export class StampingAuditory extends BaseProductionOrderPage {
     if (row.op_number == null || row.op_rowid == null || row.op_type == null) return;
 
     this.loaderService.showLoader();
-    this.auditRecordService
-      .all({ op_number: row.op_number, op_rowid: row.op_rowid, op_type: row.op_type })
+    forkJoin({
+      records: this.auditRecordService.all({ op_number: row.op_number, op_rowid: row.op_rowid, op_type: row.op_type }),
+      // The audited-ops list carries no machine type: read it from the order's SAMs to pick the unit.
+      detail: this.opStampingService.getOrderDetail(row.op_type, row.op_number).pipe(catchError(() => of(null))),
+    })
       .pipe(finalize(() => this.loaderService.hideLoader()))
-      .subscribe((records) => {
+      .subscribe(({ records, detail }) => {
         this.selectedAuditedOp.set(row);
         this.selectedAuditedOpRecords.set(records);
+        this.selectedAuditedOpUnit.set(getQuantityUnit(detail?.referenceSams));
         this.dialogService.openSideModal('Auditoría', 'Cerrar');
       });
   }

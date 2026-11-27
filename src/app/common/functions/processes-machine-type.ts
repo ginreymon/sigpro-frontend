@@ -10,3 +10,9 @@ export function isProcessesOrder(referenceSams?: Pick<StampingReferenceSam, 'mac
     (sam) => !!sam.machine_type_name && PROCESSES_MACHINE_TYPE_NAMES.includes(sam.machine_type_name.trim().toUpperCase()),
   );
 }
+
+// Single place that decides the unit quantities are shown in: 'kg' for processes machines, null (the
+// existing unit) otherwise. Quantities from production-orders/processes already arrive in kg: never convert.
+export function getQuantityUnit(referenceSams?: Pick<StampingReferenceSam, 'machine_type_name'>[] | null): string | null {
+  return isProcessesOrder(referenceSams) ? 'kg' : null;
+}
