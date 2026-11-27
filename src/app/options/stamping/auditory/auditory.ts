@@ -132,9 +132,9 @@ export class StampingAuditory extends BaseProductionOrderPage {
     { field: 'updated_at', label: 'Fecha', type: 'template', templateName: 'auditedAtTemplate' },
     { field: 'op_type', label: 'Tipo OP' },
     { field: 'op_number', label: 'N° OP' },
-    { field: 'cut_completed', label: 'Estado en corte', type: 'template', templateName: 'cutStatusTemplate', align: 'center', filterValue: (row) => this.cutStatus(row).label },
+    { field: 'cut_completed', label: 'TP corte', type: 'template', templateName: 'cutStatusTemplate', align: 'center', filterValue: (row) => this.cutStatus(row).label },
     { field: 'matches_total', label: 'Resultado', type: 'template', templateName: 'matchesTotalTemplate', align: 'center' },
-    { field: 'is_audited', label: 'Estado de auditoría', type: 'template', templateName: 'auditStatusTemplate', align: 'center' },
+    { field: 'total_ordered_quantity', label: 'Cant Ordenada', align: 'center' },
   ];
 
   protected auditedOpsActions: TableActions = {
