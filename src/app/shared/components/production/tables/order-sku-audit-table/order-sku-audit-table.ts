@@ -33,6 +33,12 @@ export class OrderSkuAuditTable {
   protected get displaySizes(): string[] {
     return this.unit ? [] : this.sizes;
   }
+
+  // Quantities with a unit (processes machines) are decimals: summing them in floating point leaves
+  // artifacts like 248.20000000000002, so footer totals are shown with fixed 2 decimals. Other orders unchanged.
+  protected formatTotal(value: number): string | number {
+    return this.unit ? value.toFixed(2) : value;
+  }
   private auditByColor = new Map<string, AuditRecord>();
 
   @Input() set auditRecords(records: AuditRecord[] | null) {

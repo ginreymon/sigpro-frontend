@@ -22,4 +22,8 @@ export interface ProductionOrder extends BaseDocument, BaseProduct, AuditInfo {
   // Only present when the order was resolved via production-orders/processes:
   // true if the backend generated itemId in colorRows[].items.
   hasItemId?: boolean;
+  // Only present when resolved via production-orders/processes; null when the reference has no
+  // single machine type.
+  machineTypeId?: number | null;
+  machineTypeName?: string | null;
 }

@@ -38,7 +38,7 @@ export class AuditQuantityModal {
   protected productionOrder = this.aqms.productionOrder;
   protected isEditMode = computed(() => this.aqms.existingQuantity() !== null);
   // Processes orders (CALANDRA) are audited in kg; the package split only applies to units.
-  protected isKg = computed(() => getQuantityUnit(this.productionOrder()?.referenceSams) === 'kg');
+  protected isKg = computed(() => getQuantityUnit(this.productionOrder()) === 'kg');
 
   // The single color being audited — never the full order color set.
   protected colorData = computed(() => {

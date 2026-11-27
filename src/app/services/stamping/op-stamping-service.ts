@@ -49,7 +49,7 @@ export class OPStampingService {
   getOrderByMachineType(docType: string, docNumber: number): Observable<StampingOrderDetail> {
     return this.getOrderDetail(docType, docNumber).pipe(
       switchMap((detail) =>
-        isProcessesOrder(detail.referenceSams) ? this.getProductionOrderProcesses(docType, docNumber) : of(detail),
+        isProcessesOrder(detail) ? this.getProductionOrderProcesses(docType, docNumber) : of(detail),
       ),
     );
   }

@@ -105,7 +105,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
   });
 
   // Processes machines (CALANDRA) measure the order in kg: every quantity on this page is kg.
-  protected quantityUnit = computed<string | null>(() => getQuantityUnit(this.productionOrder()?.referenceSams));
+  protected quantityUnit = computed<string | null>(() => getQuantityUnit(this.productionOrder()));
 
   protected headerExtraCards = computed(() => {
     if (this.quantityUnit()) {
@@ -318,7 +318,7 @@ export class StampingAuditory extends BaseProductionOrderPage {
       .subscribe(({ records, detail }) => {
         this.selectedAuditedOp.set(row);
         this.selectedAuditedOpRecords.set(records);
-        this.selectedAuditedOpUnit.set(getQuantityUnit(detail?.referenceSams));
+        this.selectedAuditedOpUnit.set(getQuantityUnit(detail));
         this.dialogService.openSideModal('Auditoría', 'Cerrar');
       });
   }

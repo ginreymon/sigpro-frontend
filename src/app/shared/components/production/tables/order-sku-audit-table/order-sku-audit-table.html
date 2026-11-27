@@ -104,12 +104,12 @@
                     <td class="text-center font-semibold">{{ footerSizeTotal(size) }}</td>
                     }
 
-                    <td class="px-6 py-3 text-right font-semibold">{{ footerTotal }}</td>
+                    <td class="px-6 py-3 text-right font-semibold">{{ formatTotal(footerTotal) }}</td>
 
                     <td class="px-6 py-3 text-right">
                         <div class="inline-flex items-center justify-end gap-2">
                             <span [class]="'font-semibold ' + (footerMatchesTotal === true ? 'text-green-600' : footerMatchesTotal === false ? 'text-red-600' : '')">
-                                {{ footerAudited }}
+                                {{ formatTotal(footerAudited) }}
                             </span>
                             <app-ui-icon
                                 [iconName]="footerMatchesTotal === false ? 'xmark' : 'check'"
@@ -212,11 +212,11 @@
         <div class="flex justify-between items-center px-4 py-3 bg-gray-100 text-gray-800 sticky bottom-0 z-20 text-sm font-semibold">
             <span>Total@if(unit){ ({{ unit }})}</span>
             <span class="flex items-center gap-4">
-                <span>{{ footerTotal }}</span>
+                <span>{{ formatTotal(footerTotal) }}</span>
                 <span class="text-gray-500 font-normal inline-flex items-center gap-1">
                     Auditada:
                     <span [class]="footerMatchesTotal === true ? 'text-green-600 font-semibold' : footerMatchesTotal === false ? 'text-red-600 font-semibold' : ''">
-                        {{ footerAudited }}
+                        {{ formatTotal(footerAudited) }}
                     </span>
                     <app-ui-icon
                         [iconName]="footerMatchesTotal === false ? 'xmark' : 'check'"
